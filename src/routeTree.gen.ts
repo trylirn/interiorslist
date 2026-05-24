@@ -9,50 +9,288 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as SiteRouteImport } from './routes/_site'
+import { Route as SiteIndexRouteImport } from './routes/_site.index'
+import { Route as SiteSubmitRouteImport } from './routes/_site.submit'
+import { Route as SiteSearchRouteImport } from './routes/_site.search'
+import { Route as SiteLoginRouteImport } from './routes/_site.login'
+import { Route as SiteFavoritesRouteImport } from './routes/_site.favorites'
+import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
+import { Route as SiteContactRouteImport } from './routes/_site.contact'
+import { Route as SiteAboutRouteImport } from './routes/_site.about'
+import { Route as ApiPublicSeedRouteImport } from './routes/api.public.seed'
+import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
+import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
 
-const IndexRoute = IndexRouteImport.update({
+const SiteRoute = SiteRouteImport.update({
+  id: '/_site',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SiteIndexRoute = SiteIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteSubmitRoute = SiteSubmitRouteImport.update({
+  id: '/submit',
+  path: '/submit',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteSearchRoute = SiteSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteLoginRoute = SiteLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteFavoritesRoute = SiteFavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteDashboardRoute = SiteDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteContactRoute = SiteContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteAboutRoute = SiteAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => SiteRoute,
+} as any)
+const ApiPublicSeedRoute = ApiPublicSeedRouteImport.update({
+  id: '/api/public/seed',
+  path: '/api/public/seed',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SiteTxCityRoute = SiteTxCityRouteImport.update({
+  id: '/tx/$city',
+  path: '/tx/$city',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteProviderSlugRoute = SiteProviderSlugRouteImport.update({
+  id: '/provider/$slug',
+  path: '/provider/$slug',
+  getParentRoute: () => SiteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof SiteIndexRoute
+  '/about': typeof SiteAboutRoute
+  '/contact': typeof SiteContactRoute
+  '/dashboard': typeof SiteDashboardRoute
+  '/favorites': typeof SiteFavoritesRoute
+  '/login': typeof SiteLoginRoute
+  '/search': typeof SiteSearchRoute
+  '/submit': typeof SiteSubmitRoute
+  '/provider/$slug': typeof SiteProviderSlugRoute
+  '/tx/$city': typeof SiteTxCityRoute
+  '/api/public/seed': typeof ApiPublicSeedRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/about': typeof SiteAboutRoute
+  '/contact': typeof SiteContactRoute
+  '/dashboard': typeof SiteDashboardRoute
+  '/favorites': typeof SiteFavoritesRoute
+  '/login': typeof SiteLoginRoute
+  '/search': typeof SiteSearchRoute
+  '/submit': typeof SiteSubmitRoute
+  '/': typeof SiteIndexRoute
+  '/provider/$slug': typeof SiteProviderSlugRoute
+  '/tx/$city': typeof SiteTxCityRoute
+  '/api/public/seed': typeof ApiPublicSeedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_site': typeof SiteRouteWithChildren
+  '/_site/about': typeof SiteAboutRoute
+  '/_site/contact': typeof SiteContactRoute
+  '/_site/dashboard': typeof SiteDashboardRoute
+  '/_site/favorites': typeof SiteFavoritesRoute
+  '/_site/login': typeof SiteLoginRoute
+  '/_site/search': typeof SiteSearchRoute
+  '/_site/submit': typeof SiteSubmitRoute
+  '/_site/': typeof SiteIndexRoute
+  '/_site/provider/$slug': typeof SiteProviderSlugRoute
+  '/_site/tx/$city': typeof SiteTxCityRoute
+  '/api/public/seed': typeof ApiPublicSeedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/dashboard'
+    | '/favorites'
+    | '/login'
+    | '/search'
+    | '/submit'
+    | '/provider/$slug'
+    | '/tx/$city'
+    | '/api/public/seed'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/about'
+    | '/contact'
+    | '/dashboard'
+    | '/favorites'
+    | '/login'
+    | '/search'
+    | '/submit'
+    | '/'
+    | '/provider/$slug'
+    | '/tx/$city'
+    | '/api/public/seed'
+  id:
+    | '__root__'
+    | '/_site'
+    | '/_site/about'
+    | '/_site/contact'
+    | '/_site/dashboard'
+    | '/_site/favorites'
+    | '/_site/login'
+    | '/_site/search'
+    | '/_site/submit'
+    | '/_site/'
+    | '/_site/provider/$slug'
+    | '/_site/tx/$city'
+    | '/api/public/seed'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  SiteRoute: typeof SiteRouteWithChildren
+  ApiPublicSeedRoute: typeof ApiPublicSeedRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_site': {
+      id: '/_site'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof SiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_site/': {
+      id: '/_site/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof SiteIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/submit': {
+      id: '/_site/submit'
+      path: '/submit'
+      fullPath: '/submit'
+      preLoaderRoute: typeof SiteSubmitRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/search': {
+      id: '/_site/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SiteSearchRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/login': {
+      id: '/_site/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof SiteLoginRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/favorites': {
+      id: '/_site/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof SiteFavoritesRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/dashboard': {
+      id: '/_site/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof SiteDashboardRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/contact': {
+      id: '/_site/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof SiteContactRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/about': {
+      id: '/_site/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof SiteAboutRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/api/public/seed': {
+      id: '/api/public/seed'
+      path: '/api/public/seed'
+      fullPath: '/api/public/seed'
+      preLoaderRoute: typeof ApiPublicSeedRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_site/tx/$city': {
+      id: '/_site/tx/$city'
+      path: '/tx/$city'
+      fullPath: '/tx/$city'
+      preLoaderRoute: typeof SiteTxCityRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/provider/$slug': {
+      id: '/_site/provider/$slug'
+      path: '/provider/$slug'
+      fullPath: '/provider/$slug'
+      preLoaderRoute: typeof SiteProviderSlugRouteImport
+      parentRoute: typeof SiteRoute
     }
   }
 }
 
+interface SiteRouteChildren {
+  SiteAboutRoute: typeof SiteAboutRoute
+  SiteContactRoute: typeof SiteContactRoute
+  SiteDashboardRoute: typeof SiteDashboardRoute
+  SiteFavoritesRoute: typeof SiteFavoritesRoute
+  SiteLoginRoute: typeof SiteLoginRoute
+  SiteSearchRoute: typeof SiteSearchRoute
+  SiteSubmitRoute: typeof SiteSubmitRoute
+  SiteIndexRoute: typeof SiteIndexRoute
+  SiteProviderSlugRoute: typeof SiteProviderSlugRoute
+  SiteTxCityRoute: typeof SiteTxCityRoute
+}
+
+const SiteRouteChildren: SiteRouteChildren = {
+  SiteAboutRoute: SiteAboutRoute,
+  SiteContactRoute: SiteContactRoute,
+  SiteDashboardRoute: SiteDashboardRoute,
+  SiteFavoritesRoute: SiteFavoritesRoute,
+  SiteLoginRoute: SiteLoginRoute,
+  SiteSearchRoute: SiteSearchRoute,
+  SiteSubmitRoute: SiteSubmitRoute,
+  SiteIndexRoute: SiteIndexRoute,
+  SiteProviderSlugRoute: SiteProviderSlugRoute,
+  SiteTxCityRoute: SiteTxCityRoute,
+}
+
+const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  SiteRoute: SiteRouteWithChildren,
+  ApiPublicSeedRoute: ApiPublicSeedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
