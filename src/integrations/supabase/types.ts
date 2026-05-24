@@ -14,16 +14,339 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      claims: {
+        Row: {
+          business_role: string | null
+          contact_email: string
+          contact_phone: string | null
+          id: string
+          proof_notes: string | null
+          provider_place_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          business_role?: string | null
+          contact_email: string
+          contact_phone?: string | null
+          id?: string
+          proof_notes?: string | null
+          provider_place_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          business_role?: string | null
+          contact_email?: string
+          contact_phone?: string | null
+          id?: string
+          proof_notes?: string | null
+          provider_place_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claims_provider_place_id_fkey"
+            columns: ["provider_place_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["place_id"]
+          },
+        ]
+      }
+      favorites: {
+        Row: {
+          created_at: string
+          provider_place_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          provider_place_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          provider_place_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_provider_place_id_fkey"
+            columns: ["provider_place_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["place_id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      providers: {
+        Row: {
+          address: string | null
+          business_status: string
+          city: string
+          city_slug: string
+          claimed_by: string | null
+          created_at: string
+          google_maps_url: string | null
+          hero_photo_url: string | null
+          hours_json: Json | null
+          last_synced_at: string
+          lat: number | null
+          lng: number | null
+          name: string
+          phone: string | null
+          photos_json: Json | null
+          place_id: string
+          postal_code: string | null
+          price_level: number | null
+          rating: number | null
+          review_count: number | null
+          services: string[] | null
+          slug: string
+          state: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          business_status?: string
+          city: string
+          city_slug: string
+          claimed_by?: string | null
+          created_at?: string
+          google_maps_url?: string | null
+          hero_photo_url?: string | null
+          hours_json?: Json | null
+          last_synced_at?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+          phone?: string | null
+          photos_json?: Json | null
+          place_id: string
+          postal_code?: string | null
+          price_level?: number | null
+          rating?: number | null
+          review_count?: number | null
+          services?: string[] | null
+          slug: string
+          state?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_status?: string
+          city?: string
+          city_slug?: string
+          claimed_by?: string | null
+          created_at?: string
+          google_maps_url?: string | null
+          hero_photo_url?: string | null
+          hours_json?: Json | null
+          last_synced_at?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          phone?: string | null
+          photos_json?: Json | null
+          place_id?: string
+          postal_code?: string | null
+          price_level?: number | null
+          rating?: number | null
+          review_count?: number | null
+          services?: string[] | null
+          slug?: string
+          state?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_name: string | null
+          author_photo: string | null
+          created_at: string
+          id: string
+          provider_place_id: string
+          published_at: string | null
+          rating: number | null
+          relative_time: string | null
+          text: string | null
+        }
+        Insert: {
+          author_name?: string | null
+          author_photo?: string | null
+          created_at?: string
+          id?: string
+          provider_place_id: string
+          published_at?: string | null
+          rating?: number | null
+          relative_time?: string | null
+          text?: string | null
+        }
+        Update: {
+          author_name?: string | null
+          author_photo?: string | null
+          created_at?: string
+          id?: string
+          provider_place_id?: string
+          published_at?: string | null
+          rating?: number | null
+          relative_time?: string | null
+          text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_provider_place_id_fkey"
+            columns: ["provider_place_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["place_id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          address: string | null
+          business_name: string
+          city: string
+          contact_email: string
+          contact_phone: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          submitted_by: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          business_name: string
+          city: string
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          submitted_by?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_name?: string
+          city?: string
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          submitted_by?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "owner" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +473,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "owner", "user"],
+    },
   },
 } as const
