@@ -6,7 +6,7 @@ import { getFeaturedProviders, getCityStats } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ShieldCheck, Sparkles, MapPin } from "lucide-react";
+import { Search, ShieldCheck, Sparkles, MapPin, Star, BadgeCheck } from "lucide-react";
 
 const featuredOpts = queryOptions({ queryKey: ["featured"], queryFn: () => getFeaturedProviders() });
 const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCityStats() });
@@ -14,11 +14,15 @@ const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCit
 export const Route = createFileRoute("/_site/")({
   head: () => ({
     meta: [
-      { title: "TexasInjectors — Find Trusted Aesthetic Injectors in Texas" },
-      { name: "description", content: "Browse the most trusted Botox, filler, and aesthetic injectors across Houston, Dallas, Austin, San Antonio and every major Texas metro." },
-      { property: "og:title", content: "TexasInjectors — The Texas Aesthetic Injector Directory" },
+      { title: "Texas Aesthetics — Find Trusted Aesthetic Injectors in Texas" },
+      { name: "description", content: "Read real patient reviews of Botox, filler & medspa injectors across Houston, Dallas, Austin, San Antonio and every major Texas metro." },
+      { name: "keywords", content: "Texas aesthetic injectors, Botox Texas, filler Texas, medspa Texas, lip filler, Sculptra, Dallas Botox, Houston injector, Austin medspa" },
+      { property: "og:title", content: "Texas Aesthetics — The Texas Aesthetic Injector Directory" },
       { property: "og:description", content: "Search top-rated Botox, filler, and medspa providers in Texas." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://texasaesthetics.com/" }],
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(featuredOpts);
@@ -33,55 +37,76 @@ function HomePage() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
+  const heroFeatured = featured.providers[0];
+
   return (
     <>
-      {/* HERO */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-accent via-background to-secondary/60" />
-        <div className="mx-auto max-w-6xl px-4 pt-20 pb-16 text-center md:pt-28 md:pb-24">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs">
-            <Sparkles className="h-3.5 w-3.5 text-brand" />
-            <span>The Texas aesthetic injector directory</span>
-          </div>
-          <h1 className="mt-6 font-display text-5xl leading-[1.05] md:text-7xl">
-            Find your <span className="italic text-brand">trusted injector</span><br />anywhere in Texas.
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">
-            Honest, up-to-date listings for Botox, fillers, and aesthetic medspas across every major Texas metro — sourced from real Google reviews.
-          </p>
+      {/* HERO — Sam's List style two-column */}
+      <section className="border-b border-border/60">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 pt-16 pb-20 md:grid-cols-[1.1fr_0.9fr] md:gap-16 md:pt-24 md:pb-28">
+          <div>
+            <h1 className="font-display text-5xl leading-[1.02] md:text-7xl">
+              Find Your<br />Trusted Injector
+            </h1>
+            <p className="mt-6 max-w-lg text-lg text-muted-foreground">
+              Read real reviews from Texas patients who've already done the vetting for you. Find a Botox, filler, or medspa provider who actually knows your skin.
+            </p>
 
-          <form
-            onSubmit={(e) => { e.preventDefault(); navigate({ to: "/search", search: { q } as never }); }}
-            className="mx-auto mt-8 flex max-w-2xl flex-col gap-2 rounded-2xl border border-border bg-card p-2 shadow-sm sm:flex-row"
-          >
-            <div className="flex flex-1 items-center gap-2 px-3">
-              <Search className="h-5 w-5 text-muted-foreground" />
-              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search a clinic, injector, or treatment…" className="border-0 bg-transparent text-base shadow-none focus-visible:ring-0" />
+            <p className="mt-10 text-sm font-medium text-muted-foreground">I'm looking for a…</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {SERVICES.slice(0, 4).map((s) => (
+                <Link
+                  key={s.slug}
+                  to="/search"
+                  search={{ q: s.name } as never}
+                  className="rounded-full border border-foreground/15 bg-card px-5 py-2.5 text-sm font-medium transition hover:border-brand hover:text-brand"
+                >
+                  {s.name}
+                </Link>
+              ))}
             </div>
-            <Button type="submit" size="lg" className="h-12">Search</Button>
-          </form>
+            <Link to="/search" className="mt-3 inline-block text-sm text-muted-foreground hover:text-brand">
+              Or search all services →
+            </Link>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {SERVICES.slice(0, 6).map((s) => (
-              <Link key={s.slug} to="/search" search={{ q: s.name } as never} className="rounded-full border border-border bg-background px-3 py-1 text-sm hover:border-brand">{s.name}</Link>
-            ))}
+            <form
+              onSubmit={(e) => { e.preventDefault(); navigate({ to: "/search", search: { q } as never }); }}
+              className="mt-8 flex max-w-lg gap-2"
+            >
+              <div className="flex flex-1 items-center gap-2 rounded-full border border-border bg-card px-4">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Clinic, injector, or city…" className="h-11 border-0 bg-transparent shadow-none focus-visible:ring-0" />
+              </div>
+              <Button type="submit" className="h-11 rounded-full px-6">Search</Button>
+            </form>
+          </div>
+
+          {/* Featured pro card */}
+          <div className="relative">
+            {heroFeatured ? (
+              <FeaturedProCard p={heroFeatured} />
+            ) : (
+              <div className="rounded-3xl border border-border bg-card p-8 shadow-sm">
+                <p className="font-display text-2xl">Top-rated injectors, vetted by real patients.</p>
+                <p className="mt-3 text-sm text-muted-foreground">Browse hundreds of trusted providers across Texas's biggest cities.</p>
+                <Button asChild className="mt-6 rounded-full"><Link to="/search">Browse all</Link></Button>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* CITIES */}
-      <section className="mx-auto max-w-7xl px-4 py-16">
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <h2 className="font-display text-3xl md:text-4xl">Browse by city</h2>
-            <p className="mt-2 text-muted-foreground">Texas's top 10 metros, hand-mapped.</p>
-          </div>
+      <section className="mx-auto max-w-7xl px-4 py-20">
+        <div className="mb-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand">By City</p>
+          <h2 className="mt-2 font-display text-4xl md:text-5xl">Browse Texas's biggest metros</h2>
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
           {TEXAS_CITIES.map((c) => {
             const count = stats.counts[c.slug] ?? 0;
             return (
-              <Link key={c.slug} to="/tx/$city" params={{ city: c.slug }} className="group rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md">
+              <Link key={c.slug} to="/tx/$city" params={{ city: c.slug }} className="group rounded-2xl border border-border bg-card p-5 transition hover:border-brand hover:shadow-md">
                 <MapPin className="h-5 w-5 text-brand" />
                 <h3 className="mt-3 font-display text-xl">{c.name}</h3>
                 <p className="text-xs text-muted-foreground">{c.tagline}</p>
@@ -94,49 +119,85 @@ function HomePage() {
 
       {/* FEATURED */}
       {featured.providers.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-16">
-          <div className="mb-8">
-            <h2 className="font-display text-3xl md:text-4xl">Top-rated this month</h2>
-            <p className="mt-2 text-muted-foreground">Highest-rated injectors across the state.</p>
+        <section className="mx-auto max-w-7xl px-4 pb-20">
+          <div className="mb-10">
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand">Top Rated</p>
+            <h2 className="mt-2 font-display text-4xl md:text-5xl">Highest-rated this month</h2>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {featured.providers.map((p) => <ProviderCard key={p.place_id} {...p} />)}
+            {featured.providers.slice(0, 8).map((p) => <ProviderCard key={p.place_id} {...p} />)}
           </div>
         </section>
       )}
 
       {/* TRUST */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="grid gap-8 rounded-3xl border border-border bg-card p-10 md:grid-cols-3">
+      <section className="mx-auto max-w-7xl px-4 pb-20">
+        <div className="grid gap-8 rounded-3xl border border-border bg-card p-10 md:grid-cols-3 md:p-14">
           <div>
             <ShieldCheck className="h-8 w-8 text-brand" />
-            <h3 className="mt-4 font-display text-xl">Real reviews</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Listings include verified Google reviews from real patients.</p>
+            <h3 className="mt-4 font-display text-2xl">Real patient reviews</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Every listing is backed by verified reviews from real Texas patients.</p>
+          </div>
+          <div>
+            <BadgeCheck className="h-8 w-8 text-brand" />
+            <h3 className="mt-4 font-display text-2xl">Currently operating</h3>
+            <p className="mt-2 text-sm text-muted-foreground">We continuously verify each provider is still in business.</p>
           </div>
           <div>
             <Sparkles className="h-8 w-8 text-brand" />
-            <h3 className="mt-4 font-display text-xl">Currently operating</h3>
-            <p className="mt-1 text-sm text-muted-foreground">We continuously verify each listing is still in business.</p>
-          </div>
-          <div>
-            <MapPin className="h-8 w-8 text-brand" />
-            <h3 className="mt-4 font-display text-xl">Texas-only</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Curated exclusively for the Lone Star State.</p>
+            <h3 className="mt-4 font-display text-2xl">Texas only</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Curated exclusively for the Lone Star State — no national fluff.</p>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-5xl px-4 py-16">
-        <div className="rounded-3xl bg-brand p-10 text-center text-brand-foreground">
-          <h2 className="font-display text-3xl md:text-4xl">Are you an injector?</h2>
-          <p className="mx-auto mt-3 max-w-xl opacity-90">Claim your listing free to manage your hours, services, and photos.</p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" variant="secondary"><Link to="/submit">Submit your business</Link></Button>
-            <Button asChild size="lg" variant="outline" className="bg-transparent text-brand-foreground border-brand-foreground/30 hover:bg-brand-foreground/10"><Link to="/login">Claim a listing</Link></Button>
+      <section className="mx-auto max-w-7xl px-4 pb-24">
+        <div className="rounded-3xl bg-brand p-12 text-center text-brand-foreground md:p-16">
+          <h2 className="font-display text-4xl md:text-5xl">Are you an injector?</h2>
+          <p className="mx-auto mt-4 max-w-xl text-base opacity-90">Claim your listing free to manage hours, services, and photos.</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/submit">Submit your business</Link></Button>
+            <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/login">Claim a listing</Link></Button>
           </div>
         </div>
       </section>
     </>
+  );
+}
+
+function FeaturedProCard({ p }: { p: { slug: string; name: string; city: string; rating?: number | null; review_count?: number | null; services?: string[] | null; hero_photo_url?: string | null } }) {
+  return (
+    <Link to="/provider/$slug" params={{ slug: p.slug }} className="block rounded-3xl border border-border bg-card p-6 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.15)] transition hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)]">
+      <div className="flex items-start gap-4">
+        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full bg-muted">
+          {p.hero_photo_url ? (
+            <img src={p.hero_photo_url} alt={p.name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center font-display text-2xl text-muted-foreground">{p.name.charAt(0)}</div>
+          )}
+        </div>
+        <div className="flex-1">
+          <p className="font-display text-xl leading-tight">{p.name}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{p.city}, TX</p>
+          {p.services?.[0] && (
+            <span className="mt-2 inline-block rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-foreground">{p.services[0].replace(/-/g, " ")}</span>
+          )}
+        </div>
+      </div>
+      {p.rating != null && (
+        <div className="mt-5 flex items-center gap-1.5 text-sm">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star key={i} className={`h-4 w-4 ${i < Math.round(p.rating!) ? "fill-rating text-rating" : "text-border"}`} />
+          ))}
+          <span className="ml-1 font-semibold">{p.rating.toFixed(1)}</span>
+          <span className="ml-auto text-muted-foreground">{p.review_count} reviews</span>
+        </div>
+      )}
+      <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
+        <MapPin className="h-4 w-4" /> Serves all Texas
+      </div>
+      <Button className="mt-6 w-full rounded-full">View profile</Button>
+    </Link>
   );
 }
