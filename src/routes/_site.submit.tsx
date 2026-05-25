@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/submit")({
-  head: () => ({ meta: [{ title: "Submit a business | TexasInjectors" }] }),
+  head: () => ({ meta: [
+    { title: "Submit a Business | Texas Aesthetics" },
+    { name: "description", content: "Know a great Texas aesthetic injector we're missing? Submit them to the directory." },
+  ] }),
   component: SubmitPage,
 });
 

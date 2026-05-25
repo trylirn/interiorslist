@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site.index'
+import { Route as SiteTermsRouteImport } from './routes/_site.terms'
 import { Route as SiteSubmitRouteImport } from './routes/_site.submit'
 import { Route as SiteSearchRouteImport } from './routes/_site.search'
+import { Route as SitePrivacyRouteImport } from './routes/_site.privacy'
 import { Route as SiteLoginRouteImport } from './routes/_site.login'
 import { Route as SiteFavoritesRouteImport } from './routes/_site.favorites'
 import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
@@ -31,6 +33,11 @@ const SiteIndexRoute = SiteIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteTermsRoute = SiteTermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteSubmitRoute = SiteSubmitRouteImport.update({
   id: '/submit',
   path: '/submit',
@@ -39,6 +46,11 @@ const SiteSubmitRoute = SiteSubmitRouteImport.update({
 const SiteSearchRoute = SiteSearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SitePrivacyRoute = SitePrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteLoginRoute = SiteLoginRouteImport.update({
@@ -89,8 +101,10 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof SiteDashboardRoute
   '/favorites': typeof SiteFavoritesRoute
   '/login': typeof SiteLoginRoute
+  '/privacy': typeof SitePrivacyRoute
   '/search': typeof SiteSearchRoute
   '/submit': typeof SiteSubmitRoute
+  '/terms': typeof SiteTermsRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/seed': typeof ApiPublicSeedRoute
@@ -101,8 +115,10 @@ export interface FileRoutesByTo {
   '/dashboard': typeof SiteDashboardRoute
   '/favorites': typeof SiteFavoritesRoute
   '/login': typeof SiteLoginRoute
+  '/privacy': typeof SitePrivacyRoute
   '/search': typeof SiteSearchRoute
   '/submit': typeof SiteSubmitRoute
+  '/terms': typeof SiteTermsRoute
   '/': typeof SiteIndexRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
@@ -116,8 +132,10 @@ export interface FileRoutesById {
   '/_site/dashboard': typeof SiteDashboardRoute
   '/_site/favorites': typeof SiteFavoritesRoute
   '/_site/login': typeof SiteLoginRoute
+  '/_site/privacy': typeof SitePrivacyRoute
   '/_site/search': typeof SiteSearchRoute
   '/_site/submit': typeof SiteSubmitRoute
+  '/_site/terms': typeof SiteTermsRoute
   '/_site/': typeof SiteIndexRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
   '/_site/tx/$city': typeof SiteTxCityRoute
@@ -132,8 +150,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/favorites'
     | '/login'
+    | '/privacy'
     | '/search'
     | '/submit'
+    | '/terms'
     | '/provider/$slug'
     | '/tx/$city'
     | '/api/public/seed'
@@ -144,8 +164,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/favorites'
     | '/login'
+    | '/privacy'
     | '/search'
     | '/submit'
+    | '/terms'
     | '/'
     | '/provider/$slug'
     | '/tx/$city'
@@ -158,8 +180,10 @@ export interface FileRouteTypes {
     | '/_site/dashboard'
     | '/_site/favorites'
     | '/_site/login'
+    | '/_site/privacy'
     | '/_site/search'
     | '/_site/submit'
+    | '/_site/terms'
     | '/_site/'
     | '/_site/provider/$slug'
     | '/_site/tx/$city'
@@ -187,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteIndexRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/terms': {
+      id: '/_site/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof SiteTermsRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/submit': {
       id: '/_site/submit'
       path: '/submit'
@@ -199,6 +230,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SiteSearchRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/privacy': {
+      id: '/_site/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof SitePrivacyRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/login': {
@@ -266,8 +304,10 @@ interface SiteRouteChildren {
   SiteDashboardRoute: typeof SiteDashboardRoute
   SiteFavoritesRoute: typeof SiteFavoritesRoute
   SiteLoginRoute: typeof SiteLoginRoute
+  SitePrivacyRoute: typeof SitePrivacyRoute
   SiteSearchRoute: typeof SiteSearchRoute
   SiteSubmitRoute: typeof SiteSubmitRoute
+  SiteTermsRoute: typeof SiteTermsRoute
   SiteIndexRoute: typeof SiteIndexRoute
   SiteProviderSlugRoute: typeof SiteProviderSlugRoute
   SiteTxCityRoute: typeof SiteTxCityRoute
@@ -279,8 +319,10 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteDashboardRoute: SiteDashboardRoute,
   SiteFavoritesRoute: SiteFavoritesRoute,
   SiteLoginRoute: SiteLoginRoute,
+  SitePrivacyRoute: SitePrivacyRoute,
   SiteSearchRoute: SiteSearchRoute,
   SiteSubmitRoute: SiteSubmitRoute,
+  SiteTermsRoute: SiteTermsRoute,
   SiteIndexRoute: SiteIndexRoute,
   SiteProviderSlugRoute: SiteProviderSlugRoute,
   SiteTxCityRoute: SiteTxCityRoute,
@@ -295,13 +337,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

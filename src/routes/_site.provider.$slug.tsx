@@ -5,12 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Star, MapPin, Phone, Globe, Clock, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/_site/provider/$slug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `Provider • ${params.slug.replace(/-/g, " ")} | TexasInjectors` },
-      { name: "description", content: `Reviews, hours, services and contact info for this Texas aesthetic injector.` },
-    ],
-  }),
+  head: ({ params }) => {
+    const name = params.slug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+    return {
+      meta: [
+        { title: `${name} — Reviews, Hours & Services | Texas Aesthetics` },
+        { name: "description", content: `Patient reviews, hours, services, and contact info for ${name}, a Texas aesthetic injector.` },
+        { property: "og:title", content: `${name} | Texas Aesthetics` },
+        { property: "og:description", content: `Real patient reviews and details for ${name}.` },
+        { property: "og:type", content: "profile" },
+      ],
+    };
+  },
   loader: ({ params, context }) =>
     context.queryClient.ensureQueryData(queryOptions({
       queryKey: ["provider", params.slug],
@@ -52,7 +58,7 @@ function ProviderPage() {
             <div className="mt-3 flex items-center gap-2 text-base">
               <Star className="h-5 w-5 fill-rating text-rating" />
               <span className="font-semibold">{Number(p.rating).toFixed(1)}</span>
-              <span className="text-muted-foreground">({p.review_count} Google reviews)</span>
+              <span className="text-muted-foreground">({p.review_count} patient reviews)</span>
             </div>
           )}
           {p.address && (
@@ -64,7 +70,7 @@ function ProviderPage() {
         <div className="flex flex-wrap gap-2">
           {p.phone && <Button asChild><a href={`tel:${p.phone}`}><Phone className="mr-2 h-4 w-4" />Call</a></Button>}
           {p.website && <Button asChild variant="outline"><a href={p.website} target="_blank" rel="noopener noreferrer"><Globe className="mr-2 h-4 w-4" />Website</a></Button>}
-          {p.google_maps_url && <Button asChild variant="outline"><a href={p.google_maps_url} target="_blank" rel="noopener noreferrer"><ExternalLink className="mr-2 h-4 w-4" />Maps</a></Button>}
+          {p.google_maps_url && <Button asChild variant="outline"><a href={p.google_maps_url} target="_blank" rel="noopener noreferrer"><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
         </div>
       </div>
 

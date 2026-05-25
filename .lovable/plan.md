@@ -1,99 +1,46 @@
-# TexasInjectors — Aesthetic Injector Directory
+## 1. Redesign in Sam's List style
 
-A samslist-style directory for aesthetic injectors (Botox, fillers, etc.) across Texas's top 10 metros, seeded from Google Maps and refreshed periodically.
+Sam's List uses: cream/off-white background, deep forest-green primary, serif display headlines (large + tight), small clean sans body, rounded pill chips for category selection, a single big hero with "I'm looking for a…" pill row + featured pro card floating right, soft cards with subtle shadow, green CTA buttons, gold star ratings.
 
-## Scope
+Apply across the site:
 
-**Metros (initial seed):** Houston, Dallas, Austin, San Antonio, Fort Worth, El Paso, Arlington, Plano, Corpus Christi, Lubbock.
+- Update `src/styles.css` tokens: bg `oklch(0.97 0.015 90)` (cream), primary deep forest green `oklch(0.32 0.06 150)`, accent gold `oklch(0.78 0.13 80)` for stars, ink near-black foreground. Replace terracotta usage.
+- Swap display font to a serif similar to Sam's List (Fraunces is already loaded — keep, tighten tracking).
+- Home (`_site.index.tsx`): two-column hero — left: "Find Your Aesthetic Injector" headline + sub + "I'm looking for…" pill row (Botox, Fillers, Lip Filler, Sculptra) that links to `/search?service=…`; right: floating featured provider card mirroring Sam's List's pro card (photo, name, city, service pill, stars+review count, "Serves all TX" line, green "View profile" button).
+- Section below: "Trusted by patients across Texas" + city chips grid.
+- Featured listings, then testimonials-style strip ("What people are saying" — pulled from top reviews).
+- Header: simple wordmark "TEXAS INJECTORS", nav links (Find an Injector, Submit Listing, About), search icon, Sign In, green "Write a Review" pill.
+- Provider cards: rounded-2xl, white, soft shadow, green service pills, gold stars, subtle border. Update `provider-card.tsx`.
+- Buttons: primary = solid deep green with white text, pill radius.
 
-**Search terms used for seeding:** "aesthetic injector", "botox", "medspa", "dermal filler" — filtered to currently-operating businesses (`businessStatus = OPERATIONAL`).
+## 2. Seed providers (currently 0)
 
-## Pages / Routes
+The seed endpoint exists at `POST /api/public/seed` but has never been called. Plan:
 
-- `/` — Hero, search bar (city + service), featured metros, top-rated picks, trust signals
-- `/tx/$city` — City landing page (SEO): listings + filters (service, rating, price, open-now)
-- `/provider/$slug` — Detail page: hero photo, rating, hours, address + embedded map, services, Google reviews, phone/website CTAs, "claim this listing", favorite/compare buttons
-- `/search` — Global search results
-- `/compare` — Side-by-side comparison of up to 3 saved providers
-- `/favorites` — Saved providers (per user)
-- `/claim/$slug` — Owner claim form (auth required)
-- `/submit` — Submit a missing business
-- `/login`, `/signup` — Auth (email + Google)
-- `/dashboard` — For claimed-business owners to edit their listing
-- `/about`, `/contact`
+- Invoke the seed endpoint server-side using the service role key for all 10 TX metros sequentially. This populates `providers` + `reviews` from Google Maps via the existing connector pipeline.
+- Surface progress in chat; expect ~30–60 listings per city after dedup/filter.
+- Re-verify with `select count(*) from providers` before claiming done.
 
-Each route gets its own `head()` metadata (title, description, og:title, og:description). Provider pages use the business hero photo as `og:image`.
+If a city returns empty results, retry with broader search terms (already configured: "aesthetic injector", "botox clinic", "medspa botox filler", "lip filler").
 
-## Design
+## 3. Remove "data from Google Maps" mentions from public pages
 
-I will generate **3 distinct rendered design directions** for a Texas-flavored, trustworthy, beauty-industry directory. You pick one before I build. Locked constraints across all three: directory layout with prominent search, listing cards, detail pages.
+Audit and remove any "Google", "Google Maps", "Google reviews", "powered by Google" copy from:
 
-## Data Model (Lovable Cloud / Postgres)
+- Home, city pages, search, provider detail, submit, about, contact, header, footer.
+- Replace with neutral language ("verified reviews", "real patient ratings", "public business data").
 
-```text
-providers          place_id (PK), name, slug, city, address, lat, lng,
-                   phone, website, rating, review_count, price_level,
-                   hours_json, photos_json, services[], business_status,
-                   claimed_by (FK users, null), last_synced_at
-reviews            id, provider_place_id, author, rating, text, time
-services           id, name, slug   -- Botox, Filler, Sculptra, Kybella, PRP...
-favorites          user_id, provider_place_id, created_at
-claims             id, provider_place_id, user_id, status, submitted_at,
-                   verification_notes
-submissions        id, name, city, contact_email, status, payload_json
-profiles           id (= auth.uid), email, display_name, role
-user_roles         user_id, role ('user'|'owner'|'admin')   -- separate table
-```
+Add the attribution to legal pages only:
 
-RLS: providers/reviews/services are public read; favorites/claims scoped to `auth.uid`; admin role gates submission approval and listing edits not yet claimed.
+- Create `src/routes/_site.privacy.tsx` — full privacy policy including a "Data sources" section noting business listings, hours, photos, and reviews are sourced from Google Maps Platform and refreshed periodically; user data handling, cookies, contact.
+- Create `src/routes/_site.terms.tsx` — terms of service including a "Third-party data" clause naming Google Maps Platform as the source, accuracy disclaimer, medical disclaimer, takedown/claim process.
+- Footer: link to Privacy and Terms (remove any Google mention elsewhere in footer).
 
-## Data Pipeline
+4. Change the Name from Texas Injectors to Texas Aesthetics. This is for SEO purposes. Also make the website SEO compliant
 
-**Seeding (`/api/public/seed` — admin-protected server route, idempotent):**
-1. For each metro × search term, call Google Maps Places API (New) `places:searchText` via the connector gateway.
-2. For each result, fetch `places/v1/places/{id}` for hours, photos, reviews.
-3. Filter `businessStatus === 'OPERATIONAL'`, upsert into `providers`, store reviews.
-4. Generate slug `{name}-{city}`.
+## Technical notes
 
-**Refresh:** Same endpoint with `?refresh=true` — re-syncs records older than 30 days. Triggered manually (or pg_cron later).
-
-**Live detail refresh:** When a provider page loads and `last_synced_at > 14 days`, a server fn re-pulls reviews/hours in the background.
-
-## Integrations needed
-
-- **Lovable Cloud** — database, auth (email + Google), RLS
-- **Google Maps Platform connector** — Places API (New) for seeding + Maps JS for embedded map on detail pages
-
-## Features
-
-- City + service + min-rating filters with URL state
-- Sort by rating, review count, distance (when user grants geolocation)
-- Favorites (logged-in) with localStorage fallback for guests
-- Compare up to 3 providers side-by-side
-- Claim listing flow: user signs in → submits claim with proof → admin approves → role upgraded to `owner` → can edit hours/services/photos
-- Submit new business (anyone, queued for admin review)
-- Mobile-responsive throughout
-
-## Technical Notes
-
-- TanStack Start, server functions for all DB/Places calls
-- `createServerFn` for reads/writes; `/api/public/*` only for the seed/refresh endpoint (admin-token gated)
-- Maps JS uses `VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY`; all Places lookups go through the gateway
-- Tanstack Query for caching with `useSuspenseQuery`
-- Slug-based URLs everywhere for SEO; JSON-LD `LocalBusiness` schema on detail pages
-- Zod validation on every server fn input
-
-## Build Order
-
-1. Enable Lovable Cloud + connect Google Maps Platform
-2. Generate 3 design directions → you pick one
-3. DB schema + RLS + auth
-4. Seeding endpoint → run for all 10 metros
-5. Home, city, and detail pages with chosen design
-6. Filters, search, favorites, compare
-7. Claim/submit + owner dashboard
-8. SEO polish (meta, sitemap, JSON-LD)
-
-## Disclaimers
-
-We'll add a footer disclaimer: data sourced from Google Maps, not medical advice, verify credentials directly with providers. This protects you legally given the medical-adjacent niche.
+- No schema changes required.
+- Seed runs server-side via the existing `/api/public/seed` route — uses `SUPABASE_SERVICE_ROLE_KEY` as Bearer.
+- Token changes in `src/styles.css` propagate everywhere via semantic Tailwind classes; components stay token-based.
+- New legal routes follow the existing `_site.*` flat-route convention so they inherit the site chrome.
