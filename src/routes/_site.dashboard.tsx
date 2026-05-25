@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_site/dashboard")({
-  head: () => ({ meta: [{ title: "Account | TexasInjectors" }] }),
+  head: () => ({ meta: [{ title: "Account | Texas Aesthetics" }] }),
   component: Dashboard,
 });
 
