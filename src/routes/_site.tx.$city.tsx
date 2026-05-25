@@ -22,10 +22,12 @@ export const Route = createFileRoute("/_site/tx/$city")({
     const name = c?.name ?? params.city;
     return {
       meta: [
-        { title: `Aesthetic Injectors in ${name}, TX | TexasInjectors` },
-        { name: "description", content: `Top-rated Botox, filler & medspa injectors in ${name}, Texas. Real Google reviews, hours, and contact info.` },
+        { title: `Aesthetic Injectors in ${name}, TX | Texas Aesthetics` },
+        { name: "description", content: `Top-rated Botox, filler & medspa injectors in ${name}, Texas. Real patient reviews, hours, and contact info.` },
+        { name: "keywords", content: `${name} Botox, ${name} filler, ${name} medspa, aesthetic injector ${name} Texas` },
         { property: "og:title", content: `${name} Aesthetic Injectors` },
         { property: "og:description", content: `Browse trusted injectors in ${name}, TX.` },
+        { property: "og:type", content: "website" },
       ],
     };
   },

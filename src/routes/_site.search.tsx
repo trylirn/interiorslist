@@ -10,7 +10,10 @@ import { z } from "zod";
 
 export const Route = createFileRoute("/_site/search")({
   validateSearch: z.object({ q: z.string().optional(), city: z.string().optional() }),
-  head: () => ({ meta: [{ title: "Search injectors | TexasInjectors" }] }),
+  head: () => ({ meta: [
+    { title: "Search Texas Aesthetic Injectors | Texas Aesthetics" },
+    { name: "description", content: "Search Botox, filler, and medspa injectors across every major Texas city." },
+  ] }),
   component: SearchPage,
 });
 
