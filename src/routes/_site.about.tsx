@@ -7,7 +7,9 @@ export const Route = createFileRoute("/_site/about")({
       { name: "description", content: "Texas Aesthetics is the trusted directory for aesthetic injectors across the state — Botox, fillers, Sculptra, and more, ranked by real patient reviews." },
       { property: "og:title", content: "About Texas Aesthetics" },
       { property: "og:description", content: "The trusted Texas directory for aesthetic injectors." },
+      { property: "og:url", content: "/about" },
     ],
+    links: [{ rel: "canonical", href: "/about" }],
   }),
   component: () => (
     <div className="mx-auto max-w-2xl px-4 py-20">
