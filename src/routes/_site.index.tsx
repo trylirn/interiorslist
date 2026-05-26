@@ -19,10 +19,37 @@ export const Route = createFileRoute("/_site/")({
       { name: "keywords", content: "Texas aesthetic injectors, Botox Texas, filler Texas, medspa Texas, lip filler, Sculptra, Dallas Botox, Houston injector, Austin medspa" },
       { property: "og:title", content: "Texas Aesthetics — The Texas Aesthetic Injector Directory" },
       { property: "og:description", content: "Search top-rated Botox, filler, and medspa providers in Texas." },
+      { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://texasaesthetics.com/" }],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              name: "Texas Aesthetics",
+              url: "/",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "/search?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            },
+            {
+              "@type": "Organization",
+              name: "Texas Aesthetics",
+              url: "/",
+              description: "Directory of trusted aesthetic injectors across Texas.",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(featuredOpts);
