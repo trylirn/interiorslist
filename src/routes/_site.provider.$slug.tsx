@@ -5,16 +5,50 @@ import { Button } from "@/components/ui/button";
 import { Star, MapPin, Phone, Globe, Clock, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/_site/provider/$slug")({
-  head: ({ params }) => {
-    const name = params.slug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+  head: ({ params, loaderData }) => {
+    const path = `/provider/${params.slug}`;
+    const p = (loaderData as { provider?: any } | undefined)?.provider;
+    const displayName = p?.name ?? params.slug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+    const description = p
+      ? `Patient reviews, hours, services, and contact info for ${p.name}${p.city ? ` in ${p.city}, TX` : ""}.`
+      : `Patient reviews, hours, services, and contact info for ${displayName}, a Texas aesthetic injector.`;
+    const meta: Array<Record<string, string>> = [
+      { title: `${displayName} — Reviews, Hours & Services | Texas Aesthetics` },
+      { name: "description", content: description },
+      { property: "og:title", content: `${displayName} | Texas Aesthetics` },
+      { property: "og:description", content: description },
+      { property: "og:url", content: path },
+      { property: "og:type", content: "profile" },
+    ];
+    if (p?.hero_photo_url) {
+      meta.push({ property: "og:image", content: p.hero_photo_url });
+      meta.push({ name: "twitter:image", content: p.hero_photo_url });
+    }
+    const scripts: Array<{ type: string; children: string }> = [];
+    if (p) {
+      const ld: Record<string, unknown> = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        name: p.name,
+        url: path,
+      };
+      if (p.address) ld.address = { "@type": "PostalAddress", streetAddress: p.address, addressRegion: "TX", addressCountry: "US" };
+      if (p.phone) ld.telephone = p.phone;
+      if (p.website) ld.sameAs = [p.website];
+      if (p.hero_photo_url) ld.image = p.hero_photo_url;
+      if (p.rating != null && p.review_count) {
+        ld.aggregateRating = {
+          "@type": "AggregateRating",
+          ratingValue: Number(p.rating).toFixed(1),
+          reviewCount: p.review_count,
+        };
+      }
+      scripts.push({ type: "application/ld+json", children: JSON.stringify(ld) });
+    }
     return {
-      meta: [
-        { title: `${name} — Reviews, Hours & Services | Texas Aesthetics` },
-        { name: "description", content: `Patient reviews, hours, services, and contact info for ${name}, a Texas aesthetic injector.` },
-        { property: "og:title", content: `${name} | Texas Aesthetics` },
-        { property: "og:description", content: `Real patient reviews and details for ${name}.` },
-        { property: "og:type", content: "profile" },
-      ],
+      meta,
+      links: [{ rel: "canonical", href: path }],
+      scripts,
     };
   },
   loader: ({ params, context }) =>
