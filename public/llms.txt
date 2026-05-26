@@ -1,0 +1,28 @@
+# Texas Aesthetics
+
+> Trusted directory of aesthetic injectors across every major Texas metro — Botox, dermal fillers, Sculptra, lip filler, and medspa services, ranked by real patient reviews.
+
+Texas Aesthetics helps patients find verified, currently-operating aesthetic injectors in Texas. Listings are continuously refreshed and no provider pays for placement.
+
+## Pages
+
+- [Home](/): Search and browse trusted Texas aesthetic injectors.
+- [Search](/search): Search injectors by clinic, name, or treatment.
+- [Submit a business](/submit): Suggest a Texas injector for the directory.
+- [About](/about): What Texas Aesthetics is and how listings are vetted.
+- [Contact](/contact): Reach the team for corrections, partnerships, or support.
+- [Privacy](/privacy): How we handle your data and third-party sources.
+- [Terms](/terms): Terms of use and medical disclaimers.
+
+## Cities
+
+- [Houston](/tx/houston): Aesthetic injectors in Houston, TX.
+- [Dallas](/tx/dallas): Aesthetic injectors in Dallas, TX.
+- [Austin](/tx/austin): Aesthetic injectors in Austin, TX.
+- [San Antonio](/tx/san-antonio): Aesthetic injectors in San Antonio, TX.
+- [Fort Worth](/tx/fort-worth): Aesthetic injectors in Fort Worth, TX.
+- [El Paso](/tx/el-paso): Aesthetic injectors in El Paso, TX.
+- [Arlington](/tx/arlington): Aesthetic injectors in Arlington, TX.
+- [Plano](/tx/plano): Aesthetic injectors in Plano, TX.
+- [Corpus Christi](/tx/corpus-christi): Aesthetic injectors in Corpus Christi, TX.
+- [Lubbock](/tx/lubbock): Aesthetic injectors in Lubbock, TX.

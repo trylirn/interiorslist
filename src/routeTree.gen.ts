@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site.index'
 import { Route as SiteTermsRouteImport } from './routes/_site.terms'
@@ -24,6 +25,11 @@ import { Route as ApiPublicSeedRouteImport } from './routes/api.public.seed'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SiteRoute = SiteRouteImport.update({
   id: '/_site',
   getParentRoute: () => rootRouteImport,
@@ -96,6 +102,7 @@ const SiteProviderSlugRoute = SiteProviderSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/api/public/seed': typeof ApiPublicSeedRoute
 }
 export interface FileRoutesByTo {
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRoute
@@ -127,6 +135,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_site/about': typeof SiteAboutRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/dashboard': typeof SiteDashboardRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/sitemap.xml'
     | '/about'
     | '/contact'
     | '/dashboard'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/api/public/seed'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/sitemap.xml'
     | '/about'
     | '/contact'
     | '/dashboard'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_site'
+    | '/sitemap.xml'
     | '/_site/about'
     | '/_site/contact'
     | '/_site/dashboard'
@@ -192,11 +204,19 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicSeedRoute: typeof ApiPublicSeedRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_site': {
       id: '/_site'
       path: ''
@@ -332,6 +352,7 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicSeedRoute: ApiPublicSeedRoute,
 }
 export const routeTree = rootRouteImport

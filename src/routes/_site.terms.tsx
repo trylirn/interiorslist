@@ -6,7 +6,11 @@ export const Route = createFileRoute("/_site/terms")({
       { title: "Terms of Service | Texas Aesthetics" },
       { name: "description", content: "Terms governing your use of Texas Aesthetics, including third-party data sources and medical disclaimers." },
       { name: "robots", content: "index, follow" },
+      { property: "og:title", content: "Terms of Service — Texas Aesthetics" },
+      { property: "og:description", content: "Terms of use, third-party data, and medical disclaimers." },
+      { property: "og:url", content: "/terms" },
     ],
+    links: [{ rel: "canonical", href: "/terms" }],
   }),
   component: TermsPage,
 });

@@ -72,14 +72,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Texas Aesthetics — Trusted Aesthetic Injector Directory" },
+      { name: "description", content: "Find top-rated Botox, filler, and medspa injectors across every major Texas city. Real patient reviews, verified providers, no paid placement." },
+      { property: "og:title", content: "Texas Aesthetics — Trusted Aesthetic Injector Directory" },
+      { property: "og:description", content: "Find top-rated Botox, filler, and medspa injectors across every major Texas city." },
+      { property: "og:site_name", content: "Texas Aesthetics" },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       {
