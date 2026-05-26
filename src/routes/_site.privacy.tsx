@@ -6,7 +6,11 @@ export const Route = createFileRoute("/_site/privacy")({
       { title: "Privacy Policy | Texas Aesthetics" },
       { name: "description", content: "How Texas Aesthetics collects, uses, and protects your information, including third-party data sources." },
       { name: "robots", content: "index, follow" },
+      { property: "og:title", content: "Privacy Policy — Texas Aesthetics" },
+      { property: "og:description", content: "How Texas Aesthetics handles your data and third-party sources." },
+      { property: "og:url", content: "/privacy" },
     ],
+    links: [{ rel: "canonical", href: "/privacy" }],
   }),
   component: PrivacyPage,
 });
