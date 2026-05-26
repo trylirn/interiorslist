@@ -20,6 +20,7 @@ export const Route = createFileRoute("/_site/tx/$city")({
   head: ({ params }) => {
     const c = cityFromSlug(params.city);
     const name = c?.name ?? params.city;
+    const path = `/tx/${params.city}`;
     return {
       meta: [
         { title: `Aesthetic Injectors in ${name}, TX | Texas Aesthetics` },
@@ -27,7 +28,22 @@ export const Route = createFileRoute("/_site/tx/$city")({
         { name: "keywords", content: `${name} Botox, ${name} filler, ${name} medspa, aesthetic injector ${name} Texas` },
         { property: "og:title", content: `${name} Aesthetic Injectors` },
         { property: "og:description", content: `Browse trusted injectors in ${name}, TX.` },
+        { property: "og:url", content: path },
         { property: "og:type", content: "website" },
+      ],
+      links: [{ rel: "canonical", href: path }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: `Aesthetic Injectors in ${name}, TX`,
+            url: path,
+            about: `Aesthetic injectors, Botox, filler, and medspa providers in ${name}, Texas.`,
+            isPartOf: { "@type": "WebSite", name: "Texas Aesthetics", url: "/" },
+          }),
+        },
       ],
     };
   },
