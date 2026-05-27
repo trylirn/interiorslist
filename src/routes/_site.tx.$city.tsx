@@ -7,8 +7,7 @@ import { z } from "zod";
 
 const searchSchema = z.object({
   service: z.string().optional(),
-  minRating: z.coerce.number().optional(),
-  sort: z.enum(["rating", "reviews", "name"]).optional(),
+  sort: z.enum(["name", "verified"]).optional(),
 });
 
 export const Route = createFileRoute("/_site/tx/$city")({
@@ -23,11 +22,11 @@ export const Route = createFileRoute("/_site/tx/$city")({
     const path = `/tx/${params.city}`;
     return {
       meta: [
-        { title: `Aesthetic Injectors in ${name}, TX | Texas Aesthetics` },
-        { name: "description", content: `Top-rated Botox, filler & medspa injectors in ${name}, Texas. Real patient reviews, hours, and contact info.` },
+        { title: `Aesthetic Injectors & Med Spas in ${name}, TX | Texas Aesthetics` },
+        { name: "description", content: `Verified Botox, filler & medspa injectors in ${name}, Texas. Contact info, services, and locations.` },
         { name: "keywords", content: `${name} Botox, ${name} filler, ${name} medspa, aesthetic injector ${name} Texas` },
         { property: "og:title", content: `${name} Aesthetic Injectors` },
-        { property: "og:description", content: `Browse trusted injectors in ${name}, TX.` },
+        { property: "og:description", content: `Browse verified injectors in ${name}, TX.` },
         { property: "og:url", content: path },
         { property: "og:type", content: "website" },
       ],
@@ -40,20 +39,19 @@ export const Route = createFileRoute("/_site/tx/$city")({
             "@type": "CollectionPage",
             name: `Aesthetic Injectors in ${name}, TX`,
             url: path,
-            about: `Aesthetic injectors, Botox, filler, and medspa providers in ${name}, Texas.`,
             isPartOf: { "@type": "WebSite", name: "Texas Aesthetics", url: "/" },
           }),
         },
       ],
     };
   },
-  loader: ({ params, deps, context }) => {
-    const opts = queryOptions({
-      queryKey: ["city", params.city, deps],
-      queryFn: () => listProvidersByCity({ data: { citySlug: params.city, service: deps.service, minRating: deps.minRating, sort: deps.sort } }),
-    });
-    return context.queryClient.ensureQueryData(opts);
-  },
+  loader: ({ params, deps, context }) =>
+    context.queryClient.ensureQueryData(
+      queryOptions({
+        queryKey: ["city", params.city, deps],
+        queryFn: () => listProvidersByCity({ data: { citySlug: params.city, service: deps.service, sort: deps.sort } }),
+      }),
+    ),
   component: CityPage,
 });
 
@@ -61,10 +59,12 @@ function CityPage() {
   const { city } = Route.useParams();
   const search = Route.useSearch();
   const c = cityFromSlug(city)!;
-  const { data } = useSuspenseQuery(queryOptions({
-    queryKey: ["city", city, search],
-    queryFn: () => listProvidersByCity({ data: { citySlug: city, service: search.service, minRating: search.minRating, sort: search.sort } }),
-  }));
+  const { data } = useSuspenseQuery(
+    queryOptions({
+      queryKey: ["city", city, search],
+      queryFn: () => listProvidersByCity({ data: { citySlug: city, service: search.service, sort: search.sort } }),
+    }),
+  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
@@ -84,7 +84,6 @@ function CityPage() {
       {data.providers.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
           <p className="font-display text-2xl">No listings yet for {c.name}</p>
-          <p className="mt-2 text-muted-foreground">We're still gathering verified providers in this city. Check back soon.</p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

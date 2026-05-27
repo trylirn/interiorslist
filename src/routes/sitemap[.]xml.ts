@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { TEXAS_CITIES } from "@/lib/cities";
+import { TEXAS_CITIES, SERVICES } from "@/lib/cities";
 
-// TODO: replace with your project URL once a project name or custom domain is set.
 const BASE_URL = "";
 
 interface SitemapEntry {
@@ -20,6 +19,8 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/search", changefreq: "weekly", priority: "0.7" },
+          { path: "/brands", changefreq: "weekly", priority: "0.7" },
+          { path: "/safety", changefreq: "monthly", priority: "0.5" },
           { path: "/submit", changefreq: "monthly", priority: "0.5" },
           { path: "/about", changefreq: "monthly", priority: "0.5" },
           { path: "/contact", changefreq: "monthly", priority: "0.4" },
@@ -27,24 +28,23 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/terms", changefreq: "yearly", priority: "0.2" },
         ];
 
-        for (const c of TEXAS_CITIES) {
-          entries.push({ path: `/tx/${c.slug}`, changefreq: "weekly", priority: "0.8" });
-        }
+        for (const c of TEXAS_CITIES) entries.push({ path: `/tx/${c.slug}`, changefreq: "weekly", priority: "0.8" });
+        for (const s of SERVICES) entries.push({ path: `/treatment/${s.slug}`, changefreq: "weekly", priority: "0.7" });
 
         try {
-          const { data: providers } = await supabaseAdmin
-            .from("providers")
-            .select("slug, updated_at")
-            .eq("business_status", "OPERATIONAL")
-            .limit(5000);
+          const { data: providers } = await supabaseAdmin.from("providers").select("slug, updated_at").limit(5000);
           for (const p of providers ?? []) {
             if (!p.slug) continue;
             entries.push({
               path: `/provider/${p.slug}`,
               lastmod: p.updated_at ? new Date(p.updated_at).toISOString().slice(0, 10) : undefined,
-              changefreq: "weekly",
-              priority: "0.6",
+              changefreq: "weekly", priority: "0.6",
             });
+          }
+          const { data: brands } = await supabaseAdmin.from("brands").select("slug, updated_at").limit(500);
+          for (const b of brands ?? []) {
+            if (!b.slug) continue;
+            entries.push({ path: `/brand/${b.slug}`, changefreq: "weekly", priority: "0.6" });
           }
         } catch {
           // sitemap still serves static entries if DB fetch fails
