@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      brands: {
+        Row: {
+          created_at: string
+          description: string | null
+          hero_url: string | null
+          id: string
+          is_verified: boolean
+          name: string
+          slug: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          hero_url?: string | null
+          id?: string
+          is_verified?: boolean
+          name: string
+          slug: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          hero_url?: string | null
+          id?: string
+          is_verified?: boolean
+          name?: string
+          slug?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       claims: {
         Row: {
           business_role: string | null
@@ -120,18 +156,24 @@ export type Database = {
       providers: {
         Row: {
           address: string | null
+          badges: string[]
+          branch_label: string | null
+          brand_id: string | null
           business_status: string
           city: string
           city_slug: string
           claimed_by: string | null
           created_at: string
+          email: string | null
           google_maps_url: string | null
           hero_photo_url: string | null
           hours_json: Json | null
+          is_verified: boolean
           last_synced_at: string
           lat: number | null
           lng: number | null
           name: string
+          notes: string | null
           phone: string | null
           photos_json: Json | null
           place_id: string
@@ -141,24 +183,31 @@ export type Database = {
           review_count: number | null
           services: string[] | null
           slug: string
+          specialists: string | null
           state: string
           updated_at: string
           website: string | null
         }
         Insert: {
           address?: string | null
+          badges?: string[]
+          branch_label?: string | null
+          brand_id?: string | null
           business_status?: string
           city: string
           city_slug: string
           claimed_by?: string | null
           created_at?: string
+          email?: string | null
           google_maps_url?: string | null
           hero_photo_url?: string | null
           hours_json?: Json | null
+          is_verified?: boolean
           last_synced_at?: string
           lat?: number | null
           lng?: number | null
           name: string
+          notes?: string | null
           phone?: string | null
           photos_json?: Json | null
           place_id: string
@@ -168,24 +217,31 @@ export type Database = {
           review_count?: number | null
           services?: string[] | null
           slug: string
+          specialists?: string | null
           state?: string
           updated_at?: string
           website?: string | null
         }
         Update: {
           address?: string | null
+          badges?: string[]
+          branch_label?: string | null
+          brand_id?: string | null
           business_status?: string
           city?: string
           city_slug?: string
           claimed_by?: string | null
           created_at?: string
+          email?: string | null
           google_maps_url?: string | null
           hero_photo_url?: string | null
           hours_json?: Json | null
+          is_verified?: boolean
           last_synced_at?: string
           lat?: number | null
           lng?: number | null
           name?: string
+          notes?: string | null
           phone?: string | null
           photos_json?: Json | null
           place_id?: string
@@ -195,11 +251,20 @@ export type Database = {
           review_count?: number | null
           services?: string[] | null
           slug?: string
+          specialists?: string | null
           state?: string
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "providers_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
