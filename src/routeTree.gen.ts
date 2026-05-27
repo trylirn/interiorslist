@@ -15,14 +15,18 @@ import { Route as SiteIndexRouteImport } from './routes/_site.index'
 import { Route as SiteTermsRouteImport } from './routes/_site.terms'
 import { Route as SiteSubmitRouteImport } from './routes/_site.submit'
 import { Route as SiteSearchRouteImport } from './routes/_site.search'
+import { Route as SiteSafetyRouteImport } from './routes/_site.safety'
 import { Route as SitePrivacyRouteImport } from './routes/_site.privacy'
 import { Route as SiteLoginRouteImport } from './routes/_site.login'
 import { Route as SiteFavoritesRouteImport } from './routes/_site.favorites'
 import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
 import { Route as SiteContactRouteImport } from './routes/_site.contact'
+import { Route as SiteBrandsRouteImport } from './routes/_site.brands'
 import { Route as SiteAboutRouteImport } from './routes/_site.about'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
+import { Route as SiteTreatmentSlugRouteImport } from './routes/_site.treatment.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
+import { Route as SiteBrandSlugRouteImport } from './routes/_site.brand.$slug'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -53,6 +57,11 @@ const SiteSearchRoute = SiteSearchRouteImport.update({
   path: '/search',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteSafetyRoute = SiteSafetyRouteImport.update({
+  id: '/safety',
+  path: '/safety',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SitePrivacyRoute = SitePrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -78,6 +87,11 @@ const SiteContactRoute = SiteContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteBrandsRoute = SiteBrandsRouteImport.update({
+  id: '/brands',
+  path: '/brands',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteAboutRoute = SiteAboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -88,9 +102,19 @@ const SiteTxCityRoute = SiteTxCityRouteImport.update({
   path: '/tx/$city',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteTreatmentSlugRoute = SiteTreatmentSlugRouteImport.update({
+  id: '/treatment/$slug',
+  path: '/treatment/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteProviderSlugRoute = SiteProviderSlugRouteImport.update({
   id: '/provider/$slug',
   path: '/provider/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteBrandSlugRoute = SiteBrandSlugRouteImport.update({
+  id: '/brand/$slug',
+  path: '/brand/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
 
@@ -98,30 +122,38 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
+  '/brands': typeof SiteBrandsRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRoute
   '/favorites': typeof SiteFavoritesRoute
   '/login': typeof SiteLoginRoute
   '/privacy': typeof SitePrivacyRoute
+  '/safety': typeof SiteSafetyRoute
   '/search': typeof SiteSearchRoute
   '/submit': typeof SiteSubmitRoute
   '/terms': typeof SiteTermsRoute
+  '/brand/$slug': typeof SiteBrandSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
+  '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
 }
 export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
+  '/brands': typeof SiteBrandsRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRoute
   '/favorites': typeof SiteFavoritesRoute
   '/login': typeof SiteLoginRoute
   '/privacy': typeof SitePrivacyRoute
+  '/safety': typeof SiteSafetyRoute
   '/search': typeof SiteSearchRoute
   '/submit': typeof SiteSubmitRoute
   '/terms': typeof SiteTermsRoute
   '/': typeof SiteIndexRoute
+  '/brand/$slug': typeof SiteBrandSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
+  '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
 }
 export interface FileRoutesById {
@@ -129,16 +161,20 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_site/about': typeof SiteAboutRoute
+  '/_site/brands': typeof SiteBrandsRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/dashboard': typeof SiteDashboardRoute
   '/_site/favorites': typeof SiteFavoritesRoute
   '/_site/login': typeof SiteLoginRoute
   '/_site/privacy': typeof SitePrivacyRoute
+  '/_site/safety': typeof SiteSafetyRoute
   '/_site/search': typeof SiteSearchRoute
   '/_site/submit': typeof SiteSubmitRoute
   '/_site/terms': typeof SiteTermsRoute
   '/_site/': typeof SiteIndexRoute
+  '/_site/brand/$slug': typeof SiteBrandSlugRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
+  '/_site/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/_site/tx/$city': typeof SiteTxCityRoute
 }
 export interface FileRouteTypes {
@@ -147,46 +183,58 @@ export interface FileRouteTypes {
     | '/'
     | '/sitemap.xml'
     | '/about'
+    | '/brands'
     | '/contact'
     | '/dashboard'
     | '/favorites'
     | '/login'
     | '/privacy'
+    | '/safety'
     | '/search'
     | '/submit'
     | '/terms'
+    | '/brand/$slug'
     | '/provider/$slug'
+    | '/treatment/$slug'
     | '/tx/$city'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sitemap.xml'
     | '/about'
+    | '/brands'
     | '/contact'
     | '/dashboard'
     | '/favorites'
     | '/login'
     | '/privacy'
+    | '/safety'
     | '/search'
     | '/submit'
     | '/terms'
     | '/'
+    | '/brand/$slug'
     | '/provider/$slug'
+    | '/treatment/$slug'
     | '/tx/$city'
   id:
     | '__root__'
     | '/_site'
     | '/sitemap.xml'
     | '/_site/about'
+    | '/_site/brands'
     | '/_site/contact'
     | '/_site/dashboard'
     | '/_site/favorites'
     | '/_site/login'
     | '/_site/privacy'
+    | '/_site/safety'
     | '/_site/search'
     | '/_site/submit'
     | '/_site/terms'
     | '/_site/'
+    | '/_site/brand/$slug'
     | '/_site/provider/$slug'
+    | '/_site/treatment/$slug'
     | '/_site/tx/$city'
   fileRoutesById: FileRoutesById
 }
@@ -239,6 +287,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteSearchRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/safety': {
+      id: '/_site/safety'
+      path: '/safety'
+      fullPath: '/safety'
+      preLoaderRoute: typeof SiteSafetyRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/privacy': {
       id: '/_site/privacy'
       path: '/privacy'
@@ -274,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteContactRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/brands': {
+      id: '/_site/brands'
+      path: '/brands'
+      fullPath: '/brands'
+      preLoaderRoute: typeof SiteBrandsRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/about': {
       id: '/_site/about'
       path: '/about'
@@ -288,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteTxCityRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/treatment/$slug': {
+      id: '/_site/treatment/$slug'
+      path: '/treatment/$slug'
+      fullPath: '/treatment/$slug'
+      preLoaderRoute: typeof SiteTreatmentSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/provider/$slug': {
       id: '/_site/provider/$slug'
       path: '/provider/$slug'
@@ -295,36 +364,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteProviderSlugRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/brand/$slug': {
+      id: '/_site/brand/$slug'
+      path: '/brand/$slug'
+      fullPath: '/brand/$slug'
+      preLoaderRoute: typeof SiteBrandSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
   }
 }
 
 interface SiteRouteChildren {
   SiteAboutRoute: typeof SiteAboutRoute
+  SiteBrandsRoute: typeof SiteBrandsRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteDashboardRoute: typeof SiteDashboardRoute
   SiteFavoritesRoute: typeof SiteFavoritesRoute
   SiteLoginRoute: typeof SiteLoginRoute
   SitePrivacyRoute: typeof SitePrivacyRoute
+  SiteSafetyRoute: typeof SiteSafetyRoute
   SiteSearchRoute: typeof SiteSearchRoute
   SiteSubmitRoute: typeof SiteSubmitRoute
   SiteTermsRoute: typeof SiteTermsRoute
   SiteIndexRoute: typeof SiteIndexRoute
+  SiteBrandSlugRoute: typeof SiteBrandSlugRoute
   SiteProviderSlugRoute: typeof SiteProviderSlugRoute
+  SiteTreatmentSlugRoute: typeof SiteTreatmentSlugRoute
   SiteTxCityRoute: typeof SiteTxCityRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
   SiteAboutRoute: SiteAboutRoute,
+  SiteBrandsRoute: SiteBrandsRoute,
   SiteContactRoute: SiteContactRoute,
   SiteDashboardRoute: SiteDashboardRoute,
   SiteFavoritesRoute: SiteFavoritesRoute,
   SiteLoginRoute: SiteLoginRoute,
   SitePrivacyRoute: SitePrivacyRoute,
+  SiteSafetyRoute: SiteSafetyRoute,
   SiteSearchRoute: SiteSearchRoute,
   SiteSubmitRoute: SiteSubmitRoute,
   SiteTermsRoute: SiteTermsRoute,
   SiteIndexRoute: SiteIndexRoute,
+  SiteBrandSlugRoute: SiteBrandSlugRoute,
   SiteProviderSlugRoute: SiteProviderSlugRoute,
+  SiteTreatmentSlugRoute: SiteTreatmentSlugRoute,
   SiteTxCityRoute: SiteTxCityRoute,
 }
 

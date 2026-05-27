@@ -24,8 +24,9 @@ export function SiteHeader() {
         </Link>
         <nav className="hidden items-center gap-8 md:flex">
           <Link to="/search" className="text-sm font-medium hover:text-brand">Find an Injector</Link>
-          <Link to="/submit" className="text-sm font-medium hover:text-brand">Submit Listing</Link>
-          <Link to="/about" className="text-sm font-medium hover:text-brand">About</Link>
+          <Link to="/brands" className="text-sm font-medium hover:text-brand">Brands</Link>
+          <Link to="/safety" className="text-sm font-medium hover:text-brand">Safety</Link>
+          <Link to="/submit" className="text-sm font-medium hover:text-brand">Submit</Link>
           <Link to="/favorites" aria-label="Favorites" className="text-foreground/80 hover:text-brand">
             <Heart className="h-4 w-4" />
           </Link>
@@ -89,6 +90,7 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/about" className="hover:text-brand">About</Link></li>
             <li><Link to="/contact" className="hover:text-brand">Contact</Link></li>
+            <li><Link to="/safety" className="hover:text-brand">Patient Safety</Link></li>
             <li><Link to="/privacy" className="hover:text-brand">Privacy</Link></li>
             <li><Link to="/terms" className="hover:text-brand">Terms</Link></li>
           </ul>
