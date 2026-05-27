@@ -21,7 +21,6 @@ import { Route as SiteFavoritesRouteImport } from './routes/_site.favorites'
 import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
 import { Route as SiteContactRouteImport } from './routes/_site.contact'
 import { Route as SiteAboutRouteImport } from './routes/_site.about'
-import { Route as ApiPublicSeedRouteImport } from './routes/api.public.seed'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
 
@@ -84,11 +83,6 @@ const SiteAboutRoute = SiteAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => SiteRoute,
 } as any)
-const ApiPublicSeedRoute = ApiPublicSeedRouteImport.update({
-  id: '/api/public/seed',
-  path: '/api/public/seed',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SiteTxCityRoute = SiteTxCityRouteImport.update({
   id: '/tx/$city',
   path: '/tx/$city',
@@ -114,7 +108,6 @@ export interface FileRoutesByFullPath {
   '/terms': typeof SiteTermsRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
-  '/api/public/seed': typeof ApiPublicSeedRoute
 }
 export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -130,7 +123,6 @@ export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
-  '/api/public/seed': typeof ApiPublicSeedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -148,7 +140,6 @@ export interface FileRoutesById {
   '/_site/': typeof SiteIndexRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
   '/_site/tx/$city': typeof SiteTxCityRoute
-  '/api/public/seed': typeof ApiPublicSeedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -166,7 +157,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/provider/$slug'
     | '/tx/$city'
-    | '/api/public/seed'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sitemap.xml'
@@ -182,7 +172,6 @@ export interface FileRouteTypes {
     | '/'
     | '/provider/$slug'
     | '/tx/$city'
-    | '/api/public/seed'
   id:
     | '__root__'
     | '/_site'
@@ -199,13 +188,11 @@ export interface FileRouteTypes {
     | '/_site/'
     | '/_site/provider/$slug'
     | '/_site/tx/$city'
-    | '/api/public/seed'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  ApiPublicSeedRoute: typeof ApiPublicSeedRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -294,13 +281,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteAboutRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/api/public/seed': {
-      id: '/api/public/seed'
-      path: '/api/public/seed'
-      fullPath: '/api/public/seed'
-      preLoaderRoute: typeof ApiPublicSeedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_site/tx/$city': {
       id: '/_site/tx/$city'
       path: '/tx/$city'
@@ -353,7 +333,6 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  ApiPublicSeedRoute: ApiPublicSeedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
