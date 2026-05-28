@@ -1,106 +1,91 @@
-# Plan: Excel-backed directory + franchise model + trust features
+# Sam's List-inspired redesign + Phase 2/3 features
 
-The uploaded sheet has **101 verified TX medspas** across all 10 cities we already support (Houston 14, Dallas 6, Austin 7, San Antonio 7, Fort Worth 7, El Paso 11, Arlington 11, Plano 7, Corpus Christi 15, Lubbock 16). Columns: Name, Address, City, State, Email, Specialists, Website, Status, Notes. No phone, no coordinates, no photos, no hours, no rating, no reviews.
+Rebuild the directory in the visual language of samslist.com (cream background, serif display type, dark forest-green primary, generous whitespace, restrained borders) and ship the remaining trust/discovery features in one pass.
 
-Because of that, I'm splitting the work into 3 phases. **Phase 1 is mandatory** to get the site working off the spreadsheet. Phases 2–3 are big — I'll do Phase 2 in this build and we can iterate on Phase 3 in a follow-up.
+## 1. Design system overhaul (samslist-inspired)
 
----
+Update `src/styles.css` tokens:
 
-## Phase 1 — Rip out Google Maps, seed from the spreadsheet
+- Accent muted sage, soft borders, subtle shadows only
+- Buttons: solid dark-green pill with cream text; ghost = text-only
+- Cards: white surface, hairline border, generous padding, no heavy shadows
 
-**Remove**
+Update `src/components/site-chrome.tsx`:
 
-- `src/lib/google-places.server.ts`
-- `src/routes/api.public.seed.ts`
-- `GOOGLE_MAPS_API_KEY` secret (kept until you confirm)
-- All Google references in `_site.privacy.tsx` / `_site.terms.tsx` (replace with neutral "data sourced from publicly listed business info")
-- `google_maps_url` field usage on the provider page → replace "Directions" button with a generic Maps link built from the address (Apple/Google universal `https://maps.google.com/?q=<address>` is fine, no API needed)
+- Header: wordmark left, centered nav (Find a Pro ▾, Get Matched, About, For Professionals), right-side search icon + Sign In + dark "Write a Review" pill button
+- "Find a Pro" dropdown listing: All providers, By city, By treatment, By brand
+- Footer: 7-column samslist layout (Brand blurb + socials | Browse by Type | Browse by Location | Browse by Category | Company | Legal | Common Situations), legal fine-print row, copyright
 
-**Database migration**
+## 2. Get Matched quiz flow (new)
 
-- Drop columns we can't populate from the sheet: `lat`, `lng`, `phone`, `rating`, `review_count`, `price_level`, `hours_json`, `photos_json`, `hero_photo_url`, `google_maps_url`, `business_status` (or keep with defaults).
-- Make `place_id` nullable / repurpose as legacy; new primary key for lookups stays `slug`.
-- Add columns: `email text`, `specialists text`, `notes text`, `brand_id uuid null`, `is_verified bool default true`.
-- Re-run with proper GRANTs (RLS already correct).
+New route `src/routes/_site.match.tsx` — 6-step wizard with progress bar:
 
-**Seed** — insert all 101 rows via `supabase--insert` (one batch). Slugs: `slugify("{name} {city}")`. `city_slug` from the existing `TEXAS_CITIES` map.
+1. Biggest priority (Botox, Filler, Laser, Skin, Body, Hair)
+2. Concern (wrinkles, volume, scars, pigmentation, jawline, body contour)
+3. Skin type / tone
+4. Budget range
+5. Timing (just exploring / 1–2 weeks / within a month / 2–3 months) + State (TX cities + "outside TX")
+6. Contact details → reveal blurred match cards with % match
 
-**Code updates**
+Scoring: weight by city match, treatment overlap (specialists/notes/services), brand-verified bonus, recency. New server fn `getMatches` in `src/lib/match.functions.ts`. Persist submissions to a new `match_submissions` table (RLS: insert anyone, select own).
 
-- `providers.functions.ts` — drop Google fields from select; expose `email`, `specialists`, `website`, `address`, `notes`.
-- `provider-card.tsx` — remove rating stars / review count UI; show name, city, specialists tag, website CTA.
-- `_site.provider.$slug.tsx` — new layout: name, address, "Contact" (email + website), Specialists section, Notes, "Get Directions" (plain map URL). Remove hours/reviews/hero photo sections (no data).
-- `_site.tx.$city.tsx` — remove "minRating" sort option; keep service filter (services will be empty until tagged — see Phase 2).
-- `_site.index.tsx` — update featured/hero card to use a real seeded provider.
+Final results page `src/routes/_site.match.results.$id.tsx`: "Your top matches" with one card visible at a time + "Match X of N" pager, "Not a fit" / "Interested" actions (writes to `match_responses` table). "Interested" reveals contact info and notifies the provider via the contact-message table.
 
-**Reviews & favorites tables** stay; reviews simply empty until users submit them.
+## 3. Provider detail page redesign
 
----
+Rebuild `src/routes/_site.provider.$slug.tsx` to match Spark 3 layout:
 
-## Phase 2 — Franchise / multi-branch model + priority discovery features
+- White hero card: square logo placeholder, FRACTIONAL/treatment tag pill, serif name, tagline, 5-column meta strip (Based In, In Business, Founded, Serves Clients, Team Size), Dedicated Staff row
+- Sticky right rail: "Contact {name}" multi-step form (name → email → phone → message) with progress bar, posts to new `contact_messages` table
+- Reviews section with star summary + "Write a Review" CTA opening auth-gated form (writes to existing `reviews` table)
+- "Our Approach" prose section
+- "Services Offered" 2-column check-list grid
+- "Tech Stack" logo grid (we'll skip tools we don't have — use specialist tags as proxies)
+- "Pricing & Packages" cards (new `provider_packages` table, optional)
+- "Industries Served" + "Client Specialties" with progress bars (derive from specialists text; render only if data exists)
+- "Regulatory disclosure" cream callout
+- "Explore More" links (city / treatment / all)
+- Related blog posts row (static placeholders for now)
 
-### Brands & branches schema
+## 4. Phase 2 features (favorites, compare, reviews, Best Of)
 
-```
-brands (id, slug, name, description, hero_url, website, is_verified, created_at)
-providers.brand_id  → brands.id   (a "provider" row IS a branch)
-```
+- **Favorites heart** on `ProviderCard` — top-right icon button, optimistic toggle, calls existing `toggleFavorite` server fn; unauthenticated → redirect to /login with redirect param
+- **Compare drawer**: zustand store of up to 3 provider slugs, floating bottom bar "Compare (n)" → opens Sheet with side-by-side specialists/services/brand/city table; "Add to compare" button on cards
+- **Review form**: dialog on provider page, auth-gated, 1–5 stars + text, writes via new `submitReview` server fn, optimistic insert, displayed under Reviews
+- **Best of $city pages**: `src/routes/_site.best.$city.tsx` — top 10 by review count/rating in that city, "Best Medspas in {City} 2026" SEO copy
+- **Concern → treatment mapping** in `src/lib/cities.ts` (Wrinkles→botox+xeomin, Jawline→filler+kybella, Acne scars→microneedling+laser, etc.) — surfaced on match quiz and home page
 
-- Auto-detect brand groupings during seed by exact `name` match across cities (e.g. if "Skin Spa NY" appears in 3 cities, create one brand row, link 3 branches).
-- **Parent brand page** route: `_site.brand.$slug.tsx` — shows brand summary + "All Locations" list with each city + branch detail link.
-- **Individual branch pages** stay at `/provider/$slug` (city is part of slug → unique).
-- Sitemap + JSON-LD updated to emit `Organization` for brands and `LocalBusiness` for each branch (with `parentOrganization`).
+## 5. Phase 3 features (auth UX)
 
-### Treatments / services
+- **Claim flow**: `/provider/$slug` "Claim this listing" → `_authenticated/claim.$slug.tsx` form (verifying email + role at clinic, contact phone) → inserts into `claim_requests` table for admin review
+- **Provider dashboard** `_authenticated/dashboard.tsx`: tabs for Claimed Listings, Inbox (contact messages routed to claimed providers), Reviews received, Profile editor (update specialists/notes/website/email/services/packages)
+- **New user onboarding**: after first login, route to `/welcome` (one-time) — patient (default) vs provider toggle, then redirect appropriately (favorites for patients, claim CTA for providers)
 
-- Keep existing `services` enum in `cities.ts` (Botox, Filler, Lip, Sculptra, etc.).
-- **Treatment pages**: new route `_site.treatment.$slug.tsx` listing all branches that offer the treatment, with city filters.
-- Until staff tag services manually, derive services from `Specialists` + `Notes` text (same `inferServices()` regex we had).
+## 6. Database additions
 
-### Search & filters (location + concern)
+New migration:
 
-- Upgrade `_site.search.tsx` to filter by city, treatment, brand-only-vs-independent, verified.
-- Add "Search by concern" mapping (Wrinkles → botox+filler; Jawline → filler+kybella; Lips → lip-filler; etc.) — pure client mapping into the same query.
+- `match_submissions` (user_id nullable, answers jsonb, contact jsonb, created_at)
+- `match_responses` (submission_id, provider_id, response: interested|not_a_fit)
+- `contact_messages` (provider_id, name, email, phone, message, created_at) — visible to claimed owner
+- `claim_requests` (user_id, provider_id, role, contact, status default 'pending')
+- `provider_packages` (provider_id, title, price_range, description) — optional, leave empty
+- Add `tagline`, `founded_year`, `team_size`, `years_in_business`, `dedicated_staff_bool`, `industries` text[], `client_specialties` jsonb to `providers`
+- All with RLS + GRANTs per the standard pattern
 
-### Favorites & compare
+## 7. SEO + sitemap updates
 
-- Favorites table already exists; wire the heart icon on provider cards (auth-gated).
-- **Compare**: client-side state, up to 3 branches, side-by-side modal — name, city, specialties, contact.
+- Add /match, /best/$city, /brands, /treatment/$slug already in sitemap; add /safety
+- City pages: rename to "Best Medspas in {City}, TX" H1 + meta
 
-### "Best Of" + Awards (lightweight)
+## 8. Profiles and Personalities
 
-- Static `_site.best.$city.tsx` listing top branches per city by `is_verified` + alpha until reviews exist.
-- Add a `badges text[]` column on `providers` so we can later tag "Top Botox Clinic 2026" manually.
-
-### Trust polish
-
-- Reviews UI: user-submitted form behind auth (writes to existing `reviews` table tied to `provider_place_id` — rename column to `provider_slug` in the same migration).
-- FAQ section on each branch page (static for now: parking, consultations, booking).
-- Patient Safety Info: new `_site.safety.tsx` page linked from footer.
-
----
-
-## Phase 3 — Defer (call out, build now)
-
-These are valuable but heavy; I'll list them so we can build them:
-
-- Injector bio pages (need staff data we don't have)
-- Before/after galleries (need image uploads + moderation)
-- Matchmaking quiz / personality-based discovery / swipe UX
-- Multi-branch enterprise dashboard (claim flow exists; full mgmt UI is its own sprint)
-- Branch-specific pricing (no source data; needs claim → owner edits)
-- Social proof IG/TikTok embeds (per-branch handles needed)
-- Recovery & downtime educational content (CMS-ish; needs writing)
-- Skin-type / awards-by-city badges beyond the simple `badges[]` column
-
----
+- Injector personality profiles, swipe UI, gallery uploads, multi-branch enterprise console, skin-type filters beyond basic mapping, recovery-time content - To be done now..
 
 ## Technical notes
 
-- One Supabase migration for schema (drop Google columns, add brand model, rename review FK).
-- One `supabase--insert` call to seed 101 branches + auto-derived brands.
-- All Google-related files deleted; `.env` cleanup left to you (GOOGLE_MAPS_API_KEY secret can stay unused or be removed).
-- All new routes follow `_site.*` layout convention and add proper `head()` metadata + JSON-LD (brand → Organization, branch → LocalBusiness, treatment → CollectionPage).
-- No changes to auth, RLS roles, or AI gateway.
-
-**Switch to build mode and I'll execute Phase 1 + Phase 2.**
+- All server fns under `src/lib/*.functions.ts` using `requireSupabaseAuth` where the user must be known; public reads via `supabaseAdmin` scoped by slug
+- Compare store: `src/stores/compare-store.ts` zustand, persisted to localStorage
+- Provider dashboard uses `_authenticated/` layout already in place
+- Forms validated with zod (length caps, email format, phone optional)
+- No new external APIs, no new secrets
