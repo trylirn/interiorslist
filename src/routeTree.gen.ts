@@ -17,6 +17,7 @@ import { Route as SiteSubmitRouteImport } from './routes/_site.submit'
 import { Route as SiteSearchRouteImport } from './routes/_site.search'
 import { Route as SiteSafetyRouteImport } from './routes/_site.safety'
 import { Route as SitePrivacyRouteImport } from './routes/_site.privacy'
+import { Route as SiteMatchRouteImport } from './routes/_site.match'
 import { Route as SiteLoginRouteImport } from './routes/_site.login'
 import { Route as SiteFavoritesRouteImport } from './routes/_site.favorites'
 import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
@@ -27,6 +28,7 @@ import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as SiteTreatmentSlugRouteImport } from './routes/_site.treatment.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
 import { Route as SiteBrandSlugRouteImport } from './routes/_site.brand.$slug'
+import { Route as SiteBestCityRouteImport } from './routes/_site.best.$city'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -65,6 +67,11 @@ const SiteSafetyRoute = SiteSafetyRouteImport.update({
 const SitePrivacyRoute = SitePrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteMatchRoute = SiteMatchRouteImport.update({
+  id: '/match',
+  path: '/match',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteLoginRoute = SiteLoginRouteImport.update({
@@ -117,6 +124,11 @@ const SiteBrandSlugRoute = SiteBrandSlugRouteImport.update({
   path: '/brand/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteBestCityRoute = SiteBestCityRouteImport.update({
+  id: '/best/$city',
+  path: '/best/$city',
+  getParentRoute: () => SiteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
@@ -127,11 +139,13 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof SiteDashboardRoute
   '/favorites': typeof SiteFavoritesRoute
   '/login': typeof SiteLoginRoute
+  '/match': typeof SiteMatchRoute
   '/privacy': typeof SitePrivacyRoute
   '/safety': typeof SiteSafetyRoute
   '/search': typeof SiteSearchRoute
   '/submit': typeof SiteSubmitRoute
   '/terms': typeof SiteTermsRoute
+  '/best/$city': typeof SiteBestCityRoute
   '/brand/$slug': typeof SiteBrandSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
@@ -145,12 +159,14 @@ export interface FileRoutesByTo {
   '/dashboard': typeof SiteDashboardRoute
   '/favorites': typeof SiteFavoritesRoute
   '/login': typeof SiteLoginRoute
+  '/match': typeof SiteMatchRoute
   '/privacy': typeof SitePrivacyRoute
   '/safety': typeof SiteSafetyRoute
   '/search': typeof SiteSearchRoute
   '/submit': typeof SiteSubmitRoute
   '/terms': typeof SiteTermsRoute
   '/': typeof SiteIndexRoute
+  '/best/$city': typeof SiteBestCityRoute
   '/brand/$slug': typeof SiteBrandSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
@@ -166,12 +182,14 @@ export interface FileRoutesById {
   '/_site/dashboard': typeof SiteDashboardRoute
   '/_site/favorites': typeof SiteFavoritesRoute
   '/_site/login': typeof SiteLoginRoute
+  '/_site/match': typeof SiteMatchRoute
   '/_site/privacy': typeof SitePrivacyRoute
   '/_site/safety': typeof SiteSafetyRoute
   '/_site/search': typeof SiteSearchRoute
   '/_site/submit': typeof SiteSubmitRoute
   '/_site/terms': typeof SiteTermsRoute
   '/_site/': typeof SiteIndexRoute
+  '/_site/best/$city': typeof SiteBestCityRoute
   '/_site/brand/$slug': typeof SiteBrandSlugRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
   '/_site/treatment/$slug': typeof SiteTreatmentSlugRoute
@@ -188,11 +206,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/favorites'
     | '/login'
+    | '/match'
     | '/privacy'
     | '/safety'
     | '/search'
     | '/submit'
     | '/terms'
+    | '/best/$city'
     | '/brand/$slug'
     | '/provider/$slug'
     | '/treatment/$slug'
@@ -206,12 +226,14 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/favorites'
     | '/login'
+    | '/match'
     | '/privacy'
     | '/safety'
     | '/search'
     | '/submit'
     | '/terms'
     | '/'
+    | '/best/$city'
     | '/brand/$slug'
     | '/provider/$slug'
     | '/treatment/$slug'
@@ -226,12 +248,14 @@ export interface FileRouteTypes {
     | '/_site/dashboard'
     | '/_site/favorites'
     | '/_site/login'
+    | '/_site/match'
     | '/_site/privacy'
     | '/_site/safety'
     | '/_site/search'
     | '/_site/submit'
     | '/_site/terms'
     | '/_site/'
+    | '/_site/best/$city'
     | '/_site/brand/$slug'
     | '/_site/provider/$slug'
     | '/_site/treatment/$slug'
@@ -299,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof SitePrivacyRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/match': {
+      id: '/_site/match'
+      path: '/match'
+      fullPath: '/match'
+      preLoaderRoute: typeof SiteMatchRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/login': {
@@ -371,6 +402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteBrandSlugRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/best/$city': {
+      id: '/_site/best/$city'
+      path: '/best/$city'
+      fullPath: '/best/$city'
+      preLoaderRoute: typeof SiteBestCityRouteImport
+      parentRoute: typeof SiteRoute
+    }
   }
 }
 
@@ -381,12 +419,14 @@ interface SiteRouteChildren {
   SiteDashboardRoute: typeof SiteDashboardRoute
   SiteFavoritesRoute: typeof SiteFavoritesRoute
   SiteLoginRoute: typeof SiteLoginRoute
+  SiteMatchRoute: typeof SiteMatchRoute
   SitePrivacyRoute: typeof SitePrivacyRoute
   SiteSafetyRoute: typeof SiteSafetyRoute
   SiteSearchRoute: typeof SiteSearchRoute
   SiteSubmitRoute: typeof SiteSubmitRoute
   SiteTermsRoute: typeof SiteTermsRoute
   SiteIndexRoute: typeof SiteIndexRoute
+  SiteBestCityRoute: typeof SiteBestCityRoute
   SiteBrandSlugRoute: typeof SiteBrandSlugRoute
   SiteProviderSlugRoute: typeof SiteProviderSlugRoute
   SiteTreatmentSlugRoute: typeof SiteTreatmentSlugRoute
@@ -400,12 +440,14 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteDashboardRoute: SiteDashboardRoute,
   SiteFavoritesRoute: SiteFavoritesRoute,
   SiteLoginRoute: SiteLoginRoute,
+  SiteMatchRoute: SiteMatchRoute,
   SitePrivacyRoute: SitePrivacyRoute,
   SiteSafetyRoute: SiteSafetyRoute,
   SiteSearchRoute: SiteSearchRoute,
   SiteSubmitRoute: SiteSubmitRoute,
   SiteTermsRoute: SiteTermsRoute,
   SiteIndexRoute: SiteIndexRoute,
+  SiteBestCityRoute: SiteBestCityRoute,
   SiteBrandSlugRoute: SiteBrandSlugRoute,
   SiteProviderSlugRoute: SiteProviderSlugRoute,
   SiteTreatmentSlugRoute: SiteTreatmentSlugRoute,
