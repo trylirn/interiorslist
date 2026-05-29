@@ -1,24 +1,8 @@
 {
   "brands": [
     {
-      "slug": "z-med",
-      "name": "Z Med"
-    },
-    {
-      "slug": "new-you",
-      "name": "New You"
-    },
-    {
-      "slug": "beaux",
-      "name": "Beaux"
-    },
-    {
-      "slug": "san-antonio",
-      "name": "San Antonio"
-    },
-    {
-      "slug": "american",
-      "name": "American"
+      "slug": "american-laser-med-spa",
+      "name": "American Laser Med Spa"
     }
   ],
   "providers": [
@@ -61,7 +45,7 @@
         "Hydrafacial",
         "CoolSculpting"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -101,7 +85,7 @@
         "LED Light Therapy",
         "Medical Grade Skincare"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -137,7 +121,7 @@
         "Chemical Peels",
         "Laser Hair Removal"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -175,7 +159,7 @@
         "Skin Tightening",
         "PRP Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -213,7 +197,7 @@
         "Laser Hair Removal",
         "PRP Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -251,7 +235,7 @@
         "Laser Hair Removal",
         "PRP Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -283,7 +267,7 @@
         "Laser Treatments",
         "Skin Rejuvenation"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -322,7 +306,7 @@
         "Facials",
         "Skin Tightening"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -359,7 +343,7 @@
         "Lip Augmentation",
         "Laser Hair Removal"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -395,7 +379,7 @@
         "Body Contouring",
         "Custom Facials"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -435,7 +419,7 @@
         "PRP Therapy",
         "IV Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -475,7 +459,7 @@
         "PRP Therapy",
         "Skin Tightening"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -516,7 +500,7 @@
         "Microneedling with PRP",
         "Facials"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -558,7 +542,7 @@
         "Lip Fillers",
         "Skin Tightening"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -595,7 +579,7 @@
         "PRP Therapy",
         "Facial Massage"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -637,7 +621,7 @@
         "Body Contouring",
         "IV Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -672,7 +656,7 @@
         "Facials",
         "Lip Fillers"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -710,7 +694,7 @@
         "Laser Hair Removal",
         "Body Contouring"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -748,7 +732,7 @@
         "CoolSculpting",
         "Skin Tightening"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -786,8 +770,8 @@
         "Laser Hair Removal",
         "HydraFacial"
       ],
-      "brand_key": "z med",
-      "branch_label": "Corpus Christi"
+      "brand_name": null,
+      "branch_label": null
     },
     {
       "place_id": "local:the-spa-by-sheena-lubbock",
@@ -823,7 +807,7 @@
         "Laser Treatments",
         "PRP Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -858,7 +842,7 @@
         "Skin tightening",
         "Laser treatments"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -903,7 +887,7 @@
         "Dermaplaning",
         "Facial Massage"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -941,7 +925,7 @@
         "PRP therapy",
         "HydraFacial"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -975,7 +959,7 @@
         "Dermal Fillers",
         "Facial Massage"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1014,8 +998,8 @@
         "Lip Fillers",
         "IV Therapy"
       ],
-      "brand_key": "new you",
-      "branch_label": "Houston"
+      "brand_name": null,
+      "branch_label": null
     },
     {
       "place_id": "local:new-you-medspa---houston-west-houston",
@@ -1052,8 +1036,8 @@
         "Skin Tightening",
         "Facial Treatments"
       ],
-      "brand_key": "new you",
-      "branch_label": "Houston"
+      "brand_name": null,
+      "branch_label": null
     },
     {
       "place_id": "local:beauty-medica-houston",
@@ -1091,7 +1075,7 @@
         "Lip Augmentation",
         "IV Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1133,7 +1117,7 @@
         "HydraFacial",
         "IPL Photofacial"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1173,7 +1157,7 @@
         "Body Contouring",
         "Skin Tightening"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1236,7 +1220,7 @@
         "Microneedling with Radiofrequency",
         "Skincare Consultations"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1300,7 +1284,7 @@
         "Facials",
         "Body Contouring"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1328,8 +1312,7 @@
         "laser-hair-removal",
         "lip-filler",
         "microneedling",
-        "prp",
-        "vampire-facial"
+        "prp"
       ],
       "services_raw": [
         "DiamondGlow",
@@ -1358,7 +1341,7 @@
         "Vampire Facial",
         "Laser Skin Resurfacing"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1405,7 +1388,7 @@
         "Chemical Peels",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1436,7 +1419,6 @@
         "prp-hair",
         "sculptra",
         "ultherapy",
-        "vampire-facial",
         "xeomin"
       ],
       "services_raw": [
@@ -1464,7 +1446,7 @@
         "Ultherapy",
         "Cryotherapy Facials"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1520,7 +1502,7 @@
         "PRP Therapy",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1548,7 +1530,6 @@
         "pdo-threads",
         "prp",
         "skin-tightening",
-        "vampire-facial",
         "vein-treatment",
         "xeomin"
       ],
@@ -1580,7 +1561,7 @@
         "Microneedling with PRP",
         "Vampire Facial"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1611,7 +1592,6 @@
         "prp-hair",
         "skin-tightening",
         "tattoo-removal",
-        "vampire-facial",
         "vein-treatment",
         "xeomin"
       ],
@@ -1644,7 +1624,7 @@
         "Skin Tightening with Radio Frequency",
         "Facial Waxing"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1675,7 +1655,6 @@
         "microneedling",
         "pdo-threads",
         "prp",
-        "vampire-facial",
         "vein-treatment",
         "xeomin"
       ],
@@ -1712,7 +1691,7 @@
         "Fat Reduction Treatments",
         "Thread Lifts"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1765,7 +1744,7 @@
         "Laser Tattoo Removal",
         "Stretch Mark Reduction"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1831,7 +1810,7 @@
         "Laser Tattoo Removal",
         "Skin Tightening"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1862,8 +1841,7 @@
         "prp",
         "prp-hair",
         "sculptra",
-        "ultherapy",
-        "vampire-facial"
+        "ultherapy"
       ],
       "services_raw": [
         "HydraFacial",
@@ -1893,7 +1871,7 @@
         "Facials",
         "Medical Grade Skincare Consultations"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1950,7 +1928,7 @@
         "PDO Thread Lifts",
         "Vitamin B12 Injection"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -1981,7 +1959,6 @@
         "prp-hair",
         "sculptra",
         "ultherapy",
-        "vampire-facial",
         "xeomin"
       ],
       "services_raw": [
@@ -2010,7 +1987,7 @@
         "Microneedling with PRP",
         "Vampire Facial"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2075,7 +2052,7 @@
         "Body Contouring",
         "Microdermabrasion"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2137,8 +2114,8 @@
         "IV Hydration Therapy",
         "Latisse Treatment"
       ],
-      "brand_key": "beaux",
-      "branch_label": "Austin"
+      "brand_name": null,
+      "branch_label": null
     },
     {
       "place_id": "local:beaux-medspa---medical-parkway-austin",
@@ -2205,8 +2182,8 @@
         "Ear Lobe Repair",
         "Scar Revision Treatments"
       ],
-      "brand_key": "beaux",
-      "branch_label": "Austin"
+      "brand_name": null,
+      "branch_label": null
     },
     {
       "place_id": "local:glo-med-spa-austin-austin",
@@ -2267,7 +2244,7 @@
         "Acne Treatments",
         "Rosacea Treatments"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2297,7 +2274,6 @@
         "morpheus8",
         "prp",
         "ultherapy",
-        "vampire-facial",
         "vein-treatment"
       ],
       "services_raw": [
@@ -2325,7 +2301,7 @@
         "Ultherapy",
         "Sclerotherapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2357,7 +2333,6 @@
         "prp",
         "sculptra",
         "skin-tightening",
-        "vampire-facial",
         "weight-loss",
         "xeomin"
       ],
@@ -2401,7 +2376,7 @@
         "Acne Scar Treatments",
         "Hyperpigmentation Treatments"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2456,7 +2431,7 @@
         "Microdermabrasion",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2513,7 +2488,7 @@
         "SkinMedica Products",
         "ZO Skin Health Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2566,8 +2541,8 @@
         "PDO Threads",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": "san antonio",
-      "branch_label": "San Antonio"
+      "brand_name": null,
+      "branch_label": null
     },
     {
       "place_id": "local:perfect-touch-medspa-san-antonio",
@@ -2613,7 +2588,7 @@
         "Hydrafacial",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2666,7 +2641,7 @@
         "Chemical Peels",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2694,7 +2669,6 @@
         "microneedling",
         "prp",
         "tattoo-removal",
-        "vampire-facial",
         "vein-treatment",
         "weight-loss",
         "xeomin"
@@ -2727,7 +2701,7 @@
         "Microneedling with PRP",
         "Acne Treatment Procedures"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2779,7 +2753,7 @@
         "Body Contouring",
         "IV Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2807,8 +2781,7 @@
         "kybella",
         "laser-hair-removal",
         "microneedling",
-        "prp",
-        "vampire-facial"
+        "prp"
       ],
       "services_raw": [
         "Botox",
@@ -2840,7 +2813,7 @@
         "Facial Rejuvenation Treatments",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2902,7 +2875,7 @@
         "Facial Fillers",
         "Lip Augmentation"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2950,7 +2923,7 @@
         "Sclerotherapy",
         "Medical Grade Skincare Consultations"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -2981,8 +2954,7 @@
         "microneedling",
         "morpheus8",
         "prp",
-        "sculptra",
-        "vampire-facial"
+        "sculptra"
       ],
       "services_raw": [
         "Botox",
@@ -3011,7 +2983,7 @@
         "Body Contouring",
         "IV Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3042,8 +3014,7 @@
         "morpheus8",
         "prp",
         "sculptra",
-        "ultherapy",
-        "vampire-facial"
+        "ultherapy"
       ],
       "services_raw": [
         "Botox",
@@ -3069,7 +3040,7 @@
         "Morpheus8",
         "Microdermabrasion"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3098,8 +3069,7 @@
         "microneedling",
         "prp",
         "sculptra",
-        "skin-tightening",
-        "vampire-facial"
+        "skin-tightening"
       ],
       "services_raw": [
         "Botox Cosmetic",
@@ -3132,7 +3102,7 @@
         "Obagi",
         "Revision Skincare"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3165,7 +3135,6 @@
         "sculptra",
         "tattoo-removal",
         "ultherapy",
-        "vampire-facial",
         "xeomin"
       ],
       "services_raw": [
@@ -3199,7 +3168,7 @@
         "Laser Tattoo Removal",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3228,8 +3197,7 @@
         "laser-hair-removal",
         "laser-resurfacing",
         "microneedling",
-        "prp",
-        "vampire-facial"
+        "prp"
       ],
       "services_raw": [
         "Botox",
@@ -3257,7 +3225,7 @@
         "Facial Rejuvenation",
         "Non-Surgical Rhinoplasty"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3289,8 +3257,7 @@
         "microneedling",
         "prp",
         "skin-tightening",
-        "ultherapy",
-        "vampire-facial"
+        "ultherapy"
       ],
       "services_raw": [
         "HydraFacial",
@@ -3319,7 +3286,7 @@
         "Sculpting",
         "Skin Tightening Treatments"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3368,7 +3335,7 @@
         "Lash Extensions",
         "Lash Lift and Tint"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3425,7 +3392,7 @@
         "Anti-Aging Treatments",
         "TanTowel Spray Tanning"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3455,7 +3422,6 @@
         "prp",
         "tattoo-removal",
         "ultherapy",
-        "vampire-facial",
         "vein-treatment"
       ],
       "services_raw": [
@@ -3480,7 +3446,7 @@
         "Lash Lifts",
         "Permanent Makeup"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3547,7 +3513,7 @@
         "Jawline Contouring",
         "Neck Lift"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3603,7 +3569,7 @@
         "Body Contouring",
         "Laser Skin Resurfacing"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3654,7 +3620,7 @@
         "Dermaplaning",
         "Sclerotherapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3715,7 +3681,7 @@
         "PRP Hair Restoration",
         "Laser Tattoo Removal"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3773,7 +3739,7 @@
         "Laser Vein Treatment",
         "IPL Photofacial"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3803,7 +3769,6 @@
         "permanent-makeup",
         "prp",
         "prp-hair",
-        "vampire-facial",
         "vein-treatment"
       ],
       "services_raw": [
@@ -3832,7 +3797,7 @@
         "O-Shot",
         "Vampire Facial"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3894,7 +3859,7 @@
         "Rosacea Treatments",
         "Stretch Mark Reduction"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3953,7 +3918,7 @@
         "Hyperpigmentation Treatments",
         "Acne Scar Treatments"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -3984,7 +3949,6 @@
         "sculptra",
         "skin-tightening",
         "ultherapy",
-        "vampire-facial",
         "xeomin"
       ],
       "services_raw": [
@@ -4019,7 +3983,7 @@
         "Acne Treatment",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4085,7 +4049,7 @@
         "Lymphatic Drainage Massage",
         "IV Therapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4147,7 +4111,7 @@
         "Chemical Peels",
         "Oxygen Therapy Facial"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4198,8 +4162,8 @@
         "IV Therapy",
         "Medical Weight Loss Consultation"
       ],
-      "brand_key": "z med",
-      "branch_label": "Corpus Christi"
+      "brand_name": null,
+      "branch_label": null
     },
     {
       "place_id": "local:taylor-med-spa-corpus-christi",
@@ -4257,7 +4221,7 @@
         "Ultherapy",
         "SkinMedica Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4324,7 +4288,7 @@
         "Ultherapy",
         "Laser Tattoo Removal"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4372,7 +4336,7 @@
         "Kybella",
         "Laser Skin Resurfacing"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4429,7 +4393,7 @@
         "Sculptra Aesthetic",
         "Body Contouring"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4484,7 +4448,7 @@
         "Dermal Fillers Consultation",
         "Custom Skincare Consultations"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4537,7 +4501,7 @@
         "Morpheus8",
         "Ultherapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4585,7 +4549,7 @@
         "Massage Therapy",
         "Lash Lift"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4616,7 +4580,6 @@
         "prp",
         "skin-tightening",
         "tattoo-removal",
-        "vampire-facial",
         "weight-loss"
       ],
       "services_raw": [
@@ -4645,7 +4608,7 @@
         "Skin Tightening",
         "Chemical Peels"
       ],
-      "brand_key": "american",
+      "brand_name": "American Laser Med Spa",
       "branch_label": "Corpus Christi"
     },
     {
@@ -4695,7 +4658,7 @@
         "DiamondGlow Facial",
         "Clear + Brilliant Laser"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4743,7 +4706,7 @@
         "Skin Tightening",
         "Laser Skin Resurfacing"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4774,7 +4737,6 @@
         "prp",
         "prp-hair",
         "skin-tightening",
-        "vampire-facial",
         "vein-treatment"
       ],
       "services_raw": [
@@ -4802,7 +4764,7 @@
         "Body Contouring",
         "Hydrafacial"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4832,7 +4794,6 @@
         "morpheus8",
         "prp",
         "ultherapy",
-        "vampire-facial",
         "xeomin"
       ],
       "services_raw": [
@@ -4860,7 +4821,7 @@
         "SkinMedica products",
         "Alastin Skincare products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4916,7 +4877,7 @@
         "Acne Treatments",
         "Body Contouring"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -4972,7 +4933,7 @@
         "Laser Skin Tightening",
         "Body Contouring"
       ],
-      "brand_key": "american",
+      "brand_name": "American Laser Med Spa",
       "branch_label": "Lubbock"
     },
     {
@@ -5019,7 +4980,7 @@
         "Lip Flip",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5067,7 +5028,7 @@
         "Sclerotherapy",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5117,7 +5078,7 @@
         "Sclerotherapy",
         "Skin Tightening Treatments"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5169,7 +5130,7 @@
         "Ultherapy",
         "Morpheus8"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5225,7 +5186,7 @@
         "Facial Contouring",
         "Non-Surgical Rhinoplasty"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5256,8 +5217,7 @@
         "microneedling",
         "prp",
         "sculptra",
-        "ultherapy",
-        "vampire-facial"
+        "ultherapy"
       ],
       "services_raw": [
         "Botox",
@@ -5293,7 +5253,7 @@
         "Scar Revision",
         "Hyperpigmentation Treatment"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5351,7 +5311,7 @@
         "Cheek Augmentation",
         "Non-Surgical Rhinoplasty"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5379,7 +5339,6 @@
         "microneedling",
         "pdo-threads",
         "prp",
-        "vampire-facial",
         "vein-treatment"
       ],
       "services_raw": [
@@ -5406,7 +5365,7 @@
         "SkinMedica products",
         "ZO Skin Health products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5462,7 +5421,7 @@
         "Microneedling with PRP",
         "Medical Grade Skincare Products"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5493,7 +5452,6 @@
         "prp",
         "sculptra",
         "ultherapy",
-        "vampire-facial",
         "xeomin"
       ],
       "services_raw": [
@@ -5524,7 +5482,7 @@
         "Cellulite Reduction",
         "Ultherapy"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5582,7 +5540,7 @@
         "Microneedling with PRP",
         "Laser Skin Resurfacing"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5643,7 +5601,7 @@
         "Vaginal Rejuvenation",
         "Wellness Consultations"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5674,7 +5632,6 @@
         "microneedling",
         "prp",
         "tattoo-removal",
-        "vampire-facial",
         "vein-treatment",
         "weight-loss",
         "xeomin"
@@ -5704,7 +5661,7 @@
         "Body Contouring with CoolSculpting",
         "Laser Tattoo Removal"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5750,7 +5707,7 @@
         "PRP Therapy",
         "Body Contouring Treatments"
       ],
-      "brand_key": null,
+      "brand_name": null,
       "branch_label": null
     },
     {
@@ -5783,7 +5740,6 @@
         "prp",
         "sculptra",
         "tattoo-removal",
-        "vampire-facial",
         "vein-treatment",
         "xeomin"
       ],
@@ -5819,8 +5775,8 @@
         "Laser Vein Treatment",
         "Laser Tattoo Removal"
       ],
-      "brand_key": "san antonio",
-      "branch_label": "San Antonio"
+      "brand_name": null,
+      "branch_label": null
     }
   ]
 }
