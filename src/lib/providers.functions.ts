@@ -3,7 +3,8 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const PROVIDER_COLS =
-  "place_id, slug, name, city, city_slug, address, services, website, email, specialists, notes, brand_id, branch_label, is_verified, badges";
+  "place_id, slug, name, city, city_slug, address, website, specialists, credentials, notes, brand_id, branch_label, is_verified, badges, services, services_raw";
+
 
 const cityArg = z.object({
   citySlug: z.string().min(1).max(80),
