@@ -111,6 +111,7 @@ export type Database = {
           phone: string | null
           provider_place_id: string
           status: string
+          updated_at: string
           user_id: string | null
         }
         Insert: {
@@ -123,6 +124,7 @@ export type Database = {
           phone?: string | null
           provider_place_id: string
           status?: string
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
@@ -135,6 +137,7 @@ export type Database = {
           phone?: string | null
           provider_place_id?: string
           status?: string
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
@@ -203,6 +206,7 @@ export type Database = {
           city_slug: string
           claimed_by: string | null
           created_at: string
+          credentials: string | null
           email: string | null
           google_maps_url: string | null
           hero_photo_url: string | null
@@ -221,6 +225,7 @@ export type Database = {
           rating: number | null
           review_count: number | null
           services: string[] | null
+          services_raw: string[] | null
           slug: string
           specialists: string | null
           state: string
@@ -237,6 +242,7 @@ export type Database = {
           city_slug: string
           claimed_by?: string | null
           created_at?: string
+          credentials?: string | null
           email?: string | null
           google_maps_url?: string | null
           hero_photo_url?: string | null
@@ -255,6 +261,7 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           services?: string[] | null
+          services_raw?: string[] | null
           slug: string
           specialists?: string | null
           state?: string
@@ -271,6 +278,7 @@ export type Database = {
           city_slug?: string
           claimed_by?: string | null
           created_at?: string
+          credentials?: string | null
           email?: string | null
           google_maps_url?: string | null
           hero_photo_url?: string | null
@@ -289,6 +297,7 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           services?: string[] | null
+          services_raw?: string[] | null
           slug?: string
           specialists?: string | null
           state?: string
