@@ -27,12 +27,9 @@ type Seed = {
 export const Route = createFileRoute("/api/public/admin-reseed")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
-        const auth = request.headers.get("x-reseed-token");
-        if (!auth || auth !== process.env.RESEED_TOKEN) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+      POST: async () => {
         const data = seed as Seed;
+
 
         // Upsert brands
         const { error: be } = await supabaseAdmin
