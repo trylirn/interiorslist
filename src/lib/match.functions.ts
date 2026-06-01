@@ -12,22 +12,25 @@ const matchInput = z.object({
 
 // Map "concern" → service slugs that satisfy it
 export const CONCERN_TREATMENTS: Record<string, string[]> = {
-  wrinkles: ["botox", "fillers"],
-  volume: ["fillers", "sculptra", "lip-filler"],
-  jawline: ["fillers", "kybella"],
+  wrinkles: ["botox", "dysport", "xeomin", "jeuveau", "fillers"],
+  "lip-volume": ["lip-filler", "fillers"],
+  volume: ["fillers", "sculptra", "lip-filler", "cheek-filler"],
+  jawline: ["jawline-filler", "fillers", "kybella", "skin-tightening", "morpheus8"],
   lips: ["lip-filler"],
-  "acne-scars": ["microneedling", "chemical-peels", "prp"],
-  pigmentation: ["chemical-peels", "microneedling"],
-  "hair-loss": ["prp"],
-  glow: ["microneedling", "chemical-peels", "iv-therapy"],
+  "acne-scars": ["microneedling", "morpheus8", "chemical-peels", "prp", "laser-resurfacing"],
+  pigmentation: ["ipl-photofacial", "bbl", "chemical-peels", "halo-laser", "microneedling"],
+  "hair-loss": ["prp-hair", "prp"],
+  glow: ["hydrafacial", "microneedling", "chemical-peels", "dermaplaning", "iv-therapy"],
+  "body-contouring": ["coolsculpting", "emsculpt", "kybella", "body-contouring", "skin-tightening"],
 };
 
 const PRIORITY_TREATMENTS: Record<string, string[]> = {
-  botox: ["botox"],
-  fillers: ["fillers", "lip-filler", "sculptra"],
-  skin: ["microneedling", "chemical-peels", "prp"],
-  body: ["kybella", "sculptra"],
-  wellness: ["iv-therapy"],
+  botox: ["botox", "dysport", "xeomin", "jeuveau"],
+  fillers: ["fillers", "lip-filler", "cheek-filler", "jawline-filler", "sculptra"],
+  skin: ["microneedling", "morpheus8", "chemical-peels", "hydrafacial", "prp", "laser-resurfacing"],
+  body: ["coolsculpting", "emsculpt", "kybella", "body-contouring", "sculptra"],
+  laser: ["laser-hair-removal", "ipl-photofacial", "bbl", "halo-laser", "laser-resurfacing"],
+  wellness: ["iv-therapy", "weight-loss", "hormone-therapy"],
   exploring: [],
 };
 
