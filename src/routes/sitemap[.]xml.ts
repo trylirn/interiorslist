@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { TEXAS_CITIES, SERVICES } from "@/lib/cities";
+import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
 
 const BASE_URL = "";
 
@@ -19,8 +19,12 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/search", changefreq: "weekly", priority: "0.7" },
+          { path: "/match", changefreq: "weekly", priority: "0.7" },
           { path: "/brands", changefreq: "weekly", priority: "0.7" },
+          { path: "/how-it-works", changefreq: "monthly", priority: "0.5" },
+          { path: "/for-business", changefreq: "monthly", priority: "0.6" },
           { path: "/safety", changefreq: "monthly", priority: "0.5" },
+          { path: "/credentials", changefreq: "monthly", priority: "0.5" },
           { path: "/submit", changefreq: "monthly", priority: "0.5" },
           { path: "/about", changefreq: "monthly", priority: "0.5" },
           { path: "/contact", changefreq: "monthly", priority: "0.4" },
@@ -28,8 +32,12 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/terms", changefreq: "yearly", priority: "0.2" },
         ];
 
-        for (const c of TEXAS_CITIES) entries.push({ path: `/tx/${c.slug}`, changefreq: "weekly", priority: "0.8" });
+        for (const c of TEXAS_CITIES) {
+          entries.push({ path: `/tx/${c.slug}`, changefreq: "weekly", priority: "0.8" });
+          entries.push({ path: `/best/${c.slug}`, changefreq: "weekly", priority: "0.7" });
+        }
         for (const s of SERVICES) entries.push({ path: `/treatment/${s.slug}`, changefreq: "weekly", priority: "0.7" });
+        for (const k of CONCERNS) entries.push({ path: `/concern/${k.slug}`, changefreq: "weekly", priority: "0.6" });
 
         try {
           const { data: providers } = await supabaseAdmin.from("providers").select("slug, updated_at").limit(5000);
