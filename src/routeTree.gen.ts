@@ -24,7 +24,6 @@ import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
 import { Route as SiteContactRouteImport } from './routes/_site.contact'
 import { Route as SiteBrandsRouteImport } from './routes/_site.brands'
 import { Route as SiteAboutRouteImport } from './routes/_site.about'
-import { Route as ApiPublicAdminReseedRouteImport } from './routes/api.public.admin-reseed'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as SiteTreatmentSlugRouteImport } from './routes/_site.treatment.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
@@ -105,11 +104,6 @@ const SiteAboutRoute = SiteAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => SiteRoute,
 } as any)
-const ApiPublicAdminReseedRoute = ApiPublicAdminReseedRouteImport.update({
-  id: '/api/public/admin-reseed',
-  path: '/api/public/admin-reseed',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SiteTxCityRoute = SiteTxCityRouteImport.update({
   id: '/tx/$city',
   path: '/tx/$city',
@@ -156,7 +150,6 @@ export interface FileRoutesByFullPath {
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
-  '/api/public/admin-reseed': typeof ApiPublicAdminReseedRoute
 }
 export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -178,7 +171,6 @@ export interface FileRoutesByTo {
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
-  '/api/public/admin-reseed': typeof ApiPublicAdminReseedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -202,7 +194,6 @@ export interface FileRoutesById {
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
   '/_site/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/_site/tx/$city': typeof SiteTxCityRoute
-  '/api/public/admin-reseed': typeof ApiPublicAdminReseedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -226,7 +217,6 @@ export interface FileRouteTypes {
     | '/provider/$slug'
     | '/treatment/$slug'
     | '/tx/$city'
-    | '/api/public/admin-reseed'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sitemap.xml'
@@ -248,7 +238,6 @@ export interface FileRouteTypes {
     | '/provider/$slug'
     | '/treatment/$slug'
     | '/tx/$city'
-    | '/api/public/admin-reseed'
   id:
     | '__root__'
     | '/_site'
@@ -271,13 +260,11 @@ export interface FileRouteTypes {
     | '/_site/provider/$slug'
     | '/_site/treatment/$slug'
     | '/_site/tx/$city'
-    | '/api/public/admin-reseed'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  ApiPublicAdminReseedRoute: typeof ApiPublicAdminReseedRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -387,13 +374,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteAboutRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/api/public/admin-reseed': {
-      id: '/api/public/admin-reseed'
-      path: '/api/public/admin-reseed'
-      fullPath: '/api/public/admin-reseed'
-      preLoaderRoute: typeof ApiPublicAdminReseedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_site/tx/$city': {
       id: '/_site/tx/$city'
       path: '/tx/$city'
@@ -479,7 +459,6 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  ApiPublicAdminReseedRoute: ApiPublicAdminReseedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

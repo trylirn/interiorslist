@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const sendContactMessage = createServerFn({ method: "POST" })
   .inputValidator((d) =>
@@ -29,6 +30,7 @@ export const sendContactMessage = createServerFn({ method: "POST" })
   });
 
 export const submitReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
       .object({
@@ -39,8 +41,10 @@ export const submitReview = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin.from("reviews").insert({
+  .handler(async ({ data, context }) => {
+    // Use the user-scoped client so RLS applies and the review is tied to a verified session.
+    const { supabase } = context;
+    const { error } = await supabase.from("reviews").insert({
       provider_place_id: data.placeId,
       author_name: data.authorName,
       rating: data.rating,
