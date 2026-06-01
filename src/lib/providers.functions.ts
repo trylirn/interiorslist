@@ -83,10 +83,13 @@ export const searchProviders = createServerFn({ method: "GET" })
     }).parse(d),
   )
   .handler(async ({ data }) => {
+    // Strip PostgREST filter syntax characters to prevent .or() injection.
+    const term = data.q.replace(/[,()*%\\]/g, " ").trim();
+    if (!term) return { providers: [] };
     let q = supabaseAdmin
       .from("providers")
       .select(PROVIDER_COLS)
-      .or(`name.ilike.%${data.q}%,specialists.ilike.%${data.q}%,city.ilike.%${data.q}%`);
+      .or(`name.ilike.%${term}%,specialists.ilike.%${term}%,city.ilike.%${term}%`);
     if (data.city) q = q.eq("city_slug", data.city);
     if (data.service) q = q.contains("services", [data.service]);
     q = q.limit(60);
