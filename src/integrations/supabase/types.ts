@@ -217,15 +217,18 @@ export type Database = {
           lng: number | null
           name: string
           notes: string | null
+          personality: Json | null
           phone: string | null
           photos_json: Json | null
           place_id: string
           postal_code: string | null
           price_level: number | null
           rating: number | null
+          recovery_tags: string[] | null
           review_count: number | null
           services: string[] | null
           services_raw: string[] | null
+          skin_types: string[] | null
           slug: string
           specialists: string | null
           state: string
@@ -253,15 +256,18 @@ export type Database = {
           lng?: number | null
           name: string
           notes?: string | null
+          personality?: Json | null
           phone?: string | null
           photos_json?: Json | null
           place_id: string
           postal_code?: string | null
           price_level?: number | null
           rating?: number | null
+          recovery_tags?: string[] | null
           review_count?: number | null
           services?: string[] | null
           services_raw?: string[] | null
+          skin_types?: string[] | null
           slug: string
           specialists?: string | null
           state?: string
@@ -289,15 +295,18 @@ export type Database = {
           lng?: number | null
           name?: string
           notes?: string | null
+          personality?: Json | null
           phone?: string | null
           photos_json?: Json | null
           place_id?: string
           postal_code?: string | null
           price_level?: number | null
           rating?: number | null
+          recovery_tags?: string[] | null
           review_count?: number | null
           services?: string[] | null
           services_raw?: string[] | null
+          skin_types?: string[] | null
           slug?: string
           specialists?: string | null
           state?: string
@@ -421,6 +430,42 @@ export type Database = {
           status?: string
           submitted_by?: string | null
           website?: string | null
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          author: string
+          created_at: string
+          featured: boolean
+          id: string
+          location: string | null
+          photo_url: string | null
+          quote: string
+          rating: number
+          treatment: string | null
+        }
+        Insert: {
+          author: string
+          created_at?: string
+          featured?: boolean
+          id?: string
+          location?: string | null
+          photo_url?: string | null
+          quote: string
+          rating?: number
+          treatment?: string | null
+        }
+        Update: {
+          author?: string
+          created_at?: string
+          featured?: boolean
+          id?: string
+          location?: string | null
+          photo_url?: string | null
+          quote?: string
+          rating?: number
+          treatment?: string | null
         }
         Relationships: []
       }
