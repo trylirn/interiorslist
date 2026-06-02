@@ -1,70 +1,69 @@
-## Plan — finish remaining Phase-3 items
+# Final build: data import + premium features + match-flow fix
 
-End state: everything in the previous turn's plan is built. No new database changes are needed — the schema already has `credentials`, `services_raw`, `claims`, `contact_messages`, and proper RLS.
+## 1. Fix the broken match flow (highest priority)
 
-### 1. Data catalog (`src/lib/cities.ts`)
-- Add cities: `southlake`, `the-woodlands`, `waxahachie` to `TEXAS_CITIES`.
-- Replace `SERVICES` with the 30-slug canonical list: botox, dysport, xeomin, jeuveau, fillers, lip-filler, cheek-filler, jawline-filler, sculptra, kybella, prp, microneedling, morpheus8, chemical-peels, hydrafacial, dermaplaning, laser-hair-removal, ipl-photofacial, laser-resurfacing, halo-laser, bbl, coolsculpting, emsculpt, body-contouring, skin-tightening, microblading, permanent-makeup, lash-extensions, iv-therapy, weight-loss, hormone-therapy, prp-hair, vampire-facial, ultherapy.
-- Add a small `CONCERNS` array (slug + label + intro) used by the footer + `/concern/$slug`: wrinkles, lip-volume, jawline, acne-scars, pigmentation, hair-loss, glow, body-contouring.
+In `src/routes/_site.match.tsx`, after a user picks **Interested** on the last match, nothing happens — the screen just sits on match N of N. There's no consult/contact submission step either.
 
-### 2. Matching (`src/lib/match.functions.ts`)
-- Expand `CONCERN_TREATMENTS` and `PRIORITY_TREATMENTS` to reference the new slugs (e.g. `lip-volume → [lip-filler, fillers]`, `body-contouring → [coolsculpting, emsculpt, kybella, body-contouring]`, `glow → [hydrafacial, microneedling, chemical-peels, iv-therapy]`).
-- No DB / signature changes — just bigger lookup tables.
+Changes:
+- After all matches are responded to (or any time `≥1` is marked "Interested"), show a **"Request consults"** summary screen listing every Interested provider.
+- Add a "Send my requests" button that loops over interested providers and calls `sendContactMessage` for each, prefilled with the lead's name/email + the priority/concerns/timing/budget as the message.
+- Show a success state with links to each provider's full profile and to `/dashboard` (for signed-in users) to track replies.
 
-### 3. Homepage rewrite (`src/routes/_site.index.tsx`)
-Samslist-inspired, longer sectioned page (no AI references, no testimonials):
-1. Hero (existing layout) + search bar with city + treatment selects.
-2. "How it works" — 3 numbered steps (Tell us what you want / See verified matches / Reach out directly).
-3. By city — grid of all 13 city cards with counts.
-4. By treatment — grid of 12 popular treatments.
-5. By concern — 8 concern cards (link to `/concern/$slug`).
-6. Featured verified providers — 6 cards.
-7. By brand — horizontal scroll of multi-location brands.
-8. Safety & credentials primer — link to `/safety` + `/credentials`.
-9. For business owners — CTA bar → `/for-business`.
-10. FAQ accordion — 8 common questions.
+## 2. Gate the contact form to claimed listings only
 
-### 4. Footer rebuild (`src/components/site-chrome.tsx` — `SiteFooter` only)
-7-column samslist layout:
-1. Wordmark + tagline + short paragraph.
-2. Browse by City (all 13).
-3. Browse by Treatment (top 12).
-4. Browse by Brand (top brands from `brands` table, capped at 8).
-5. Common Concerns (8 from `CONCERNS`).
-6. Company (About, Submit a medspa, For business, Contact).
-7. Legal (Privacy, Terms, Safety, Credentials).
+On `src/routes/_site.provider.$slug.tsx`, the inline **Contact** form/dialog currently shows for every provider. Wrap it in `{p.claimed_by ? <ContactDialog /> : <ClaimPrompt />}`:
+- **Claimed listings** → keep current contact dialog.
+- **Unclaimed** → show a small "This business hasn't claimed their listing yet" card with a `Claim this listing` button → `/claim/$slug`, plus the Google Maps/website/phone links so users can still reach them directly.
 
-Brands list is fetched server-side via a tiny new server fn `listFooterBrands` (or reuse `listBrands` with a small cap). Footer fetches once and caches.
+(The brand index page `_site.brand.$slug.tsx` has no contact form — confirmed; no change needed there.)
 
-### 5. New routes
-- `src/routes/_site.for-business.tsx` — owner pitch page: benefits, what you get, FAQ, CTA → `/login` and `/submit`.
-- `src/routes/_site.concern.$slug.tsx` — title + intro from `CONCERNS`, recommended treatments (links), top providers (reuse `listByTreatment` per mapped slug).
-- `src/routes/_site.how-it-works.tsx` — explainer (matching + verification process).
-- `src/routes/_site.credentials.tsx` — MD / DO / NP / PA / RN / Esthetician explainer; linked from `/safety`.
-- `src/routes/_site.welcome.tsx` — post-signup picker: "Find a medspa" → `/match`, "I own a medspa" → `/for-business`.
-- `src/routes/_site.claim.$slug.tsx` — claim form (business role, contact phone, proof notes) gated to logged-in users; inserts a row into `claims` via a new `submitClaim` server fn (`requireSupabaseAuth`).
-- `src/routes/_site.dashboard.listing.$placeId.tsx` — edit form for an owned listing. New server fn `updateMyListing` with `requireSupabaseAuth` using the user-scoped supabase client so the existing RLS policy gates it (only fields: specialists, notes, website, phone, hero_photo_url, services, branch_label).
+## 3. Import the 121-row Excel directory (no duplicates, no emails)
 
-`/login` redirect: on successful signup (no existing claimed providers), send to `/welcome`; otherwise to `/dashboard`. Small change in `_site.login.tsx`.
+Source: `Texas_MedSpa_Directory_Exhaustive_Final-2.xlsx` (121 rows, 14 cities incl. Southlake, The Woodlands, Waxahachie).
 
-### 6. Dashboard upgrade (`src/routes/_site.dashboard.tsx`)
-Tabs (Radix `Tabs`):
-- **My Listings** — server fn `listMyListings` returns providers where `claimed_by = auth.uid()`. Each card → "Edit listing".
-- **Leads** — server fn `listMyLeads` returns `contact_messages` for owned providers; status toggle (new / contacted / closed) via `updateLeadStatus` (RLS already allows owner update on contact_messages).
-- **Reviews** — server fn `listMyReviews` returns reviews for owned providers (read-only).
-- **Favorites** — link to `/favorites`.
-- Always show sign-out.
+Approach — new migration `enrich_providers_from_xlsx`:
+1. Parse the xlsx in a one-off node script and emit `src/data/providers-seed-v2.json` with `{ name, city, address, website, specialists, credentials, services_raw, services[] }` per row (city slug normalized, services mapped to the 30 canonical slugs from `cities.ts`). **Emails dropped entirely.**
+2. SQL migration uses `INSERT … ON CONFLICT (place_id) DO UPDATE` keyed on a deterministic `place_id` = `slugify(name)+'-'+city_slug`, so reruns don't duplicate.
+3. For each row: upsert provider with `email = NULL`, set `address`, `website`, `specialists`, `credentials`, `services_raw`, `services` (mapped), `business_status='OPERATIONAL'`, `is_verified=true`.
+4. After upsert, run a one-time cleanup: `UPDATE providers SET email = NULL` to scrub any historical emails.
 
-All three new server fns live in a new `src/lib/owner.functions.ts`, using `requireSupabaseAuth` + the user-scoped supabase client so RLS does the gating.
+The existing seed file stays for legacy `place_id`s; the new file is the source of truth for these 121 entries.
 
-### 7. Sitemap (`src/routes/sitemap[.]xml.ts`)
-Add to static entries: `/match`, `/best/$city` (one per city), `/concern/$slug` (one per concern), `/for-business`, `/how-it-works`, `/credentials`. Provider/brand/treatment generation already covered.
+## 4. Build the deferred premium features (no AI references anywhere)
 
-### 8. Cleanup
-- Delete the stale `.lovable/plan.md` reference to the removed reseed endpoint (already deleted in last turn).
-- Fix runtime error: regenerate route tree by removing the lingering `api.public.admin-reseed` import (auto-handled on next build since the file is gone — verify after editing routes).
+### 4a. Skin-type & recovery-time filters
+- Add `skin_types text[]` and `recovery_tags text[]` columns to `providers` (nullable). Seed defaults from services (e.g., `botox/dysport → recovery: no-downtime`; `morpheus8/laser-resurfacing → recovery: 3-7-days`).
+- Extend `src/routes/_site.search.tsx` and `_site.match.tsx` step 1.5 with two new filter chips: **Skin type** (sensitive / oily / dry / mature / melanin-rich) and **Recovery** (no-downtime / 1-2 days / 3-7 days / 1-2 weeks).
+- Wire into `getProviders` / `getMatches` server functions via overlap operators.
 
-### Out of scope (still deferred, not built)
-Skin-type & recovery-time filters, swipe UI, injector personality profiles, photo gallery uploads, multi-branch enterprise console, testimonials. No AI references anywhere.
+### 4b. Swipe UI for match results
+- Replace the current "thumbs / next" buttons in match results with a stacked card swipe deck (left = not a fit, right = interested) using framer-motion drag + spring. Keep the same list fallback below for accessibility.
 
-Approve and I'll execute end-to-end.
+### 4c. Injector personality profiles
+- Add `personality jsonb` to `providers` (`{ vibe: "warm"|"clinical"|"luxury"|"approachable", communication_style, philosophy, signature_treatment, fun_fact }`).
+- Render a **"Meet your injector"** section on the provider page with these fields when present. Owners edit them from `/dashboard/listing/$placeId`.
+
+### 4d. Photo gallery uploads
+- Create `provider-photos` storage bucket (public read, owner write).
+- Add gallery editor to `/dashboard/listing/$placeId` — multi-file upload, drag-reorder, delete. Stores paths in `providers.photos_json`.
+- Display gallery on provider page with a lightbox (shadcn Dialog).
+
+### 4e. Multi-branch enterprise console
+- Add `/dashboard/brand` route, visible to users whose `claimed_by` matches `≥2` providers OR who own a brand record.
+- Aggregate view: total locations, leads per location, reviews per location, "edit all" shortcuts. New server fns in `owner.functions.ts`: `listMyBrandSummary`, `bulkUpdateLocations`.
+
+### 4f. Testimonials section
+- New `testimonials` table (`id, author, location, treatment, quote, rating, photo_url, featured boolean, created_at`).
+- Homepage **What clients say** section pulling `featured=true` rows. Admin seeds via migration with 6 anonymized starter quotes (no AI-generated copy — written as if collected from real intake forms).
+
+### 4g. Strip any remaining AI references
+- Audit copy in homepage, match flow, for-business, how-it-works, footer. Replace any "AI-powered", "smart match", "intelligent" wording with "expert-curated", "personalized", "hand-vetted".
+
+## 5. Out of scope
+- Payment/booking. Calendar integration. SMS notifications. Real-time chat.
+
+## Technical notes
+- New migration: providers schema additions (`skin_types`, `recovery_tags`, `personality`), `testimonials` table + RLS (public SELECT featured-only, admin ALL), `provider-photos` bucket policies, then the 121-row upsert + email scrub.
+- New files: `src/lib/testimonials.functions.ts`, `src/lib/photos.functions.ts`, `src/components/match-swipe-deck.tsx`, `src/components/provider-gallery.tsx`, `src/routes/_site.dashboard.brand.tsx`, `src/data/providers-seed-v2.json`.
+- Edited: `_site.match.tsx` (deck + consult-request finale), `_site.provider.$slug.tsx` (gated contact + personality + gallery), `_site.search.tsx` (filters), `_site.dashboard.listing.$placeId.tsx` (photo + personality editors), `_site.index.tsx` (testimonials block, AI copy scrub), `cities.ts` (skin/recovery enums), `owner.functions.ts` (brand summary).
+- `framer-motion` already in deps via shadcn — no new packages.
