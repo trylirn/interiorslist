@@ -205,17 +205,46 @@ function ProviderPage() {
             </p>
           </section>
 
-          <section className="mt-8 rounded-3xl border border-border bg-secondary/50 p-8 text-center">
-            <p className="font-display text-xl">Is this your business?</p>
-            <p className="mt-1 text-sm text-muted-foreground">Claim this listing to update contact info, photos, and services.</p>
-            <Button asChild className="mt-4 rounded-full"><Link to="/login">Claim this listing</Link></Button>
-          </section>
+          {!p.claimed_by && (
+            <section className="mt-8 rounded-3xl border border-border bg-secondary/50 p-8 text-center">
+              <p className="font-display text-xl">Is this your business?</p>
+              <p className="mt-1 text-sm text-muted-foreground">Claim this listing to enable contact requests, update info, photos, and services.</p>
+              <Button asChild className="mt-4 rounded-full"><Link to="/claim/$slug" params={{ slug }}>Claim this listing</Link></Button>
+            </section>
+          )}
         </div>
 
         {/* Sticky contact rail */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <ContactForm placeId={p.place_id} name={p.name} />
+          {p.claimed_by ? (
+            <ContactForm placeId={p.place_id} name={p.name} />
+          ) : (
+            <UnclaimedSidebar slug={slug} website={p.website} mapsHref={mapsHref} />
+          )}
         </aside>
+      </div>
+    </div>
+  );
+}
+
+function UnclaimedSidebar({ slug, website, mapsHref }: { slug: string; website: string | null; mapsHref: string | null }) {
+  return (
+    <div className="rounded-3xl border border-border bg-card p-6">
+      <div className="flex items-center gap-2">
+        <BadgeCheck className="h-5 w-5 text-muted-foreground" />
+        <h3 className="font-display text-lg">Listing not yet claimed</h3>
+      </div>
+      <p className="mt-3 text-sm text-muted-foreground">
+        This business hasn't claimed their Texas Aesthetics listing yet, so we can't deliver messages on their behalf. You can still reach them directly:
+      </p>
+      <div className="mt-4 flex flex-col gap-2">
+        {website && <Button asChild variant="outline" className="w-full rounded-full"><a href={website} target="_blank" rel="noopener noreferrer"><Globe className="mr-2 h-4 w-4" />Visit website</a></Button>}
+        {mapsHref && <Button asChild variant="outline" className="w-full rounded-full"><a href={mapsHref} target="_blank" rel="noopener noreferrer"><MapPin className="mr-2 h-4 w-4" />Get directions</a></Button>}
+      </div>
+      <div className="mt-6 rounded-xl border border-dashed border-border bg-secondary/40 p-4 text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-brand">For business owners</p>
+        <p className="mt-2 text-sm text-foreground/85">Is this your business?</p>
+        <Button asChild className="mt-3 w-full rounded-full"><Link to="/claim/$slug" params={{ slug }}>Claim this listing</Link></Button>
       </div>
     </div>
   );
