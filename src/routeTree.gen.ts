@@ -28,6 +28,7 @@ import { Route as SiteCredentialsRouteImport } from './routes/_site.credentials'
 import { Route as SiteContactRouteImport } from './routes/_site.contact'
 import { Route as SiteBrandsRouteImport } from './routes/_site.brands'
 import { Route as SiteAboutRouteImport } from './routes/_site.about'
+import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as SiteTreatmentSlugRouteImport } from './routes/_site.treatment.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
@@ -131,6 +132,12 @@ const SiteAboutRoute = SiteAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => SiteRoute,
 } as any)
+const ApiPublicAdminSeedImportRoute =
+  ApiPublicAdminSeedImportRouteImport.update({
+    id: '/api/public/admin-seed-import',
+    path: '/api/public/admin-seed-import',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SiteTxCityRoute = SiteTxCityRouteImport.update({
   id: '/tx/$city',
   path: '/tx/$city',
@@ -199,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
+  '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
 export interface FileRoutesByTo {
@@ -227,6 +235,7 @@ export interface FileRoutesByTo {
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
+  '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
 export interface FileRoutesById {
@@ -257,6 +266,7 @@ export interface FileRoutesById {
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
   '/_site/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/_site/tx/$city': typeof SiteTxCityRoute
+  '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
 export interface FileRouteTypes {
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/provider/$slug'
     | '/treatment/$slug'
     | '/tx/$city'
+    | '/api/public/admin-seed-import'
     | '/dashboard/listing/$placeId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/provider/$slug'
     | '/treatment/$slug'
     | '/tx/$city'
+    | '/api/public/admin-seed-import'
     | '/dashboard/listing/$placeId'
   id:
     | '__root__'
@@ -344,12 +356,14 @@ export interface FileRouteTypes {
     | '/_site/provider/$slug'
     | '/_site/treatment/$slug'
     | '/_site/tx/$city'
+    | '/api/public/admin-seed-import'
     | '/_site/dashboard/listing/$placeId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiPublicAdminSeedImportRoute: typeof ApiPublicAdminSeedImportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -487,6 +501,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteAboutRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/api/public/admin-seed-import': {
+      id: '/api/public/admin-seed-import'
+      path: '/api/public/admin-seed-import'
+      fullPath: '/api/public/admin-seed-import'
+      preLoaderRoute: typeof ApiPublicAdminSeedImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_site/tx/$city': {
       id: '/_site/tx/$city'
       path: '/tx/$city'
@@ -617,7 +638,18 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiPublicAdminSeedImportRoute: ApiPublicAdminSeedImportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
