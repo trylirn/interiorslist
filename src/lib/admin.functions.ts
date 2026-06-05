@@ -194,9 +194,10 @@ export const toggleProviderFlag = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin
-      .from("providers")
-      .update({ [data.field]: data.value })
+    const patch: Record<string, boolean> = { [data.field]: data.value };
+    const { error } = await (supabaseAdmin
+      .from("providers") as unknown as { update: (p: Record<string, boolean>) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } })
+      .update(patch)
       .eq("place_id", data.placeId);
     if (error) throw new Error(error.message);
     return { ok: true };
