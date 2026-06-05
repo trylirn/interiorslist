@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, Search, X } from "lucide-react";
 import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
 import { listBrands } from "@/lib/providers.functions";
+import { getMyRoles } from "@/lib/role.functions";
 
 export function SiteHeader() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -18,6 +19,13 @@ export function SiteHeader() {
     );
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  const { data: roles } = useQuery({
+    queryKey: ["my-roles"],
+    queryFn: () => getMyRoles(),
+    enabled: !!userEmail,
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur">
@@ -36,12 +44,13 @@ export function SiteHeader() {
           <Link to="/search" aria-label="Search" className="text-foreground/80 hover:text-brand">
             <Search className="h-4 w-4" />
           </Link>
+          {roles?.isAdmin && <Link to="/admin" className="text-sm font-medium text-brand hover:underline">Admin</Link>}
           {userEmail ? (
             <Link to="/dashboard" className="text-sm font-medium hover:text-brand">Account</Link>
           ) : (
             <Link to="/login" className="text-sm font-medium hover:text-brand">Sign In</Link>
           )}
-          <Button asChild className="rounded-none px-5"><Link to="/submit">Write a Review</Link></Button>
+          <Button asChild className="rounded-none px-5"><Link to="/search" search={{ intent: "review" } as never}>Write a Review</Link></Button>
         </div>
         <button className="lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu">
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -56,7 +65,8 @@ export function SiteHeader() {
             <Link to="/safety" onClick={() => setOpen(false)}>Safety</Link>
             <Link to="/for-business" onClick={() => setOpen(false)}>For Business</Link>
             <Link to="/favorites" onClick={() => setOpen(false)}>Favorites</Link>
-            <Link to="/submit" onClick={() => setOpen(false)}>Write a Review</Link>
+            <Link to="/search" search={{ intent: "review" } as never} onClick={() => setOpen(false)}>Write a Review</Link>
+            {roles?.isAdmin && <Link to="/admin" onClick={() => setOpen(false)}>Admin</Link>}
             {userEmail
               ? <Link to="/dashboard" onClick={() => setOpen(false)}>Account</Link>
               : <Link to="/login" onClick={() => setOpen(false)}>Sign in</Link>}

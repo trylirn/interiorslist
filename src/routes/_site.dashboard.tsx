@@ -6,8 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { listMyListings, listMyLeads, listMyReviews, updateLeadStatus } from "@/lib/owner.functions";
-import { Star, Mail, Phone, ExternalLink, Building2 } from "lucide-react";
+import { respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
+import { getMyRoles } from "@/lib/role.functions";
+import { Star, Mail, Phone, ExternalLink, Building2, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/dashboard")({
@@ -21,6 +24,7 @@ function Dashboard() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => { setEmail(data.session?.user.email ?? null); setReady(true); });
   }, []);
+  const { data: roles } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles(), enabled: !!email });
 
   if (!ready) return <div className="mx-auto max-w-2xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
   if (!email) return (
@@ -38,6 +42,7 @@ function Dashboard() {
           <p className="mt-1 text-sm text-muted-foreground">Signed in as <span className="font-medium text-foreground">{email}</span></p>
         </div>
         <div className="flex gap-2">
+          {roles?.isAdmin && <Button asChild size="sm"><Link to="/admin"><Shield className="mr-2 h-4 w-4" />Admin</Link></Button>}
           <Button asChild variant="outline" size="sm"><Link to="/favorites">Favorites</Link></Button>
           <Button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/"; }} variant="outline" size="sm">Sign out</Button>
         </div>
@@ -79,7 +84,7 @@ function ListingsTab() {
             <p className="mt-2 text-xs text-muted-foreground">{l.services.slice(0, 4).join(" · ")}</p>
           )}
           <div className="mt-4 flex gap-2">
-            <Button asChild size="sm"><Link to="/dashboard/listing/$placeId" params={{ placeId: l.place_id }}>Edit</Link></Button>
+            <Button asChild size="sm"><Link to="/dashboard/listing/$placeId" params={{ placeId: l.place_id }}>Manage</Link></Button>
             <Button asChild size="sm" variant="outline"><Link to="/provider/$slug" params={{ slug: l.slug }}>View</Link></Button>
           </div>
         </div>
@@ -134,24 +139,54 @@ function LeadsTab() {
 }
 
 function ReviewsTab() {
+  const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["my-reviews"], queryFn: () => listMyReviews() });
-  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
   const reviews = data?.reviews ?? [];
+  const ids = reviews.map((r) => r.id);
+  const { data: respData } = useQuery({
+    queryKey: ["my-reviews-responses", ids.join(",")],
+    queryFn: () => listReviewResponses({ data: { reviewIds: ids } }),
+    enabled: ids.length > 0,
+  });
+  const respond = useServerFn(respondToReview);
+  const respMap = new Map((respData?.responses ?? []).map((r) => [r.review_id, r.body]));
+
+  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
   if (!reviews.length) return <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No reviews yet on your listings.</p>;
+
   return (
     <div className="space-y-3">
       {reviews.map((r) => (
-        <div key={r.id} className="rounded-2xl border border-border bg-card p-5">
-          <div className="flex items-center gap-3">
-            <p className="font-medium">{r.author_name ?? "Anonymous"}</p>
-            <span className="flex items-center gap-0.5 text-amber-500">
-              {Array.from({ length: r.rating ?? 0 }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-current" />)}
-            </span>
-            {r.providerName && <span className="text-xs text-muted-foreground flex items-center gap-1"><ExternalLink className="h-3 w-3" />{r.providerName}</span>}
-          </div>
-          {r.text && <p className="mt-3 text-sm">{r.text}</p>}
-        </div>
+        <ReviewCard key={r.id} review={r} existingResponse={respMap.get(r.id) ?? ""} onSave={async (body) => {
+          try { await respond({ data: { reviewId: r.id, body } }); toast.success("Response posted"); qc.invalidateQueries({ queryKey: ["my-reviews-responses", ids.join(",")] }); }
+          catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+        }} />
       ))}
+    </div>
+  );
+}
+
+function ReviewCard({ review: r, existingResponse, onSave }: { review: { id: string; author_name: string | null; rating: number | null; text: string | null; providerName?: string }; existingResponse: string; onSave: (body: string) => Promise<void>; }) {
+  const [body, setBody] = useState(existingResponse);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { setBody(existingResponse); }, [existingResponse]);
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-center gap-3">
+        <p className="font-medium">{r.author_name ?? "Anonymous"}</p>
+        <span className="flex items-center gap-0.5 text-amber-500">
+          {Array.from({ length: r.rating ?? 0 }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-current" />)}
+        </span>
+        {r.providerName && <span className="text-xs text-muted-foreground flex items-center gap-1"><ExternalLink className="h-3 w-3" />{r.providerName}</span>}
+      </div>
+      {r.text && <p className="mt-3 text-sm">{r.text}</p>}
+      <div className="mt-4 border-t border-border pt-4">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Your response</p>
+        <Textarea className="mt-2 min-h-20" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Thanks for your feedback…" maxLength={2000} />
+        <Button size="sm" className="mt-2" disabled={busy || body.trim().length < 2} onClick={async () => { setBusy(true); await onSave(body.trim()); setBusy(false); }}>
+          {busy ? "Saving…" : existingResponse ? "Update response" : "Post response"}
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery, useQueryClient, useQuery } from "@tanstack/react-query";
 import { getProviderBySlug } from "@/lib/providers.functions";
 import { sendContactMessage, submitReview } from "@/lib/contact.functions";
+import { listProviderFaqs, listReviewResponses, recordProviderView } from "@/lib/brand-extra.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -62,6 +63,27 @@ function ProviderPage() {
       queryFn: () => getProviderBySlug({ data: { slug } }),
     }),
   );
+
+  const placeId = data.provider?.place_id;
+
+  // Track view (best-effort, fire and forget)
+  useEffect(() => {
+    if (!placeId) return;
+    recordProviderView({ data: { placeId } }).catch(() => {});
+  }, [placeId]);
+
+  const reviewIds = (data.reviews ?? []).map((r) => r.id);
+  const { data: faqsData } = useQuery({
+    queryKey: ["provider-faqs", placeId],
+    queryFn: () => listProviderFaqs({ data: { placeId: placeId! } }),
+    enabled: !!placeId,
+  });
+  const { data: responsesData } = useQuery({
+    queryKey: ["review-responses", reviewIds.join(",")],
+    queryFn: () => listReviewResponses({ data: { reviewIds } }),
+    enabled: reviewIds.length > 0,
+  });
+  const responseMap = new Map((responsesData?.responses ?? []).map((r) => [r.review_id, r.body]));
 
   if (!data.provider) {
     return (
@@ -171,20 +193,29 @@ function ProviderPage() {
               <p className="mt-6 text-center text-muted-foreground">No reviews yet. Be the first to review!</p>
             ) : (
               <div className="mt-6 space-y-4">
-                {data.reviews.map((r) => (
-                  <div key={r.id} className="rounded-xl border border-border bg-secondary/20 p-5">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium">{r.author_name}</div>
-                      <div className="flex items-center gap-0.5">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} className={`h-3.5 w-3.5 ${i < (r.rating ?? 0) ? "fill-rating text-rating" : "text-border"}`} />
-                        ))}
+                {data.reviews.map((r) => {
+                  const ownerResp = responseMap.get(r.id);
+                  return (
+                    <div key={r.id} className="rounded-xl border border-border bg-secondary/20 p-5">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-medium">{r.author_name}</div>
+                        <div className="flex items-center gap-0.5">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className={`h-3.5 w-3.5 ${i < (r.rating ?? 0) ? "fill-rating text-rating" : "text-border"}`} />
+                          ))}
+                        </div>
                       </div>
+                      {r.text && <p className="mt-2 text-sm leading-relaxed">{r.text}</p>}
+                      <p className="mt-2 text-xs text-muted-foreground">{r.relative_time}</p>
+                      {ownerResp && (
+                        <div className="mt-3 rounded-lg border-l-2 border-brand bg-card p-3">
+                          <p className="text-xs font-semibold uppercase tracking-widest text-brand">Response from {p.name}</p>
+                          <p className="mt-1 text-sm whitespace-pre-line">{ownerResp}</p>
+                        </div>
+                      )}
                     </div>
-                    {r.text && <p className="mt-2 text-sm leading-relaxed">{r.text}</p>}
-                    <p className="mt-2 text-xs text-muted-foreground">{r.relative_time}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>
@@ -192,9 +223,9 @@ function ProviderPage() {
           <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
             <h2 className="font-display text-2xl flex items-center gap-2"><HelpCircle className="h-5 w-5" /> Frequently asked</h2>
             <div className="mt-4 space-y-3">
-              <FaqItem q={`How do I book an appointment with ${p.name}?`} a="Use the contact form on this page, or email/visit their website to schedule a consultation." />
+              {(faqsData?.faqs ?? []).map((f) => <FaqItem key={f.id} q={f.question} a={f.answer} />)}
+              <FaqItem q={`How do I book an appointment with ${p.name}?`} a="Use the contact form on this page, or visit their website to schedule a consultation." />
               <FaqItem q="Is a consultation required?" a="Most aesthetic injectors recommend a consultation before treatment to discuss your goals and review medical history." />
-              <FaqItem q="What should I bring to my first visit?" a="Bring a valid ID, list of current medications, and any questions about treatment options and pricing." />
             </div>
           </section>
 

@@ -26,7 +26,9 @@ import { Route as SiteFavoritesRouteImport } from './routes/_site.favorites'
 import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
 import { Route as SiteCredentialsRouteImport } from './routes/_site.credentials'
 import { Route as SiteContactRouteImport } from './routes/_site.contact'
+import { Route as SiteCompareRouteImport } from './routes/_site.compare'
 import { Route as SiteBrandsRouteImport } from './routes/_site.brands'
+import { Route as SiteAdminRouteImport } from './routes/_site.admin'
 import { Route as SiteAboutRouteImport } from './routes/_site.about'
 import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
@@ -122,9 +124,19 @@ const SiteContactRoute = SiteContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteCompareRoute = SiteCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteBrandsRoute = SiteBrandsRouteImport.update({
   id: '/brands',
   path: '/brands',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteAdminRoute = SiteAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteAboutRoute = SiteAboutRouteImport.update({
@@ -184,7 +196,9 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
+  '/admin': typeof SiteAdminRoute
   '/brands': typeof SiteBrandsRoute
+  '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/credentials': typeof SiteCredentialsRoute
   '/dashboard': typeof SiteDashboardRouteWithChildren
@@ -212,7 +226,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
+  '/admin': typeof SiteAdminRoute
   '/brands': typeof SiteBrandsRoute
+  '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/credentials': typeof SiteCredentialsRoute
   '/dashboard': typeof SiteDashboardRouteWithChildren
@@ -243,7 +259,9 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_site/about': typeof SiteAboutRoute
+  '/_site/admin': typeof SiteAdminRoute
   '/_site/brands': typeof SiteBrandsRoute
+  '/_site/compare': typeof SiteCompareRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/credentials': typeof SiteCredentialsRoute
   '/_site/dashboard': typeof SiteDashboardRouteWithChildren
@@ -275,7 +293,9 @@ export interface FileRouteTypes {
     | '/'
     | '/sitemap.xml'
     | '/about'
+    | '/admin'
     | '/brands'
+    | '/compare'
     | '/contact'
     | '/credentials'
     | '/dashboard'
@@ -303,7 +323,9 @@ export interface FileRouteTypes {
   to:
     | '/sitemap.xml'
     | '/about'
+    | '/admin'
     | '/brands'
+    | '/compare'
     | '/contact'
     | '/credentials'
     | '/dashboard'
@@ -333,7 +355,9 @@ export interface FileRouteTypes {
     | '/_site'
     | '/sitemap.xml'
     | '/_site/about'
+    | '/_site/admin'
     | '/_site/brands'
+    | '/_site/compare'
     | '/_site/contact'
     | '/_site/credentials'
     | '/_site/dashboard'
@@ -487,11 +511,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteContactRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/compare': {
+      id: '/_site/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof SiteCompareRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/brands': {
       id: '/_site/brands'
       path: '/brands'
       fullPath: '/brands'
       preLoaderRoute: typeof SiteBrandsRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/admin': {
+      id: '/_site/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof SiteAdminRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/about': {
@@ -581,7 +619,9 @@ const SiteDashboardRouteWithChildren = SiteDashboardRoute._addFileChildren(
 
 interface SiteRouteChildren {
   SiteAboutRoute: typeof SiteAboutRoute
+  SiteAdminRoute: typeof SiteAdminRoute
   SiteBrandsRoute: typeof SiteBrandsRoute
+  SiteCompareRoute: typeof SiteCompareRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteCredentialsRoute: typeof SiteCredentialsRoute
   SiteDashboardRoute: typeof SiteDashboardRouteWithChildren
@@ -608,7 +648,9 @@ interface SiteRouteChildren {
 
 const SiteRouteChildren: SiteRouteChildren = {
   SiteAboutRoute: SiteAboutRoute,
+  SiteAdminRoute: SiteAdminRoute,
   SiteBrandsRoute: SiteBrandsRoute,
+  SiteCompareRoute: SiteCompareRoute,
   SiteContactRoute: SiteContactRoute,
   SiteCredentialsRoute: SiteCredentialsRoute,
   SiteDashboardRoute: SiteDashboardRouteWithChildren,

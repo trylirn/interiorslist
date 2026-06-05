@@ -43,7 +43,8 @@ export function CompareDrawer() {
             </div>
           ))}
         </div>
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 flex items-center justify-between">
+          <Button asChild className="rounded-full"><Link to="/compare">Open full comparison →</Link></Button>
           <Button variant="ghost" onClick={clear}>Clear all</Button>
         </div>
       </SheetContent>
