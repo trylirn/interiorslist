@@ -193,20 +193,29 @@ function ProviderPage() {
               <p className="mt-6 text-center text-muted-foreground">No reviews yet. Be the first to review!</p>
             ) : (
               <div className="mt-6 space-y-4">
-                {data.reviews.map((r) => (
-                  <div key={r.id} className="rounded-xl border border-border bg-secondary/20 p-5">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium">{r.author_name}</div>
-                      <div className="flex items-center gap-0.5">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} className={`h-3.5 w-3.5 ${i < (r.rating ?? 0) ? "fill-rating text-rating" : "text-border"}`} />
-                        ))}
+                {data.reviews.map((r) => {
+                  const ownerResp = responseMap.get(r.id);
+                  return (
+                    <div key={r.id} className="rounded-xl border border-border bg-secondary/20 p-5">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-medium">{r.author_name}</div>
+                        <div className="flex items-center gap-0.5">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className={`h-3.5 w-3.5 ${i < (r.rating ?? 0) ? "fill-rating text-rating" : "text-border"}`} />
+                          ))}
+                        </div>
                       </div>
+                      {r.text && <p className="mt-2 text-sm leading-relaxed">{r.text}</p>}
+                      <p className="mt-2 text-xs text-muted-foreground">{r.relative_time}</p>
+                      {ownerResp && (
+                        <div className="mt-3 rounded-lg border-l-2 border-brand bg-card p-3">
+                          <p className="text-xs font-semibold uppercase tracking-widest text-brand">Response from {p.name}</p>
+                          <p className="mt-1 text-sm whitespace-pre-line">{ownerResp}</p>
+                        </div>
+                      )}
                     </div>
-                    {r.text && <p className="mt-2 text-sm leading-relaxed">{r.text}</p>}
-                    <p className="mt-2 text-xs text-muted-foreground">{r.relative_time}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>
@@ -214,9 +223,9 @@ function ProviderPage() {
           <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
             <h2 className="font-display text-2xl flex items-center gap-2"><HelpCircle className="h-5 w-5" /> Frequently asked</h2>
             <div className="mt-4 space-y-3">
-              <FaqItem q={`How do I book an appointment with ${p.name}?`} a="Use the contact form on this page, or email/visit their website to schedule a consultation." />
+              {(faqsData?.faqs ?? []).map((f) => <FaqItem key={f.id} q={f.question} a={f.answer} />)}
+              <FaqItem q={`How do I book an appointment with ${p.name}?`} a="Use the contact form on this page, or visit their website to schedule a consultation." />
               <FaqItem q="Is a consultation required?" a="Most aesthetic injectors recommend a consultation before treatment to discuss your goals and review medical history." />
-              <FaqItem q="What should I bring to my first visit?" a="Bring a valid ID, list of current medications, and any questions about treatment options and pricing." />
             </div>
           </section>
 
