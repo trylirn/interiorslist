@@ -3,16 +3,14 @@ import { useState } from "react";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
 import { getFeaturedProviders, getCityStats, listBrands } from "@/lib/providers.functions";
-import { listFeaturedTestimonials } from "@/lib/testimonials.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Search, ShieldCheck, MapPin, BadgeCheck, Building2, Sparkles, MessageSquare, ListChecks, Quote, Star } from "lucide-react";
+import { Search, ShieldCheck, MapPin, BadgeCheck, Building2, Sparkles, MessageSquare, ListChecks } from "lucide-react";
 
 const featuredOpts = queryOptions({ queryKey: ["featured"], queryFn: () => getFeaturedProviders() });
 const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCityStats() });
-const testimonialsOpts = queryOptions({ queryKey: ["testimonials"], queryFn: () => listFeaturedTestimonials() });
 
 export const Route = createFileRoute("/_site/")({
   head: () => ({
@@ -30,7 +28,6 @@ export const Route = createFileRoute("/_site/")({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(featuredOpts);
     context.queryClient.ensureQueryData(statsOpts);
-    context.queryClient.ensureQueryData(testimonialsOpts);
   },
   component: HomePage,
 });
@@ -38,7 +35,6 @@ export const Route = createFileRoute("/_site/")({
 function HomePage() {
   const { data: featured } = useSuspenseQuery(featuredOpts);
   const { data: stats } = useSuspenseQuery(statsOpts);
-  const { data: testimonialsData } = useSuspenseQuery(testimonialsOpts);
   const { data: brandsData } = useQuery({ queryKey: ["home-brands"], queryFn: () => listBrands() });
   const navigate = useNavigate();
   const [q, setQ] = useState("");
