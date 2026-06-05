@@ -1,69 +1,76 @@
-# Final build: data import + premium features + match-flow fix
+# Plan
 
-## 1. Fix the broken match flow (highest priority)
+## 1. Admin dashboard (`/admin`)
 
-In `src/routes/_site.match.tsx`, after a user picks **Interested** on the last match, nothing happens — the screen just sits on match N of N. There's no consult/contact submission step either.
+- Add `admin` value to `app_role` enum (if not present) and seed role for `nokunato@gmail.com` via migration (lookup user id from `auth.users` by email, insert into `user_roles`). Also grant role automatically on signup via update to `handle_new_user` trigger when email matches.
+- New server fns in `src/lib/admin.functions.ts` (all guarded by `requireSupabaseAuth` + `has_role(userId, 'admin')` check):
+  - `listPendingClaims`, `approveClaim(id)`, `rejectClaim(id, reason)` — on approve, set `providers.claimed_by = claim.user_id`, `is_verified=true`, mark claim `status='approved'`.
+  - `listPendingSubmissions`, `approveSubmission(id)` — creates `providers` row from submission, `rejectSubmission(id)`.
+  - `listAllProviders`, `toggleProviderPublished(placeId)`, `featureProvider(placeId, bool)`.
+  - `adminMetrics()` — totals: providers, claimed %, pending claims, pending submissions, contact_messages (7d/30d), reviews (7d/30d), signups (7d/30d), top cities, top services.
+- New routes under `_authenticated/`:
+  - `src/routes/_authenticated/admin.tsx` — gate w/ `beforeLoad` calling `requireAdmin` server fn (redirect non-admins). Tabs: Overview (metrics + sparkline cards), Claims, Submissions, Listings, Reviews, Leads, Users.
+- Add link to "Admin" in `SiteHeader` user menu when current user has admin role (check via lightweight `getMyRole` server fn cached in React Query).
 
-Changes:
-- After all matches are responded to (or any time `≥1` is marked "Interested"), show a **"Request consults"** summary screen listing every Interested provider.
-- Add a "Send my requests" button that loops over interested providers and calls `sendContactMessage` for each, prefilled with the lead's name/email + the priority/concerns/timing/budget as the message.
-- Show a success state with links to each provider's full profile and to `/dashboard` (for signed-in users) to track replies.
+## 2. Brand dashboard upgrades (`/dashboard`)
 
-## 2. Gate the contact form to claimed listings only
+Extend the existing `_site.dashboard.tsx` (already has My Listings / Leads / Reviews tabs). Add:
 
-On `src/routes/_site.provider.$slug.tsx`, the inline **Contact** form/dialog currently shows for every provider. Wrap it in `{p.claimed_by ? <ContactDialog /> : <ClaimPrompt />}`:
-- **Claimed listings** → keep current contact dialog.
-- **Unclaimed** → show a small "This business hasn't claimed their listing yet" card with a `Claim this listing` button → `/claim/$slug`, plus the Google Maps/website/phone links so users can still reach them directly.
+- **Reviews tab**: response field per review. New `review_responses` table (`review_id pk fk`, `owner_id`, `body`, timestamps) + RLS so only owning provider's `claimed_by` can insert/update; public can read. New server fns `respondToReview`, `updateReviewResponse`. Render owner reply under each review on provider page.
+- **Listing editor** (`_site.dashboard.listing.$placeId.tsx`): add structured fields — `hours` (jsonb), `social_links` (jsonb), `price_ranges` (jsonb of service→range), `before_after_url[]`, `team` (jsonb of staff bios). Migration adds these columns to `providers`.
+- **FAQs tab per listing**: new `provider_faqs` table (`provider_place_id`, `question`, `answer`, `sort_order`); RLS: owner CRUD, public select. Edit UI under listing editor; render on provider page replacing/augmenting the static FAQ block.
+- **Metrics tab**: server fn `getListingMetrics(placeId)` returning profile views (new `provider_views` table, increment in provider loader), leads count, reviews count, avg rating, last 30-day trend. Charts via recharts.
+- **Update requests**: brand can submit edit suggestions for fields they can't self-edit (name, address) — `provider_update_requests` table goes to admin queue.
 
-(The brand index page `_site.brand.$slug.tsx` has no contact form — confirmed; no change needed there.)
+## 3. Fix "Write a Review" CTA
 
-## 3. Import the 121-row Excel directory (no duplicates, no emails)
+- In `src/components/site-chrome.tsx`, replace `/submit` link behind "Write a Review" with a small dialog that lets the user search a provider and routes to `/provider/$slug#reviews` (anchor scroll), OR rename CTA to "Find provider to review" linking `/search?intent=review`. Keep `/submit` reserved for business submissions.
+- Add `#reviews` anchor + auto-scroll handler in provider page; if not signed in, show inline sign-in prompt (already supported).
 
-Source: `Texas_MedSpa_Directory_Exhaustive_Final-2.xlsx` (121 rows, 14 cities incl. Southlake, The Woodlands, Waxahachie).
+## 4. Business-only account creation
 
-Approach — new migration `enrich_providers_from_xlsx`:
-1. Parse the xlsx in a one-off node script and emit `src/data/providers-seed-v2.json` with `{ name, city, address, website, specialists, credentials, services_raw, services[] }` per row (city slug normalized, services mapped to the 30 canonical slugs from `cities.ts`). **Emails dropped entirely.**
-2. SQL migration uses `INSERT … ON CONFLICT (place_id) DO UPDATE` keyed on a deterministic `place_id` = `slugify(name)+'-'+city_slug`, so reruns don't duplicate.
-3. For each row: upsert provider with `email = NULL`, set `address`, `website`, `specialists`, `credentials`, `services_raw`, `services` (mapped), `business_status='OPERATIONAL'`, `is_verified=true`.
-4. After upsert, run a one-time cleanup: `UPDATE providers SET email = NULL` to scrub any historical emails.
+- Rework `_site.login.tsx` signup tab into a multi-step "Create business account":
+  1. Business info (name, city, address, website, phone)
+  2. License & credentials (state license number, license type select, license document upload to `business-docs` private bucket, NPI optional)
+  3. Account credentials (email, password, contact name, role at business)
+- Submit creates auth user (email/password, no auto-confirm), inserts `submissions` row with license fields, uploads doc, sets `profiles.account_type='business'`.
+- Migration:
+  - Add `account_type text default 'business'` and license columns to `profiles`.
+  - Extend `submissions` with `license_number`, `license_type`, `license_doc_path`, `npi`.
+  - Create private storage bucket `business-docs` with owner-only read + admin read policies.
+- There are no Consumer accounts: keep Google OAuth login working for review/favorites flows (do not require license). Add note that email/password signup is for businesses only; consumers do not need to sign in to use the platform to the full.
+- Admin queue (item 1) reviews license docs before approving submission → creates provider listing.
 
-The existing seed file stays for legacy `place_id`s; the new file is the source of truth for these 121 entries.
+## 5. Remove homepage testimonials
 
-## 4. Build the deferred premium features (no AI references anywhere)
+- Delete the "What clients say" section from `src/routes/_site.index.tsx`. Keep `testimonials.functions.ts` + table for future use.
 
-### 4a. Skin-type & recovery-time filters
-- Add `skin_types text[]` and `recovery_tags text[]` columns to `providers` (nullable). Seed defaults from services (e.g., `botox/dysport → recovery: no-downtime`; `morpheus8/laser-resurfacing → recovery: 3-7-days`).
-- Extend `src/routes/_site.search.tsx` and `_site.match.tsx` step 1.5 with two new filter chips: **Skin type** (sensitive / oily / dry / mature / melanin-rich) and **Recovery** (no-downtime / 1-2 days / 3-7 days / 1-2 weeks).
-- Wire into `getProviders` / `getMatches` server functions via overlap operators.
+## 6. Richer compare
 
-### 4b. Swipe UI for match results
-- Replace the current "thumbs / next" buttons in match results with a stacked card swipe deck (left = not a fit, right = interested) using framer-motion drag + spring. Keep the same list fallback below for accessibility.
+- Extend `CompareItem` type and `CompareDrawer` to fetch full provider rows when opened (new server fn `getProvidersByIds(placeIds[])`). Render a comparison table with rows:
+  - Hero photo, name + city, rating + review count, services (chips), credentials/specialists, price range, hours summary, skin types supported, recovery time tags, claimed status, distance (if user location), languages, website/phone, "Request consult" button per column.
+- Add sticky first column (attribute label) on desktop; swipeable cards on mobile.
+- Persist comparison via `localStorage` (already done) + shareable URL `/compare?ids=a,b,c`.
 
-### 4c. Injector personality profiles
-- Add `personality jsonb` to `providers` (`{ vibe: "warm"|"clinical"|"luxury"|"approachable", communication_style, philosophy, signature_treatment, fun_fact }`).
-- Render a **"Meet your injector"** section on the provider page with these fields when present. Owners edit them from `/dashboard/listing/$placeId`.
+## Technical details
 
-### 4d. Photo gallery uploads
-- Create `provider-photos` storage bucket (public read, owner write).
-- Add gallery editor to `/dashboard/listing/$placeId` — multi-file upload, drag-reorder, delete. Stores paths in `providers.photos_json`.
-- Display gallery on provider page with a lightbox (shadcn Dialog).
+**New files**
 
-### 4e. Multi-branch enterprise console
-- Add `/dashboard/brand` route, visible to users whose `claimed_by` matches `≥2` providers OR who own a brand record.
-- Aggregate view: total locations, leads per location, reviews per location, "edit all" shortcuts. New server fns in `owner.functions.ts`: `listMyBrandSummary`, `bulkUpdateLocations`.
+- `src/lib/admin.functions.ts`, `src/lib/brand-extra.functions.ts`, `src/lib/compare.functions.ts`, `src/lib/role.functions.ts`
+- `src/routes/_authenticated/admin.tsx` (+ sub-tab components)
+- `src/routes/_site.compare.tsx`
+- Components: `admin-claims-table`, `admin-submissions-table`, `admin-metrics`, `review-response-form`, `provider-faqs-editor`, `listing-metrics-chart`, `business-signup-wizard`, `compare-table`
 
-### 4f. Testimonials section
-- New `testimonials` table (`id, author, location, treatment, quote, rating, photo_url, featured boolean, created_at`).
-- Homepage **What clients say** section pulling `featured=true` rows. Admin seeds via migration with 6 anonymized starter quotes (no AI-generated copy — written as if collected from real intake forms).
+**Migrations (one combined)**
 
-### 4g. Strip any remaining AI references
-- Audit copy in homepage, match flow, for-business, how-it-works, footer. Replace any "AI-powered", "smart match", "intelligent" wording with "expert-curated", "personalized", "hand-vetted".
+- `app_role` add `'admin'` if missing; seed admin role for `nokunato@gmail.com`; update `handle_new_user` trigger to auto-grant admin to that email.
+- New tables: `review_responses`, `provider_faqs`, `provider_views`, `provider_update_requests`.
+- Alter `providers`: add `hours jsonb`, `social_links jsonb`, `price_ranges jsonb`, `before_after_urls text[]`, `team jsonb`, `published boolean default true`, `featured boolean default false`.
+- Alter `profiles`: `account_type text default 'consumer'`, set business on business signup.
+- Alter `submissions`: license fields.
+- Storage bucket `business-docs` (private) + policies.
+- All new tables: GRANTs + RLS per project rules (no anon writes; public select only where appropriate; admin override via `has_role`).
 
-## 5. Out of scope
-- Payment/booking. Calendar integration. SMS notifications. Real-time chat.
+**Out of scope**
 
-## Technical notes
-- New migration: providers schema additions (`skin_types`, `recovery_tags`, `personality`), `testimonials` table + RLS (public SELECT featured-only, admin ALL), `provider-photos` bucket policies, then the 121-row upsert + email scrub.
-- New files: `src/lib/testimonials.functions.ts`, `src/lib/photos.functions.ts`, `src/components/match-swipe-deck.tsx`, `src/components/provider-gallery.tsx`, `src/routes/_site.dashboard.brand.tsx`, `src/data/providers-seed-v2.json`.
-- Edited: `_site.match.tsx` (deck + consult-request finale), `_site.provider.$slug.tsx` (gated contact + personality + gallery), `_site.search.tsx` (filters), `_site.dashboard.listing.$placeId.tsx` (photo + personality editors), `_site.index.tsx` (testimonials block, AI copy scrub), `cities.ts` (skin/recovery enums), `owner.functions.ts` (brand summary).
-- `framer-motion` already in deps via shadcn — no new packages.
+- Payments/booking, advanced license verification (manual admin review only), email notifications on claim approval (can add toast/in-app only for now).
