@@ -170,35 +170,156 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: string
           avatar_url: string | null
+          business_role: string | null
+          contact_name: string | null
           created_at: string
           display_name: string | null
           email: string | null
           id: string
+          phone: string | null
           updated_at: string
         }
         Insert: {
+          account_type?: string
           avatar_url?: string | null
+          business_role?: string | null
+          contact_name?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id: string
+          phone?: string | null
           updated_at?: string
         }
         Update: {
+          account_type?: string
           avatar_url?: string | null
+          business_role?: string | null
+          contact_name?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          phone?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      provider_faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          provider_place_id: string
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          provider_place_id: string
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          provider_place_id?: string
+          question?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_faqs_provider_place_id_fkey"
+            columns: ["provider_place_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["place_id"]
+          },
+        ]
+      }
+      provider_update_requests: {
+        Row: {
+          created_at: string
+          id: string
+          patch: Json
+          provider_place_id: string
+          requested_by: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          patch: Json
+          provider_place_id: string
+          requested_by: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          patch?: Json
+          provider_place_id?: string
+          requested_by?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_update_requests_provider_place_id_fkey"
+            columns: ["provider_place_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["place_id"]
+          },
+        ]
+      }
+      provider_views: {
+        Row: {
+          id: number
+          provider_place_id: string
+          referrer: string | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: number
+          provider_place_id: string
+          referrer?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: number
+          provider_place_id?: string
+          referrer?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_views_provider_place_id_fkey"
+            columns: ["provider_place_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["place_id"]
+          },
+        ]
       }
       providers: {
         Row: {
           address: string | null
           badges: string[]
+          before_after_urls: string[] | null
           branch_label: string | null
           brand_id: string | null
           business_status: string
@@ -208,8 +329,10 @@ export type Database = {
           created_at: string
           credentials: string | null
           email: string | null
+          featured: boolean
           google_maps_url: string | null
           hero_photo_url: string | null
+          hours: Json | null
           hours_json: Json | null
           is_verified: boolean
           last_synced_at: string
@@ -223,6 +346,8 @@ export type Database = {
           place_id: string
           postal_code: string | null
           price_level: number | null
+          price_ranges: Json | null
+          published: boolean
           rating: number | null
           recovery_tags: string[] | null
           review_count: number | null
@@ -230,14 +355,18 @@ export type Database = {
           services_raw: string[] | null
           skin_types: string[] | null
           slug: string
+          social_links: Json | null
           specialists: string | null
           state: string
+          team: Json | null
           updated_at: string
+          view_count: number
           website: string | null
         }
         Insert: {
           address?: string | null
           badges?: string[]
+          before_after_urls?: string[] | null
           branch_label?: string | null
           brand_id?: string | null
           business_status?: string
@@ -247,8 +376,10 @@ export type Database = {
           created_at?: string
           credentials?: string | null
           email?: string | null
+          featured?: boolean
           google_maps_url?: string | null
           hero_photo_url?: string | null
+          hours?: Json | null
           hours_json?: Json | null
           is_verified?: boolean
           last_synced_at?: string
@@ -262,6 +393,8 @@ export type Database = {
           place_id: string
           postal_code?: string | null
           price_level?: number | null
+          price_ranges?: Json | null
+          published?: boolean
           rating?: number | null
           recovery_tags?: string[] | null
           review_count?: number | null
@@ -269,14 +402,18 @@ export type Database = {
           services_raw?: string[] | null
           skin_types?: string[] | null
           slug: string
+          social_links?: Json | null
           specialists?: string | null
           state?: string
+          team?: Json | null
           updated_at?: string
+          view_count?: number
           website?: string | null
         }
         Update: {
           address?: string | null
           badges?: string[]
+          before_after_urls?: string[] | null
           branch_label?: string | null
           brand_id?: string | null
           business_status?: string
@@ -286,8 +423,10 @@ export type Database = {
           created_at?: string
           credentials?: string | null
           email?: string | null
+          featured?: boolean
           google_maps_url?: string | null
           hero_photo_url?: string | null
+          hours?: Json | null
           hours_json?: Json | null
           is_verified?: boolean
           last_synced_at?: string
@@ -301,6 +440,8 @@ export type Database = {
           place_id?: string
           postal_code?: string | null
           price_level?: number | null
+          price_ranges?: Json | null
+          published?: boolean
           rating?: number | null
           recovery_tags?: string[] | null
           review_count?: number | null
@@ -308,9 +449,12 @@ export type Database = {
           services_raw?: string[] | null
           skin_types?: string[] | null
           slug?: string
+          social_links?: Json | null
           specialists?: string | null
           state?: string
+          team?: Json | null
           updated_at?: string
+          view_count?: number
           website?: string | null
         }
         Relationships: [
@@ -319,6 +463,38 @@ export type Database = {
             columns: ["brand_id"]
             isOneToOne: false
             referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_responses: {
+        Row: {
+          body: string
+          created_at: string
+          owner_id: string
+          review_id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          owner_id: string
+          review_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          owner_id?: string
+          review_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_responses_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: true
+            referencedRelation: "reviews"
             referencedColumns: ["id"]
           },
         ]
@@ -400,7 +576,14 @@ export type Database = {
           contact_phone: string | null
           created_at: string
           id: string
+          license_doc_path: string | null
+          license_number: string | null
+          license_type: string | null
           notes: string | null
+          npi: string | null
+          resulting_place_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: string
           submitted_by: string | null
           website: string | null
@@ -413,7 +596,14 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           id?: string
+          license_doc_path?: string | null
+          license_number?: string | null
+          license_type?: string | null
           notes?: string | null
+          npi?: string | null
+          resulting_place_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           submitted_by?: string | null
           website?: string | null
@@ -426,7 +616,14 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           id?: string
+          license_doc_path?: string | null
+          license_number?: string | null
+          license_type?: string | null
           notes?: string | null
+          npi?: string | null
+          resulting_place_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           submitted_by?: string | null
           website?: string | null
