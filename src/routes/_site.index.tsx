@@ -223,33 +223,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      {testimonialsData.testimonials.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-20">
-          <div className="mb-10 text-center">
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand">From real patients</p>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl">What clients say</h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {testimonialsData.testimonials.slice(0, 6).map((t) => (
-              <figure key={t.id} className="relative rounded-2xl border border-border bg-card p-6">
-                <Quote className="absolute right-5 top-5 h-6 w-6 text-brand/20" />
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className={`h-3.5 w-3.5 ${i < t.rating ? "fill-rating text-rating" : "text-border"}`} />
-                  ))}
-                </div>
-                <blockquote className="mt-3 text-foreground/90 leading-relaxed">"{t.quote}"</blockquote>
-                <figcaption className="mt-4 text-sm">
-                  <span className="font-medium">{t.author}</span>
-                  {t.location && <span className="text-muted-foreground"> · {t.location}</span>}
-                  {t.treatment && <span className="text-muted-foreground"> · {t.treatment}</span>}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Testimonials removed */}
 
       {/* FOR BUSINESS CTA */}
       <section className="mx-auto max-w-7xl px-4 py-24">
