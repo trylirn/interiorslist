@@ -64,6 +64,27 @@ function ProviderPage() {
     }),
   );
 
+  const placeId = data.provider?.place_id;
+
+  // Track view (best-effort, fire and forget)
+  useEffect(() => {
+    if (!placeId) return;
+    recordProviderView({ data: { placeId } }).catch(() => {});
+  }, [placeId]);
+
+  const reviewIds = (data.reviews ?? []).map((r) => r.id);
+  const { data: faqsData } = useQuery({
+    queryKey: ["provider-faqs", placeId],
+    queryFn: () => listProviderFaqs({ data: { placeId: placeId! } }),
+    enabled: !!placeId,
+  });
+  const { data: responsesData } = useQuery({
+    queryKey: ["review-responses", reviewIds.join(",")],
+    queryFn: () => listReviewResponses({ data: { reviewIds } }),
+    enabled: reviewIds.length > 0,
+  });
+  const responseMap = new Map((responsesData?.responses ?? []).map((r) => [r.review_id, r.body]));
+
   if (!data.provider) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
