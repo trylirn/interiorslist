@@ -67,6 +67,7 @@ type Answers = {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
 };
 
 function MatchPage() {
@@ -80,6 +81,7 @@ function MatchPage() {
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState<Awaited<ReturnType<typeof getMatches>>["matches"] | null>(null);
@@ -99,7 +101,13 @@ function MatchPage() {
     if (step === 2) return !!answers.budget;
     if (step === 3) return !!answers.timing;
     if (step === 4) return !!answers.citySlug;
-    if (step === 5) return answers.firstName && answers.lastName && /.+@.+\..+/.test(answers.email);
+    if (step === 5)
+      return (
+        !!answers.firstName &&
+        !!answers.lastName &&
+        /.+@.+\..+/.test(answers.email) &&
+        answers.phone.replace(/\D/g, "").length >= 7
+      );
     return false;
   })();
 
@@ -189,7 +197,7 @@ function MatchPage() {
                 firstName: answers.firstName,
                 lastName: answers.lastName,
                 email: answers.email,
-                phone: "",
+                phone: answers.phone,
                 message,
               },
             });
