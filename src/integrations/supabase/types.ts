@@ -329,7 +329,9 @@ export type Database = {
           created_at: string
           credentials: string | null
           email: string | null
+          email_forward_to: string | null
           featured: boolean
+          gallery_urls: string[]
           google_maps_url: string | null
           hero_photo_url: string | null
           hours: Json | null
@@ -376,7 +378,9 @@ export type Database = {
           created_at?: string
           credentials?: string | null
           email?: string | null
+          email_forward_to?: string | null
           featured?: boolean
+          gallery_urls?: string[]
           google_maps_url?: string | null
           hero_photo_url?: string | null
           hours?: Json | null
@@ -423,7 +427,9 @@ export type Database = {
           created_at?: string
           credentials?: string | null
           email?: string | null
+          email_forward_to?: string | null
           featured?: boolean
+          gallery_urls?: string[]
           google_maps_url?: string | null
           hero_photo_url?: string | null
           hours?: Json | null
