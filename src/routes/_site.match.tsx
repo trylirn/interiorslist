@@ -67,6 +67,7 @@ type Answers = {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
 };
 
 function MatchPage() {
@@ -80,6 +81,7 @@ function MatchPage() {
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState<Awaited<ReturnType<typeof getMatches>>["matches"] | null>(null);
@@ -99,7 +101,13 @@ function MatchPage() {
     if (step === 2) return !!answers.budget;
     if (step === 3) return !!answers.timing;
     if (step === 4) return !!answers.citySlug;
-    if (step === 5) return answers.firstName && answers.lastName && /.+@.+\..+/.test(answers.email);
+    if (step === 5)
+      return (
+        !!answers.firstName &&
+        !!answers.lastName &&
+        /.+@.+\..+/.test(answers.email) &&
+        answers.phone.replace(/\D/g, "").length >= 7
+      );
     return false;
   })();
 
@@ -189,7 +197,7 @@ function MatchPage() {
                 firstName: answers.firstName,
                 lastName: answers.lastName,
                 email: answers.email,
-                phone: "",
+                phone: answers.phone,
                 message,
               },
             });
@@ -520,9 +528,13 @@ function MatchPage() {
                 <span className="font-medium">Last name <span className="text-rose-500">*</span></span>
                 <Input value={answers.lastName} onChange={(e) => setAnswers({ ...answers, lastName: e.target.value })} className="mt-1" />
               </label>
-              <label className="col-span-full block text-sm">
+              <label className="block text-sm">
                 <span className="font-medium">Email <span className="text-rose-500">*</span></span>
                 <Input type="email" value={answers.email} onChange={(e) => setAnswers({ ...answers, email: e.target.value })} className="mt-1" />
+              </label>
+              <label className="block text-sm">
+                <span className="font-medium">Phone <span className="text-rose-500">*</span></span>
+                <Input type="tel" value={answers.phone} onChange={(e) => setAnswers({ ...answers, phone: e.target.value })} className="mt-1" placeholder="(555) 555-5555" />
               </label>
             </div>
 

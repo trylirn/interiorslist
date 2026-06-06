@@ -21,15 +21,17 @@ function LoginPage() {
       <div className="text-center">
         <h1 className="font-display text-4xl">Welcome to Texas Aesthetics</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Sign in with Google to leave reviews and save favorites. Business owners — create an account below to list and manage your medspa.
+          Browsing is free — no account needed. Create one to leave reviews and save favorites, or register your medspa as a business.
         </p>
       </div>
       <Tabs defaultValue="signin" className="mt-8">
-        <TabsList className="grid grid-cols-2 w-full">
+        <TabsList className="grid grid-cols-3 w-full">
           <TabsTrigger value="signin">Sign in</TabsTrigger>
-          <TabsTrigger value="business">Create business account</TabsTrigger>
+          <TabsTrigger value="consumer">Create account</TabsTrigger>
+          <TabsTrigger value="business">For businesses</TabsTrigger>
         </TabsList>
         <TabsContent value="signin" className="mt-6"><SignInPanel /></TabsContent>
+        <TabsContent value="consumer" className="mt-6"><ConsumerSignupPanel /></TabsContent>
         <TabsContent value="business" className="mt-6"><BusinessSignupWizard /></TabsContent>
       </Tabs>
       <p className="mt-6 text-center text-xs"><Link to="/" className="text-muted-foreground hover:underline">← Back home</Link></p>
@@ -63,11 +65,61 @@ function SignInPanel() {
   return (
     <div className="mx-auto max-w-md space-y-4">
       <Button onClick={handleGoogle} variant="outline" className="h-11 w-full">Continue with Google</Button>
-      <div className="flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />or business email<div className="h-px flex-1 bg-border" /></div>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />or email<div className="h-px flex-1 bg-border" /></div>
       <form onSubmit={signIn} className="space-y-3">
         <div className="space-y-1.5"><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
         <div className="space-y-1.5"><Label>Password</Label><Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} /></div>
         <Button type="submit" disabled={loading} className="w-full h-11">{loading ? "…" : "Sign in"}</Button>
+      </form>
+    </div>
+  );
+}
+
+function ConsumerSignupPanel() {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleGoogle() {
+    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    if (res.error) toast.error("Google sign-in failed");
+  }
+
+  async function signUp(e: React.FormEvent) {
+    e.preventDefault();
+    if (password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/welcome`,
+          data: { display_name: name || email.split("@")[0], account_type: "consumer" },
+        },
+      });
+      if (error) throw error;
+      toast.success("Account created. Check your email if confirmation is required.");
+      navigate({ to: "/welcome" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Sign up failed");
+    } finally { setLoading(false); }
+  }
+
+  return (
+    <div className="mx-auto max-w-md space-y-4">
+      <p className="text-center text-sm text-muted-foreground">
+        Create a free account to leave reviews and save favorite medspas.
+      </p>
+      <Button onClick={handleGoogle} variant="outline" className="h-11 w-full">Continue with Google</Button>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />or email<div className="h-px flex-1 bg-border" /></div>
+      <form onSubmit={signUp} className="space-y-3">
+        <div className="space-y-1.5"><Label>Your name</Label><Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} /></div>
+        <div className="space-y-1.5"><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+        <div className="space-y-1.5"><Label>Password</Label><Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+        <Button type="submit" disabled={loading} className="w-full h-11">{loading ? "…" : "Create account"}</Button>
       </form>
     </div>
   );
@@ -93,8 +145,6 @@ function BusinessSignupWizard() {
 
   async function submit() {
     if (form.password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
-    if (!form.licenseType || !form.licenseNumber) { toast.error("License info required"); return; }
-    if (!licenseFile) { toast.error("Please upload a copy of your license"); return; }
     setBusy(true);
     try {
       const { data: signUp, error: suErr } = await supabase.auth.signUp({
@@ -109,13 +159,20 @@ function BusinessSignupWizard() {
       const userId = signUp.user?.id;
       if (!userId) throw new Error("Signup failed");
 
-      // Upload license doc (folder must equal userId per storage RLS)
-      const ext = licenseFile.name.split(".").pop() ?? "pdf";
-      const path = `${userId}/license-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("business-docs").upload(path, licenseFile);
-      if (upErr) throw upErr;
+      // Optional license doc upload (folder must equal userId per storage RLS)
+      let licensePath: string | null = null;
+      if (licenseFile) {
+        const ext = licenseFile.name.split(".").pop() ?? "pdf";
+        licensePath = `${userId}/license-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("business-docs").upload(licensePath, licenseFile);
+        if (upErr) {
+          // Non-fatal: keep the account, surface the issue
+          toast.error("License upload failed — you can add it later from your dashboard.");
+          licensePath = null;
+        }
+      }
 
-      // Wait for session to ensure RLS-authenticated insert works (signUp returns session when email confirm off)
+      // Wait for session to ensure RLS-authenticated insert works
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.success("Account created. Please check your email to confirm, then sign in to complete your submission.");
@@ -131,9 +188,9 @@ function BusinessSignupWizard() {
         contact_email: form.email,
         contact_phone: form.phone || null,
         notes: form.notes || null,
-        license_type: form.licenseType,
-        license_number: form.licenseNumber,
-        license_doc_path: path,
+        license_type: form.licenseType || null,
+        license_number: form.licenseNumber || null,
+        license_doc_path: licensePath,
         npi: form.npi || null,
         submitted_by: userId,
       });
@@ -158,7 +215,7 @@ function BusinessSignupWizard() {
       <div className="mb-6 flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
         <span className={step >= 1 ? "text-brand font-semibold" : ""}>1 · Business</span>
         <span>·</span>
-        <span className={step >= 2 ? "text-brand font-semibold" : ""}>2 · License</span>
+        <span className={step >= 2 ? "text-brand font-semibold" : ""}>2 · Credentials</span>
         <span>·</span>
         <span className={step >= 3 ? "text-brand font-semibold" : ""}>3 · Account</span>
       </div>
@@ -176,24 +233,27 @@ function BusinessSignupWizard() {
 
       {step === 2 && (
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">Texas Aesthetics only lists licensed providers. Please provide your credentials.</p>
+          <p className="text-sm text-muted-foreground">
+            Texas Aesthetics lists licensed providers. You can add credentials now or later from your dashboard — none of this is required to create your account.
+          </p>
           <div className="space-y-1.5">
-            <Label>License type *</Label>
+            <Label>License type</Label>
             <Select value={form.licenseType} onValueChange={(v) => update("licenseType", v)}>
-              <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Select (optional)…" /></SelectTrigger>
               <SelectContent>{LICENSE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5"><Label>License number *</Label><Input required value={form.licenseNumber} onChange={(e) => update("licenseNumber", e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>NPI (optional)</Label><Input value={form.npi} onChange={(e) => update("npi", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>License number</Label><Input value={form.licenseNumber} onChange={(e) => update("licenseNumber", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>NPI</Label><Input value={form.npi} onChange={(e) => update("npi", e.target.value)} /></div>
           <div className="space-y-1.5">
-            <Label>License document * (PDF or image)</Label>
+            <Label>License document (PDF or image)</Label>
             <Input type="file" accept=".pdf,image/*" onChange={(e) => setLicenseFile(e.target.files?.[0] ?? null)} />
             {licenseFile && <p className="text-xs text-muted-foreground">{licenseFile.name}</p>}
+            <p className="text-[11px] text-muted-foreground">Optional — speeds up listing approval.</p>
           </div>
           <div className="flex gap-2 mt-2">
             <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-11">← Back</Button>
-            <Button onClick={() => setStep(3)} disabled={!form.licenseType || !form.licenseNumber || !licenseFile} className="flex-1 h-11">Next →</Button>
+            <Button onClick={() => setStep(3)} className="flex-1 h-11">Next →</Button>
           </div>
         </div>
       )}
@@ -209,7 +269,7 @@ function BusinessSignupWizard() {
             <Button variant="outline" onClick={() => setStep(2)} className="flex-1 h-11">← Back</Button>
             <Button onClick={submit} disabled={busy} className="flex-1 h-11">{busy ? "Creating…" : "Create business account"}</Button>
           </div>
-          <p className="text-xs text-muted-foreground text-center">We'll review your license before approving your listing.</p>
+          <p className="text-xs text-muted-foreground text-center">We'll verify your credentials before publishing your listing.</p>
         </div>
       )}
     </div>

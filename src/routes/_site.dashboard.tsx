@@ -25,6 +25,10 @@ function Dashboard() {
     supabase.auth.getSession().then(({ data }) => { setEmail(data.session?.user.email ?? null); setReady(true); });
   }, []);
   const { data: roles } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles(), enabled: !!email });
+  const { data: listingsData, isLoading: listingsLoading } = useQuery({
+    queryKey: ["my-listings"], queryFn: () => listMyListings(), enabled: !!email,
+  });
+  const ownsListings = (listingsData?.listings.length ?? 0) > 0;
 
   if (!ready) return <div className="mx-auto max-w-2xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
   if (!email) return (
@@ -48,16 +52,42 @@ function Dashboard() {
         </div>
       </div>
 
-      <Tabs defaultValue="listings" className="mt-8">
-        <TabsList>
-          <TabsTrigger value="listings">My Listings</TabsTrigger>
-          <TabsTrigger value="leads">Leads</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
-        </TabsList>
-        <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
-        <TabsContent value="leads" className="mt-6"><LeadsTab /></TabsContent>
-        <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
-      </Tabs>
+      {listingsLoading ? (
+        <p className="mt-10 text-muted-foreground">Loading…</p>
+      ) : ownsListings ? (
+        <Tabs defaultValue="listings" className="mt-8">
+          <TabsList>
+            <TabsTrigger value="listings">My Listings</TabsTrigger>
+            <TabsTrigger value="leads">Leads</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+          </TabsList>
+          <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
+          <TabsContent value="leads" className="mt-6"><LeadsTab /></TabsContent>
+          <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
+        </Tabs>
+      ) : (
+        <div className="mt-10 rounded-3xl border border-dashed border-border bg-card p-10 text-center">
+          <Building2 className="mx-auto h-8 w-8 text-muted-foreground" />
+          <h2 className="mt-3 font-display text-2xl">
+            {roles?.isAdmin ? "You're signed in as an admin" : "You don't manage any listings yet"}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {roles?.isAdmin
+              ? "The brand dashboard is for medspa owners. Head to the admin console to manage the site."
+              : "Are you a medspa owner? Find your business and claim it, or submit a new listing."}
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {roles?.isAdmin ? (
+              <Button asChild><Link to="/admin"><Shield className="mr-2 h-4 w-4" />Open admin</Link></Button>
+            ) : (
+              <>
+                <Button asChild><Link to="/search">Find your listing</Link></Button>
+                <Button asChild variant="outline"><Link to="/submit">Submit a business</Link></Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

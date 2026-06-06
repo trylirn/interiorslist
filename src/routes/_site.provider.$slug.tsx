@@ -139,6 +139,19 @@ function ProviderPage() {
             </div>
           </div>
 
+          {p.gallery_urls && p.gallery_urls.length > 0 && (
+            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl">Photo gallery</h2>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {p.gallery_urls.map((url: string) => (
+                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square overflow-hidden rounded-xl border border-border bg-secondary/30">
+                    <img src={url} alt={`${p.name} photo`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+
           {p.specialists && (
             <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
               <h2 className="font-display text-2xl">Our Approach</h2>
@@ -305,7 +318,12 @@ function ContactForm({ placeId, name }: { placeId: string; name: string }) {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const valid = form.firstName && form.lastName && /.+@.+\..+/.test(form.email) && form.message.length > 5;
+  const valid =
+    form.firstName &&
+    form.lastName &&
+    /.+@.+\..+/.test(form.email) &&
+    form.phone.replace(/\D/g, "").length >= 7 &&
+    form.message.length > 5;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -340,7 +358,7 @@ function ContactForm({ placeId, name }: { placeId: string; name: string }) {
         <label className="text-xs"><span className="font-medium">Last Name</span><Input className="mt-1" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required maxLength={80} /></label>
       </div>
       <label className="mt-3 block text-xs"><span className="font-medium">Email</span><Input type="email" className="mt-1" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required maxLength={255} /></label>
-      <label className="mt-3 block text-xs"><span className="font-medium">Phone (optional)</span><Input className="mt-1" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} maxLength={40} /></label>
+      <label className="mt-3 block text-xs"><span className="font-medium">Phone *</span><Input type="tel" className="mt-1" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required maxLength={40} placeholder="(555) 555-5555" /></label>
       <label className="mt-3 block text-xs"><span className="font-medium">Message</span><Textarea className="mt-1 min-h-28" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Tell them about your situation, goals, or questions..." required maxLength={4000} /></label>
       <Button type="submit" disabled={!valid || busy} className="mt-4 w-full rounded-full">{busy ? "Sending…" : "Send message →"}</Button>
     </form>
