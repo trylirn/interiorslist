@@ -139,6 +139,19 @@ function ProviderPage() {
             </div>
           </div>
 
+          {p.gallery_urls && p.gallery_urls.length > 0 && (
+            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl">Photo gallery</h2>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {p.gallery_urls.map((url: string) => (
+                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square overflow-hidden rounded-xl border border-border bg-secondary/30">
+                    <img src={url} alt={`${p.name} photo`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+
           {p.specialists && (
             <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
               <h2 className="font-display text-2xl">Our Approach</h2>
