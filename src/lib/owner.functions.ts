@@ -42,14 +42,18 @@ export const updateMyListing = createServerFn({ method: "POST" })
       hero_photo_url: z.string().max(500).optional(),
       branch_label: z.string().max(120).optional(),
       services: z.array(z.string().min(1).max(80)).max(40).optional(),
+      gallery_urls: z.array(z.string().max(500)).max(20).optional(),
+      email_forward_to: z.string().email().max(255).optional().or(z.literal("")),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { placeId, ...patch } = data;
+    const cleanPatch: Record<string, unknown> = { ...patch };
+    if (cleanPatch.email_forward_to === "") cleanPatch.email_forward_to = null;
     const { error } = await supabase
       .from("providers")
-      .update(patch)
+      .update(cleanPatch)
       .eq("place_id", placeId)
       .eq("claimed_by", userId);
     if (error) throw new Error(error.message);

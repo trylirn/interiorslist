@@ -11,7 +11,7 @@ export const sendContactMessage = createServerFn({ method: "POST" })
         firstName: z.string().min(1).max(80),
         lastName: z.string().min(1).max(80),
         email: z.string().email().max(255),
-        phone: z.string().max(40).optional().or(z.literal("")),
+        phone: z.string().min(7).max(40),
         message: z.string().min(1).max(4000),
       })
       .parse(d),
