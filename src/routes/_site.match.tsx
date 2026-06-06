@@ -528,9 +528,13 @@ function MatchPage() {
                 <span className="font-medium">Last name <span className="text-rose-500">*</span></span>
                 <Input value={answers.lastName} onChange={(e) => setAnswers({ ...answers, lastName: e.target.value })} className="mt-1" />
               </label>
-              <label className="col-span-full block text-sm">
+              <label className="block text-sm">
                 <span className="font-medium">Email <span className="text-rose-500">*</span></span>
                 <Input type="email" value={answers.email} onChange={(e) => setAnswers({ ...answers, email: e.target.value })} className="mt-1" />
+              </label>
+              <label className="block text-sm">
+                <span className="font-medium">Phone <span className="text-rose-500">*</span></span>
+                <Input type="tel" value={answers.phone} onChange={(e) => setAnswers({ ...answers, phone: e.target.value })} className="mt-1" placeholder="(555) 555-5555" />
               </label>
             </div>
 
