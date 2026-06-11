@@ -14,21 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      _seed_providers_staging: {
-        Row: {
-          data: Json
-          id: number
-        }
-        Insert: {
-          data: Json
-          id?: number
-        }
-        Update: {
-          data?: Json
-          id?: number
-        }
-        Relationships: []
-      }
       brands: {
         Row: {
           created_at: string
