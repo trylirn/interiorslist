@@ -218,6 +218,27 @@ function ProviderPage() {
             </section>
           )}
 
+          {p.services && p.services.length > 0 && (
+            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl">Services Offered</h2>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {p.services.map((s: string) => (
+                  <Link key={s} to="/treatment/$slug" params={{ slug: s }} className="flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm capitalize hover:border-brand">
+                    <BadgeCheck className="h-4 w-4 text-brand" />
+                    {s.replace(/-/g, " ")}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {p.notes && (
+            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl">Additional notes</h2>
+              <p className="mt-3 text-foreground/85 leading-relaxed">{p.notes}</p>
+            </section>
+          )}
+
 
           {data.brandSiblings.length > 0 && (
             <section className="mt-8 rounded-3xl border border-border bg-secondary/30 p-6 md:p-8">
@@ -306,9 +327,12 @@ function ProviderPage() {
           )}
         </aside>
       </div>
+
+      <RelatedProviders placeId={p.place_id} />
     </div>
   );
 }
+
 
 function UnclaimedSidebar({ slug, website, mapsHref }: { slug: string; website: string | null; mapsHref: string | null }) {
   return (
