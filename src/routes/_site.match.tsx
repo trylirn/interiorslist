@@ -9,8 +9,13 @@ import { getMatches } from "@/lib/match.functions";
 import { sendContactMessage } from "@/lib/contact.functions";
 import { toast } from "sonner";
 import { BadgeCheck, Building2, Check, CheckCircle2, ChevronLeft, Lock, Send, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
+import { z } from "zod";
 
 export const Route = createFileRoute("/_site/match")({
+  validateSearch: z.object({
+    priority: z.string().optional(),
+    city: z.string().optional(),
+  }),
   head: () => ({
     meta: [
       { title: "Get Matched with a Texas Injector | Texas Aesthetics" },
@@ -23,6 +28,7 @@ export const Route = createFileRoute("/_site/match")({
   }),
   component: MatchPage,
 });
+
 
 const PRIORITY_OPTS = [
   { id: "botox", label: "Botox & wrinkle relaxers", desc: "Smoothing forehead, frown, crow's feet" },
@@ -71,13 +77,15 @@ type Answers = {
 };
 
 function MatchPage() {
-  const [step, setStep] = useState(0);
+  const { priority: initialPriority, city: initialCity } = Route.useSearch();
+  const [step, setStep] = useState(initialPriority ? 1 : 0);
   const [answers, setAnswers] = useState<Answers>({
-    priority: "",
+    priority: initialPriority ?? "",
     concerns: [],
     budget: "",
     timing: "",
-    citySlug: "any",
+    citySlug: initialCity ?? "any",
+
     firstName: "",
     lastName: "",
     email: "",

@@ -1,63 +1,56 @@
-# Fixes & follow-ups
+## Plan
 
-## 1. Duplicate listings in admin
+### 1. Excel data import (121 orgs across 14 cities)
+- Parse `Texas_MedSpa_Directory_Exhaustive_Final-3.xlsx` and write a one-shot SQL upsert seed.
+- Add new columns to `providers`: `about_description text`, ensure `social_links jsonb` is populated (Instagram, Facebook, TikTok, YouTube parsed from comma-separated URLs).
+- Upsert by `(lower(name), lower(city))` (existing unique index): update `address`, `email`, `website`, `specialists`, `credentials`, `services_raw`/`services`, `about_description`, `social_links`. Insert missing rows (e.g. Waxahachie's "All Glow Med Spa") with generated `place_id`/`slug`.
+- Recompute `services[]` from comma-split `services_raw` via the existing slugger map.
 
-Not normal — the v2 seed import re-inserted ~20 providers under fresh `place_id`s (e.g. "Maui MedSpa Austin" exists twice). The earlier `ON CONFLICT (place_id)` dedupe didn't catch them because the duplicates have different place_ids.
+### 2. Rename "Our Approach" → "About"
+- `src/routes/_site.provider.$slug.tsx` heading.
+- Brand/admin dashboard label in `_site.dashboard.listing.$placeId.tsx` (the Profile/About editor tab) — switch field label and helper text to "About".
+- Bind the editor textarea to the new `about_description` column (fall back to `notes` for orgs without one) in `owner.functions.ts` validator.
 
-**Fix (migration):** for each `(lower(name), lower(city))` group, keep the row with the most data (most non-null columns, oldest `created_at` as tiebreaker), reassign any `claims/reviews/contact_messages/favorites/provider_views/provider_faqs` to the survivor, then delete the dupes. Add a partial unique index `ux_providers_name_city` on `(lower(name), lower(city))` to prevent re-introduction.
+### 3. Brand uploads (videos, files, certificates, images) + per-org FAQs + metrics
+- Already exists: `provider-photos` bucket (gallery), `provider_faqs` table, `getListingMetrics` server fn.
+- Add a private `provider-files` bucket for documents/certs; add public `provider-videos` (or accept external URLs) — and persist:
+  - `providers.video_urls text[]` (YouTube/Vimeo/MP4 URLs)
+  - `providers.certificate_urls text[]` (links to signed objects in `provider-files`)
+  - `providers.document_urls text[]`
+- Extend `updateMyListing` validator + UI in `_site.dashboard.listing.$placeId.tsx` with new tabs: **Media** (images + videos), **Documents & Certificates** (upload to `provider-files`, owner+admin RLS), **FAQs** (already there — keep), **Metrics** (already there — keep, add 7d/30d/90d toggle and per-source breakdown).
+- Public provider page renders Videos, Certificate badges (linked PDFs), and FAQ accordion.
 
-## 2. Admin shouldn't see brand dashboard
+### 4. "You may also be interested in" on provider page
+- New server fn `getRelatedProviders({ placeId })`: same `city_slug`, overlapping `services[]`, exclude self; fallback to same-city top-rated. Limit 4.
+- Render as a section right above the footer with `ProviderCard`.
 
-`/dashboard` currently shows Listings/Leads/Reviews to every signed-in user. Change behavior:
+### 5. Homepage "I am looking for a…"
+- New hero subcomponent on `_site.index.tsx`: dropdown of top treatments (Botox, Filler, Laser, Body, Skin, Wellness) + optional city dropdown → CTA "See recommendations" → routes to `/match?priority=...&city=...` (prefills the existing match flow).
 
-- If `isAdmin` and **no** claimed listings → redirect to `/admin`.
-- Hide the "My Listings / Leads / Reviews" tabs entirely when the user has zero owned providers; instead show a small "You don't manage any listings" panel (with Admin shortcut if admin, or Claim/Submit CTAs otherwise).
-- In `SiteHeader`, route admins' avatar menu primary item to `/admin`.
+### 6. Search page rework ("Find a Pro")
+- Default behavior: when no `q`/`city`/`service`, show **all published providers** (paginated, 24/page) instead of the empty state.
+- Replace pill-row filters with shadcn `Select` dropdowns: City, Treatment, Sort (Rating, Name, Verified first). Keep search input as primary. URL state stays in search params.
+- Add a results count and a "Reset filters" button.
 
-## 3. Brand info / uploads / FAQs
+### Technical details
 
-Brand listing editor (`/dashboard/listing/$placeId`) already supports profile fields and FAQs. Gaps to close:
+**Migrations** (single migration):
+```sql
+ALTER TABLE providers
+  ADD COLUMN IF NOT EXISTS about_description text,
+  ADD COLUMN IF NOT EXISTS video_urls text[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS certificate_urls text[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS document_urls text[] NOT NULL DEFAULT '{}';
+```
+Create `provider-files` private bucket; RLS: owner + admin read/write, public none.
 
-- Add **photo gallery upload** in the Info tab — multi-file upload to a new public `provider-photos` bucket (`{placeId}/...`), persist URLs to `providers.gallery_urls text[]`, render in the public provider page.
-- Add **hero photo upload** (replaces the URL-only field) using the same bucket.
-- Surface FAQs publicly in `/provider/$slug` under a "Frequently asked questions" accordion.
-- Migration: add `providers.gallery_urls text[]` (if missing), create public storage bucket `provider-photos` with RLS allowing the listing owner (and admins) to upload/delete and anyone to read.
+**Data import**: scripted SQL with `INSERT ... ON CONFLICT DO UPDATE` covering all 121 rows from the spreadsheet, applied via the insert tool (not migration).
 
-## 4. Account creation: brands required, consumers not required 
+**Files to touch**:
+- New: `src/lib/related.functions.ts`, `src/components/looking-for-hero.tsx`, `src/components/related-providers.tsx`.
+- Edit: `src/routes/_site.search.tsx`, `_site.index.tsx`, `_site.provider.$slug.tsx`, `_site.dashboard.listing.$placeId.tsx`, `src/lib/owner.functions.ts`, `src/lib/providers.functions.ts` (include `about_description`, social_links, gallery, videos, certs in returned cols), `src/lib/brand-extra.functions.ts` (metrics windowing).
 
-Today `/login` has only "Sign in" + "Create business account." Restructure tabs to three:
-
-1. **Sign in** (email/password or Google) — unchanged.
-2. **Create business account** — current wizard, but **license upload becomes optional** (file input + license number remain present, only `licenseType` is required to flag the account; `license_doc_path` may be null and the admin queue shows "no doc yet").
-
-Anonymous users keep full browsing. Update copy on `/login` accordingly.
-
-## 5. Phone on lead forms
-
-- `/provider/$slug` contact form: phone is currently optional — make it **required** (label "Phone *", `required` attribute, min length 7).
-- `/match` consult flow: collect phone in the answers step (already gathers first/last/email) and pass it through to `sendContactMessage` (currently hard-codes `phone: ""`).
-- `sendContactMessage` validator already accepts phone — tighten to `z.string().min(7).max(40)` to enforce server-side.
-
-## 6. Email forwarding of leads → brand inbox
-
-**Yes, this is straightforward.** Recommended platform: **Lovable Emails** (built-in, no API key needed) — same infrastructure already used for app emails on this stack. It uses your own sender domain and queues + retries automatically.
-
-How it plugs in:
-
-- Set up a sender domain (one-time, via the email setup dialog).
-- Add a server-side trigger in `sendContactMessage`: after inserting the row, look up `providers.email_forward_to` (a new column the brand owner sets in their dashboard; falls back to the original Google-Places `email` only when the listing is claimed and the owner opted in). Enqueue a "New lead" email to that address with the lead's name/phone/email/message and a link to `/dashboard`.
-- Log to `email_send_log`; brand dashboard gets a small "Email forwarded ✓ / failed" status next to each lead.
-- Alternative if you prefer a third party: **Resend** (connector available). Only worth it if you want their dashboard/analytics — otherwise Lovable Emails is simpler and free of API key management.
-
-## Technical notes
-
-- New columns: `providers.gallery_urls text[] default '{}'`, `providers.email_forward_to text`.
-- New storage bucket: `provider-photos` (public read, owner/admin write).
-- New unique index: `create unique index ux_providers_name_city on providers (lower(name), lower(city))`.
-- Files to touch: `_site.dashboard.tsx`, `_site.dashboard.listing.$placeId.tsx`, `_site.provider.$slug.tsx`, `_site.match.tsx`, `_site.login.tsx`, `lib/contact.functions.ts`, `lib/owner.functions.ts`, `components/site-chrome.tsx`, plus one migration and (after the email domain step) a lead-notification template.
-
-## Out of scope (ask before doing)
-
-- Backfilling `email_forward_to` for unclaimed listings.
-- SMS notifications for new leads.
-- Email setup itself (requires user to complete the domain dialog) — I'll prompt for it when we implement #6.
+### Out of scope
+- Backfilling Google ratings/review counts for the new Waxahachie row.
+- Email-forwarding wiring (separate flow already pending).
+- Video transcoding — we'll store URLs only (YouTube/Vimeo embed or direct MP4).

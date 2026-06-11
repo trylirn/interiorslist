@@ -37,12 +37,17 @@ export const updateMyListing = createServerFn({ method: "POST" })
       placeId: z.string().min(1).max(200),
       specialists: z.string().max(2000).optional(),
       notes: z.string().max(4000).optional(),
+      about_description: z.string().max(4000).optional(),
       website: z.string().max(500).optional(),
       phone: z.string().max(40).optional(),
       hero_photo_url: z.string().max(500).optional(),
       branch_label: z.string().max(120).optional(),
       services: z.array(z.string().min(1).max(80)).max(40).optional(),
       gallery_urls: z.array(z.string().max(500)).max(20).optional(),
+      video_urls: z.array(z.string().max(500)).max(10).optional(),
+      certificate_urls: z.array(z.string().max(500)).max(20).optional(),
+      document_urls: z.array(z.string().max(500)).max(20).optional(),
+      social_links: z.record(z.string().max(40), z.string().max(500)).optional(),
       email_forward_to: z.string().email().max(255).optional().or(z.literal("")),
     }).parse(d),
   )
@@ -61,6 +66,7 @@ export const updateMyListing = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const listMyLeads = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

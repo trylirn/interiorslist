@@ -317,17 +317,20 @@ export type Database = {
       }
       providers: {
         Row: {
+          about_description: string | null
           address: string | null
           badges: string[]
           before_after_urls: string[] | null
           branch_label: string | null
           brand_id: string | null
           business_status: string
+          certificate_urls: string[]
           city: string
           city_slug: string
           claimed_by: string | null
           created_at: string
           credentials: string | null
+          document_urls: string[]
           email: string | null
           email_forward_to: string | null
           featured: boolean
@@ -362,21 +365,25 @@ export type Database = {
           state: string
           team: Json | null
           updated_at: string
+          video_urls: string[]
           view_count: number
           website: string | null
         }
         Insert: {
+          about_description?: string | null
           address?: string | null
           badges?: string[]
           before_after_urls?: string[] | null
           branch_label?: string | null
           brand_id?: string | null
           business_status?: string
+          certificate_urls?: string[]
           city: string
           city_slug: string
           claimed_by?: string | null
           created_at?: string
           credentials?: string | null
+          document_urls?: string[]
           email?: string | null
           email_forward_to?: string | null
           featured?: boolean
@@ -411,21 +418,25 @@ export type Database = {
           state?: string
           team?: Json | null
           updated_at?: string
+          video_urls?: string[]
           view_count?: number
           website?: string | null
         }
         Update: {
+          about_description?: string | null
           address?: string | null
           badges?: string[]
           before_after_urls?: string[] | null
           branch_label?: string | null
           brand_id?: string | null
           business_status?: string
+          certificate_urls?: string[]
           city?: string
           city_slug?: string
           claimed_by?: string | null
           created_at?: string
           credentials?: string | null
+          document_urls?: string[]
           email?: string | null
           email_forward_to?: string | null
           featured?: boolean
@@ -460,6 +471,7 @@ export type Database = {
           state?: string
           team?: Json | null
           updated_at?: string
+          video_urls?: string[]
           view_count?: number
           website?: string | null
         }
