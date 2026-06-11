@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Search, ShieldCheck, MapPin, BadgeCheck, Building2, Sparkles, MessageSquare, ListChecks } from "lucide-react";
+import { LookingForHero } from "@/components/looking-for-hero";
+
 
 const featuredOpts = queryOptions({ queryKey: ["featured"], queryFn: () => getFeaturedProviders() });
 const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCityStats() });
@@ -87,7 +89,11 @@ function HomePage() {
         </div>
       </section>
 
+      {/* I AM LOOKING FOR A */}
+      <LookingForHero />
+
       {/* HOW IT WORKS */}
+
       <section className="border-b border-border/60 bg-secondary/30">
         <div className="mx-auto max-w-7xl px-4 py-20">
           <div className="mb-10 text-center">

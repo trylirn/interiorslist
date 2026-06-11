@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send } from "lucide-react";
+import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video } from "lucide-react";
+import { RelatedProviders } from "@/components/related-providers";
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
@@ -152,33 +154,70 @@ function ProviderPage() {
             </section>
           )}
 
-          {p.specialists && (
+          {(p.about_description || p.specialists) && (
             <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
-              <h2 className="font-display text-2xl">Our Approach</h2>
-              <p className="mt-3 text-foreground/85 leading-relaxed whitespace-pre-line">{p.specialists}</p>
+              <h2 className="font-display text-2xl">About</h2>
+              {p.about_description && <p className="mt-3 text-foreground/85 leading-relaxed whitespace-pre-line">{p.about_description}</p>}
+              {p.specialists && (
+                <div className="mt-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Practitioners</p>
+                  <p className="mt-1 text-foreground/85 leading-relaxed whitespace-pre-line">{p.specialists}</p>
+                </div>
+              )}
+              {p.credentials && (
+                <div className="mt-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Credentials</p>
+                  <p className="mt-1 text-foreground/85 leading-relaxed">{p.credentials}</p>
+                </div>
+              )}
+              {p.social_links && Object.keys(p.social_links).length > 0 && (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {Object.entries(p.social_links as Record<string, string>).filter(([k]) => k !== "website2").map(([key, url]) => (
+                    <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium capitalize hover:border-brand hover:text-brand">
+                      {key === "instagram" && <Instagram className="h-3.5 w-3.5" />}
+                      {key === "facebook" && <Facebook className="h-3.5 w-3.5" />}
+                      {key === "youtube" && <Youtube className="h-3.5 w-3.5" />}
+                      {!["instagram","facebook","youtube"].includes(key) && <Globe className="h-3.5 w-3.5" />}
+                      {key}
+                    </a>
+                  ))}
+                </div>
+              )}
             </section>
           )}
 
-          {p.services && p.services.length > 0 && (
+          {p.video_urls && p.video_urls.length > 0 && (
             <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
-              <h2 className="font-display text-2xl">Services Offered</h2>
+              <h2 className="font-display text-2xl flex items-center gap-2"><Video className="h-5 w-5 text-brand" /> Videos</h2>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {p.video_urls.map((url: string) => {
+                  const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{6,})/);
+                  if (yt) {
+                    return <div key={url} className="aspect-video overflow-hidden rounded-xl border border-border bg-black"><iframe src={`https://www.youtube.com/embed/${yt[1]}`} className="h-full w-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Video" /></div>;
+                  }
+                  if (url.match(/\.(mp4|webm|mov)$/i)) {
+                    return <video key={url} src={url} controls className="aspect-video w-full rounded-xl border border-border bg-black" />;
+                  }
+                  return <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="flex aspect-video items-center justify-center gap-2 rounded-xl border border-border bg-secondary/40 text-sm hover:border-brand"><Video className="h-4 w-4" /> Watch video</a>;
+                })}
+              </div>
+            </section>
+          )}
+
+          {p.certificate_urls && p.certificate_urls.length > 0 && (
+            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl flex items-center gap-2"><Award className="h-5 w-5 text-brand" /> Certifications</h2>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                {p.services.map((s: string) => (
-                  <Link key={s} to="/treatment/$slug" params={{ slug: s }} className="flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm capitalize hover:border-brand">
-                    <BadgeCheck className="h-4 w-4 text-brand" />
-                    {s.replace(/-/g, " ")}
-                  </Link>
+                {p.certificate_urls.map((url: string, i: number) => (
+                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm hover:border-brand">
+                    <FileText className="h-4 w-4 text-brand" />
+                    <span className="truncate">Certificate {i + 1}</span>
+                  </a>
                 ))}
               </div>
             </section>
           )}
 
-          {p.notes && (
-            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
-              <h2 className="font-display text-2xl">Notes</h2>
-              <p className="mt-3 text-foreground/85 leading-relaxed">{p.notes}</p>
-            </section>
-          )}
 
           {data.brandSiblings.length > 0 && (
             <section className="mt-8 rounded-3xl border border-border bg-secondary/30 p-6 md:p-8">
