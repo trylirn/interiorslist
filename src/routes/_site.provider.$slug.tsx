@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video } from "lucide-react";
 import { RelatedProviders } from "@/components/related-providers";
+import { ProviderMap } from "@/components/provider-map";
+import { geocodeProviderIfNeeded } from "@/lib/geocode.functions";
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,6 +75,13 @@ function ProviderPage() {
     if (!placeId) return;
     recordProviderView({ data: { placeId } }).catch(() => {});
   }, [placeId]);
+
+  // Lazily geocode this provider if we don't have coordinates yet.
+  const hasCoords = data.provider?.latitude != null && data.provider?.longitude != null;
+  useEffect(() => {
+    if (!placeId || hasCoords) return;
+    geocodeProviderIfNeeded({ data: { placeId } }).catch(() => {});
+  }, [placeId, hasCoords]);
 
   const reviewIds = (data.reviews ?? []).map((r) => r.id);
   const { data: faqsData } = useQuery({
@@ -185,6 +194,10 @@ function ProviderPage() {
               )}
             </section>
           )}
+
+          <ProviderMap lat={p.latitude} lng={p.longitude} name={p.name} address={p.address} city={p.city} />
+
+
 
           {p.video_urls && p.video_urls.length > 0 && (
             <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
