@@ -1,56 +1,50 @@
-## Plan
+## Add a location map to every medspa page
 
-### 1. Excel data import (121 orgs across 14 cities)
-- Parse `Texas_MedSpa_Directory_Exhaustive_Final-3.xlsx` and write a one-shot SQL upsert seed.
-- Add new columns to `providers`: `about_description text`, ensure `social_links jsonb` is populated (Instagram, Facebook, TikTok, YouTube parsed from comma-separated URLs).
-- Upsert by `(lower(name), lower(city))` (existing unique index): update `address`, `email`, `website`, `specialists`, `credentials`, `services_raw`/`services`, `about_description`, `social_links`. Insert missing rows (e.g. Waxahachie's "All Glow Med Spa") with generated `place_id`/`slug`.
-- Recompute `services[]` from comma-split `services_raw` via the existing slugger map.
+Embed an interactive Google Map on each provider detail page (`/provider/$slug`) showing the medspa's location with a marker, using the existing Google Maps connector — no new API keys or setup required.
 
-### 2. Rename "Our Approach" → "About"
-- `src/routes/_site.provider.$slug.tsx` heading.
-- Brand/admin dashboard label in `_site.dashboard.listing.$placeId.tsx` (the Profile/About editor tab) — switch field label and helper text to "About".
-- Bind the editor textarea to the new `about_description` column (fall back to `notes` for orgs without one) in `owner.functions.ts` validator.
+### What the user will see
 
-### 3. Brand uploads (videos, files, certificates, images) + per-org FAQs + metrics
-- Already exists: `provider-photos` bucket (gallery), `provider_faqs` table, `getListingMetrics` server fn.
-- Add a private `provider-files` bucket for documents/certs; add public `provider-videos` (or accept external URLs) — and persist:
-  - `providers.video_urls text[]` (YouTube/Vimeo/MP4 URLs)
-  - `providers.certificate_urls text[]` (links to signed objects in `provider-files`)
-  - `providers.document_urls text[]`
-- Extend `updateMyListing` validator + UI in `_site.dashboard.listing.$placeId.tsx` with new tabs: **Media** (images + videos), **Documents & Certificates** (upload to `provider-files`, owner+admin RLS), **FAQs** (already there — keep), **Metrics** (already there — keep, add 7d/30d/90d toggle and per-source breakdown).
-- Public provider page renders Videos, Certificate badges (linked PDFs), and FAQ accordion.
+- A new "Location" section on every medspa page with:
+  - An interactive map (~360px tall) centered on the provider's address, with a pin marker
+  - The full address displayed above the map
+  - A "Get directions" link that opens Google Maps in a new tab
+- Graceful fallback: if the address can't be geocoded, the section just shows the address text and directions link (no broken map).
 
-### 4. "You may also be interested in" on provider page
-- New server fn `getRelatedProviders({ placeId })`: same `city_slug`, overlapping `services[]`, exclude self; fallback to same-city top-rated. Limit 4.
-- Render as a section right above the footer with `ProviderCard`.
+### How it works (technical)
 
-### 5. Homepage "I am looking for a…"
-- New hero subcomponent on `_site.index.tsx`: dropdown of top treatments (Botox, Filler, Laser, Body, Skin, Wellness) + optional city dropdown → CTA "See recommendations" → routes to `/match?priority=...&city=...` (prefills the existing match flow).
+**Geocoding (one-time per provider, cached in DB):**
+- Add `latitude double precision` and `longitude double precision` columns to `providers`.
+- New server function `geocodeProviderIfNeeded({ placeId })` that:
+  - Skips if the provider already has lat/lng
+  - Calls Google Geocoding API via the connector gateway (`/maps/api/geocode/json`) using `SUPABASE_URL` server env + `LOVABLE_API_KEY` + `GOOGLE_MAPS_API_KEY`
+  - Persists the result via `supabaseAdmin`
+- `getProviderBySlug` returns `latitude`/`longitude` in its select, and lazily triggers geocoding on the server if missing (fire-and-forget so first page load isn't blocked).
+- Backfill migration is out of scope — coords fill in as pages are visited. (Optional follow-up: a one-shot admin endpoint to bulk geocode.)
 
-### 6. Search page rework ("Find a Pro")
-- Default behavior: when no `q`/`city`/`service`, show **all published providers** (paginated, 24/page) instead of the empty state.
-- Replace pill-row filters with shadcn `Select` dropdowns: City, Treatment, Sort (Rating, Name, Verified first). Keep search input as primary. URL state stays in search params.
-- Add a results count and a "Reset filters" button.
+**Map component (browser):**
+- New `src/components/provider-map.tsx` — a client-only component that:
+  - Loads the Maps JS API asynchronously using `VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY` with `loading=async` and a `callback=initMap` global, plus the tracking `channel` param
+  - Uses a shared loader (idempotent, singleton promise) so multiple mounts / navigations don't re-inject the script
+  - Renders `google.maps.Map` + `google.maps.Marker` (not `AdvancedMarkerElement`, no `mapId`)
+  - Skips render entirely if lat/lng are missing
 
-### Technical details
+**Wiring:**
+- `src/routes/_site.provider.$slug.tsx` renders `<ProviderMap lat={...} lng={...} name={...} address={...} />` in a new "Location" section, placed after the About section and before the reviews / related providers.
 
-**Migrations** (single migration):
-```sql
-ALTER TABLE providers
-  ADD COLUMN IF NOT EXISTS about_description text,
-  ADD COLUMN IF NOT EXISTS video_urls text[] NOT NULL DEFAULT '{}',
-  ADD COLUMN IF NOT EXISTS certificate_urls text[] NOT NULL DEFAULT '{}',
-  ADD COLUMN IF NOT EXISTS document_urls text[] NOT NULL DEFAULT '{}';
-```
-Create `provider-files` private bucket; RLS: owner + admin read/write, public none.
+### Files touched
 
-**Data import**: scripted SQL with `INSERT ... ON CONFLICT DO UPDATE` covering all 121 rows from the spreadsheet, applied via the insert tool (not migration).
+New:
+- `supabase/migrations/<ts>_add_provider_coordinates.sql` — add `latitude`, `longitude` columns
+- `src/lib/geocode.functions.ts` — `geocodeProviderIfNeeded` server function
+- `src/components/provider-map.tsx` — Google Maps embed component
+- `src/lib/google-maps-loader.ts` — small singleton script loader
 
-**Files to touch**:
-- New: `src/lib/related.functions.ts`, `src/components/looking-for-hero.tsx`, `src/components/related-providers.tsx`.
-- Edit: `src/routes/_site.search.tsx`, `_site.index.tsx`, `_site.provider.$slug.tsx`, `_site.dashboard.listing.$placeId.tsx`, `src/lib/owner.functions.ts`, `src/lib/providers.functions.ts` (include `about_description`, social_links, gallery, videos, certs in returned cols), `src/lib/brand-extra.functions.ts` (metrics windowing).
+Edited:
+- `src/lib/providers.functions.ts` — include `latitude`, `longitude` in `getProviderBySlug`'s select; kick off geocoding if missing
+- `src/routes/_site.provider.$slug.tsx` — render the new Location section
 
-### Out of scope
-- Backfilling Google ratings/review counts for the new Waxahachie row.
-- Email-forwarding wiring (separate flow already pending).
-- Video transcoding — we'll store URLs only (YouTube/Vimeo embed or direct MP4).
+### Out of scope (can follow up)
+
+- Bulk backfill of coordinates for all 161 existing providers (they'll fill in on first visit; happy to add an admin one-shot if you want it now)
+- Map on city/search/brand listing pages (aggregate map with multiple pins)
+- Custom-branded marker icon / info window styling
