@@ -76,6 +76,13 @@ function ProviderPage() {
     recordProviderView({ data: { placeId } }).catch(() => {});
   }, [placeId]);
 
+  // Lazily geocode this provider if we don't have coordinates yet.
+  const hasCoords = data.provider?.latitude != null && data.provider?.longitude != null;
+  useEffect(() => {
+    if (!placeId || hasCoords) return;
+    geocodeProviderIfNeeded({ data: { placeId } }).catch(() => {});
+  }, [placeId, hasCoords]);
+
   const reviewIds = (data.reviews ?? []).map((r) => r.id);
   const { data: faqsData } = useQuery({
     queryKey: ["provider-faqs", placeId],
