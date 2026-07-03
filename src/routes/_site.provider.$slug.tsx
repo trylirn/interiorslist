@@ -195,6 +195,10 @@ function ProviderPage() {
             </section>
           )}
 
+          <ProviderMap lat={p.latitude} lng={p.longitude} name={p.name} address={p.address} city={p.city} />
+
+
+
           {p.video_urls && p.video_urls.length > 0 && (
             <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
               <h2 className="font-display text-2xl flex items-center gap-2"><Video className="h-5 w-5 text-brand" /> Videos</h2>
