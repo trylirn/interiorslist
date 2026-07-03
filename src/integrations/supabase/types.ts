@@ -342,7 +342,9 @@ export type Database = {
           is_verified: boolean
           last_synced_at: string
           lat: number | null
+          latitude: number | null
           lng: number | null
+          longitude: number | null
           name: string
           notes: string | null
           personality: Json | null
@@ -395,7 +397,9 @@ export type Database = {
           is_verified?: boolean
           last_synced_at?: string
           lat?: number | null
+          latitude?: number | null
           lng?: number | null
+          longitude?: number | null
           name: string
           notes?: string | null
           personality?: Json | null
@@ -448,7 +452,9 @@ export type Database = {
           is_verified?: boolean
           last_synced_at?: string
           lat?: number | null
+          latitude?: number | null
           lng?: number | null
+          longitude?: number | null
           name?: string
           notes?: string | null
           personality?: Json | null
