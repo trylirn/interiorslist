@@ -3,7 +3,7 @@ import type {} from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
 
-const BASE_URL = "";
+const BASE_URL = "https://texas-beauty-glow.lovable.app";
 
 interface SitemapEntry {
   path: string;
@@ -30,6 +30,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/contact", changefreq: "monthly", priority: "0.4" },
           { path: "/privacy", changefreq: "yearly", priority: "0.2" },
           { path: "/terms", changefreq: "yearly", priority: "0.2" },
+          { path: "/compare", changefreq: "monthly", priority: "0.4" },
         ];
 
         for (const c of TEXAS_CITIES) {
