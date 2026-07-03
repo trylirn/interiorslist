@@ -75,10 +75,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Texas Aesthetics — Trusted Aesthetic Injector Directory" },
       { name: "description", content: "Find top-rated Botox, filler, and medspa injectors across every major Texas city. Real patient reviews, verified providers, no paid placement." },
       { property: "og:title", content: "Texas Aesthetics — Trusted Aesthetic Injector Directory" },
-      { property: "og:description", content: "Find top-rated Botox, filler, and medspa injectors across every major Texas city." },
+      { property: "og:description", content: "Find top-rated Botox, filler, and medspa injectors across every major Texas city. Real patient reviews, verified providers, no paid placement." },
       { property: "og:site_name", content: "Texas Aesthetics" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Texas Aesthetics — Trusted Aesthetic Injector Directory" },
+      { name: "twitter:description", content: "Find top-rated Botox, filler, and medspa injectors across every major Texas city. Real patient reviews, verified providers, no paid placement." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/284fb0d6-18a3-4ea8-95e1-b4102d6c2eb6/id-preview-de02a53f--e0ab86c1-a253-4ac2-866f-507f5f888efb.lovable.app-1783092809862.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/284fb0d6-18a3-4ea8-95e1-b4102d6c2eb6/id-preview-de02a53f--e0ab86c1-a253-4ac2-866f-507f5f888efb.lovable.app-1783092809862.png" },
     ],
     links: [
       {
