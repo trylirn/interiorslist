@@ -156,7 +156,7 @@ function ProviderPage() {
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {p.gallery_urls.map((url: string) => (
                   <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square overflow-hidden rounded-xl border border-border bg-secondary/30">
-                    <img src={url} alt={`${p.name} photo`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+                    <img src={url} alt={`${p.name} treatment room and clinic interior in ${p.city ?? "Texas"}`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
                   </a>
                 ))}
               </div>

@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_site/tx/$city")({
     const path = `/tx/${params.city}`;
     return {
       meta: [
-        { title: `Aesthetic Injectors & Med Spas in ${name}, TX | Texas Aesthetics` },
+        { title: `${name}, TX Aesthetic Injectors | Texas Aesthetics` },
         { name: "description", content: `Verified Botox, filler & medspa injectors in ${name}, Texas. Contact info, services, and locations.` },
         { name: "keywords", content: `${name} Botox, ${name} filler, ${name} medspa, aesthetic injector ${name} Texas` },
         { property: "og:title", content: `${name} Aesthetic Injectors` },

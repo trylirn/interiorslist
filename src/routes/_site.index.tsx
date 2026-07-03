@@ -17,15 +17,58 @@ const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCit
 export const Route = createFileRoute("/_site/")({
   head: () => ({
     meta: [
-      { title: "Texas Aesthetics — Find Trusted Aesthetic Injectors in Texas" },
+      { title: "Texas Aesthetics — Trusted Injector Directory" },
       { name: "description", content: "Verified Botox, filler & medspa injectors across Houston, Dallas, Austin, San Antonio and every major Texas metro." },
-      { property: "og:title", content: "Texas Aesthetics — The Texas Aesthetic Injector Directory" },
+      { property: "og:title", content: "Texas Aesthetics — Trusted Injector Directory" },
       { property: "og:description", content: "Search top verified Botox, filler, and medspa providers in Texas." },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: "https://texas-beauty-glow.lovable.app/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://texas-beauty-glow.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Texas Aesthetics",
+          url: "https://texas-beauty-glow.lovable.app/",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://texas-beauty-glow.lovable.app/search?q={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Texas Aesthetics",
+          url: "https://texas-beauty-glow.lovable.app/",
+          description: "Verified directory of Botox, filler, and medspa injectors across Texas.",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            { "@type": "Question", name: "Is Texas Aesthetics free for patients?", acceptedAnswer: { "@type": "Answer", text: "Yes — searching, browsing, and contacting providers is always free." } },
+            { "@type": "Question", name: "How are providers verified?", acceptedAnswer: { "@type": "Answer", text: "We review every listing for valid business info, an active website, and credentialed practitioners before publication." } },
+            { "@type": "Question", name: "Do you accept paid placements?", acceptedAnswer: { "@type": "Answer", text: "No. There are no paid placements or commissions on inquiries. Featured spots are based on verification status." } },
+            { "@type": "Question", name: "How do I claim my business listing?", acceptedAnswer: { "@type": "Answer", text: "Sign in and visit your business profile — you'll see a 'Claim this listing' button. We verify ownership before granting access." } },
+            { "@type": "Question", name: "What credentials should I look for?", acceptedAnswer: { "@type": "Answer", text: "In Texas, neuromodulators and fillers must be administered by or under the supervision of a licensed physician (MD or DO). NPs, PAs, and RNs commonly inject under physician oversight." } },
+            { "@type": "Question", name: "Can I leave a review?", acceptedAnswer: { "@type": "Answer", text: "Yes — sign in to leave a verified review on any provider's profile." } },
+            { "@type": "Question", name: "Do you cover the whole state?", acceptedAnswer: { "@type": "Answer", text: "We focus on Texas only, with deep coverage of the largest metros and growing across mid-size cities." } },
+            { "@type": "Question", name: "How do I report incorrect info?", acceptedAnswer: { "@type": "Answer", text: "Use the contact form on any provider's profile, or email us via the Contact page." } },
+          ],
+        }),
+      },
+    ],
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(featuredOpts);
@@ -234,7 +277,7 @@ function HomePage() {
           <h2 className="mt-3 font-display text-4xl md:text-5xl">Own a Texas medspa?</h2>
           <p className="mx-auto mt-4 max-w-xl text-base opacity-90">Claim or submit your listing — free. Manage hours, services, photos, and respond to inquiries directly.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/for-business">Learn more</Link></Button>
+            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/for-business">Learn about business benefits</Link></Button>
             <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/submit">Submit your business</Link></Button>
           </div>
         </div>
