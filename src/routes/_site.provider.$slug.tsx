@@ -304,6 +304,17 @@ function ProviderPage() {
 
           <ProviderMap lat={p.latitude} lng={p.longitude} name={p.name} address={p.address} city={p.city} />
 
+          <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+            <h2 className="font-display text-2xl">Serving {p.city ?? "Texas"} and nearby areas</h2>
+            <p className="mt-3 text-foreground/85 leading-relaxed">
+              {p.name} welcomes patients from {p.city ?? "across Texas"} and the surrounding communities.
+              {p.city_slug && (() => {
+                const n = (require("@/lib/cities") as typeof import("@/lib/cities")).CITY_NEIGHBORS[p.city_slug];
+                return n ? ` Popular pickup areas include ${n.slice(0, 5).join(", ")}.` : "";
+              })()}
+            </p>
+          </section>
+
 
 
           {p.video_urls && p.video_urls.length > 0 && (
