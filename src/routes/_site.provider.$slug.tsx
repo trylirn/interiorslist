@@ -12,6 +12,7 @@ import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, 
 import { RelatedProviders } from "@/components/related-providers";
 import { ProviderMap } from "@/components/provider-map";
 import { geocodeProviderIfNeeded } from "@/lib/geocode.functions";
+import { CITY_NEIGHBORS } from "@/lib/cities";
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,34 +22,141 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_site/provider/$slug")({
   head: ({ params, loaderData }) => {
     const path = `/provider/${params.slug}`;
-    const p = (loaderData as { provider?: any } | undefined)?.provider;
+    const canonical = `https://texas-beauty-glow.lovable.app${path}`;
+    const p = (loaderData as { provider?: any; reviews?: any[] } | undefined)?.provider;
+    const reviews = (loaderData as { reviews?: any[] } | undefined)?.reviews ?? [];
     const displayName = p?.name ?? params.slug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+    const city = p?.city ?? "Texas";
+    const topServices: string[] = Array.isArray(p?.services)
+      ? p!.services.slice(0, 3).map((s: string) => s.replace(/-/g, " "))
+      : [];
+    const serviceBlurb = topServices.length ? topServices.join(", ") : "Botox, filler & medspa treatments";
+    const title = p
+      ? `${displayName} — ${topServices[0] ? topServices[0].replace(/\b\w/g, (m: string) => m.toUpperCase()) + " & Medspa" : "Medspa & Injector"} in ${city}, TX`
+      : `${displayName} — Texas Aesthetics`;
     const description = p
-      ? `${p.name}${p.city ? ` in ${p.city}, TX` : ""} — services, contact info, and patient reviews for this verified Texas aesthetic injector.`
+      ? `${p.name} in ${city}, TX. ${serviceBlurb}. Read patient reviews, view services, and book a consultation with this verified Texas aesthetic injector near you.`
       : `Verified Texas aesthetic injector. Services, contact, and reviews.`;
+    const keywords = p
+      ? [
+          `${city} medspa`,
+          `medspa in ${city} TX`,
+          `${city} aesthetic injector`,
+          `botox ${city}`,
+          `filler ${city} TX`,
+          `medspa near me ${city}`,
+          `${displayName} ${city}`,
+          ...topServices.map((s) => `${s} ${city}`),
+        ].join(", ")
+      : "Texas medspa, aesthetic injector Texas";
+
     const meta: Array<Record<string, string>> = [
-      { title: `${displayName} — Texas Aesthetics` },
+      { title },
       { name: "description", content: description },
-      { property: "og:title", content: `${displayName} | Texas Aesthetics` },
+      { name: "keywords", content: keywords },
+      { name: "geo.region", content: "US-TX" },
+      { name: "geo.placename", content: `${city}, Texas` },
+      { property: "og:title", content: title },
       { property: "og:description", content: description },
-      { property: "og:url", content: path },
-      { property: "og:type", content: "profile" },
+      { property: "og:url", content: canonical },
+      { property: "og:type", content: "business.business" },
+      { property: "og:locale", content: "en_US" },
+      { property: "business:contact_data:locality", content: city },
+      { property: "business:contact_data:region", content: "TX" },
+      { property: "business:contact_data:country_name", content: "United States" },
     ];
+    if (p?.address) meta.push({ property: "business:contact_data:street_address", content: p.address });
+    if (p?.latitude != null && p?.longitude != null) {
+      meta.push({ property: "place:location:latitude", content: String(p.latitude) });
+      meta.push({ property: "place:location:longitude", content: String(p.longitude) });
+      meta.push({ name: "geo.position", content: `${p.latitude};${p.longitude}` });
+      meta.push({ name: "ICBM", content: `${p.latitude}, ${p.longitude}` });
+    }
+
     const scripts: Array<{ type: string; children: string }> = [];
     if (p) {
       const ld: Record<string, unknown> = {
         "@context": "https://schema.org",
-        "@type": "LocalBusiness",
+        "@type": ["MedicalBusiness", "HealthAndBeautyBusiness", "LocalBusiness"],
+        "@id": canonical,
         name: p.name,
-        url: path,
+        url: canonical,
+        description,
+        priceRange: "$$",
+        areaServed: [
+          { "@type": "City", name: city, containedInPlace: { "@type": "State", name: "Texas" } },
+        ],
       };
+      if (p.hero_photo_url) ld.image = p.hero_photo_url;
       if (p.address) ld.address = { "@type": "PostalAddress", streetAddress: p.address, addressLocality: p.city, addressRegion: "TX", addressCountry: "US" };
-      if (p.website) ld.sameAs = [p.website];
+      if (p.latitude != null && p.longitude != null) ld.geo = { "@type": "GeoCoordinates", latitude: p.latitude, longitude: p.longitude };
+      if (p.website) ld.sameAs = [p.website, ...Object.values((p.social_links ?? {}) as Record<string, string>)].filter(Boolean);
+      else if (p.social_links) ld.sameAs = Object.values(p.social_links as Record<string, string>).filter(Boolean);
       if (p.email) ld.email = p.email;
+      if (p.phone) ld.telephone = p.phone;
+      if (Array.isArray(p.services) && p.services.length) {
+        ld.hasOfferCatalog = {
+          "@type": "OfferCatalog",
+          name: `Services offered by ${p.name}`,
+          itemListElement: p.services.map((s: string) => ({
+            "@type": "Offer",
+            itemOffered: { "@type": "Service", name: s.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase()) },
+          })),
+        };
+      }
+      const numRatings = reviews.length;
+      if (numRatings > 0) {
+        const avg = reviews.reduce((s: number, r: any) => s + (r.rating ?? 0), 0) / numRatings;
+        ld.aggregateRating = { "@type": "AggregateRating", ratingValue: Number(avg.toFixed(1)), reviewCount: numRatings };
+      } else if (p.rating && p.review_count) {
+        ld.aggregateRating = { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.review_count };
+      }
       scripts.push({ type: "application/ld+json", children: JSON.stringify(ld) });
+
+      // BreadcrumbList
+      scripts.push({
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://texas-beauty-glow.lovable.app/" },
+            { "@type": "ListItem", position: 2, name: `${city}, TX`, item: `https://texas-beauty-glow.lovable.app/tx/${p.city_slug}` },
+            { "@type": "ListItem", position: 3, name: p.name, item: canonical },
+          ],
+        }),
+      });
+
+      // FAQPage — local-intent Q&A
+      const faqTopic = topServices[0] || "aesthetic treatments";
+      scripts.push({
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: `Where is ${p.name} located in ${city}, TX?`,
+              acceptedAnswer: { "@type": "Answer", text: `${p.name} is located${p.address ? ` at ${p.address}` : ""} in ${city}, Texas.` },
+            },
+            {
+              "@type": "Question",
+              name: `How much does ${faqTopic} cost at ${p.name} in ${city}?`,
+              acceptedAnswer: { "@type": "Answer", text: `Pricing for ${faqTopic} at ${p.name} in ${city}, TX varies by treatment area and provider. Contact the clinic for a personalized quote.` },
+            },
+            {
+              "@type": "Question",
+              name: `How do I book an appointment with ${p.name}?`,
+              acceptedAnswer: { "@type": "Answer", text: `Use the contact form on this page, or visit ${p.name}'s website to schedule a consultation in ${city}, TX.` },
+            },
+          ],
+        }),
+      });
     }
-    return { meta, links: [{ rel: "canonical", href: path }], scripts };
+    return { meta, links: [{ rel: "canonical", href: canonical }], scripts };
   },
+
   loader: ({ params, context }) =>
     context.queryClient.ensureQueryData(
       queryOptions({
@@ -196,6 +304,21 @@ function ProviderPage() {
           )}
 
           <ProviderMap lat={p.latitude} lng={p.longitude} name={p.name} address={p.address} city={p.city} />
+
+          {p.city_slug && CITY_NEIGHBORS[p.city_slug] && (
+            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl">Serving {p.city} and nearby areas</h2>
+              <p className="mt-3 text-foreground/85 leading-relaxed">
+                {p.name} welcomes patients from {p.city} and the surrounding communities of{" "}
+                {CITY_NEIGHBORS[p.city_slug].slice(0, 5).join(", ")}. Search for other {p.city}, TX injectors
+                nearby or explore related treatments below.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link to="/tx/$city" params={{ city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">More in {p.city}</Link>
+                <Link to="/best/$city" params={{ city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">Best of {p.city}</Link>
+              </div>
+            </section>
+          )}
 
 
 

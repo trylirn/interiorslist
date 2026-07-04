@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { SERVICES, TEXAS_CITIES } from "@/lib/cities";
+import { SERVICES, TEXAS_CITIES, cityFromSlug } from "@/lib/cities";
 import { listByTreatment } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { z } from "zod";
@@ -13,28 +13,59 @@ export const Route = createFileRoute("/_site/treatment/$slug")({
   beforeLoad: ({ params }) => {
     if (!SERVICES.find((s) => s.slug === params.slug)) throw notFound();
   },
-  head: ({ params }) => {
+  head: ({ params, loaderData }) => {
     const svc = SERVICES.find((s) => s.slug === params.slug);
     const name = svc?.name ?? params.slug;
-    const path = `/treatment/${params.slug}`;
+    const cityParam = (loaderData as { citySlug?: string } | undefined)?.citySlug;
+    const city = cityParam ? cityFromSlug(cityParam) : undefined;
+    const path = cityParam ? `/treatment/${params.slug}?city=${cityParam}` : `/treatment/${params.slug}`;
+    const canonical = `https://texas-beauty-glow.lovable.app${path}`;
+    const title = city
+      ? `${name} in ${city.name}, TX — Verified Injectors & Medspas Near You`
+      : `${name} in Texas — Verified Injectors & Medspas`;
+    const description = city
+      ? `Compare verified ${name} providers in ${city.name}, Texas. Real reviews, pricing guidance, and contact info for ${name.toLowerCase()} near you.`
+      : `Compare verified ${name} providers across Texas. Real patient reviews and contact info for ${name.toLowerCase()} in every major metro.`;
+    const keywords = city
+      ? `${name} ${city.name}, ${name} near me ${city.name}, best ${name.toLowerCase()} ${city.name} TX, ${city.name} medspa ${name.toLowerCase()}`
+      : `${name} Texas, ${name} near me, best ${name.toLowerCase()} TX`;
     return {
       meta: [
-        { title: `${name} Providers in Texas | Texas Aesthetics` },
-        { name: "description", content: `Find verified ${name} providers across every major Texas metro.` },
-        { property: "og:title", content: `${name} in Texas` },
-        { property: "og:description", content: `Verified ${name} providers across Texas.` },
-        { property: "og:url", content: path },
+        { title },
+        { name: "description", content: description },
+        { name: "keywords", content: keywords },
+        { name: "geo.region", content: "US-TX" },
+        ...(city ? [{ name: "geo.placename", content: `${city.name}, Texas` }] : []),
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: canonical },
+        { property: "og:type", content: "website" },
       ],
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: canonical }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: title,
+            url: canonical,
+            about: { "@type": "MedicalProcedure", name },
+            ...(city ? { spatialCoverage: { "@type": "City", name: city.name, containedInPlace: { "@type": "State", name: "Texas" } } } : {}),
+          }),
+        },
+      ],
     };
   },
-  loader: ({ params, deps, context }) =>
-    context.queryClient.ensureQueryData(
+  loader: async ({ params, deps, context }) => {
+    const result = await context.queryClient.ensureQueryData(
       queryOptions({
         queryKey: ["treatment", params.slug, deps],
         queryFn: () => listByTreatment({ data: { service: params.slug, city: deps.city } }),
       }),
-    ),
+    );
+    return { ...result, citySlug: deps.city };
+  },
   component: TreatmentPage,
 });
 
@@ -42,6 +73,7 @@ function TreatmentPage() {
   const { slug } = Route.useParams();
   const search = Route.useSearch();
   const svc = SERVICES.find((s) => s.slug === slug)!;
+  const city = search.city ? cityFromSlug(search.city) : undefined;
   const { data } = useSuspenseQuery(
     queryOptions({
       queryKey: ["treatment", slug, search],
@@ -51,9 +83,13 @@ function TreatmentPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
-      <p className="text-sm text-muted-foreground">Treatments</p>
-      <h1 className="mt-1 font-display text-4xl md:text-5xl">{svc.name} in Texas</h1>
-      <p className="mt-2 text-muted-foreground">{data.providers.length} verified providers</p>
+      <p className="text-sm text-muted-foreground">Treatments{city ? ` / ${city.name}` : ""}</p>
+      <h1 className="mt-1 font-display text-4xl md:text-5xl">
+        {svc.name} {city ? `in ${city.name}, TX` : "in Texas"}
+      </h1>
+      <p className="mt-2 text-muted-foreground">
+        {data.providers.length} verified {city ? `${city.name}` : "Texas"} providers
+      </p>
 
       <div className="mt-8 flex flex-wrap gap-2">
         <Link to="/treatment/$slug" params={{ slug }} className={`rounded-full border px-3 py-1 text-sm ${!search.city ? "border-brand bg-brand text-brand-foreground" : "border-border"}`}>All cities</Link>
@@ -68,3 +104,4 @@ function TreatmentPage() {
     </div>
   );
 }
+

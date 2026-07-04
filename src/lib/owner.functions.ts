@@ -1,6 +1,42 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+// Public (unauthenticated) claim submission — inserts with user_id = NULL
+// under an anon INSERT policy. Returns { ok: true } even when duplicate to
+// avoid leaking existence to unrelated visitors.
+export const submitPublicClaim = createServerFn({ method: "POST" })
+  .inputValidator((d) =>
+    z.object({
+      placeId: z.string().min(1).max(200),
+      contactName: z.string().max(120).optional(),
+      contactEmail: z.string().email().max(255),
+      contactPhone: z.string().max(40).optional(),
+      businessRole: z.string().max(120).optional(),
+      proofNotes: z.string().max(2000).optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const supabase = createClient<Database>(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_PUBLISHABLE_KEY!,
+      { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+    );
+    const roleNote = data.contactName ? `Name: ${data.contactName}\n${data.proofNotes ?? ""}` : (data.proofNotes ?? null);
+    const { error } = await supabase.from("claims").insert({
+      provider_place_id: data.placeId,
+      user_id: null,
+      contact_email: data.contactEmail,
+      contact_phone: data.contactPhone || null,
+      business_role: data.businessRole || null,
+      proof_notes: roleNote,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 
 export const listMyListings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

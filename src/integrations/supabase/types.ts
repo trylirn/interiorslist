@@ -62,7 +62,7 @@ export type Database = {
           reviewed_by: string | null
           status: string
           submitted_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           business_role?: string | null
@@ -75,7 +75,7 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           submitted_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           business_role?: string | null
@@ -88,7 +88,7 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           submitted_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
