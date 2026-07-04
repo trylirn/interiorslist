@@ -12,6 +12,7 @@ import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, 
 import { RelatedProviders } from "@/components/related-providers";
 import { ProviderMap } from "@/components/provider-map";
 import { geocodeProviderIfNeeded } from "@/lib/geocode.functions";
+import { CITY_NEIGHBORS } from "@/lib/cities";
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
