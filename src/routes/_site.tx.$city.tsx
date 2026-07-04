@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { cityFromSlug, SERVICES } from "@/lib/cities";
+import { cityFromSlug, SERVICES, CITY_GEO, CITY_INTRO, CITY_NEIGHBORS } from "@/lib/cities";
 import { listProvidersByCity } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { z } from "zod";
@@ -20,26 +20,74 @@ export const Route = createFileRoute("/_site/tx/$city")({
     const c = cityFromSlug(params.city);
     const name = c?.name ?? params.city;
     const path = `/tx/${params.city}`;
+    const canonical = `https://texas-beauty-glow.lovable.app${path}`;
+    const geo = CITY_GEO[params.city];
+    const intro = CITY_INTRO[params.city] ?? `Verified aesthetic injectors in ${name}, TX.`;
+    const title = `${name}, TX Aesthetic Injectors & Medspas | Botox, Filler Near You`;
+    const description = `Find the best Botox, dermal filler, and medspa injectors in ${name}, Texas. ${intro} Real patient reviews and verified providers — no paid placement.`;
+    const keywords = [
+      `${name} medspa`, `medspa ${name} TX`, `medspa near me ${name}`,
+      `botox ${name}`, `filler ${name}`, `lip filler ${name} TX`,
+      `best injector ${name}`, `aesthetic injector ${name} Texas`,
+      `${name} skin clinic`, `laser hair removal ${name}`,
+    ].join(", ");
+    const meta: Array<Record<string, string>> = [
+      { title },
+      { name: "description", content: description },
+      { name: "keywords", content: keywords },
+      { name: "geo.region", content: "US-TX" },
+      { name: "geo.placename", content: `${name}, Texas` },
+      { property: "og:title", content: `${name} Aesthetic Injectors & Medspas` },
+      { property: "og:description", content: description },
+      { property: "og:url", content: canonical },
+      { property: "og:type", content: "website" },
+      { property: "og:locale", content: "en_US" },
+    ];
+    if (geo) {
+      meta.push({ name: "geo.position", content: `${geo.lat};${geo.lng}` });
+      meta.push({ name: "ICBM", content: `${geo.lat}, ${geo.lng}` });
+      meta.push({ property: "place:location:latitude", content: String(geo.lat) });
+      meta.push({ property: "place:location:longitude", content: String(geo.lng) });
+    }
+    const collectionLd: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: `Aesthetic Injectors & Medspas in ${name}, TX`,
+      url: canonical,
+      about: { "@type": "City", name, containedInPlace: { "@type": "State", name: "Texas" } },
+      isPartOf: { "@type": "WebSite", name: "Texas Aesthetics", url: "https://texas-beauty-glow.lovable.app/" },
+    };
+    if (geo) collectionLd.geo = { "@type": "GeoCoordinates", latitude: geo.lat, longitude: geo.lng };
     return {
-      meta: [
-        { title: `${name}, TX Aesthetic Injectors | Texas Aesthetics` },
-        { name: "description", content: `Verified Botox, filler & medspa injectors in ${name}, Texas. Contact info, services, and locations.` },
-        { name: "keywords", content: `${name} Botox, ${name} filler, ${name} medspa, aesthetic injector ${name} Texas` },
-        { property: "og:title", content: `${name} Aesthetic Injectors` },
-        { property: "og:description", content: `Browse verified injectors in ${name}, TX.` },
-        { property: "og:url", content: path },
-        { property: "og:type", content: "website" },
-      ],
-      links: [{ rel: "canonical", href: path }],
+      meta,
+      links: [{ rel: "canonical", href: canonical }],
       scripts: [
+        { type: "application/ld+json", children: JSON.stringify(collectionLd) },
         {
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            name: `Aesthetic Injectors in ${name}, TX`,
-            url: path,
-            isPartOf: { "@type": "WebSite", name: "Texas Aesthetics", url: "/" },
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://texas-beauty-glow.lovable.app/" },
+              { "@type": "ListItem", position: 2, name: "Texas", item: "https://texas-beauty-glow.lovable.app/" },
+              { "@type": "ListItem", position: 3, name: `${name}, TX`, item: canonical },
+            ],
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              { "@type": "Question", name: `How much does Botox cost in ${name}, TX?`,
+                acceptedAnswer: { "@type": "Answer", text: `Botox in ${name}, Texas typically ranges $12–$18 per unit depending on the injector's experience and clinic. Compare local providers above for pricing details.` } },
+              { "@type": "Question", name: `Are medspas in ${name} licensed?`,
+                acceptedAnswer: { "@type": "Answer", text: `Reputable medspas in ${name}, TX operate under a licensed Medical Director. Every listing on Texas Aesthetics can be cross-checked with the Texas Medical Board and Texas Board of Nursing.` } },
+              { "@type": "Question", name: `Where can I find the best filler injector near me in ${name}?`,
+                acceptedAnswer: { "@type": "Answer", text: `Browse verified filler and Botox injectors in ${name}, TX on this page. Each provider profile lists services, reviews, and contact details.` } },
+            ],
           }),
         },
       ],
@@ -54,6 +102,7 @@ export const Route = createFileRoute("/_site/tx/$city")({
     ),
   component: CityPage,
 });
+
 
 function CityPage() {
   const { city } = Route.useParams();
