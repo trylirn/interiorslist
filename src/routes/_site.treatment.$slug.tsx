@@ -13,10 +13,10 @@ export const Route = createFileRoute("/_site/treatment/$slug")({
   beforeLoad: ({ params }) => {
     if (!SERVICES.find((s) => s.slug === params.slug)) throw notFound();
   },
-  head: ({ params, deps }) => {
+  head: ({ params, loaderData }) => {
     const svc = SERVICES.find((s) => s.slug === params.slug);
     const name = svc?.name ?? params.slug;
-    const cityParam = (deps as { city?: string } | undefined)?.city;
+    const cityParam = (loaderData as { citySlug?: string } | undefined)?.citySlug;
     const city = cityParam ? cityFromSlug(cityParam) : undefined;
     const path = cityParam ? `/treatment/${params.slug}?city=${cityParam}` : `/treatment/${params.slug}`;
     const canonical = `https://texas-beauty-glow.lovable.app${path}`;
@@ -57,13 +57,15 @@ export const Route = createFileRoute("/_site/treatment/$slug")({
       ],
     };
   },
-  loader: ({ params, deps, context }) =>
-    context.queryClient.ensureQueryData(
+  loader: async ({ params, deps, context }) => {
+    const result = await context.queryClient.ensureQueryData(
       queryOptions({
         queryKey: ["treatment", params.slug, deps],
         queryFn: () => listByTreatment({ data: { service: params.slug, city: deps.city } }),
       }),
-    ),
+    );
+    return { ...result, citySlug: deps.city };
+  },
   component: TreatmentPage,
 });
 
