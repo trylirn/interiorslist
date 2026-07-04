@@ -39,6 +39,13 @@ export const Route = createFileRoute("/sitemap.xml")({
         }
         for (const s of SERVICES) entries.push({ path: `/treatment/${s.slug}`, changefreq: "weekly", priority: "0.7" });
         for (const k of CONCERNS) entries.push({ path: `/concern/${k.slug}`, changefreq: "weekly", priority: "0.6" });
+        // Treatment × city permutations for local-intent SEO (top 8 services × all cities)
+        const topServices = SERVICES.slice(0, 8);
+        for (const c of TEXAS_CITIES) {
+          for (const s of topServices) {
+            entries.push({ path: `/treatment/${s.slug}?city=${c.slug}`, changefreq: "weekly", priority: "0.6" });
+          }
+        }
 
         try {
           const { data: providers } = await supabaseAdmin.from("providers").select("slug, updated_at").limit(5000);
