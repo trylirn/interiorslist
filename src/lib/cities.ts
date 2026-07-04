@@ -22,6 +22,57 @@ export const TEXAS_CITIES: TexasCity[] = [
   { slug: "waxahachie", name: "Waxahachie", state: "TX", tagline: "Historic charm" },
 ];
 
+// Nearby cities/neighborhoods for local-intent SEO ("near me" queries and areaServed).
+export const CITY_NEIGHBORS: Record<string, string[]> = {
+  houston: ["The Woodlands", "Sugar Land", "Katy", "Pearland", "Cypress", "Spring"],
+  dallas: ["Plano", "Frisco", "Irving", "Richardson", "Garland", "Highland Park"],
+  austin: ["Round Rock", "Cedar Park", "Pflugerville", "Lakeway", "Georgetown", "Bee Cave"],
+  "san-antonio": ["Alamo Heights", "Stone Oak", "Boerne", "New Braunfels", "Schertz"],
+  "fort-worth": ["Arlington", "Southlake", "Keller", "Grapevine", "Colleyville"],
+  "el-paso": ["Horizon City", "Socorro", "Canutillo"],
+  arlington: ["Fort Worth", "Grand Prairie", "Mansfield", "Kennedale"],
+  plano: ["Frisco", "Allen", "McKinney", "Richardson", "Dallas"],
+  "corpus-christi": ["Portland", "Rockport", "Kingsville"],
+  lubbock: ["Wolfforth", "Shallowater", "Idalou"],
+  southlake: ["Grapevine", "Colleyville", "Keller", "Westlake"],
+  "the-woodlands": ["Spring", "Conroe", "Magnolia", "Tomball"],
+  waxahachie: ["Midlothian", "Red Oak", "Ennis", "Ovilla", "Dallas"],
+};
+
+// City centroid approx lat/lng for LocalBusiness/CollectionPage geo hints.
+export const CITY_GEO: Record<string, { lat: number; lng: number }> = {
+  houston: { lat: 29.7604, lng: -95.3698 },
+  dallas: { lat: 32.7767, lng: -96.797 },
+  austin: { lat: 30.2672, lng: -97.7431 },
+  "san-antonio": { lat: 29.4241, lng: -98.4936 },
+  "fort-worth": { lat: 32.7555, lng: -97.3308 },
+  "el-paso": { lat: 31.7619, lng: -106.485 },
+  arlington: { lat: 32.7357, lng: -97.1081 },
+  plano: { lat: 33.0198, lng: -96.6989 },
+  "corpus-christi": { lat: 27.8006, lng: -97.3964 },
+  lubbock: { lat: 33.5779, lng: -101.8552 },
+  southlake: { lat: 32.9412, lng: -97.1342 },
+  "the-woodlands": { lat: 30.1658, lng: -95.4613 },
+  waxahachie: { lat: 32.3865, lng: -96.8483 },
+};
+
+// Short local intro copy for each city (visible + description meta).
+export const CITY_INTRO: Record<string, string> = {
+  houston: "Serving Houston and the surrounding communities of The Woodlands, Sugar Land, Katy, and Pearland.",
+  dallas: "Serving Dallas, Highland Park, Uptown, Preston Hollow, and the greater DFW metroplex.",
+  austin: "Serving Austin, Westlake, Round Rock, Cedar Park, and the Texas Hill Country.",
+  "san-antonio": "Serving San Antonio, Alamo Heights, Stone Oak, Boerne, and New Braunfels.",
+  "fort-worth": "Serving Fort Worth, Southlake, Keller, Grapevine, and the western DFW metroplex.",
+  "el-paso": "Serving El Paso, Horizon City, Socorro, and the Sun City region.",
+  arlington: "Serving Arlington, Grand Prairie, Mansfield, and the Mid-Cities.",
+  plano: "Serving Plano, Frisco, Allen, McKinney, and North Dallas.",
+  "corpus-christi": "Serving Corpus Christi, Portland, Rockport, and the Texas Coastal Bend.",
+  lubbock: "Serving Lubbock, Wolfforth, Shallowater, and the South Plains region.",
+  southlake: "Serving Southlake, Westlake, Grapevine, Colleyville, and DFW luxury communities.",
+  "the-woodlands": "Serving The Woodlands, Spring, Conroe, Magnolia, and North Houston.",
+  waxahachie: "Serving Waxahachie, Midlothian, Red Oak, Ennis, and Southern Dallas County.",
+};
+
 export const SERVICES = [
   { slug: "botox", name: "Botox" },
   { slug: "dysport", name: "Dysport" },
