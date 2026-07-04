@@ -305,16 +305,20 @@ function ProviderPage() {
 
           <ProviderMap lat={p.latitude} lng={p.longitude} name={p.name} address={p.address} city={p.city} />
 
-          <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
-            <h2 className="font-display text-2xl">Serving {p.city ?? "Texas"} and nearby areas</h2>
-            <p className="mt-3 text-foreground/85 leading-relaxed">
-              {p.name} welcomes patients from {p.city ?? "across Texas"} and the surrounding communities.
-              {p.city_slug && (() => {
-                const n = (require("@/lib/cities") as typeof import("@/lib/cities")).CITY_NEIGHBORS[p.city_slug];
-                return n ? ` Popular pickup areas include ${n.slice(0, 5).join(", ")}.` : "";
-              })()}
-            </p>
-          </section>
+          {p.city_slug && CITY_NEIGHBORS[p.city_slug] && (
+            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl">Serving {p.city} and nearby areas</h2>
+              <p className="mt-3 text-foreground/85 leading-relaxed">
+                {p.name} welcomes patients from {p.city} and the surrounding communities of{" "}
+                {CITY_NEIGHBORS[p.city_slug].slice(0, 5).join(", ")}. Search for other {p.city}, TX injectors
+                nearby or explore related treatments below.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link to="/tx/$city" params={{ city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">More in {p.city}</Link>
+                <Link to="/best/$city" params={{ city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">Best of {p.city}</Link>
+              </div>
+            </section>
+          )}
 
 
 
