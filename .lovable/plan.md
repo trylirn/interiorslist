@@ -1,50 +1,57 @@
-## Add a location map to every medspa page
+## 1. Local SEO — rank for location-based inquiries
 
-Embed an interactive Google Map on each provider detail page (`/provider/$slug`) showing the medspa's location with a marker, using the existing Google Maps connector — no new API keys or setup required.
+Goal: maximize visibility for queries like "botox in Waxahachie", "medspa near me Dallas", "best filler injector Frisco TX", etc.
 
-### What the user will see
+### Per-provider page (`/provider/$slug`)
+- Rewrite `head()` with local-intent title/description:
+  - Title: `${name} — Botox, Filler & Medspa in ${city}, TX`
+  - Description: mentions city, top 3 services, rating, "book a consultation in {city}, Texas".
+  - Keywords meta with `{service} {city}`, `{service} near me`, `medspa {city} TX`, etc.
+  - `og:locale = en_US`, `og:type = business.business`, `place:location:latitude/longitude` when geocoded.
+- Add `LocalBusiness` / `MedicalBusiness` JSON-LD with:
+  - `@type: ["MedicalBusiness","HealthAndBeautyBusiness"]`, name, image, url, telephone, `address` (PostalAddress with `addressLocality`, `addressRegion: "TX"`, `postalCode` if any, `streetAddress`), `geo` (lat/lng), `areaServed` (city + neighboring cities), `hasOfferCatalog` for services, `aggregateRating` when reviews exist, `sameAs` for social links.
+  - `BreadcrumbList`: Home › Texas › {City} › {Name}.
+- Add visible location copy block: "Serving {city} and nearby {neighbors}" + H2 "Visit our {city}, TX location" with address, and an FAQ section ("How much does Botox cost in {city}?", "Best filler injector in {city}?") — rendered as `FAQPage` JSON-LD.
 
-- A new "Location" section on every medspa page with:
-  - An interactive map (~360px tall) centered on the provider's address, with a pin marker
-  - The full address displayed above the map
-  - A "Get directions" link that opens Google Maps in a new tab
-- Graceful fallback: if the address can't be geocoded, the section just shows the address text and directions link (no broken map).
+### City pages (`/tx/$city`)
+- Title/description already trimmed; add richer local intent:
+  - H1 already good; add intro paragraph mentioning neighborhoods/landmarks (from a `cities.ts` extension) and top services.
+  - `BreadcrumbList` + `CollectionPage` already present — extend with `about: { @type: City, name, containedInPlace: Texas }` and `geo` for city centroid.
+  - Add FAQ block ("How much is Botox in {city}?", "Are medspas in {city} licensed?") + `FAQPage` JSON-LD.
+  - Internal links to top providers, related cities, and treatment pages `/treatment/{slug}` filtered by city.
 
-### How it works (technical)
+### Treatment × City combinations
+- Extend `/treatment/$slug` (existing route) to accept `?city=` and swap in city-specific head + H1 ("Botox in Frisco, TX"), and link these combos from city pages ("Botox in Frisco", "Filler in Frisco"…) to create indexable internal-link surface.
 
-**Geocoding (one-time per provider, cached in DB):**
-- Add `latitude double precision` and `longitude double precision` columns to `providers`.
-- New server function `geocodeProviderIfNeeded({ placeId })` that:
-  - Skips if the provider already has lat/lng
-  - Calls Google Geocoding API via the connector gateway (`/maps/api/geocode/json`) using `SUPABASE_URL` server env + `LOVABLE_API_KEY` + `GOOGLE_MAPS_API_KEY`
-  - Persists the result via `supabaseAdmin`
-- `getProviderBySlug` returns `latitude`/`longitude` in its select, and lazily triggers geocoding on the server if missing (fire-and-forget so first page load isn't blocked).
-- Backfill migration is out of scope — coords fill in as pages are visited. (Optional follow-up: a one-shot admin endpoint to bulk geocode.)
+### Sitemap
+- Add every `/provider/$slug`, `/tx/$city`, `/treatment/$slug`, `/best/$city`, `/brand/$slug` entry, and treatment×city permutations for cities with providers offering that service. Set `changefreq=weekly`, `priority=0.8` for cities and top providers.
 
-**Map component (browser):**
-- New `src/components/provider-map.tsx` — a client-only component that:
-  - Loads the Maps JS API asynchronously using `VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY` with `loading=async` and a `callback=initMap` global, plus the tracking `channel` param
-  - Uses a shared loader (idempotent, singleton promise) so multiple mounts / navigations don't re-inject the script
-  - Renders `google.maps.Map` + `google.maps.Marker` (not `AdvancedMarkerElement`, no `mapId`)
-  - Skips render entirely if lat/lng are missing
+### Site-wide
+- Root `__root.tsx`: add `Organization` `sameAs` + `areaServed: Texas` (keep leaf `og:image` rule).
+- Add hidden but crawlable "Cities we serve" footer link list to every page via `site-chrome.tsx`.
 
-**Wiring:**
-- `src/routes/_site.provider.$slug.tsx` renders `<ProviderMap lat={...} lng={...} name={...} address={...} />` in a new "Location" section, placed after the About section and before the reviews / related providers.
+### Data helpers
+- Add `neighborsBySlug` and light copy strings to `src/lib/cities.ts` (no DB changes).
 
-### Files touched
+## 2. Public claim flow (no sign-in required)
 
-New:
-- `supabase/migrations/<ts>_add_provider_coordinates.sql` — add `latitude`, `longitude` columns
-- `src/lib/geocode.functions.ts` — `geocodeProviderIfNeeded` server function
-- `src/components/provider-map.tsx` — Google Maps embed component
-- `src/lib/google-maps-loader.ts` — small singleton script loader
+`src/routes/_site.claim.$slug.tsx`:
+- Remove the auth gate (`authed === false` branch and `supabase.auth.getSession` guard).
+- Render the form unconditionally.
+- On submit, call a new **public** claim server function (no `requireSupabaseAuth`) that inserts into `claims` with `user_id = null`; keep existing input validation and rate-limit friendly length caps.
+- After submit, show an inline success card:
+  > "Thanks! Someone from our team will reach out to you within a few minutes. If you decide you want to be listed, the cost is **$99 per year**."
+- Also add the $99/year note above the submit button so users see it before submitting.
 
-Edited:
-- `src/lib/providers.functions.ts` — include `latitude`, `longitude` in `getProviderBySlug`'s select; kick off geocoding if missing
-- `src/routes/_site.provider.$slug.tsx` — render the new Location section
+### Backend
+- Migration: allow `claims.user_id` to be NULL; add an anon INSERT policy on `claims` restricted to the columns we accept (place_id, contact_email, contact_phone, business_role, proof_notes). No anon SELECT.
+- New `submitPublicClaim` server fn in `src/lib/owner.functions.ts` (unauthenticated, validated with zod, uses server publishable client, not `supabaseAdmin`).
 
-### Out of scope (can follow up)
+## Files
 
-- Bulk backfill of coordinates for all 161 existing providers (they'll fill in on first visit; happy to add an admin one-shot if you want it now)
-- Map on city/search/brand listing pages (aggregate map with multiple pins)
-- Custom-branded marker icon / info window styling
+- Edit: `src/routes/_site.provider.$slug.tsx`, `src/routes/_site.tx.$city.tsx`, `src/routes/_site.treatment.$slug.tsx`, `src/routes/__root.tsx`, `src/routes/sitemap[.]xml.ts`, `src/components/site-chrome.tsx`, `src/lib/cities.ts`, `src/routes/_site.claim.$slug.tsx`, `src/lib/owner.functions.ts`.
+- New: migration for nullable `claims.user_id` + anon insert policy.
+
+## Out of scope
+- New standalone landing pages per neighborhood (can add later).
+- Actual payment collection for the $99/yr (notice only).
