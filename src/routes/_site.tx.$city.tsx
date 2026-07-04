@@ -115,12 +115,19 @@ function CityPage() {
     }),
   );
 
+  const intro = CITY_INTRO[city];
+  const neighbors = CITY_NEIGHBORS[city] ?? [];
+  const topServices = SERVICES.slice(0, 6);
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
-      <div className="mb-8">
-        <p className="text-sm text-muted-foreground">Texas / {c.name}</p>
-        <h1 className="mt-1 font-display text-4xl md:text-5xl">Aesthetic Injectors in {c.name}</h1>
+      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
+        <Link to="/" className="hover:text-brand">Home</Link> / Texas / <span className="text-foreground">{c.name}</span>
+      </nav>
+      <div className="mb-8 mt-2">
+        <h1 className="font-display text-4xl md:text-5xl">Aesthetic Injectors & Medspas in {c.name}, TX</h1>
         <p className="mt-2 text-muted-foreground">{data.providers.length} verified providers • {c.tagline}</p>
+        {intro && <p className="mt-3 max-w-3xl text-foreground/85">{intro}</p>}
       </div>
 
       <div className="mb-8 flex flex-wrap gap-2">
@@ -139,6 +146,45 @@ function CityPage() {
           {data.providers.map((p) => <ProviderCard key={p.place_id} {...p} />)}
         </div>
       )}
+
+      {/* Local-intent internal links: treatment × city permutations */}
+      <section className="mt-14 rounded-3xl border border-border bg-secondary/30 p-6 md:p-8">
+        <h2 className="font-display text-2xl">Popular treatments in {c.name}, TX</h2>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {topServices.map((s) => (
+            <Link key={s.slug} to="/treatment/$slug" params={{ slug: s.slug }} search={{ city } as never}
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:border-brand">
+              {s.name} in {c.name}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {neighbors.length > 0 && (
+        <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+          <h2 className="font-display text-2xl">Serving nearby areas</h2>
+          <p className="mt-2 text-foreground/85">Injectors and medspas listed on this page serve patients across the greater {c.name} area, including {neighbors.join(", ")}.</p>
+        </section>
+      )}
+
+      <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+        <h2 className="font-display text-2xl">Frequently asked</h2>
+        <div className="mt-4 space-y-3 text-sm">
+          <details className="rounded-xl border border-border bg-secondary/30 p-4">
+            <summary className="cursor-pointer font-medium">How much does Botox cost in {c.name}, TX?</summary>
+            <p className="mt-2 text-foreground/80">Botox in {c.name} typically ranges $12–$18 per unit depending on the injector's experience. Compare providers above for exact pricing.</p>
+          </details>
+          <details className="rounded-xl border border-border bg-secondary/30 p-4">
+            <summary className="cursor-pointer font-medium">Are medspas in {c.name} licensed?</summary>
+            <p className="mt-2 text-foreground/80">Every reputable medspa in {c.name}, Texas operates under a licensed Medical Director. Verify licensure with the Texas Medical Board and Texas Board of Nursing.</p>
+          </details>
+          <details className="rounded-xl border border-border bg-secondary/30 p-4">
+            <summary className="cursor-pointer font-medium">Where can I find the best filler injector near me in {c.name}?</summary>
+            <p className="mt-2 text-foreground/80">Browse the verified filler and Botox injectors listed above. Each profile shows services, patient reviews, and contact details for {c.name}, TX.</p>
+          </details>
+        </div>
+      </section>
     </div>
   );
 }
+
