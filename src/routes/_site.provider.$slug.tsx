@@ -552,32 +552,22 @@ function ReviewDialog({ placeId, slug }: { placeId: string; slug: string }) {
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
   const [author, setAuthor] = useState("");
+  const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const submit = useServerFn(submitReview);
   const qc = useQueryClient();
-  const navigate = useNavigate();
 
-  async function handleOpen(o: boolean) {
-    if (o) {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) {
-        toast.info("Sign in to leave a review");
-        navigate({ to: "/login" });
-        return;
-      }
-      setAuthor(data.session.user.email?.split("@")[0] ?? "Anonymous");
-    }
-    setOpen(o);
-  }
+  const valid = author.trim().length >= 1 && /.+@.+\..+/.test(email) && rating >= 1;
 
   async function send() {
-    if (!author || rating < 1) return;
+    if (!valid) return;
     setBusy(true);
     try {
-      await submit({ data: { placeId, authorName: author, rating, text } });
+      await submit({ data: { placeId, authorName: author.trim(), email: email.trim(), rating, text } });
       toast.success("Review posted");
       setOpen(false);
       setText("");
+      setEmail("");
       qc.invalidateQueries({ queryKey: ["provider", slug] });
     } catch {
       toast.error("Couldn't post review");
@@ -587,15 +577,16 @@ function ReviewDialog({ placeId, slug }: { placeId: string; slug: string }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="rounded-full">Write a Review</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader><DialogTitle className="font-display text-2xl">Share your experience</DialogTitle></DialogHeader>
-        <div className="mt-2">
-          <label className="block text-sm"><span className="font-medium">Your name</span><Input className="mt-1" value={author} onChange={(e) => setAuthor(e.target.value)} maxLength={120} /></label>
-          <div className="mt-4">
+        <div className="mt-2 space-y-4">
+          <label className="block text-sm"><span className="font-medium">Your name</span><Input className="mt-1" value={author} onChange={(e) => setAuthor(e.target.value)} maxLength={120} placeholder="Jane D." /></label>
+          <label className="block text-sm"><span className="font-medium">Email</span><Input type="email" className="mt-1" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} placeholder="you@example.com" required /><span className="mt-1 block text-xs text-muted-foreground">Kept private. Never shown on the review.</span></label>
+          <div>
             <p className="text-sm font-medium">Rating</p>
             <div className="mt-2 flex gap-1">
               {[1, 2, 3, 4, 5].map((n) => (
@@ -605,10 +596,11 @@ function ReviewDialog({ placeId, slug }: { placeId: string; slug: string }) {
               ))}
             </div>
           </div>
-          <label className="mt-4 block text-sm"><span className="font-medium">Review (optional)</span><Textarea className="mt-1 min-h-28" value={text} onChange={(e) => setText(e.target.value)} maxLength={4000} placeholder="What stood out about your experience?" /></label>
+          <label className="block text-sm"><span className="font-medium">Review (optional)</span><Textarea className="mt-1 min-h-28" value={text} onChange={(e) => setText(e.target.value)} maxLength={4000} placeholder="What stood out about your experience?" /></label>
         </div>
-        <Button onClick={send} disabled={busy} className="mt-4 rounded-full">{busy ? "Posting…" : "Post review"}</Button>
+        <Button onClick={send} disabled={!valid || busy} className="mt-4 rounded-full">{busy ? "Posting…" : "Post review"}</Button>
       </DialogContent>
     </Dialog>
   );
 }
+
