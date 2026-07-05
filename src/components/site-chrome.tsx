@@ -78,17 +78,11 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
-  const { data: brandsData } = useQuery({
-    queryKey: ["footer-brands"],
-    queryFn: () => listBrands(),
-    staleTime: 1000 * 60 * 30,
-  });
-  const brands = (brandsData?.brands ?? []).slice(0, 8);
   const treatments = SERVICES.slice(0, 12);
 
   return (
     <footer className="mt-24 border-t border-border/60 bg-secondary/30">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-7">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-6">
         <div className="lg:col-span-1">
           <p className="font-display text-lg font-semibold uppercase tracking-[0.15em]">Texas Aesthetics</p>
           <p className="mt-4 text-sm text-muted-foreground">
@@ -108,20 +102,12 @@ export function SiteFooter() {
           ))}
         </FooterCol>
 
-        <FooterCol title="Brands">
-          {brands.length === 0 ? (
-            <li><Link to="/brands" className="hover:text-brand">See all brands</Link></li>
-          ) : brands.map((b) => (
-            <li key={b.slug}><Link to="/brand/$slug" params={{ slug: b.slug }} className="hover:text-brand">{b.name}</Link></li>
-          ))}
-          <li><Link to="/brands" className="hover:text-brand font-medium">All brands →</Link></li>
-        </FooterCol>
-
         <FooterCol title="Concerns">
           {CONCERNS.map((c) => (
             <li key={c.slug}><Link to="/concern/$slug" params={{ slug: c.slug }} className="hover:text-brand">{c.label}</Link></li>
           ))}
         </FooterCol>
+
 
         <FooterCol title="Company">
           <li><Link to="/about" className="hover:text-brand">About</Link></li>
