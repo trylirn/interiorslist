@@ -35,7 +35,7 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { data: provider, error } = await supabaseAdmin
       .from("providers")
-      .select("*")
+      .select(PROVIDER_DETAIL_COLS)
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
