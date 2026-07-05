@@ -1,12 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
+
+type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
+// Public detail projection — excludes private fields (email, email_forward_to, document_urls).
+type ProviderDetail = Omit<ProviderRow, "email" | "email_forward_to" | "document_urls">;
 
 const PROVIDER_COLS =
   "place_id, slug, name, city, city_slug, address, website, specialists, credentials, notes, brand_id, branch_label, is_verified, badges, services, services_raw, about_description, social_links, gallery_urls, video_urls, certificate_urls, hero_photo_url, rating, review_count";
 
-// Explicit safe column list for the public provider detail page.
-// Excludes private fields: email, email_forward_to, document_urls.
 const PROVIDER_DETAIL_COLS =
   PROVIDER_COLS +
   ", phone, latitude, longitude, published, claimed_by, business_status, state, hours, price_ranges, skin_types, recovery_tags, personality, team, before_after_urls, google_maps_url, postal_code";
