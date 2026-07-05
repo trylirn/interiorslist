@@ -36,10 +36,10 @@ export function SiteHeader() {
         <nav className="hidden items-center gap-8 lg:flex">
           <Link to="/search" className="text-sm font-medium hover:text-brand">Find a Pro</Link>
           <Link to="/match" className="text-sm font-medium hover:text-brand">Get Matched</Link>
-          <Link to="/brands" className="text-sm font-medium hover:text-brand">Brands</Link>
           <Link to="/safety" className="text-sm font-medium hover:text-brand">Safety</Link>
           <Link to="/for-business" className="text-sm font-medium hover:text-brand">For Business</Link>
         </nav>
+
         <div className="hidden items-center gap-4 lg:flex">
           <Link to="/search" aria-label="Search" className="text-foreground/80 hover:text-brand">
             <Search className="h-4 w-4" />
