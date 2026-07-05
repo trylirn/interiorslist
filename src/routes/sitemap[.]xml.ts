@@ -57,11 +57,8 @@ export const Route = createFileRoute("/sitemap.xml")({
               changefreq: "weekly", priority: "0.6",
             });
           }
-          const { data: brands } = await supabaseAdmin.from("brands").select("slug, updated_at").limit(500);
-          for (const b of brands ?? []) {
-            if (!b.slug) continue;
-            entries.push({ path: `/brand/${b.slug}`, changefreq: "weekly", priority: "0.6" });
-          }
+
+
         } catch {
           // sitemap still serves static entries if DB fetch fails
         }
