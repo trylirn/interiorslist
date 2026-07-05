@@ -39,7 +39,7 @@ function ForBusiness() {
           <Benefit Icon={Eye} title="Discovery" body="Show up in city, treatment, brand, and concern searches across our directory." />
           <Benefit Icon={MessageSquare} title="Direct leads" body="Patient inquiries land in your dashboard. No middlemen, no commissions." />
           <Benefit Icon={BadgeCheck} title="Verified badge" body="A verified badge signals trust to high-intent patients." />
-          <Benefit Icon={Building2} title="Brand pages" body="Multi-location medspas get a unified brand page across all branches." />
+          
           <Benefit Icon={BarChart3} title="Lead status tracking" body="Mark inquiries as new / contacted / closed to keep your team aligned." />
           <Benefit Icon={ShieldCheck} title="Profile control" body="Edit hours, services, photos, specialists, and credentials anytime." />
         </div>
