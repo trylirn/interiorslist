@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
-import { getFeaturedProviders, getCityStats, listBrands } from "@/lib/providers.functions";
+import { getFeaturedProviders, getCityStats } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
