@@ -36,6 +36,7 @@ import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$s
 import { Route as SiteConcernSlugRouteImport } from './routes/_site.concern.$slug'
 import { Route as SiteClaimSlugRouteImport } from './routes/_site.claim.$slug'
 import { Route as SiteBestCityRouteImport } from './routes/_site.best.$city'
+import { Route as SiteAdminArticlesRouteImport } from './routes/_site.admin.articles'
 import { Route as SiteDashboardListingPlaceIdRouteImport } from './routes/_site.dashboard.listing.$placeId'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -173,6 +174,11 @@ const SiteBestCityRoute = SiteBestCityRouteImport.update({
   path: '/best/$city',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteAdminArticlesRoute = SiteAdminArticlesRouteImport.update({
+  id: '/articles',
+  path: '/articles',
+  getParentRoute: () => SiteAdminRoute,
+} as any)
 const SiteDashboardListingPlaceIdRoute =
   SiteDashboardListingPlaceIdRouteImport.update({
     id: '/listing/$placeId',
@@ -184,7 +190,7 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
-  '/admin': typeof SiteAdminRoute
+  '/admin': typeof SiteAdminRouteWithChildren
   '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/credentials': typeof SiteCredentialsRoute
@@ -200,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/submit': typeof SiteSubmitRoute
   '/terms': typeof SiteTermsRoute
   '/welcome': typeof SiteWelcomeRoute
+  '/admin/articles': typeof SiteAdminArticlesRoute
   '/best/$city': typeof SiteBestCityRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/concern/$slug': typeof SiteConcernSlugRoute
@@ -212,7 +219,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
-  '/admin': typeof SiteAdminRoute
+  '/admin': typeof SiteAdminRouteWithChildren
   '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/credentials': typeof SiteCredentialsRoute
@@ -229,6 +236,7 @@ export interface FileRoutesByTo {
   '/terms': typeof SiteTermsRoute
   '/welcome': typeof SiteWelcomeRoute
   '/': typeof SiteIndexRoute
+  '/admin/articles': typeof SiteAdminArticlesRoute
   '/best/$city': typeof SiteBestCityRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/concern/$slug': typeof SiteConcernSlugRoute
@@ -243,7 +251,7 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_site/about': typeof SiteAboutRoute
-  '/_site/admin': typeof SiteAdminRoute
+  '/_site/admin': typeof SiteAdminRouteWithChildren
   '/_site/compare': typeof SiteCompareRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/credentials': typeof SiteCredentialsRoute
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/_site/terms': typeof SiteTermsRoute
   '/_site/welcome': typeof SiteWelcomeRoute
   '/_site/': typeof SiteIndexRoute
+  '/_site/admin/articles': typeof SiteAdminArticlesRoute
   '/_site/best/$city': typeof SiteBestCityRoute
   '/_site/claim/$slug': typeof SiteClaimSlugRoute
   '/_site/concern/$slug': typeof SiteConcernSlugRoute
@@ -291,6 +300,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/terms'
     | '/welcome'
+    | '/admin/articles'
     | '/best/$city'
     | '/claim/$slug'
     | '/concern/$slug'
@@ -320,6 +330,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/welcome'
     | '/'
+    | '/admin/articles'
     | '/best/$city'
     | '/claim/$slug'
     | '/concern/$slug'
@@ -350,6 +361,7 @@ export interface FileRouteTypes {
     | '/_site/terms'
     | '/_site/welcome'
     | '/_site/'
+    | '/_site/admin/articles'
     | '/_site/best/$city'
     | '/_site/claim/$slug'
     | '/_site/concern/$slug'
@@ -557,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteBestCityRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/admin/articles': {
+      id: '/_site/admin/articles'
+      path: '/articles'
+      fullPath: '/admin/articles'
+      preLoaderRoute: typeof SiteAdminArticlesRouteImport
+      parentRoute: typeof SiteAdminRoute
+    }
     '/_site/dashboard/listing/$placeId': {
       id: '/_site/dashboard/listing/$placeId'
       path: '/listing/$placeId'
@@ -566,6 +585,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface SiteAdminRouteChildren {
+  SiteAdminArticlesRoute: typeof SiteAdminArticlesRoute
+}
+
+const SiteAdminRouteChildren: SiteAdminRouteChildren = {
+  SiteAdminArticlesRoute: SiteAdminArticlesRoute,
+}
+
+const SiteAdminRouteWithChildren = SiteAdminRoute._addFileChildren(
+  SiteAdminRouteChildren,
+)
 
 interface SiteDashboardRouteChildren {
   SiteDashboardListingPlaceIdRoute: typeof SiteDashboardListingPlaceIdRoute
@@ -581,7 +612,7 @@ const SiteDashboardRouteWithChildren = SiteDashboardRoute._addFileChildren(
 
 interface SiteRouteChildren {
   SiteAboutRoute: typeof SiteAboutRoute
-  SiteAdminRoute: typeof SiteAdminRoute
+  SiteAdminRoute: typeof SiteAdminRouteWithChildren
   SiteCompareRoute: typeof SiteCompareRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteCredentialsRoute: typeof SiteCredentialsRoute
@@ -608,7 +639,7 @@ interface SiteRouteChildren {
 
 const SiteRouteChildren: SiteRouteChildren = {
   SiteAboutRoute: SiteAboutRoute,
-  SiteAdminRoute: SiteAdminRoute,
+  SiteAdminRoute: SiteAdminRouteWithChildren,
   SiteCompareRoute: SiteCompareRoute,
   SiteContactRoute: SiteContactRoute,
   SiteCredentialsRoute: SiteCredentialsRoute,
