@@ -20,7 +20,6 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/search", changefreq: "weekly", priority: "0.7" },
           { path: "/match", changefreq: "weekly", priority: "0.7" },
-          { path: "/brands", changefreq: "weekly", priority: "0.7" },
           { path: "/how-it-works", changefreq: "monthly", priority: "0.5" },
           { path: "/for-business", changefreq: "monthly", priority: "0.6" },
           { path: "/safety", changefreq: "monthly", priority: "0.5" },
@@ -32,6 +31,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/terms", changefreq: "yearly", priority: "0.2" },
           { path: "/compare", changefreq: "monthly", priority: "0.4" },
         ];
+
 
         for (const c of TEXAS_CITIES) {
           entries.push({ path: `/tx/${c.slug}`, changefreq: "weekly", priority: "0.8" });
