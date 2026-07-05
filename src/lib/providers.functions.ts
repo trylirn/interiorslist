@@ -40,7 +40,7 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
       .from("providers")
       .select(PROVIDER_DETAIL_COLS)
       .eq("slug", data.slug)
-      .maybeSingle();
+      .maybeSingle<ProviderDetail>();
     if (error) throw new Error(error.message);
     if (!provider) return { provider: null, reviews: [], brandSiblings: [] };
 
