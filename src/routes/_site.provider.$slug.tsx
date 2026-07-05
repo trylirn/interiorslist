@@ -252,7 +252,7 @@ function ProviderPage() {
             )}
 
             <div className="mt-6 flex flex-wrap gap-2">
-              {p.email && <Button asChild><a href={`mailto:${p.email}`}><Mail className="mr-2 h-4 w-4" />Email</a></Button>}
+              {p.phone && <Button asChild><a href={`tel:${p.phone}`}><Mail className="mr-2 h-4 w-4" />Call</a></Button>}
               {p.website && <Button asChild variant="outline"><a href={p.website} target="_blank" rel="noopener noreferrer"><Globe className="mr-2 h-4 w-4" />Website</a></Button>}
               {mapsHref && <Button asChild variant="outline"><a href={mapsHref} target="_blank" rel="noopener noreferrer"><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
             </div>
