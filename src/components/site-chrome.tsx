@@ -61,7 +61,6 @@ export function SiteHeader() {
           <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 text-sm">
             <Link to="/search" onClick={() => setOpen(false)}>Find a Pro</Link>
             <Link to="/match" onClick={() => setOpen(false)}>Get Matched</Link>
-            <Link to="/brands" onClick={() => setOpen(false)}>Brands</Link>
             <Link to="/safety" onClick={() => setOpen(false)}>Safety</Link>
             <Link to="/for-business" onClick={() => setOpen(false)}>For Business</Link>
             <Link to="/favorites" onClick={() => setOpen(false)}>Favorites</Link>
@@ -73,6 +72,7 @@ export function SiteHeader() {
           </div>
         </div>
       )}
+
     </header>
   );
 }
