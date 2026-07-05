@@ -8,16 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video } from "lucide-react";
+import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video, Newspaper } from "lucide-react";
 import { RelatedProviders } from "@/components/related-providers";
+import { NearbyProviders } from "@/components/nearby-providers";
 import { ProviderMap } from "@/components/provider-map";
 
 import { CITY_NEIGHBORS } from "@/lib/cities";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_site/provider/$slug")({
   head: ({ params, loaderData }) => {
