@@ -80,7 +80,7 @@ export const Route = createFileRoute("/_site/")({
 function HomePage() {
   const { data: featured } = useSuspenseQuery(featuredOpts);
   const { data: stats } = useSuspenseQuery(statsOpts);
-  const { data: brandsData } = useQuery({ queryKey: ["home-brands"], queryFn: () => listBrands() });
+  
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
