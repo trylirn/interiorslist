@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const sendContactMessage = createServerFn({ method: "POST" })
   .inputValidator((d) =>
@@ -29,24 +28,25 @@ export const sendContactMessage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// Public: anyone can post a review with a name + email + rating.
+// Email is captured for moderation but never rendered publicly.
 export const submitReview = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
       .object({
         placeId: z.string().min(1).max(160),
-        authorName: z.string().min(1).max(120),
+        authorName: z.string().trim().min(1).max(120),
+        email: z.string().trim().email().max(255),
         rating: z.number().int().min(1).max(5),
         text: z.string().max(4000).optional().or(z.literal("")),
       })
       .parse(d),
   )
-  .handler(async ({ data, context }) => {
-    // Use the user-scoped client so RLS applies and the review is tied to a verified session.
-    const { supabase } = context;
-    const { error } = await supabase.from("reviews").insert({
+  .handler(async ({ data }) => {
+    const { error } = await supabaseAdmin.from("reviews").insert({
       provider_place_id: data.placeId,
       author_name: data.authorName,
+      email: data.email,
       rating: data.rating,
       text: data.text || null,
       relative_time: "just now",
