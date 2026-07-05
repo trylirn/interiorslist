@@ -9,7 +9,7 @@ const PROVIDER_COLS =
 // Excludes private fields: email, email_forward_to, document_urls.
 const PROVIDER_DETAIL_COLS =
   PROVIDER_COLS +
-  ", phone, latitude, longitude, published, published_at, claimed_by, business_status, state, hours, price_ranges, skin_types, recovery_tags, personality, team, before_after_urls";
+  ", phone, latitude, longitude, published, claimed_by, business_status, state, hours, price_ranges, skin_types, recovery_tags, personality, team, before_after_urls, google_maps_url, postal_code";
 
 
 const cityArg = z.object({
