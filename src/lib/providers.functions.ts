@@ -8,11 +8,11 @@ type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderDetail = Omit<ProviderRow, "email" | "email_forward_to" | "document_urls">;
 
 const PROVIDER_COLS =
-  "place_id, slug, name, city, city_slug, address, website, specialists, credentials, notes, brand_id, branch_label, is_verified, badges, services, services_raw, about_description, social_links, gallery_urls, video_urls, certificate_urls, hero_photo_url, rating, review_count";
+  "place_id, slug, name, city, city_slug, address, website, specialists, credentials, notes, branch_label, is_verified, badges, services, services_raw, about_description, social_links, gallery_urls, video_urls, certificate_urls, hero_photo_url, rating, review_count";
 
 const PROVIDER_DETAIL_COLS =
   PROVIDER_COLS +
-  ", phone, latitude, longitude, published, claimed_by, business_status, state, hours, price_ranges, skin_types, recovery_tags, personality, team, before_after_urls, google_maps_url, postal_code";
+  ", phone, latitude, longitude, published, claimed_by, business_status, state, hours, price_ranges, skin_types, recovery_tags, personality, team, before_after_urls, google_maps_url, postal_code, articles";
 
 
 const cityArg = z.object({
@@ -42,7 +42,7 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
       .eq("slug", data.slug)
       .maybeSingle<ProviderDetail>();
     if (error) throw new Error(error.message);
-    if (!provider) return { provider: null, reviews: [], brandSiblings: [] };
+    if (!provider) return { provider: null, reviews: [] };
 
     const { data: reviews } = await supabaseAdmin
       .from("reviews")
@@ -51,17 +51,7 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
       .order("published_at", { ascending: false })
       .limit(20);
 
-    let brandSiblings: Array<{ slug: string; city: string; branch_label: string | null }> = [];
-    if (provider.brand_id) {
-      const { data: siblings } = await supabaseAdmin
-        .from("providers")
-        .select("slug, city, branch_label")
-        .eq("brand_id", provider.brand_id)
-        .neq("place_id", provider.place_id)
-        .order("city");
-      brandSiblings = siblings ?? [];
-    }
-    return { provider, reviews: reviews ?? [], brandSiblings };
+    return { provider, reviews: reviews ?? [] };
   });
 
 export const getFeaturedProviders = createServerFn({ method: "GET" }).handler(async () => {
@@ -152,37 +142,56 @@ export const getRelatedProviders = createServerFn({ method: "GET" })
     return { providers: related.slice(0, 4) };
   });
 
-export const listBrands = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await supabaseAdmin
-    .from("brands")
-    .select("id, slug, name, website, description")
-    .order("name");
-  if (error) throw new Error(error.message);
-  const ids = (data ?? []).map((b) => b.id);
-  const counts: Record<string, number> = {};
-  if (ids.length) {
-    const { data: branches } = await supabaseAdmin.from("providers").select("brand_id").in("brand_id", ids);
-    for (const r of branches ?? []) if (r.brand_id) counts[r.brand_id] = (counts[r.brand_id] ?? 0) + 1;
-  }
-  return { brands: (data ?? []).map((b) => ({ ...b, branchCount: counts[b.id] ?? 0 })) };
-});
+// Haversine distance in km
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
 
-export const getBrandBySlug = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ slug: z.string().min(1).max(160) }).parse(d))
+export const getNearbyProviders = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
-    const { data: brand, error } = await supabaseAdmin
-      .from("brands")
-      .select("*")
-      .eq("slug", data.slug)
+    const { data: me } = await supabaseAdmin
+      .from("providers")
+      .select("place_id, city_slug, latitude, longitude")
+      .eq("place_id", data.placeId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!brand) return { brand: null, branches: [] };
-    const { data: branches } = await supabaseAdmin
+    if (!me) return { providers: [] };
+
+    // Path A: geographic distance when coords available.
+    if (me.latitude != null && me.longitude != null) {
+      const { data: rows } = await supabaseAdmin
+        .from("providers")
+        .select(PROVIDER_COLS + ", latitude, longitude")
+        .eq("published", true)
+        .neq("place_id", me.place_id)
+        .not("latitude", "is", null)
+        .not("longitude", "is", null)
+        .limit(500);
+      const scored = (rows ?? [])
+        .map((r: any) => ({
+          ...r,
+          _km: haversineKm(me.latitude as number, me.longitude as number, r.latitude, r.longitude),
+        }))
+        .sort((a, b) => a._km - b._km)
+        .slice(0, 6);
+      if (scored.length) return { providers: scored };
+    }
+
+    // Path B: fallback — same city, then just top-rated.
+    const { data: rows } = await supabaseAdmin
       .from("providers")
       .select(PROVIDER_COLS)
-      .eq("brand_id", brand.id)
-      .order("city");
-    return { brand, branches: branches ?? [] };
+      .eq("city_slug", me.city_slug)
+      .eq("published", true)
+      .neq("place_id", me.place_id)
+      .order("is_verified", { ascending: false })
+      .order("rating", { ascending: false, nullsFirst: false })
+      .limit(6);
+    return { providers: rows ?? [] };
   });
 
 export const listByTreatment = createServerFn({ method: "GET" })
@@ -192,8 +201,27 @@ export const listByTreatment = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     let q = supabaseAdmin.from("providers").select(PROVIDER_COLS).contains("services", [data.service]).eq("published", true);
     if (data.city) q = q.eq("city_slug", data.city);
-    q = q.order("name").limit(100);
+    q = q.order("is_verified", { ascending: false }).order("rating", { ascending: false, nullsFirst: false }).order("name").limit(100);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
     return { providers: rows ?? [] };
+  });
+
+// Cities that have ≥1 provider offering this treatment — for local-intent interlinks.
+export const listCitiesForTreatment = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ service: z.string().min(1).max(80) }).parse(d))
+  .handler(async ({ data }) => {
+    const { data: rows } = await supabaseAdmin
+      .from("providers")
+      .select("city_slug, city")
+      .contains("services", [data.service])
+      .eq("published", true);
+    const counts = new Map<string, { slug: string; name: string; count: number }>();
+    for (const r of rows ?? []) {
+      if (!r.city_slug) continue;
+      const cur = counts.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, count: 0 };
+      cur.count += 1;
+      counts.set(r.city_slug, cur);
+    }
+    return { cities: Array.from(counts.values()).sort((a, b) => b.count - a.count) };
   });

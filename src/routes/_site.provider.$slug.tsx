@@ -8,16 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video } from "lucide-react";
+import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video, Newspaper } from "lucide-react";
 import { RelatedProviders } from "@/components/related-providers";
+import { NearbyProviders } from "@/components/nearby-providers";
 import { ProviderMap } from "@/components/provider-map";
 
 import { CITY_NEIGHBORS } from "@/lib/cities";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_site/provider/$slug")({
   head: ({ params, loaderData }) => {
@@ -240,7 +240,7 @@ function ProviderPage() {
               <Meta label="Based In" value={p.city ? `${p.city}, TX` : "—"} icon={<MapPin className="h-4 w-4" />} />
               <Meta label="Serves" value="Texas" icon={<Globe className="h-4 w-4" />} />
               {p.phone && <Meta label="Contact" value="Phone available" icon={<Mail className="h-4 w-4" />} />}
-              {p.brand_id && <Meta label="Brand" value="Multi-location" icon={<Building2 className="h-4 w-4" />} />}
+              
             </div>
 
             {p.address && (
@@ -372,21 +372,8 @@ function ProviderPage() {
           )}
 
 
-          {data.brandSiblings.length > 0 && (
-            <section className="mt-8 rounded-3xl border border-border bg-secondary/30 p-6 md:p-8">
-              <h2 className="font-display text-2xl flex items-center gap-2"><Building2 className="h-5 w-5 text-brand" /> Other locations</h2>
-              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                {data.brandSiblings.map((b) => (
-                  <li key={b.slug}>
-                    <Link to="/provider/$slug" params={{ slug: b.slug }} className="block rounded-lg border border-border bg-card px-4 py-3 hover:border-brand">
-                      <span className="font-medium">{b.branch_label || b.city}</span>
-                      <span className="ml-2 text-sm text-muted-foreground">{b.city}, TX</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+
+
 
           {/* Reviews */}
           <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
@@ -460,10 +447,28 @@ function ProviderPage() {
         </aside>
       </div>
 
+      {Array.isArray((p as any).articles) && (p as any).articles.length > 0 && (
+        <section className="mt-12 rounded-3xl border border-border bg-card p-6 md:p-8">
+          <h2 className="font-display text-2xl flex items-center gap-2"><Newspaper className="h-5 w-5 text-brand" /> Latest from {p.name}</h2>
+          <ul className="mt-4 space-y-2">
+            {((p as any).articles as Array<{ title: string; url: string }>).map((a) => (
+              <li key={a.url}>
+                <a href={a.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm hover:border-brand">
+                  <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                  <span><span className="font-medium">{a.title}</span> <span className="text-muted-foreground">→ Read on {p.name}</span></span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <NearbyProviders placeId={p.place_id} />
       <RelatedProviders placeId={p.place_id} />
     </div>
   );
 }
+
 
 
 function UnclaimedSidebar({ slug, website, mapsHref }: { slug: string; website: string | null; mapsHref: string | null }) {
@@ -565,32 +570,22 @@ function ReviewDialog({ placeId, slug }: { placeId: string; slug: string }) {
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
   const [author, setAuthor] = useState("");
+  const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const submit = useServerFn(submitReview);
   const qc = useQueryClient();
-  const navigate = useNavigate();
 
-  async function handleOpen(o: boolean) {
-    if (o) {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) {
-        toast.info("Sign in to leave a review");
-        navigate({ to: "/login" });
-        return;
-      }
-      setAuthor(data.session.user.email?.split("@")[0] ?? "Anonymous");
-    }
-    setOpen(o);
-  }
+  const valid = author.trim().length >= 1 && /.+@.+\..+/.test(email) && rating >= 1;
 
   async function send() {
-    if (!author || rating < 1) return;
+    if (!valid) return;
     setBusy(true);
     try {
-      await submit({ data: { placeId, authorName: author, rating, text } });
+      await submit({ data: { placeId, authorName: author.trim(), email: email.trim(), rating, text } });
       toast.success("Review posted");
       setOpen(false);
       setText("");
+      setEmail("");
       qc.invalidateQueries({ queryKey: ["provider", slug] });
     } catch {
       toast.error("Couldn't post review");
@@ -600,15 +595,16 @@ function ReviewDialog({ placeId, slug }: { placeId: string; slug: string }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="rounded-full">Write a Review</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader><DialogTitle className="font-display text-2xl">Share your experience</DialogTitle></DialogHeader>
-        <div className="mt-2">
-          <label className="block text-sm"><span className="font-medium">Your name</span><Input className="mt-1" value={author} onChange={(e) => setAuthor(e.target.value)} maxLength={120} /></label>
-          <div className="mt-4">
+        <div className="mt-2 space-y-4">
+          <label className="block text-sm"><span className="font-medium">Your name</span><Input className="mt-1" value={author} onChange={(e) => setAuthor(e.target.value)} maxLength={120} placeholder="Jane D." /></label>
+          <label className="block text-sm"><span className="font-medium">Email</span><Input type="email" className="mt-1" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} placeholder="you@example.com" required /><span className="mt-1 block text-xs text-muted-foreground">Kept private. Never shown on the review.</span></label>
+          <div>
             <p className="text-sm font-medium">Rating</p>
             <div className="mt-2 flex gap-1">
               {[1, 2, 3, 4, 5].map((n) => (
@@ -618,10 +614,11 @@ function ReviewDialog({ placeId, slug }: { placeId: string; slug: string }) {
               ))}
             </div>
           </div>
-          <label className="mt-4 block text-sm"><span className="font-medium">Review (optional)</span><Textarea className="mt-1 min-h-28" value={text} onChange={(e) => setText(e.target.value)} maxLength={4000} placeholder="What stood out about your experience?" /></label>
+          <label className="block text-sm"><span className="font-medium">Review (optional)</span><Textarea className="mt-1 min-h-28" value={text} onChange={(e) => setText(e.target.value)} maxLength={4000} placeholder="What stood out about your experience?" /></label>
         </div>
-        <Button onClick={send} disabled={busy} className="mt-4 rounded-full">{busy ? "Posting…" : "Post review"}</Button>
+        <Button onClick={send} disabled={!valid || busy} className="mt-4 rounded-full">{busy ? "Posting…" : "Post review"}</Button>
       </DialogContent>
     </Dialog>
   );
 }
+

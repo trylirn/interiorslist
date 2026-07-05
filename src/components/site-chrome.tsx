@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Menu, Search, X } from "lucide-react";
 import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
-import { listBrands } from "@/lib/providers.functions";
 import { getMyRoles } from "@/lib/role.functions";
+
 
 export function SiteHeader() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -36,10 +36,10 @@ export function SiteHeader() {
         <nav className="hidden items-center gap-8 lg:flex">
           <Link to="/search" className="text-sm font-medium hover:text-brand">Find a Pro</Link>
           <Link to="/match" className="text-sm font-medium hover:text-brand">Get Matched</Link>
-          <Link to="/brands" className="text-sm font-medium hover:text-brand">Brands</Link>
           <Link to="/safety" className="text-sm font-medium hover:text-brand">Safety</Link>
           <Link to="/for-business" className="text-sm font-medium hover:text-brand">For Business</Link>
         </nav>
+
         <div className="hidden items-center gap-4 lg:flex">
           <Link to="/search" aria-label="Search" className="text-foreground/80 hover:text-brand">
             <Search className="h-4 w-4" />
@@ -61,7 +61,6 @@ export function SiteHeader() {
           <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 text-sm">
             <Link to="/search" onClick={() => setOpen(false)}>Find a Pro</Link>
             <Link to="/match" onClick={() => setOpen(false)}>Get Matched</Link>
-            <Link to="/brands" onClick={() => setOpen(false)}>Brands</Link>
             <Link to="/safety" onClick={() => setOpen(false)}>Safety</Link>
             <Link to="/for-business" onClick={() => setOpen(false)}>For Business</Link>
             <Link to="/favorites" onClick={() => setOpen(false)}>Favorites</Link>
@@ -73,22 +72,17 @@ export function SiteHeader() {
           </div>
         </div>
       )}
+
     </header>
   );
 }
 
 export function SiteFooter() {
-  const { data: brandsData } = useQuery({
-    queryKey: ["footer-brands"],
-    queryFn: () => listBrands(),
-    staleTime: 1000 * 60 * 30,
-  });
-  const brands = (brandsData?.brands ?? []).slice(0, 8);
   const treatments = SERVICES.slice(0, 12);
 
   return (
     <footer className="mt-24 border-t border-border/60 bg-secondary/30">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-7">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-6">
         <div className="lg:col-span-1">
           <p className="font-display text-lg font-semibold uppercase tracking-[0.15em]">Texas Aesthetics</p>
           <p className="mt-4 text-sm text-muted-foreground">
@@ -108,20 +102,12 @@ export function SiteFooter() {
           ))}
         </FooterCol>
 
-        <FooterCol title="Brands">
-          {brands.length === 0 ? (
-            <li><Link to="/brands" className="hover:text-brand">See all brands</Link></li>
-          ) : brands.map((b) => (
-            <li key={b.slug}><Link to="/brand/$slug" params={{ slug: b.slug }} className="hover:text-brand">{b.name}</Link></li>
-          ))}
-          <li><Link to="/brands" className="hover:text-brand font-medium">All brands →</Link></li>
-        </FooterCol>
-
         <FooterCol title="Concerns">
           {CONCERNS.map((c) => (
             <li key={c.slug}><Link to="/concern/$slug" params={{ slug: c.slug }} className="hover:text-brand">{c.label}</Link></li>
           ))}
         </FooterCol>
+
 
         <FooterCol title="Company">
           <li><Link to="/about" className="hover:text-brand">About</Link></li>

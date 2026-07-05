@@ -306,7 +306,7 @@ function MatchPage() {
           </div>
 
           {active.is_verified && <p className="mt-4 flex items-center gap-1 text-sm text-brand"><BadgeCheck className="h-4 w-4" /> Verified provider</p>}
-          {active.brand_id && <p className="mt-1 flex items-center gap-1 text-sm text-brand"><Building2 className="h-4 w-4" /> Multi-location brand</p>}
+          
           {active.specialists && <p className="mt-4 text-foreground/85 leading-relaxed">{active.specialists}</p>}
 
           {active.services && active.services.length > 0 && (

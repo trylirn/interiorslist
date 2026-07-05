@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
-import { getFeaturedProviders, getCityStats, listBrands } from "@/lib/providers.functions";
+import { getFeaturedProviders, getCityStats } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,7 +80,7 @@ export const Route = createFileRoute("/_site/")({
 function HomePage() {
   const { data: featured } = useSuspenseQuery(featuredOpts);
   const { data: stats } = useSuspenseQuery(statsOpts);
-  const { data: brandsData } = useQuery({ queryKey: ["home-brands"], queryFn: () => listBrands() });
+  
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
@@ -221,27 +221,8 @@ function HomePage() {
         </section>
       )}
 
-      {/* BRANDS */}
-      {brandsData?.brands && brandsData.brands.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-20">
-          <div className="mb-10 flex items-end justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-brand">Brands</p>
-              <h2 className="mt-2 font-display text-4xl md:text-5xl">Multi-location medspas</h2>
-            </div>
-            <Link to="/brands" className="hidden text-sm font-medium text-brand hover:underline md:block">All brands →</Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {brandsData.brands.slice(0, 8).map((b) => (
-              <Link key={b.slug} to="/brand/$slug" params={{ slug: b.slug }} className="rounded-2xl border border-border bg-card p-5 transition hover:border-brand hover:shadow-md">
-                <Building2 className="h-5 w-5 text-brand" />
-                <h3 className="mt-3 font-display text-lg">{b.name}</h3>
-                <p className="text-xs text-muted-foreground">{b.branchCount} {b.branchCount === 1 ? "location" : "locations"}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+
+
 
       {/* SAFETY */}
       <section className="border-t border-border/60 bg-secondary/30">
