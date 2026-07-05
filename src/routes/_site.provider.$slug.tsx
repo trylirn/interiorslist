@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video } from "lucide-react";
 import { RelatedProviders } from "@/components/related-providers";
 import { ProviderMap } from "@/components/provider-map";
-import { geocodeProviderIfNeeded } from "@/lib/geocode.functions";
+
 import { CITY_NEIGHBORS } from "@/lib/cities";
 
 import { useState, useEffect } from "react";
@@ -184,12 +184,8 @@ function ProviderPage() {
     recordProviderView({ data: { placeId } }).catch(() => {});
   }, [placeId]);
 
-  // Lazily geocode this provider if we don't have coordinates yet.
+  // Coordinates for this provider (geocoding is triggered from authenticated admin flows only).
   const hasCoords = data.provider?.latitude != null && data.provider?.longitude != null;
-  useEffect(() => {
-    if (!placeId || hasCoords) return;
-    geocodeProviderIfNeeded({ data: { placeId } }).catch(() => {});
-  }, [placeId, hasCoords]);
 
   const reviewIds = (data.reviews ?? []).map((r) => r.id);
   const { data: faqsData } = useQuery({
@@ -243,7 +239,7 @@ function ProviderPage() {
             <div className="mt-6 grid grid-cols-2 gap-y-4 border-t border-border pt-6 md:grid-cols-4">
               <Meta label="Based In" value={p.city ? `${p.city}, TX` : "—"} icon={<MapPin className="h-4 w-4" />} />
               <Meta label="Serves" value="Texas" icon={<Globe className="h-4 w-4" />} />
-              {p.email && <Meta label="Contact" value="Email available" icon={<Mail className="h-4 w-4" />} />}
+              {p.phone && <Meta label="Contact" value="Phone available" icon={<Mail className="h-4 w-4" />} />}
               {p.brand_id && <Meta label="Brand" value="Multi-location" icon={<Building2 className="h-4 w-4" />} />}
             </div>
 
@@ -252,7 +248,7 @@ function ProviderPage() {
             )}
 
             <div className="mt-6 flex flex-wrap gap-2">
-              {p.email && <Button asChild><a href={`mailto:${p.email}`}><Mail className="mr-2 h-4 w-4" />Email</a></Button>}
+              {p.phone && <Button asChild><a href={`tel:${p.phone}`}><Mail className="mr-2 h-4 w-4" />Call</a></Button>}
               {p.website && <Button asChild variant="outline"><a href={p.website} target="_blank" rel="noopener noreferrer"><Globe className="mr-2 h-4 w-4" />Website</a></Button>}
               {mapsHref && <Button asChild variant="outline"><a href={mapsHref} target="_blank" rel="noopener noreferrer"><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
             </div>

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
@@ -8,6 +9,7 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 // cache the result on the providers row. Idempotent: no-op if already set
 // or if the provider lacks an address.
 export const geocodeProviderIfNeeded = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
     const { data: row } = await supabaseAdmin
