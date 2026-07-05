@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Menu, Search, X } from "lucide-react";
 import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
-import { listBrands } from "@/lib/providers.functions";
 import { getMyRoles } from "@/lib/role.functions";
+
 
 export function SiteHeader() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
