@@ -372,21 +372,8 @@ function ProviderPage() {
           )}
 
 
-          {data.brandSiblings.length > 0 && (
-            <section className="mt-8 rounded-3xl border border-border bg-secondary/30 p-6 md:p-8">
-              <h2 className="font-display text-2xl flex items-center gap-2"><Building2 className="h-5 w-5 text-brand" /> Other locations</h2>
-              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                {data.brandSiblings.map((b) => (
-                  <li key={b.slug}>
-                    <Link to="/provider/$slug" params={{ slug: b.slug }} className="block rounded-lg border border-border bg-card px-4 py-3 hover:border-brand">
-                      <span className="font-medium">{b.branch_label || b.city}</span>
-                      <span className="ml-2 text-sm text-muted-foreground">{b.city}, TX</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+
+
 
           {/* Reviews */}
           <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
