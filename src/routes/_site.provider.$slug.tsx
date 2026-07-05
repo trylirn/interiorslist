@@ -240,7 +240,7 @@ function ProviderPage() {
               <Meta label="Based In" value={p.city ? `${p.city}, TX` : "—"} icon={<MapPin className="h-4 w-4" />} />
               <Meta label="Serves" value="Texas" icon={<Globe className="h-4 w-4" />} />
               {p.phone && <Meta label="Contact" value="Phone available" icon={<Mail className="h-4 w-4" />} />}
-              {p.brand_id && <Meta label="Brand" value="Multi-location" icon={<Building2 className="h-4 w-4" />} />}
+              
             </div>
 
             {p.address && (
