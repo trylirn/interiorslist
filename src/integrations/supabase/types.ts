@@ -319,6 +319,7 @@ export type Database = {
         Row: {
           about_description: string | null
           address: string | null
+          articles: Json
           badges: string[]
           before_after_urls: string[] | null
           branch_label: string | null
@@ -374,6 +375,7 @@ export type Database = {
         Insert: {
           about_description?: string | null
           address?: string | null
+          articles?: Json
           badges?: string[]
           before_after_urls?: string[] | null
           branch_label?: string | null
@@ -429,6 +431,7 @@ export type Database = {
         Update: {
           about_description?: string | null
           address?: string | null
+          articles?: Json
           badges?: string[]
           before_after_urls?: string[] | null
           branch_label?: string | null
@@ -528,6 +531,7 @@ export type Database = {
           author_name: string | null
           author_photo: string | null
           created_at: string
+          email: string | null
           id: string
           provider_place_id: string
           published_at: string | null
@@ -539,6 +543,7 @@ export type Database = {
           author_name?: string | null
           author_photo?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           provider_place_id: string
           published_at?: string | null
@@ -550,6 +555,7 @@ export type Database = {
           author_name?: string | null
           author_photo?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           provider_place_id?: string
           published_at?: string | null
