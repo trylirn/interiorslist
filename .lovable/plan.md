@@ -1,71 +1,81 @@
-## 1. Reviews without login
+## Diagnosis
 
-- In `src/lib/contact.functions.ts`, drop `.middleware([requireSupabaseAuth])` from `submitReview`. Extend the input schema with `email` (validated, stored for moderation but not shown publicly) and switch to `supabaseAdmin.from("reviews").insert(...)`.
-- Migration: add nullable `email` column to `reviews`, add an anonymous `INSERT` policy scoped to `user_id IS NULL` (mirrors the anon claim policy), keep the existing authenticated policy. Reviews remain publicly readable as today (no moderation queue per the answer given).
-- In `_site.provider.$slug.tsx` `ReviewDialog`, remove the `supabase.auth.getSession()` gate, replace it with a name + email input pair, and hide the email from the rendered review list.
+- **`/admin/articles` empty**: two overlapping issues.
+  1. Currently `0 / 161` providers have any articles scraped, so provider pages have nothing to render in the "Latest from…" section.
+  2. The page depends on `getMyRoles().isAdmin`. If the signed-in account isn't the admin, the list stays empty with no explanation. DB has 1 admin + 1 user; if you signed in with the non-admin account you'll see "Forbidden".
+- **Slow / missing maps**: only `6 / 161` providers have `latitude/longitude`. `ProviderMap` falls back to "Map location pending" for the other 155. `geocodeProviderIfNeeded` exists but is never called anywhere, so nothing populates coords. The map that does load is fine — it's the empty-coords case that looks broken.
+- **ToS / Privacy**: current pages are short generic stubs — missing HIPAA carve-out, no-medical-relationship, arbitration, class-action waiver, CCPA/GDPR sections, retention, cookies, minors, DMCA, etc.
+- **Match lead form + HIPAA risk**: `/match` currently collects name/email/phone + "concerns" ("acne scars", "hair loss") and forwards them to providers via `sendContactMessage`. That's exactly the surface you want to avoid — remove the intake + forwarding path entirely, show ranked providers with profile links only.
 
-## 2. Nearby Medspas section (per provider page)
+## Changes
 
-- New server function `getNearbyProviders({ placeId })` in `src/lib/providers.functions.ts`:
-  - Load current provider's `latitude/longitude/city_slug`.
-  - If coords exist, fetch published providers with non-null coords, compute haversine in JS, return top 6 excluding self (any city).
-  - Otherwise fall back to same `city_slug`, then `CITY_NEIGHBORS` slugs.
-- New component `src/components/nearby-providers.tsx` (mirrors `RelatedProviders`, heading "Nearby Medspas", subhead "Closest verified medspas to this location"). Renders above the existing "You may also be interested in" section on the provider page.
+### 1. Match flow — remove lead intake (HIPAA safety)
+- Rewrite `src/routes/_site.match.tsx` to a short, non-PHI quiz (priority + city only; drop "concerns", budget, timing, first/last name, email, phone, "interested / not a fit", consult phase, and the `sendContactMessage` calls). After submit, render the ranked results as a plain grid of `ProviderCard`s linking to each `/provider/$slug`. No forwarding, no stored responses.
+- Delete `src/lib/match.functions.ts`'s dependence on any PHI fields; keep it a simple city + treatment ranker returning public provider columns.
+- Update `/for-business` and homepage copy that references "get matched → we send your info" to "browse matches".
 
-## 3. "Articles from this Med Spa" (Firecrawl bulk scrape)
+### 2. Maps — backfill and self-heal
+- Add `geocodeAllProvidersMissing` admin-only server fn (loops missing coords, throttled) in `src/lib/geocode.functions.ts`.
+- Add a "Geocode missing coordinates (155)" button to `/admin` next to the existing admin panels.
+- In `getProviderBySlug` (server-side), if the provider has an address but no coords, fire-and-forget geocode via the connector and return the fresh lat/lng. This warms new listings without an admin round-trip.
+- No client-side change to `ProviderMap`; the existing loader is already idempotent and lazy.
 
-- Migration: add `articles jsonb` column to `providers` (`[]` default), storing `{ title, url, snippet?, scraped_at }[]`.
-- Add Firecrawl (managed connector) via `standard_connectors--connect` — requests `FIRECRAWL_API_KEY`.
-- New admin-only server function `scrapeProviderArticles` in `src/lib/articles.functions.ts`:
-  - `requireSupabaseAuth` + `has_role(_, 'admin')` guard.
-  - Uses the Firecrawl SDK (`@mendable/firecrawl-js`) server-side: `firecrawl.map(website, { search: "blog|article|news|post|guide|tips", limit: 20 })` to find candidate URLs; picks up to 3 with `/blog/`, `/article`, `/news`, `/post`, or `/guide` in the path; if none found, falls back to top 3 non-home internal URLs (About / Services / Contact excluded).
-  - Persists via `supabaseAdmin` into `providers.articles`.
-- New admin route `src/routes/_site.admin.articles.tsx` with a "Scrape all providers" button and a "Scrape one" input. Batch runner iterates all 161 providers sequentially with per-provider try/catch, live progress toasts, and skips providers with no `website`.
-- On the provider page, render an "Articles from this Med Spa" section only when `p.articles?.length > 0` — titled "Latest from {p.name}", each link opens the original URL in a new tab with "Read on {p.name} →" suffix and `rel="noopener noreferrer"`.
-- Credit warning surfaced in the admin UI: ~161 map calls at Firecrawl standard pricing; user confirmed proceed.
+### 3. `/admin/articles` — clearer state + scrape flow
+- Show explicit banners: "Not signed in" / "Signed in as X — not an admin" / "0 providers have scraped articles yet — click Scrape all".
+- Include per-row status (has_articles count, last scrape time) and hide the giant list until `providers.length > 0`.
+- Add "Scrape only missing" button in addition to "Scrape all", so re-runs skip providers that already have ≥1 article.
+- No change to the RLS model; `articles` is stored on `providers` and reads through the existing public SELECT policy.
 
-## 4. Treatment content pages
+### 4. Provider profile "Articles from this Med Spa" section
+- Only render when `articles.length > 0` (already the case). Add a subtle "Sourced from {domain}" line under the header to make it clear these are outbound links to the med spa's own site.
 
-- Per-treatment editorial content lives in a new `src/lib/treatment-content.ts` file. Each of the ~34 slugs in `SERVICES` gets: `{ what, benefits[], risks[], recovery, avgCost, candidate, faqs: { q, a }[] }`. Written in-repo, no CMS.
-- Refactor `_site.treatment.$slug.tsx`:
-  - Above the existing filter row + provider grid, render sections: **What is it**, **Benefits**, **Risks**, **Recovery**, **Average cost**, **Who is a good candidate**, **FAQs** (as `<details>` list + `FAQPage` JSON-LD in `head()`).
-  - Provider grid heading becomes: "Find med spas offering {name} near you" (or "in {city}, TX" when `?city=` present). Show 6 by default with "See all X providers" link to filtered search.
-  - Add `MedicalProcedure` JSON-LD (description, `howPerformed`, `preparation`, `followup`) merged with the existing `CollectionPage` JSON-LD.
-- Internal-link block at the bottom: sibling treatments, top cities offering this treatment.
+### 5. Legal pages — comprehensive rewrite
 
-## 5. Remove brands from the UI
+Rewrite `src/routes/_site.terms.tsx` with these sections:
+- Acceptance & eligibility (18+, Texas focus, capacity)
+- Nature of service — informational directory only, **no doctor-patient relationship**, no medical advice, no referral, no endorsement
+- **HIPAA notice** — we are not a Covered Entity or Business Associate; do not submit PHI through forms; if you do, you release it
+- Account terms, acceptable use, prohibited scraping/republishing
+- User content & reviews (license grant, moderation, defamation rules)
+- Provider listings, claims, and accuracy disclaimers
+- Third-party links, off-site bookings, off-platform communications disclaimer
+- Intellectual property (site content © Texas Aesthetics; trademarks of others)
+- DMCA takedown procedure + designated agent placeholder
+- Disclaimers of warranties (AS IS, no fitness, no availability)
+- Limitation of liability (cap at $100 or fees paid; exclusion of indirect/consequential)
+- Indemnification by user
+- Governing law — Texas; venue in [County], TX
+- **Binding arbitration + class action waiver** (AAA rules, 30-day opt-out)
+- Termination, changes to terms, severability, entire agreement, assignment
+- Contact + notice address
 
-- Delete files: `src/routes/_site.brands.tsx`, `src/routes/_site.brand.$slug.tsx`.
-- `src/components/site-chrome.tsx`: remove desktop nav "Brands" link, mobile nav "Brands" link, footer "Brands" column, `listBrands` query/import.
-- `src/routes/_site.index.tsx`: remove "Multi-location medspas" section + `listBrands` import and `home-brands` query.
-- `src/routes/_site.provider.$slug.tsx`: remove the "Multi-location" `Meta` chip (line 243) and the entire "Other locations" section (lines 375–389).
-- `src/routes/_site.match.tsx`: remove "Multi-location brand" chip.
-- `src/routes/_site.for-business.tsx`: remove the "Brand pages" benefit tile.
-- `src/routes/sitemap[.]xml.ts`: drop all `/brand/*` and `/brands` URLs.
-- `src/lib/providers.functions.ts`: remove `listBrands` export and any brand-siblings code path in `getProviderBySlug` (return `{ provider, reviews }` only); adjust the callsite type.
-- DB and `brands` / `brand_id` columns are left in place (data-only, not user-visible). No migration to drop them.
+Rewrite `src/routes/_site.privacy.tsx`:
+- What we collect (account, submissions, cookies, analytics, IP/UA logs)
+- What we do NOT collect / do not want (**no PHI, no diagnosis, no treatment records**)
+- Sources for business listings (public info + owner submissions)
+- Legal bases (contract, legitimate interest, consent)
+- Sharing (subprocessors: hosting, database, auth, email, analytics — generic categories)
+- Cookies & tracking (essential vs analytics; how to opt out)
+- Data retention timelines
+- Security measures (encryption in transit, access controls)
+- Children (no under-13, no under-18 without parent)
+- Your rights — **CCPA/CPRA** (right to know/delete/correct/opt-out of sale, non-discrimination), **GDPR** (access/rectify/erase/portability/object, DPO contact), **Texas TDPSA**
+- Do Not Track / GPC signal
+- Data breach notification commitment
+- International transfers
+- Changes to policy
+- Contact + privacy request address
 
-## 6. Interlinking & sitemap
+Both pages get a persistent "This is a template — have counsel review before relying on it" note at the top (small, italic, so it's honest and not scary).
 
-- Provider page already links treatments → treatment pages. Add reverse: treatment page's "Find med spas near you" grid links each provider.
-- Treatment page: add a "Also offered in" row linking `/treatment/{slug}?city={slug}` for cities that have ≥1 provider offering it.
-- City page (`_site.tx.$city.tsx`): add a "Popular treatments in {city}" strip linking to `/treatment/{slug}?city={citySlug}`.
-- Nearby providers section on provider page contributes to interlink density.
-- Regenerate `sitemap[.]xml.ts` after removing brand URLs; treatment×city URLs already there.
+### 6. Small copy sweeps
+- Any homepage / for-business / how-it-works blurb that says "we contact providers for you" or "we send your goals to providers" changes to "browse verified providers and reach out directly".
+- Header/footer nav unchanged.
 
-## Technical details
+## Technical notes
 
-- New migrations (2 files):
-  1. `reviews`: add `email text`, add anon `INSERT` policy `WITH CHECK (user_id IS NULL AND rating BETWEEN 1 AND 5 AND (text IS NULL OR length(text) <= 4000) AND length(coalesce(email,'')) <= 255)`, `GRANT INSERT (provider_place_id, author_name, rating, text, relative_time, published_at, email) ON public.reviews TO anon`.
-  2. `providers`: `ADD COLUMN articles jsonb NOT NULL DEFAULT '[]'::jsonb`.
-- Firecrawl SDK install: `bun add @mendable/firecrawl-js`. Called only from server functions; `FIRECRAWL_API_KEY` never exposed to the client.
-- `getNearbyProviders` and `scrapeProviderArticles` returned via `useQuery` on the provider page so SSR isn't blocked by them.
-- All new server functions validate input with zod. `scrapeProviderArticles` gated behind `has_role(auth.uid(),'admin')`.
-- Types regenerate after each migration; no manual edits to `src/integrations/supabase/types.ts`.
-
-## Out of scope
-
-- Actual moderation queue / captcha for anonymous reviews (spam control) — user picked "no verification".
-- Re-scraping articles on a cron; the admin can re-run the batch on demand.
-- Removing the `brands` table and `brand_id` column from the DB.
-- Payment collection for the $99/yr claim tier (already noted).
+- Match rewrite drops fields from `Answers` and removes `sendContactMessage` import; the server fn stays in place for the direct contact form on provider pages (which is opt-in and per-provider).
+- Batch geocoder throttles at ~5 requests/sec and stops on 3 consecutive gateway errors. Reads `LOVABLE_API_KEY` + `GOOGLE_MAPS_API_KEY` inside the handler.
+- Auto-geocode inside `getProviderBySlug` is best-effort; if the connector errors, the map falls back to "Get directions" as today.
+- No new tables, no new RLS, no schema migrations.
+- Legal pages are static routes — no data fetching, no server functions.

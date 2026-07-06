@@ -14,6 +14,7 @@ import {
   toggleProviderFlag,
   getLicenseDocSignedUrl,
 } from "@/lib/admin.functions";
+import { countMissingCoords, geocodeAllMissing } from "@/lib/geocode.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,12 +76,17 @@ function AdminPage() {
           <TabsTrigger value="claims">Claims</TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
+          <TabsTrigger value="maps">Maps</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
         <TabsContent value="claims" className="mt-6"><ClaimsTab /></TabsContent>
         <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
         <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
+        <TabsContent value="maps" className="mt-6"><MapsTab /></TabsContent>
       </Tabs>
+      <p className="mt-6 text-xs text-muted-foreground">
+        <Link to="/admin/articles" className="text-brand underline">Scrape provider articles →</Link>
+      </p>
     </div>
   );
 }
@@ -238,3 +244,49 @@ function ListingsTab() {
     </div>
   );
 }
+
+function MapsTab() {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({ queryKey: ["missing-coords"], queryFn: () => countMissingCoords() });
+  const geocode = useServerFn(geocodeAllMissing);
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<{ ok: number; failed: number; total: number } | null>(null);
+  async function run() {
+    setRunning(true);
+    setResult(null);
+    try {
+      const r = await geocode({ data: { limit: 200 } });
+      setResult(r);
+      toast.success(`Geocoded ${r.ok} of ${r.total} providers`);
+      qc.invalidateQueries({ queryKey: ["missing-coords"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setRunning(false);
+    }
+  }
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="font-display text-xl">Provider coordinates</h3>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Providers without latitude/longitude fall back to a text-only "Get directions" link. Run this to geocode addresses via Google Maps.
+        </p>
+        <p className="mt-4 text-sm">
+          {isLoading ? "Checking…" : (
+            <>Missing: <span className="font-semibold">{data?.missing ?? 0}</span></>
+          )}
+        </p>
+        <Button className="mt-4" onClick={run} disabled={running || !data?.missing}>
+          {running ? "Geocoding…" : `Geocode missing (up to 200)`}
+        </Button>
+        {result && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            Last run: {result.ok} succeeded, {result.failed} failed of {result.total}.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+

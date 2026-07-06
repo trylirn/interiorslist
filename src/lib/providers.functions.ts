@@ -44,6 +44,20 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!provider) return { provider: null, reviews: [] };
 
+    // Best-effort: warm coords for maps when we have an address but no lat/lng.
+    if ((provider.latitude == null || provider.longitude == null) && provider.address) {
+      try {
+        const { ensureProviderCoords } = await import("./geocode.functions");
+        const loc = await ensureProviderCoords(provider.place_id);
+        if (loc) {
+          (provider as any).latitude = loc.lat;
+          (provider as any).longitude = loc.lng;
+        }
+      } catch {
+        // ignore — map falls back to "Get directions"
+      }
+    }
+
     const { data: reviews } = await supabaseAdmin
       .from("reviews")
       .select("id, author_name, author_photo, rating, text, relative_time, published_at")
@@ -53,6 +67,7 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
 
     return { provider, reviews: reviews ?? [] };
   });
+
 
 export const getFeaturedProviders = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await supabaseAdmin
