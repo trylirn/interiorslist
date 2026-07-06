@@ -76,12 +76,17 @@ function AdminPage() {
           <TabsTrigger value="claims">Claims</TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
+          <TabsTrigger value="maps">Maps</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
         <TabsContent value="claims" className="mt-6"><ClaimsTab /></TabsContent>
         <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
         <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
+        <TabsContent value="maps" className="mt-6"><MapsTab /></TabsContent>
       </Tabs>
+      <p className="mt-6 text-xs text-muted-foreground">
+        <Link to="/admin/articles" className="text-brand underline">Scrape provider articles →</Link>
+      </p>
     </div>
   );
 }
