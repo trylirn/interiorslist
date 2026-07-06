@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getProviderBySlug } from "@/lib/providers.functions";
-import { submitPublicClaim } from "@/lib/owner.functions";
+import { submitClaim } from "@/lib/owner.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/_site/claim/$slug")({
   loader: ({ params }) => getProviderBySlug({ data: { slug: params.slug } }),
   component: ClaimPage,
 });
+
 
 function ClaimPage() {
   const { provider } = Route.useLoaderData();
