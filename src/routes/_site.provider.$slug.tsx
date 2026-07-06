@@ -581,6 +581,13 @@ function ReviewDialog({ placeId, slug }: { placeId: string; slug: string }) {
     if (!valid) return;
     setBusy(true);
     try {
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) {
+        toast.error("Please sign in to post a review");
+        setOpen(false);
+        window.location.href = `/login?next=/provider/${slug}`;
+        return;
+      }
       await submit({ data: { placeId, authorName: author.trim(), email: email.trim(), rating, text } });
       toast.success("Review posted");
       setOpen(false);
@@ -593,6 +600,7 @@ function ReviewDialog({ placeId, slug }: { placeId: string; slug: string }) {
       setBusy(false);
     }
   }
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
