@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getProviderBySlug } from "@/lib/providers.functions";
-import { submitPublicClaim } from "@/lib/owner.functions";
+import { submitClaim } from "@/lib/owner.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,8 +22,12 @@ export const Route = createFileRoute("/_site/claim/$slug")({
   component: ClaimPage,
 });
 
+
 function ClaimPage() {
   const { provider } = Route.useLoaderData();
+  const navigate = useNavigate();
+  const [authReady, setAuthReady] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
   const [form, setForm] = useState({
     contactName: "",
     contactEmail: "",
@@ -32,7 +37,15 @@ function ClaimPage() {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const submit = useServerFn(submitPublicClaim);
+  const submit = useServerFn(submitClaim);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSignedIn(!!data.session);
+      setAuthReady(true);
+    });
+  }, []);
+
 
   if (!provider) {
     return (
@@ -62,18 +75,35 @@ function ClaimPage() {
     );
   }
 
+  if (authReady && !signedIn) {
+    return (
+      <div className="mx-auto max-w-md py-24 text-center px-4">
+        <h1 className="font-display text-3xl">Sign in to claim</h1>
+        <p className="mt-3 text-sm text-muted-foreground">Please sign in or create an account to submit a claim for {provider.name}.</p>
+        <Button
+          className="mt-6"
+          onClick={() => navigate({ to: "/login", search: { next: `/claim/${provider.slug}` } as never })}
+        >
+          Sign in to continue
+        </Button>
+      </div>
+    );
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
+      const proof = form.contactName
+        ? `Name: ${form.contactName}\n${form.proofNotes ?? ""}`.trim()
+        : form.proofNotes || undefined;
       await submit({
         data: {
           placeId: provider!.place_id,
-          contactName: form.contactName || undefined,
           contactEmail: form.contactEmail,
           contactPhone: form.contactPhone || undefined,
           businessRole: form.businessRole || undefined,
-          proofNotes: form.proofNotes || undefined,
+          proofNotes: proof,
         },
       });
       setSubmitted(true);
@@ -84,6 +114,7 @@ function ClaimPage() {
       setLoading(false);
     }
   }
+
 
   return (
     <div className="mx-auto max-w-xl px-4 py-16">
