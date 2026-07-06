@@ -25,6 +25,9 @@ export const Route = createFileRoute("/_site/claim/$slug")({
 
 function ClaimPage() {
   const { provider } = Route.useLoaderData();
+  const navigate = useNavigate();
+  const [authReady, setAuthReady] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
   const [form, setForm] = useState({
     contactName: "",
     contactEmail: "",
@@ -34,7 +37,15 @@ function ClaimPage() {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const submit = useServerFn(submitPublicClaim);
+  const submit = useServerFn(submitClaim);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSignedIn(!!data.session);
+      setAuthReady(true);
+    });
+  }, []);
+
 
   if (!provider) {
     return (
