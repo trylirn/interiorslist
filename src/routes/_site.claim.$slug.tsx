@@ -75,18 +75,35 @@ function ClaimPage() {
     );
   }
 
+  if (authReady && !signedIn) {
+    return (
+      <div className="mx-auto max-w-md py-24 text-center px-4">
+        <h1 className="font-display text-3xl">Sign in to claim</h1>
+        <p className="mt-3 text-sm text-muted-foreground">Please sign in or create an account to submit a claim for {provider.name}.</p>
+        <Button
+          className="mt-6"
+          onClick={() => navigate({ to: "/login", search: { next: `/claim/${provider.slug}` } as never })}
+        >
+          Sign in to continue
+        </Button>
+      </div>
+    );
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
+      const proof = form.contactName
+        ? `Name: ${form.contactName}\n${form.proofNotes ?? ""}`.trim()
+        : form.proofNotes || undefined;
       await submit({
         data: {
           placeId: provider!.place_id,
-          contactName: form.contactName || undefined,
           contactEmail: form.contactEmail,
           contactPhone: form.contactPhone || undefined,
           businessRole: form.businessRole || undefined,
-          proofNotes: form.proofNotes || undefined,
+          proofNotes: proof,
         },
       });
       setSubmitted(true);
@@ -97,6 +114,7 @@ function ClaimPage() {
       setLoading(false);
     }
   }
+
 
   return (
     <div className="mx-auto max-w-xl px-4 py-16">
