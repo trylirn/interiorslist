@@ -29,9 +29,9 @@ export const sendContactMessage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// Public: anyone can post a review with a name + email + rating.
-// Email is captured for moderation but never rendered publicly.
+// Authenticated: signed-in users can post a review. Email captured for moderation.
 export const submitReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
       .object({
@@ -43,8 +43,9 @@ export const submitReview = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin.from("reviews").insert({
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("reviews").insert({
       provider_place_id: data.placeId,
       author_name: data.authorName,
       email: data.email,
@@ -56,3 +57,4 @@ export const submitReview = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
