@@ -14,6 +14,7 @@ import {
   toggleProviderFlag,
   getLicenseDocSignedUrl,
 } from "@/lib/admin.functions";
+import { countMissingCoords, geocodeAllMissing } from "@/lib/geocode.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
