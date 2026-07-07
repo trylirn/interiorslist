@@ -18,6 +18,7 @@ import { CITY_NEIGHBORS } from "@/lib/cities";
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { trackLeadAction } from "@/lib/analytics";
 
 
 export const Route = createFileRoute("/_site/provider/$slug")({

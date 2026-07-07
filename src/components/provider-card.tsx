@@ -1,13 +1,16 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { MapPin, BadgeCheck, Building2 } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CompareButton } from "@/components/compare-button";
+import { trackImpressions, trackListingClick } from "@/lib/analytics";
 
 export type ProviderCardProps = {
   place_id: string;
   slug: string;
   name: string;
   city: string;
+  city_slug?: string | null;
   address?: string | null;
   services?: string[] | null;
   specialists?: string | null;
