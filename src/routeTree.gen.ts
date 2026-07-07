@@ -29,6 +29,7 @@ import { Route as SiteContactRouteImport } from './routes/_site.contact'
 import { Route as SiteCompareRouteImport } from './routes/_site.compare'
 import { Route as SiteAdminRouteImport } from './routes/_site.admin'
 import { Route as SiteAboutRouteImport } from './routes/_site.about'
+import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as SiteTreatmentSlugRouteImport } from './routes/_site.treatment.$slug'
@@ -138,6 +139,11 @@ const SiteAboutRoute = SiteAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => SiteRoute,
 } as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAdminSeedImportRoute =
   ApiPublicAdminSeedImportRouteImport.update({
     id: '/api/public/admin-seed-import',
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
 export interface FileRoutesByTo {
@@ -244,6 +251,7 @@ export interface FileRoutesByTo {
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
 export interface FileRoutesById {
@@ -276,6 +284,7 @@ export interface FileRoutesById {
   '/_site/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/_site/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
 export interface FileRouteTypes {
@@ -308,6 +317,7 @@ export interface FileRouteTypes {
     | '/treatment/$slug'
     | '/tx/$city'
     | '/api/public/admin-seed-import'
+    | '/api/public/track'
     | '/dashboard/listing/$placeId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/treatment/$slug'
     | '/tx/$city'
     | '/api/public/admin-seed-import'
+    | '/api/public/track'
     | '/dashboard/listing/$placeId'
   id:
     | '__root__'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/_site/treatment/$slug'
     | '/_site/tx/$city'
     | '/api/public/admin-seed-import'
+    | '/api/public/track'
     | '/_site/dashboard/listing/$placeId'
   fileRoutesById: FileRoutesById
 }
@@ -376,6 +388,7 @@ export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicAdminSeedImportRoute: typeof ApiPublicAdminSeedImportRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -519,6 +532,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/about'
       preLoaderRoute: typeof SiteAboutRouteImport
       parentRoute: typeof SiteRoute
+    }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/admin-seed-import': {
       id: '/api/public/admin-seed-import'
@@ -670,6 +690,7 @@ const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicAdminSeedImportRoute: ApiPublicAdminSeedImportRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
