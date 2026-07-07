@@ -249,9 +249,9 @@ function ProviderPage() {
             )}
 
             <div className="mt-6 flex flex-wrap gap-2">
-              {p.phone && <Button asChild><a href={`tel:${p.phone}`}><Mail className="mr-2 h-4 w-4" />Call</a></Button>}
-              {p.website && <Button asChild variant="outline"><a href={p.website} target="_blank" rel="noopener noreferrer"><Globe className="mr-2 h-4 w-4" />Website</a></Button>}
-              {mapsHref && <Button asChild variant="outline"><a href={mapsHref} target="_blank" rel="noopener noreferrer"><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
+              {p.phone && <Button asChild><a href={`tel:${p.phone}`} onClick={() => trackLeadAction(p.place_id, "phone", p.city_slug)}><Mail className="mr-2 h-4 w-4" />Call</a></Button>}
+              {p.website && <Button asChild variant="outline"><a href={p.website} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "website", p.city_slug)}><Globe className="mr-2 h-4 w-4" />Website</a></Button>}
+              {mapsHref && <Button asChild variant="outline"><a href={mapsHref} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "directions", p.city_slug)}><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
             </div>
           </div>
 
