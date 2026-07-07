@@ -1,13 +1,16 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { MapPin, BadgeCheck, Building2 } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CompareButton } from "@/components/compare-button";
+import { trackImpressions, trackListingClick } from "@/lib/analytics";
 
 export type ProviderCardProps = {
   place_id: string;
   slug: string;
   name: string;
   city: string;
+  city_slug?: string | null;
   address?: string | null;
   services?: string[] | null;
   specialists?: string | null;
@@ -17,6 +20,9 @@ export type ProviderCardProps = {
 };
 
 export function ProviderCard(p: ProviderCardProps) {
+  useEffect(() => {
+    if (p.place_id) trackImpressions([p.place_id], p.city_slug ?? undefined);
+  }, [p.place_id, p.city_slug]);
   return (
     <div className="relative">
       <FavoriteButton placeId={p.place_id} />
@@ -32,6 +38,7 @@ export function ProviderCard(p: ProviderCardProps) {
       <Link
         to="/provider/$slug"
         params={{ slug: p.slug }}
+        onClick={() => trackListingClick(p.place_id, p.city_slug ?? undefined)}
         className="group flex h-full flex-col gap-3 rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-lg"
       >
         <div className="flex items-start justify-between gap-2 pr-20">

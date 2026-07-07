@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 
 export const Route = createFileRoute("/_site/admin")({
   head: () => ({ meta: [{ title: "Admin | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
@@ -70,14 +71,16 @@ function AdminPage() {
       <h1 className="font-display text-4xl">Admin</h1>
       <p className="mt-1 text-sm text-muted-foreground">Site-wide management.</p>
 
-      <Tabs defaultValue="overview" className="mt-8">
+      <Tabs defaultValue="analytics" className="mt-8">
         <TabsList>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="claims">Claims</TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="maps">Maps</TabsTrigger>
         </TabsList>
+        <TabsContent value="analytics" className="mt-6"><AnalyticsDashboard /></TabsContent>
         <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
         <TabsContent value="claims" className="mt-6"><ClaimsTab /></TabsContent>
         <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>

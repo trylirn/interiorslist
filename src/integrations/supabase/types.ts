@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          city_slug: string | null
+          created_at: string
+          event_type: string
+          id: number
+          lead_type: string | null
+          metadata: Json | null
+          path: string | null
+          provider_place_id: string | null
+          query: string | null
+          session_id: string
+          visitor_id: string
+        }
+        Insert: {
+          city_slug?: string | null
+          created_at?: string
+          event_type: string
+          id?: number
+          lead_type?: string | null
+          metadata?: Json | null
+          path?: string | null
+          provider_place_id?: string | null
+          query?: string | null
+          session_id: string
+          visitor_id: string
+        }
+        Update: {
+          city_slug?: string | null
+          created_at?: string
+          event_type?: string
+          id?: number
+          lead_type?: string | null
+          metadata?: Json | null
+          path?: string | null
+          provider_place_id?: string | null
+          query?: string | null
+          session_id?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
+      analytics_sessions: {
+        Row: {
+          city_slug: string | null
+          entry_method: string
+          entry_path: string | null
+          id: string
+          is_mobile: boolean
+          last_seen_at: string
+          referrer: string | null
+          started_at: string
+          user_agent: string | null
+          visitor_id: string
+        }
+        Insert: {
+          city_slug?: string | null
+          entry_method?: string
+          entry_path?: string | null
+          id: string
+          is_mobile?: boolean
+          last_seen_at?: string
+          referrer?: string | null
+          started_at?: string
+          user_agent?: string | null
+          visitor_id: string
+        }
+        Update: {
+          city_slug?: string | null
+          entry_method?: string
+          entry_path?: string | null
+          id?: string
+          is_mobile?: boolean
+          last_seen_at?: string
+          referrer?: string | null
+          started_at?: string
+          user_agent?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           created_at: string

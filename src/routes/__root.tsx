@@ -113,10 +113,34 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  if (typeof window !== "undefined") {
+    // Fire-and-forget page view on route change.
+    (window as any).__lastAnalyticsPath = (window as any).__lastAnalyticsPath ?? "";
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
+      <RouteChangeTracker router={router} />
       <Outlet />
     </QueryClientProvider>
   );
+}
+
+function RouteChangeTracker({ router }: { router: ReturnType<typeof useRouter> }) {
+  if (typeof window !== "undefined") {
+    // Track on subscribe; router.subscribe returns unsubscribe. Run once.
+    const w = window as unknown as { __txAnalyticsSub?: boolean };
+    if (!w.__txAnalyticsSub) {
+      w.__txAnalyticsSub = true;
+      import("@/lib/analytics").then(({ trackRouteChange }) => {
+        trackRouteChange(window.location.pathname + window.location.search);
+        router.subscribe("onResolved", () => {
+          trackRouteChange(window.location.pathname + window.location.search);
+        });
+      });
+    }
+  }
+  return null;
 }
