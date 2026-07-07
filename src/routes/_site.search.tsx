@@ -42,6 +42,13 @@ function SearchPage() {
     queryFn: () => search({ data: { q: qParam || undefined, city, service, sort } }),
   });
 
+  useEffect(() => {
+    if (qParam || city) {
+      import("@/lib/analytics").then(({ trackSearch }) => trackSearch(qParam || "", city));
+    }
+  }, [qParam, city]);
+
+
   const hasFilter = !!(qParam || city || service || sort);
   const cityVal = city ?? "any";
   const serviceVal = service ?? "any";
