@@ -38,8 +38,15 @@ export const Route = createFileRoute("/api/public/track")({
         const b = parsed.data;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        // Cast: table types are regenerated after schema pushes.
+        const admin = supabaseAdmin as unknown as {
+          from: (t: string) => {
+            upsert: (row: unknown, opts?: { onConflict?: string }) => Promise<unknown>;
+            update: (row: unknown) => { eq: (k: string, v: string) => { is: (k: string, v: null) => Promise<unknown> } };
+            insert: (rows: unknown) => Promise<unknown>;
+          };
+        };
 
-        // Upsert session; if new, seed metadata; always bump last_seen_at + is_mobile.
         const sessionRow: Record<string, unknown> = {
           id: b.session_id,
           visitor_id: b.visitor_id,
@@ -53,12 +60,11 @@ export const Route = createFileRoute("/api/public/track")({
           sessionRow.referrer = b.referrer ?? null;
           sessionRow.user_agent = b.user_agent ?? null;
         }
-        await supabaseAdmin.from("analytics_sessions").upsert(sessionRow, { onConflict: "id" });
+        await admin.from("analytics_sessions").upsert(sessionRow, { onConflict: "id" });
 
-        // Derive city from first event with city_slug — store on session if not set.
         const firstCity = b.events.find((e) => e.city_slug)?.city_slug;
         if (firstCity) {
-          await supabaseAdmin
+          await admin
             .from("analytics_sessions")
             .update({ city_slug: firstCity })
             .eq("id", b.session_id)
@@ -77,7 +83,7 @@ export const Route = createFileRoute("/api/public/track")({
             path: e.path ?? null,
             metadata: e.metadata ?? null,
           }));
-          await supabaseAdmin.from("analytics_events").insert(rows);
+          await admin.from("analytics_events").insert(rows);
         }
 
         return new Response("ok", { status: 204 });
