@@ -207,7 +207,7 @@ export const getCityAnalytics = createServerFn({ method: "POST" })
       if (!e.city_slug) continue;
       const c = byCity.get(e.city_slug) ?? { impression: 0, search: 0, listing_click: 0, lead_action: 0, visitors: new Set() };
       const t = e.event_type as keyof Omit<typeof c, "visitors">;
-      if (t in c) (c[t] as number)++;
+      if (t in c) (c as any)[t]++;
       c.visitors.add(e.visitor_id);
       byCity.set(e.city_slug, c);
     }
