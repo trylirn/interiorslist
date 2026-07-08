@@ -1,18 +1,22 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip as ChartTooltip, ResponsiveContainer,
+  XAxis, YAxis, Tooltip as ChartTooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, Legend,
 } from "recharts";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   getOverview, getLiveFeed, getCityAnalytics, getCityDetail,
   getProviderAnalytics, getProviderDetail, getUserJourneys, getJourneyDetail,
 } from "@/lib/analytics.functions";
-import { ArrowLeft, Eye, MousePointerClick, Phone, Globe, MapPin, Search, Smartphone } from "lucide-react";
+import {
+  ArrowLeft, ArrowRight, Eye, MousePointerClick, Phone, Globe, MapPin,
+  Search as SearchIcon, Smartphone, Zap, X, Compass,
+} from "lucide-react";
 
 type Range = "today" | "yesterday" | "7d" | "30d" | "this_month" | "last_month";
 
@@ -26,6 +30,16 @@ const RANGE_LABELS: { value: Range; label: string }[] = [
 ];
 
 const PIE_COLORS = ["hsl(var(--brand))", "#f59e0b", "#10b981", "#8b5cf6", "#ef4444"];
+
+// Bar colors per section — semantic hues that stay legible in both themes.
+const BAR_COLORS = {
+  brand: "hsl(var(--brand))",
+  sky: "#0284c7",
+  amber: "#d97706",
+  emerald: "#059669",
+  violet: "#7c3aed",
+  olive: "#a3a534",
+} as const;
 
 function RangePicker({ value, onChange }: { value: Range; onChange: (r: Range) => void }) {
   return (
@@ -63,6 +77,48 @@ function StatCard({ label, value, sub, icon }: { label: string; value: React.Rea
 function pct(n: number) { return `${(n * 100).toFixed(1)}%`; }
 function num(n: number) { return n.toLocaleString(); }
 
+// ---------- Horizontal bar list ----------
+
+type HBarRow = { key: string; label: string; sub?: string; value: number; onClick?: () => void };
+
+function HBarList({ rows, color = BAR_COLORS.brand, max: maxOverride, emptyLabel = "No data yet." }: {
+  rows: HBarRow[];
+  color?: string;
+  max?: number;
+  emptyLabel?: string;
+}) {
+  if (rows.length === 0) return <p className="py-6 text-center text-sm text-muted-foreground">{emptyLabel}</p>;
+  const max = Math.max(1, maxOverride ?? Math.max(...rows.map((r) => r.value)));
+  return (
+    <ul className="space-y-3">
+      {rows.map((r) => {
+        const pctW = Math.max(2, (r.value / max) * 100);
+        const isMuted = r.value === 0;
+        return (
+          <li
+            key={r.key}
+            onClick={r.onClick}
+            className={`group ${r.onClick ? "cursor-pointer" : ""}`}
+          >
+            <div className="flex items-baseline justify-between gap-3">
+              <p className={`truncate text-sm font-semibold ${isMuted ? "text-muted-foreground" : "text-foreground"} ${r.onClick ? "group-hover:text-brand" : ""}`}>{r.label}</p>
+              {r.sub && <p className="shrink-0 text-xs text-muted-foreground">{r.sub}</p>}
+            </div>
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-secondary/60">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{ width: `${pctW}%`, backgroundColor: isMuted ? "hsl(var(--muted-foreground) / 0.25)" : color }}
+              />
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+// ---------- Dashboard shell ----------
+
 export function AnalyticsDashboard() {
   const [range, setRange] = useState<Range>("7d");
   return (
@@ -90,6 +146,8 @@ export function AnalyticsDashboard() {
   );
 }
 
+// ---------- Overview ----------
+
 function OverviewPanel({ range }: { range: Range }) {
   const { data, isLoading } = useQuery({
     queryKey: ["ovw", range],
@@ -104,10 +162,34 @@ function OverviewPanel({ range }: { range: Range }) {
   if (isLoading || !data) return <p className="text-muted-foreground">Loading…</p>;
 
   const t = data.totals;
+
+  const topCitiesRows: HBarRow[] = data.topCities.slice(0, 8).map((c) => ({
+    key: c.slug,
+    label: c.name,
+    sub: `${num(c.search)} searches · ${num(c.listing_click)} clicks`,
+    value: c.demand,
+  }));
+  const topProviderClicksRows: HBarRow[] = data.topProvidersByClicks.slice(0, 8).map((p) => {
+    const impression = 0; // not returned per-provider here; approximate CTR from total.
+    void impression;
+    return {
+      key: p.place_id,
+      label: p.name,
+      sub: `${num(p.count)} clicks${p.city ? ` · ${p.city}` : ""}`,
+      value: p.count,
+    };
+  });
+  const topProviderLeadsRows: HBarRow[] = data.topProvidersByLeads.slice(0, 8).map((p) => ({
+    key: p.place_id,
+    label: p.name,
+    sub: `${num(p.count)} leads${p.city ? ` · ${p.city}` : ""}`,
+    value: p.count,
+  }));
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Searches" value={num(t.searches)} icon={<Search className="h-4 w-4" />} />
+        <StatCard label="Searches" value={num(t.searches)} icon={<SearchIcon className="h-4 w-4" />} />
         <StatCard label="Impressions" value={num(t.impressions)} icon={<Eye className="h-4 w-4" />} />
         <StatCard label="Listing Clicks" value={num(t.listing_clicks)} icon={<MousePointerClick className="h-4 w-4" />} />
         <StatCard label="Lead Actions" value={num(t.lead_actions)} sub={`${num(t.unique_leads)} unique people`} icon={<Phone className="h-4 w-4" />} />
@@ -116,75 +198,67 @@ function OverviewPanel({ range }: { range: Range }) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ChartCard title="Top cities by demand" subtitle="Searches + clicks">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={data.topCities} layout="vertical" margin={{ left: 60 }}>
-              <XAxis type="number" hide />
-              <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 12 }} />
-              <ChartTooltip />
-              <Bar dataKey="demand" fill="hsl(var(--brand))" radius={[0, 6, 6, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <ChartCard title="Top Cities by Demand" subtitle="Where your traffic is concentrated">
+          <HBarList rows={topCitiesRows} color={BAR_COLORS.brand} />
         </ChartCard>
-        <ChartCard title="Top providers by clicks">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={data.topProvidersByClicks} layout="vertical" margin={{ left: 60 }}>
-              <XAxis type="number" hide />
-              <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11 }} />
-              <ChartTooltip />
-              <Bar dataKey="count" fill="hsl(var(--brand))" radius={[0, 6, 6, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <ChartCard title="Top Providers by Clicks" subtitle="Which listings visitors choose most">
+          <HBarList rows={topProviderClicksRows} color={BAR_COLORS.sky} />
         </ChartCard>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <ChartCard title="How users discover">
+        <ChartCard title="Top Providers by Leads" subtitle="Highest customer acquisition intent">
+          <HBarList rows={topProviderLeadsRows} color={BAR_COLORS.emerald} />
+        </ChartCard>
+        <ChartCard title="How Users Discover" subtitle="Entry channel mix">
           <DonutChart data={[
             { name: "Search", value: data.discovery.search },
             { name: "Browse", value: data.discovery.browse },
             { name: "Direct", value: data.discovery.direct },
           ]} />
         </ChartCard>
-        <ChartCard title="Lead actions breakdown">
+        <ChartCard title="Lead Actions Breakdown" subtitle="What acquisition looks like">
           <DonutChart data={[
             { name: "Phone", value: data.leadBreakdown.phone },
             { name: "Website", value: data.leadBreakdown.website },
             { name: "Directions", value: data.leadBreakdown.directions },
           ]} />
         </ChartCard>
-        <ChartCard title="Activity over time">
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={data.timeseries}>
-              <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <ChartTooltip />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="impressions" stroke="#8b5cf6" dot={false} />
-              <Line type="monotone" dataKey="clicks" stroke="hsl(var(--brand))" dot={false} />
-              <Line type="monotone" dataKey="leads" stroke="#10b981" dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartCard>
       </div>
 
+      <ChartCard title="Activity Over Time" subtitle="Impressions, clicks and leads by day">
+        <ResponsiveContainer width="100%" height={240}>
+          <LineChart data={data.timeseries} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <XAxis dataKey="day" tick={{ fontSize: 11 }} tickLine={false} axisLine={{ stroke: "hsl(var(--border))" }} />
+            <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={30} />
+            <ChartTooltip />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Line type="monotone" dataKey="impressions" stroke={BAR_COLORS.violet} dot={false} strokeWidth={2} />
+            <Line type="monotone" dataKey="clicks" stroke={BAR_COLORS.brand} dot={false} strokeWidth={2} />
+            <Line type="monotone" dataKey="leads" stroke={BAR_COLORS.emerald} dot={false} strokeWidth={2} />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
+
       <div className="rounded-2xl border border-border bg-card">
-        <div className="flex items-center justify-between border-b border-border p-4">
-          <div>
-            <h3 className="font-display text-lg">Live action feed</h3>
-            <p className="text-xs text-muted-foreground">Real-time user journeys · refreshes every 10s</p>
+        <div className="flex items-center justify-between border-b border-border p-5">
+          <div className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-amber-500" />
+            <div>
+              <h3 className="font-display text-lg">Live Activity Feed</h3>
+              <p className="text-xs text-muted-foreground">Real-time user journeys · refreshes every 10s</p>
+            </div>
           </div>
-          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-emerald-600">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Live
+          </span>
         </div>
         <ul className="divide-y divide-border">
-          {(feed?.events ?? []).slice(0, 30).map((e) => (
-            <li key={e.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
-              <span>{formatEvent(e)}</span>
-              <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(e.created_at), { addSuffix: true })}</span>
-            </li>
+          {(feed?.events ?? []).slice(0, 30).map((e, i) => (
+            <JourneyRow key={e.id} event={e} zebra={i % 2 === 1} />
           ))}
           {(!feed || feed.events.length === 0) && (
-            <li className="p-8 text-center text-sm text-muted-foreground">Waiting for events…</li>
+            <li className="p-10 text-center text-sm text-muted-foreground">Waiting for events…</li>
           )}
         </ul>
       </div>
@@ -192,39 +266,107 @@ function OverviewPanel({ range }: { range: Range }) {
   );
 }
 
-function formatEvent(e: any): React.ReactNode {
-  const v = <span className="text-muted-foreground">visitor</span>;
-  const providerLink = e.provider ? (
-    <Link to="/provider/$slug" params={{ slug: e.provider.slug }} className="font-medium text-brand hover:underline">{e.provider.name}</Link>
-  ) : null;
-  switch (e.event_type) {
-    case "search":
-      return <>{v} searched <span className="font-medium">"{e.query || ""}"</span>{e.city_slug ? ` in ${e.city_slug}` : ""}</>;
-    case "impression":
-      return <>{v} saw {providerLink}</>;
-    case "listing_click":
-      return <>{v} clicked {providerLink}</>;
-    case "lead_action":
-      return <>{v} <span className="font-semibold text-emerald-600">{leadLabel(e.lead_type)}</span> {providerLink}</>;
-    case "page_view":
-      return <>{v} viewed a page{e.city_slug ? ` in ${e.city_slug}` : ""}</>;
-    default:
-      return <>{v} {e.event_type}</>;
-  }
-}
-function leadLabel(t: string | null) {
-  if (t === "phone") return "called";
-  if (t === "website") return "visited website of";
-  if (t === "directions") return "got directions to";
-  return "engaged with";
+// ---------- Journey row ----------
+
+type FeedEvent = {
+  id: number | string;
+  created_at: string;
+  event_type: string;
+  lead_type: string | null;
+  query: string | null;
+  city_slug: string | null;
+  visitor_id?: string;
+  provider: { name: string; slug: string; city: string } | null;
+};
+
+function entryChipFor(e: FeedEvent): { label: string; className: string } {
+  if (e.event_type === "search" || e.query) return { label: "SEARCH", className: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300" };
+  if (e.event_type === "impression" || e.event_type === "listing_click") return { label: "BROWSE", className: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300" };
+  return { label: "DIRECT", className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300" };
 }
 
-function ChartCard({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+function actionChipFor(e: FeedEvent): { label: string; icon: React.ReactNode; className: string } | null {
+  if (e.event_type === "lead_action") {
+    if (e.lead_type === "directions") return { label: "DIRECTIONS", icon: <MapPin className="h-3 w-3" />, className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300" };
+    if (e.lead_type === "website") return { label: "WEBSITE", icon: <Globe className="h-3 w-3" />, className: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300" };
+    if (e.lead_type === "phone") return { label: "PHONE", icon: <Phone className="h-3 w-3" />, className: "bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300" };
+  }
+  if (e.event_type === "listing_click") return { label: "CLICK", icon: <MousePointerClick className="h-3 w-3" />, className: "bg-secondary text-secondary-foreground" };
+  if (e.event_type === "impression") return { label: "VIEW", icon: <Eye className="h-3 w-3" />, className: "bg-secondary text-secondary-foreground" };
+  return null;
+}
+
+function Arrow() {
+  return <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" aria-hidden />;
+}
+
+function JourneyRow({ event, zebra }: { event: FeedEvent; zebra: boolean }) {
+  const entry = entryChipFor(event);
+  const action = actionChipFor(event);
+  const segments: React.ReactNode[] = [];
+
+  segments.push(
+    <span key="entry" className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${entry.className}`}>
+      {entry.label}
+    </span>,
+  );
+
+  if (event.query) {
+    segments.push(<Arrow key="a1" />);
+    segments.push(<span key="q" className="truncate text-sm font-medium">"{event.query}"</span>);
+  }
+
+  if (event.city_slug) {
+    segments.push(<Arrow key="a2" />);
+    segments.push(<span key="city" className="truncate text-sm font-semibold text-foreground">{prettifyCity(event.city_slug)}</span>);
+  }
+
+  if (event.provider) {
+    segments.push(<Arrow key="a3" />);
+    segments.push(
+      <Link key="prov" to="/provider/$slug" params={{ slug: event.provider.slug }} className="truncate text-sm text-muted-foreground hover:text-brand hover:underline">
+        {event.provider.name}
+      </Link>,
+    );
+  }
+
+  if (action) {
+    segments.push(<Arrow key="a4" />);
+    segments.push(
+      <span key="act" className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${action.className}`}>
+        {action.icon}
+        {action.label}
+      </span>,
+    );
+  }
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3">
-        <h3 className="font-display text-lg">{title}</h3>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+    <li className={`flex items-center gap-3 px-5 py-3 ${zebra ? "bg-secondary/20" : ""}`}>
+      <span className="w-20 shrink-0 text-xs text-muted-foreground">
+        {formatDistanceToNow(new Date(event.created_at), { addSuffix: false })} ago
+      </span>
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+        {segments}
+      </div>
+    </li>
+  );
+}
+
+function prettifyCity(slug: string) {
+  return slug.split("-").map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(" ") + ", TX";
+}
+
+// ---------- Chart card + donut ----------
+
+function ChartCard({ title, subtitle, children, action }: { title: string; subtitle?: string; children: React.ReactNode; action?: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h3 className="font-display text-lg">{title}</h3>
+          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+        </div>
+        {action}
       </div>
       {children}
     </div>
@@ -247,36 +389,85 @@ function DonutChart({ data }: { data: { name: string; value: number }[] }) {
   );
 }
 
-// -------- Cities
+// ---------- Search bar ----------
+
+function SearchBar({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <div className="relative w-full max-w-xs">
+      <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="pl-9 pr-9"
+      />
+      {value && (
+        <button
+          onClick={() => onChange("")}
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+          aria-label="Clear search"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ---------- Cities ----------
 
 function CitiesPanel({ range }: { range: Range }) {
   const [drill, setDrill] = useState<{ slug: string; name: string } | null>(null);
+  const [search, setSearch] = useState("");
   const { data, isLoading } = useQuery({
     queryKey: ["city-analytics", range],
     queryFn: () => getCityAnalytics({ data: { range } }),
   });
+  const filtered = useMemo(() => {
+    if (!data) return [];
+    const q = search.trim().toLowerCase();
+    if (!q) return data.cities;
+    return data.cities.filter((c) => c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q));
+  }, [data, search]);
+
   if (drill) return <CityDetail range={range} citySlug={drill.slug} cityName={drill.name} onBack={() => setDrill(null)} />;
   if (isLoading || !data) return <p className="text-muted-foreground">Loading…</p>;
-  const byImp = [...data.cities].sort((a, b) => b.impressions - a.impressions).slice(0, 10);
-  const byLead = [...data.cities].sort((a, b) => b.lead_actions - a.lead_actions).slice(0, 10);
-  const bySearch = [...data.cities].sort((a, b) => b.searches - a.searches).slice(0, 10);
+  const byImp = [...data.cities].sort((a, b) => b.impressions - a.impressions).slice(0, 8);
+  const byLead = [...data.cities].sort((a, b) => b.lead_actions - a.lead_actions).slice(0, 8);
+  const bySearch = [...data.cities].sort((a, b) => b.searches - a.searches).slice(0, 8);
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-3">
-        <ChartCard title="Top by impressions">
-          <RankList rows={byImp} field="impressions" />
+        <ChartCard title="Top by Impressions" subtitle="Where listings surface most">
+          <HBarList
+            color={BAR_COLORS.violet}
+            rows={byImp.map((c) => ({ key: c.slug, label: c.name, sub: `${num(c.impressions)} impressions`, value: c.impressions, onClick: () => setDrill({ slug: c.slug, name: c.name }) }))}
+          />
         </ChartCard>
-        <ChartCard title="Top searched cities">
-          <RankList rows={bySearch} field="searches" />
+        <ChartCard title="Top Searched Cities" subtitle="Highest search demand">
+          <HBarList
+            color={BAR_COLORS.amber}
+            rows={bySearch.map((c) => ({ key: c.slug, label: c.name, sub: `${num(c.searches)} searches`, value: c.searches, onClick: () => setDrill({ slug: c.slug, name: c.name }) }))}
+          />
         </ChartCard>
-        <ChartCard title="Top by lead actions">
-          <RankList rows={byLead} field="lead_actions" />
+        <ChartCard title="Top by Lead Actions" subtitle="Cities driving acquisition">
+          <HBarList
+            color={BAR_COLORS.emerald}
+            rows={byLead.map((c) => ({ key: c.slug, label: c.name, sub: `${num(c.lead_actions)} leads`, value: c.lead_actions, onClick: () => setDrill({ slug: c.slug, name: c.name }) }))}
+          />
         </ChartCard>
       </div>
+
       <div className="rounded-2xl border border-border bg-card">
-        <div className="border-b border-border p-4">
-          <h3 className="font-display text-lg">City activity — click any row for details</h3>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5">
+          <div>
+            <h3 className="font-display text-lg">City Activity</h3>
+            <p className="text-xs text-muted-foreground">
+              {search ? `${filtered.length} of ${data.cities.length} cities` : `${data.cities.length} cities · click any row for details`}
+            </p>
+          </div>
+          <SearchBar value={search} onChange={setSearch} placeholder="Search cities…" />
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-sm">
@@ -292,7 +483,7 @@ function CitiesPanel({ range }: { range: Range }) {
               </tr>
             </thead>
             <tbody>
-              {data.cities.map((c) => (
+              {filtered.map((c) => (
                 <tr key={c.slug} onClick={() => setDrill({ slug: c.slug, name: c.name })} className="cursor-pointer border-t border-border hover:bg-secondary/40">
                   <td className="p-3 font-medium">{c.name}</td>
                   <td className="p-3 text-right">{num(c.impressions)}</td>
@@ -303,28 +494,16 @@ function CitiesPanel({ range }: { range: Range }) {
                   <td className="p-3 text-right">{num(c.unique_visitors)}</td>
                 </tr>
               ))}
-              {data.cities.length === 0 && (
-                <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">No city data yet.</td></tr>
+              {filtered.length === 0 && (
+                <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">
+                  {search ? `No cities match "${search}".` : "No city data yet."}
+                </td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
     </div>
-  );
-}
-
-function RankList<T extends { slug?: string; name: string }>({ rows, field }: { rows: T[]; field: keyof T }) {
-  if (rows.length === 0) return <p className="text-sm text-muted-foreground">No data.</p>;
-  return (
-    <ul className="space-y-1.5">
-      {rows.map((r, i) => (
-        <li key={(r.slug ?? r.name) + i} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-secondary/40">
-          <span className="flex items-center gap-2 truncate"><span className="w-5 text-xs text-muted-foreground">{i + 1}</span> <span className="truncate">{r.name}</span></span>
-          <span className="font-medium">{num((r[field] as unknown as number) ?? 0)}</span>
-        </li>
-      ))}
-    </ul>
   );
 }
 
@@ -354,9 +533,9 @@ function CityDetail({ range, citySlug, cityName, onBack }: { range: Range; cityS
                   <XAxis dataKey="day" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <ChartTooltip />
-                  <Line type="monotone" dataKey="impressions" stroke="#8b5cf6" dot={false} />
-                  <Line type="monotone" dataKey="clicks" stroke="hsl(var(--brand))" dot={false} />
-                  <Line type="monotone" dataKey="leads" stroke="#10b981" dot={false} />
+                  <Line type="monotone" dataKey="impressions" stroke={BAR_COLORS.violet} dot={false} />
+                  <Line type="monotone" dataKey="clicks" stroke={BAR_COLORS.brand} dot={false} />
+                  <Line type="monotone" dataKey="leads" stroke={BAR_COLORS.emerald} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -374,7 +553,7 @@ function CityDetail({ range, citySlug, cityName, onBack }: { range: Range; cityS
             </ChartCard>
           </div>
           <div className="rounded-2xl border border-border bg-card">
-            <div className="border-b border-border p-4"><h3 className="font-display text-lg">Top providers in {cityName}</h3></div>
+            <div className="border-b border-border p-5"><h3 className="font-display text-lg">Top providers in {cityName}</h3></div>
             <ProvidersTable rows={data.topProviders} />
           </div>
         </>
@@ -383,36 +562,72 @@ function CityDetail({ range, citySlug, cityName, onBack }: { range: Range; cityS
   );
 }
 
-// -------- Providers
+// ---------- Providers ----------
 
 function ProvidersPanel({ range }: { range: Range }) {
   const [drill, setDrill] = useState<{ placeId: string; name: string } | null>(null);
+  const [search, setSearch] = useState("");
   const { data, isLoading } = useQuery({
     queryKey: ["prov-analytics", range],
     queryFn: () => getProviderAnalytics({ data: { range } }),
   });
+  const filtered = useMemo(() => {
+    if (!data) return [];
+    const q = search.trim().toLowerCase();
+    if (!q) return data.providers;
+    return data.providers.filter((p) => p.name.toLowerCase().includes(q) || (p.city ?? "").toLowerCase().includes(q));
+  }, [data, search]);
+
   if (drill) return <ProviderDetailPanel range={range} placeId={drill.placeId} name={drill.name} onBack={() => setDrill(null)} />;
   if (isLoading || !data) return <p className="text-muted-foreground">Loading…</p>;
-  const byLeads = [...data.providers].sort((a, b) => b.leads - a.leads).slice(0, 10);
-  const byImp = [...data.providers].sort((a, b) => b.impressions - a.impressions).slice(0, 10);
+  const byLeads = [...data.providers].sort((a, b) => b.leads - a.leads).slice(0, 8);
+  const byImp = [...data.providers].sort((a, b) => b.impressions - a.impressions).slice(0, 8);
+  const byCtr = [...data.providers].filter((p) => p.impressions >= 3).sort((a, b) => b.ctr - a.ctr).slice(0, 8);
+
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ChartCard title="Top providers by lead actions"><RankList rows={byLeads} field="leads" /></ChartCard>
-        <ChartCard title="Top providers by impressions"><RankList rows={byImp} field="impressions" /></ChartCard>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <ChartCard title="Top by Lead Actions" subtitle="Providers driving real intent">
+          <HBarList
+            color={BAR_COLORS.emerald}
+            rows={byLeads.map((p) => ({ key: p.place_id, label: p.name, sub: `${num(p.leads)} leads${p.city ? ` · ${p.city}` : ""}`, value: p.leads, onClick: () => setDrill({ placeId: p.place_id, name: p.name }) }))}
+          />
+        </ChartCard>
+        <ChartCard title="Top by Impressions" subtitle="Most surfaced listings">
+          <HBarList
+            color={BAR_COLORS.sky}
+            rows={byImp.map((p) => ({ key: p.place_id, label: p.name, sub: `${num(p.impressions)} views${p.city ? ` · ${p.city}` : ""}`, value: p.impressions, onClick: () => setDrill({ placeId: p.place_id, name: p.name }) }))}
+          />
+        </ChartCard>
+        <ChartCard title="Top by CTR" subtitle="Best click-through (≥3 impressions)">
+          <HBarList
+            color={BAR_COLORS.olive}
+            rows={byCtr.map((p) => ({ key: p.place_id, label: p.name, sub: `${pct(p.ctr)} · ${num(p.clicks)} clicks`, value: p.ctr, onClick: () => setDrill({ placeId: p.place_id, name: p.name }) }))}
+          />
+        </ChartCard>
       </div>
+
       <div className="rounded-2xl border border-border bg-card">
-        <div className="border-b border-border p-4"><h3 className="font-display text-lg">Providers activity — click any row for details</h3></div>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5">
+          <div>
+            <h3 className="font-display text-lg">Providers Activity</h3>
+            <p className="text-xs text-muted-foreground">
+              {search ? `${filtered.length} of ${data.providers.length} providers` : `${data.providers.length} providers · click any row for details`}
+            </p>
+          </div>
+          <SearchBar value={search} onChange={setSearch} placeholder="Search providers or city…" />
+        </div>
         <ProvidersTable
-          rows={data.providers}
+          rows={filtered}
           onRowClick={(p) => setDrill({ placeId: p.place_id, name: p.name })}
+          emptyLabel={search ? `No providers match "${search}".` : "No provider data yet."}
         />
       </div>
     </div>
   );
 }
 
-function ProvidersTable({ rows, onRowClick }: { rows: any[]; onRowClick?: (p: any) => void }) {
+function ProvidersTable({ rows, onRowClick, emptyLabel = "No provider data yet." }: { rows: any[]; onRowClick?: (p: any) => void; emptyLabel?: string }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[720px] text-sm">
@@ -438,7 +653,7 @@ function ProvidersTable({ rows, onRowClick }: { rows: any[]; onRowClick?: (p: an
             </tr>
           ))}
           {rows.length === 0 && (
-            <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No provider data yet.</td></tr>
+            <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{emptyLabel}</td></tr>
           )}
         </tbody>
       </table>
@@ -472,9 +687,9 @@ function ProviderDetailPanel({ range, placeId, name, onBack }: { range: Range; p
                 <YAxis tick={{ fontSize: 11 }} />
                 <ChartTooltip />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="impressions" stroke="#8b5cf6" />
-                <Line type="monotone" dataKey="clicks" stroke="hsl(var(--brand))" />
-                <Line type="monotone" dataKey="leads" stroke="#10b981" />
+                <Line type="monotone" dataKey="impressions" stroke={BAR_COLORS.violet} />
+                <Line type="monotone" dataKey="clicks" stroke={BAR_COLORS.brand} />
+                <Line type="monotone" dataKey="leads" stroke={BAR_COLORS.emerald} />
               </LineChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -484,7 +699,7 @@ function ProviderDetailPanel({ range, placeId, name, onBack }: { range: Range; p
   );
 }
 
-// -------- User Journeys
+// ---------- User Journeys ----------
 
 function JourneysPanel({ range }: { range: Range }) {
   const [entry, setEntry] = useState<"all" | "search" | "browse" | "direct">("all");
@@ -500,8 +715,11 @@ function JourneysPanel({ range }: { range: Range }) {
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="font-display text-xl">User Journey Explorer</h3>
-        <p className="text-sm text-muted-foreground">See exactly how users search, compare, and choose a provider.</p>
+        <div className="flex items-center gap-2">
+          <Compass className="h-5 w-5 text-brand" />
+          <h3 className="font-display text-xl">User Journey Explorer</h3>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">See exactly how users search, compare, and choose a provider.</p>
         <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
           <span className="uppercase tracking-widest text-muted-foreground">Entry method:</span>
           {[
@@ -574,16 +792,16 @@ function countsByEntry(rows: { entry_method: string }[]) {
   );
 }
 function entryStyle(m: string) {
-  if (m === "search") return "bg-orange-100 text-orange-700";
-  if (m === "browse") return "bg-brand/10 text-brand";
-  return "bg-secondary text-secondary-foreground";
+  if (m === "search") return "bg-amber-100 text-amber-800";
+  if (m === "browse") return "bg-sky-100 text-sky-800";
+  return "bg-emerald-100 text-emerald-800";
 }
 function WinnerBadge({ lead }: { lead: string | null }) {
   if (!lead) return null;
   const style =
-    lead === "phone" ? "bg-emerald-50 text-emerald-700" :
-    lead === "website" ? "bg-sky-50 text-sky-700" :
-    lead === "directions" ? "bg-emerald-50 text-emerald-700" :
+    lead === "phone" ? "bg-rose-100 text-rose-700" :
+    lead === "website" ? "bg-sky-100 text-sky-700" :
+    lead === "directions" ? "bg-emerald-100 text-emerald-700" :
     "bg-secondary";
   const label = lead === "click" ? "click" : lead;
   return <span className={`ml-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-widest ${style}`}>{label}</span>;
@@ -636,6 +854,12 @@ function stepIcon(t: string, lead: string | null) {
   }
   if (t === "page_view") return "📄";
   return "•";
+}
+function leadLabel(t: string | null) {
+  if (t === "phone") return "called";
+  if (t === "website") return "visited website of";
+  if (t === "directions") return "got directions to";
+  return "engaged with";
 }
 function stepLabel(e: any): React.ReactNode {
   const p = e.provider ? <Link to="/provider/$slug" params={{ slug: e.provider.slug }} className="font-medium text-brand hover:underline">{e.provider.name}</Link> : null;
