@@ -1,71 +1,52 @@
-# Analytics Dashboard Plan
+# Analytics Dashboard Redesign
 
-## 1. Event tracking foundation
+Refresh the admin Analytics visuals to match the reference: clean horizontal bar rankings, a journey-style live activity feed with colored chips + arrows, and searchable Cities / Providers tables. No backend changes.
 
-**New tables** (single migration, RLS: admin-only SELECT, public INSERT with size caps):
+## 1. New shared bar-list component
 
-- `analytics_sessions` — `id (uuid)`, `visitor_id (uuid)`, `started_at`, `last_seen_at`, `entry_path`, `referrer`, `user_agent`, `is_mobile`, `city_slug` (first city viewed, nullable).
-- `analytics_events` — `id`, `session_id`, `visitor_id`, `event_type` (enum: `page_view`, `search`, `impression`, `listing_click`, `lead_action`), `lead_type` (enum: `phone`, `website`, `directions`, null), `provider_place_id` (nullable, FK), `city_slug` (nullable), `query` (nullable, capped 120), `path`, `created_at`, `metadata jsonb`.
-- Indexes: `(created_at desc)`, `(event_type, created_at)`, `(provider_place_id, event_type)`, `(city_slug, event_type)`, `(session_id, created_at)`, `(visitor_id, created_at)`.
+Replace Recharts vertical BarCharts and the plain `RankList` with one `HBarList` component used across Overview, Cities, and Providers:
 
-**Client tracker** (`src/lib/analytics.ts`):
-- `visitor_id` persisted in localStorage (uuid).
-- `session_id` in sessionStorage, rotates after 30 min inactivity (checked on send).
-- Batched fire-and-forget POSTs via a server route `src/routes/api/public/track.ts` (rate-limited by IP + size validation; inserts through service role after validation).
-- Helpers: `trackPageView()`, `trackSearch(query, city?)`, `trackImpression(placeIds[])` (deduped per session), `trackListingClick(placeId)`, `trackLeadAction(placeId, type)`.
+- Row layout: bold label on top-left, secondary metrics on top-right (e.g. `19 searches · 13 clicks` or `107 clicks · 3.3% CTR`), thin colored horizontal bar underneath scaled to `value / max`.
+- Rounded ends, subtle grey track background, 8-10 rows visible.
+- Color prop per section (brand orange for cities, blue for providers-by-clicks, green for leads, etc.) so each card is visually distinct.
+- Optional right-side "click to drill in" affordance.
 
-**Instrumentation points**:
-- `__root.tsx` — page_view on route change + session heartbeat.
-- `_site.search.tsx` — `trackSearch` on submit; `trackImpression` for visible cards.
-- `_site.tx.$city.tsx`, `_site.best.$city.tsx`, `_site.treatment.$slug.tsx`, `_site.concern.$slug.tsx`, `_site.index.tsx` featured, `related-providers`, `nearby-providers` — `trackImpression`.
-- `provider-card.tsx` — `trackListingClick` on card click.
-- `_site.provider.$slug.tsx` — `trackLeadAction` on phone/website/directions clicks (wrap existing anchors).
+Applies to:
+- Overview → "Top cities by demand", "Top providers by clicks", "Top providers by leads" (new card).
+- Cities tab → the 3 "Top by …" cards.
+- Providers tab → the 3 "Top by …" cards.
 
-## 2. Server functions (`src/lib/analytics.functions.ts`, admin-gated)
+## 2. Live Activity Feed as journeys
 
-All accept `{ range: 'today'|'yesterday'|'7d'|'30d'|'this_month'|'last_month'|'custom', from?, to? }`.
+Rework the Overview live feed rows into single-line journeys:
 
-- `getOverview` — totals: searches, impressions, listing_clicks, lead_actions (total + unique_visitors), click_rate (clicks/impressions), mobile share; top 10 cities by (searches+clicks); top 10 providers by clicks; discovery breakdown (search vs browse vs direct — from session entry_path & referrer); lead_actions breakdown (phone/website/directions); daily timeseries.
-- `getLiveFeed` — last 50 events joined with provider name + city, newest first.
-- `getCityAnalytics` — per city: impressions, searches, clicks, lead_actions, unique visitors; used by both list + drill-down.
-- `getCityDetail(citySlug)` — city timeseries, top providers in city, top searched terms, lead_actions breakdown.
-- `getProviderAnalytics` — top providers by lead_actions, top by impressions, activity table (impressions, clicks, CTR, lead_actions per provider).
-- `getProviderDetail(placeId)` — provider timeseries + lead_actions breakdown + recent visitors.
-- `getUserJourneys({ entry: 'all'|'search'|'browse', page })` — paged list of sessions with step count, journey duration, winner (last provider clicked / lead_action), entry method, city, timestamp.
-- `getJourneyDetail(sessionId)` — ordered event timeline for one session (Session in Columbus, OH view).
+`{time ago}   [ENTRY CHIP]  →  {"query" if search}  →  {City, ST}  →  {Provider}  →  [ACTION CHIP]`
 
-## 3. Dashboard UI (`src/routes/_site.admin.tsx` — add 4 tabs alongside existing tabs)
+- Entry chip: `SEARCH` (amber), `BROWSE` (blue), `DIRECT` (green) — derived from event type (`search` = SEARCH, `impression`/`listing_click` = BROWSE, `page_view` without query = DIRECT).
+- Action chip on the right: `DIRECTIONS` / `WEBSITE` / `PHONE` (pin/link/phone icon, colored) when the event is a `lead_action`; `CLICK` for `listing_click`; `VIEW` for impression.
+- Arrows `→` between segments, muted color.
+- Alternating row background for scannability, hover highlight, provider name links to the provider page.
+- Empty segments gracefully hidden (e.g. no query → skip that segment).
+- Keeps the 10s polling and the pulsing "live" dot.
 
-Shared header: time-range chip group (Today, Yesterday, 7 Days, 30 Days, This Month, Last Month, Custom w/ date-range popover) + Refresh button. Poll every 10s on Overview live feed only.
+Since the current `getLiveFeed` returns individual events (not full journeys), each row still represents one event but is rendered in this journey shape using the fields it already has (`event_type`, `query`, `city_slug`, `provider`, `lead_type`). This matches the reference without touching server functions.
 
-- **Overview tab**
-  - 6 stat cards: Searches, Impressions, Listing Clicks, Lead Actions (with unique-people subline), Click Rate %, Mobile %.
-  - Row: Top Cities by demand (bar), Top Providers by clicks (bar).
-  - Row: Discovery breakdown (donut: search / browse / direct), Lead actions breakdown (donut: phone / website / directions).
-  - Live Action Feed (polling 10s) — list rows: "[time ago] visitor in {city} — searched X / clicked Y / called Z".
+## 3. Search bars on Cities and Providers activity tables
 
-- **Cities tab**
-  - Cards: Top cities by impressions, by searches, by lead actions.
-  - City activity table — rows: city name, impressions, searches, clicks, CTR, lead_actions; click row → `/admin?tab=cities&city=<slug>` drill-in panel with timeseries + top providers + top queries.
+- Cities tab: add a search input above the "City activity" table filtering by city name (case-insensitive substring). Show result count and a "Clear" affordance when active.
+- Providers tab: same treatment on the "Provider activity" table — filter by provider name or city name.
+- Debounce not needed (client-side filter over the already-loaded array). Empty-state row updates to "No cities match '<query>'".
 
-- **Providers tab**
-  - Cards: Top providers by lead actions, by impressions.
-  - Providers activity table — name, city, impressions, clicks, CTR, lead_actions; click row → drill-in panel.
+## 4. Small polish
+- Range picker chips: keep as-is (already matches the reference style).
+- StatCards: tighten typography to align with the calmer look (already close; only minor spacing tweak).
+- Remove the redundant vertical Recharts BarChart imports once `HBarList` replaces them.
 
-- **Journeys tab** (User Journey Explorer)
-  - Header: entry method chips (All / Search / Browse).
-  - 4×N grid of journey cards (matches screenshot 1): entry-badge, city, winner, action-type chip (directions/website/phone), timestamp, duration.
-  - Click card → session timeline view (matches screenshot 2): ordered steps with icons (browsed/saw N listings/clicked provider/lead action) and timestamps. Back button returns to grid. Pagination (Prev/Next).
+## Technical notes
 
-Charts via `recharts` (already in deps). No new libs beyond that.
-
-## 4. Also fix (quiet)
-
-The current preview shows a `Symbol(TSS_SERVER_FUNCTION_FACTORY)` SSR error — will confirm root cause by reading runtime errors during build, then patch (likely a route calling a server fn incorrectly during SSR). Not tied to this feature.
-
-## Out of scope
-
-- No changes to public site design.
-- No email/notifications on events.
-- No PII stored; visitor_id is a random uuid.
-- No IP geolocation — city inferred from the pages the visitor viewed.
+- All changes are in `src/components/analytics-dashboard.tsx` — one file.
+- No API / server-function / schema changes; uses existing `getOverview`, `getLiveFeed`, `getCityAnalytics`, `getProviderAnalytics` payloads.
+- New `HBarList<T>` generic component + `JourneyRow` component added inside the same file (kept together with their only consumer).
+- Search state is local `useState` in each panel; filtering runs on already-fetched `data.cities` / `data.providers` arrays.
+- Recharts `BarChart` usages inside Overview replaced by `HBarList`; LineChart and DonutChart stay.
+- Chip colors use existing Tailwind tokens (`bg-amber-100 text-amber-700`, `bg-sky-100 text-sky-700`, `bg-emerald-100 text-emerald-700`, `bg-rose-100 text-rose-700`) so no new design tokens needed.
