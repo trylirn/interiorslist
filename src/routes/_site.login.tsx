@@ -74,55 +74,8 @@ function SignInPanel() {
   );
 }
 
-function ConsumerSignupPanel() {
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleGoogle() {
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (res.error) toast.error("Google sign-in failed");
-  }
 
-  async function signUp(e: React.FormEvent) {
-    e.preventDefault();
-    if (password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/welcome`,
-          data: { display_name: name || email.split("@")[0], account_type: "consumer" },
-        },
-      });
-      if (error) throw error;
-      toast.success("Account created. Check your email if confirmation is required.");
-      navigate({ to: "/welcome" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Sign up failed");
-    } finally { setLoading(false); }
-  }
-
-  return (
-    <div className="mx-auto max-w-md space-y-4">
-      <p className="text-center text-sm text-muted-foreground">
-        Create a free account to leave reviews and save favorite medspas.
-      </p>
-      <Button onClick={handleGoogle} variant="outline" className="h-11 w-full">Continue with Google</Button>
-      <div className="flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />or email<div className="h-px flex-1 bg-border" /></div>
-      <form onSubmit={signUp} className="space-y-3">
-        <div className="space-y-1.5"><Label>Your name</Label><Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} /></div>
-        <div className="space-y-1.5"><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-        <div className="space-y-1.5"><Label>Password</Label><Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-        <Button type="submit" disabled={loading} className="w-full h-11">{loading ? "…" : "Create account"}</Button>
-      </form>
-    </div>
-  );
-}
 
 const LICENSE_TYPES = ["MD", "DO", "NP", "PA", "RN", "Esthetician", "Medical Director Supervised", "Other"];
 
