@@ -12,7 +12,8 @@ const PROVIDER_COLS =
 
 const PROVIDER_DETAIL_COLS =
   PROVIDER_COLS +
-  ", phone, latitude, longitude, published, claimed_by, business_status, state, hours, price_ranges, skin_types, recovery_tags, personality, team, before_after_urls, google_maps_url, postal_code, articles";
+  ", phone, latitude, longitude, published, claimed_by, business_status, state, hours, price_ranges, skin_types, recovery_tags, personality, team, before_after_urls, google_maps_url, postal_code, articles, founded_year, years_in_business, service_area, service_area_note, team_size, client_types, not_a_fit";
+
 
 
 const cityArg = z.object({
