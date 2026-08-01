@@ -72,11 +72,26 @@ function InfoEditor({ placeId, listing }: { placeId: string; listing: Listing })
     branch_label: (listing.branch_label as string) ?? "",
     email_forward_to: (listing.email_forward_to as string) ?? "",
     services: ((listing.services as string[]) ?? []),
+    credentials: (listing.credentials as string) ?? "",
+    founded_year: listing.founded_year != null ? String(listing.founded_year) : "",
+    years_in_business: listing.years_in_business != null ? String(listing.years_in_business) : "",
+    service_area: (listing.service_area as string) ?? "",
+    service_area_note: (listing.service_area_note as string) ?? "",
+    team_size: (listing.team_size as string) ?? "",
+    client_types: (listing.client_types as string) ?? "",
+    not_a_fit: (listing.not_a_fit as string) ?? "",
     social_instagram: existingSocial.instagram ?? "",
     social_facebook: existingSocial.facebook ?? "",
     social_tiktok: existingSocial.tiktok ?? "",
     social_youtube: existingSocial.youtube ?? "",
+    social_linkedin: existingSocial.linkedin ?? "",
+    social_x: existingSocial.x ?? "",
   });
+  const [packages, setPackages] = useState<{ name: string; price: string; note: string }[]>(
+    Array.isArray(listing.price_ranges)
+      ? (listing.price_ranges as any[]).map((p) => ({ name: String(p?.name ?? ""), price: String(p?.price ?? ""), note: String(p?.note ?? "") }))
+      : [],
+  );
   const [saving, setSaving] = useState(false);
 
   function toggleService(slug: string) {
@@ -92,12 +107,28 @@ function InfoEditor({ placeId, listing }: { placeId: string; listing: Listing })
       if (form.social_facebook) social.facebook = form.social_facebook;
       if (form.social_tiktok) social.tiktok = form.social_tiktok;
       if (form.social_youtube) social.youtube = form.social_youtube;
-      const { social_instagram, social_facebook, social_tiktok, social_youtube, ...rest } = form;
-      await update({ data: { placeId, ...rest, social_links: social } });
+      if (form.social_linkedin) social.linkedin = form.social_linkedin;
+      if (form.social_x) social.x = form.social_x;
+      const {
+        social_instagram, social_facebook, social_tiktok, social_youtube, social_linkedin, social_x,
+        founded_year, years_in_business, service_area, ...rest
+      } = form;
+      await update({
+        data: {
+          placeId,
+          ...rest,
+          social_links: social,
+          founded_year: founded_year ? Number(founded_year) : null,
+          years_in_business: years_in_business ? Number(years_in_business) : null,
+          service_area: (service_area || null) as "local" | "regional" | "nationwide" | null,
+          price_ranges: packages.filter((p) => p.name.trim()).map((p) => ({ name: p.name.trim(), price: p.price.trim(), note: p.note.trim() })),
+        },
+      });
       toast.success("Listing updated");
       qc.invalidateQueries({ queryKey: ["my-listing", placeId] });
       navigate({ to: "/dashboard" });
     } catch (err) { toast.error(err instanceof Error ? err.message : "Failed to save"); }
+
     finally { setSaving(false); }
   }
 
