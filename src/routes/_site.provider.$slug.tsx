@@ -487,6 +487,74 @@ function Meta({ label, value, icon }: { label: string; value: string; icon: Reac
   );
 }
 
+const SERVICE_AREA_LABEL: Record<string, string> = {
+  local: "Local area",
+  regional: "Regional",
+  nationwide: "Nationwide",
+};
+
+function PracticeDetails({ p }: { p: any }) {
+  const packages = Array.isArray(p.price_ranges) ? (p.price_ranges as any[]).filter((x) => x && (x.name || x.price)) : [];
+  const stats: { label: string; value: string }[] = [];
+  if (p.founded_year) stats.push({ label: "Founded", value: String(p.founded_year) });
+  if (p.years_in_business) stats.push({ label: "Years in business", value: `${p.years_in_business}+` });
+  if (p.team_size) stats.push({ label: "Team size", value: String(p.team_size) });
+  if (p.service_area) stats.push({ label: "Serves", value: SERVICE_AREA_LABEL[p.service_area] ?? String(p.service_area) });
+
+  const hasAny = stats.length > 0 || packages.length > 0 || p.client_types || p.not_a_fit || p.service_area_note;
+  if (!hasAny) return null;
+
+  return (
+    <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+      <h2 className="font-display text-2xl">About this practice</h2>
+      {stats.length > 0 && (
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-2xl border border-border bg-secondary/30 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{s.label}</p>
+              <p className="mt-1 font-display text-xl">{s.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {p.service_area_note && <p className="mt-4 text-sm text-foreground/80">{p.service_area_note}</p>}
+
+      {packages.length > 0 && (
+        <div className="mt-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Pricing &amp; packages</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {packages.map((pkg: any, i: number) => (
+              <div key={`${pkg.name}-${i}`} className="rounded-xl border border-border bg-secondary/20 px-4 py-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-sm font-medium">{pkg.name}</span>
+                  {pkg.price && <span className="text-sm text-brand">{pkg.price}</span>}
+                </div>
+                {pkg.note && <p className="mt-1 text-xs text-muted-foreground">{pkg.note}</p>}
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">Prices are provided by the practice and may change — confirm at consultation.</p>
+        </div>
+      )}
+
+      {p.client_types && (
+        <div className="mt-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Who we serve</p>
+          <p className="mt-1 whitespace-pre-line text-foreground/85 leading-relaxed">{p.client_types}</p>
+        </div>
+      )}
+
+      {p.not_a_fit && (
+        <div className="mt-6 rounded-2xl border border-border bg-secondary/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Not a good fit if…</p>
+          <p className="mt-1 whitespace-pre-line text-sm text-foreground/80">{p.not_a_fit}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+
 function FaqItem({ q, a }: { q: string; a: string }) {
   return (
     <details className="group rounded-xl border border-border bg-secondary/20 p-4">
