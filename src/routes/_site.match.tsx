@@ -88,10 +88,11 @@ function MatchPage() {
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((r) => (
-            <div key={r.place_id} className="relative">
-              <span className="absolute left-3 top-3 z-10 rounded-full bg-brand px-2.5 py-0.5 text-xs font-semibold text-brand-foreground shadow-sm">
+            <div key={r.place_id} className="flex flex-col">
+              <span className="mb-2 self-start rounded-full bg-brand px-2.5 py-0.5 text-xs font-semibold text-brand-foreground">
                 {r.matchPercent}% match
               </span>
+
 
               <ProviderCard
                 place_id={r.place_id}
