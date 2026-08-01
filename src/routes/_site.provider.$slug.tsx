@@ -129,32 +129,9 @@ export const Route = createFileRoute("/_site/provider/$slug")({
         }),
       });
 
-      // FAQPage — local-intent Q&A
-      const faqTopic = topServices[0] || "aesthetic treatments";
-      scripts.push({
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: [
-            {
-              "@type": "Question",
-              name: `Where is ${p.name} located in ${city}, TX?`,
-              acceptedAnswer: { "@type": "Answer", text: `${p.name} is located${p.address ? ` at ${p.address}` : ""} in ${city}, Texas.` },
-            },
-            {
-              "@type": "Question",
-              name: `How much does ${faqTopic} cost at ${p.name} in ${city}?`,
-              acceptedAnswer: { "@type": "Answer", text: `Pricing for ${faqTopic} at ${p.name} in ${city}, TX varies by treatment area and provider. Contact the clinic for a personalized quote.` },
-            },
-            {
-              "@type": "Question",
-              name: `How do I book an appointment with ${p.name}?`,
-              acceptedAnswer: { "@type": "Answer", text: `Use the contact form on this page, or visit ${p.name}'s website to schedule a consultation in ${city}, TX.` },
-            },
-          ],
-        }),
-      });
+      // FAQ structured data is emitted only from owner-supplied FAQs (rendered client-side),
+      // so no generic FAQPage block here.
+
     }
     return { meta, links: [{ rel: "canonical", href: canonical }], scripts };
   },
@@ -301,6 +278,10 @@ function ProviderPage() {
             </section>
           )}
 
+          <PracticeDetails p={p} />
+
+
+
           <ProviderMap lat={p.latitude} lng={p.longitude} name={p.name} address={p.address} city={p.city} />
 
           {p.city_slug && CITY_NEIGHBORS[p.city_slug] && (
@@ -414,14 +395,15 @@ function ProviderPage() {
             )}
           </section>
 
-          <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
-            <h2 className="font-display text-2xl flex items-center gap-2"><HelpCircle className="h-5 w-5" /> Frequently asked</h2>
-            <div className="mt-4 space-y-3">
-              {(faqsData?.faqs ?? []).map((f) => <FaqItem key={f.id} q={f.question} a={f.answer} />)}
-              <FaqItem q={`How do I book an appointment with ${p.name}?`} a="Use the contact form on this page, or visit their website to schedule a consultation." />
-              <FaqItem q="Is a consultation required?" a="Most aesthetic injectors recommend a consultation before treatment to discuss your goals and review medical history." />
-            </div>
-          </section>
+          {(faqsData?.faqs ?? []).length > 0 && (
+            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl flex items-center gap-2"><HelpCircle className="h-5 w-5" /> Frequently asked</h2>
+              <div className="mt-4 space-y-3">
+                {(faqsData?.faqs ?? []).map((f) => <FaqItem key={f.id} q={f.question} a={f.answer} />)}
+              </div>
+            </section>
+          )}
+
 
           <section className="mt-8 rounded-2xl border border-border bg-secondary/40 p-6">
             <p className="flex items-center gap-2 text-sm text-foreground/80">
@@ -504,6 +486,74 @@ function Meta({ label, value, icon }: { label: string; value: string; icon: Reac
     </div>
   );
 }
+
+const SERVICE_AREA_LABEL: Record<string, string> = {
+  local: "Local area",
+  regional: "Regional",
+  nationwide: "Nationwide",
+};
+
+function PracticeDetails({ p }: { p: any }) {
+  const packages = Array.isArray(p.price_ranges) ? (p.price_ranges as any[]).filter((x) => x && (x.name || x.price)) : [];
+  const stats: { label: string; value: string }[] = [];
+  if (p.founded_year) stats.push({ label: "Founded", value: String(p.founded_year) });
+  if (p.years_in_business) stats.push({ label: "Years in business", value: `${p.years_in_business}+` });
+  if (p.team_size) stats.push({ label: "Team size", value: String(p.team_size) });
+  if (p.service_area) stats.push({ label: "Serves", value: SERVICE_AREA_LABEL[p.service_area] ?? String(p.service_area) });
+
+  const hasAny = stats.length > 0 || packages.length > 0 || p.client_types || p.not_a_fit || p.service_area_note;
+  if (!hasAny) return null;
+
+  return (
+    <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+      <h2 className="font-display text-2xl">About this practice</h2>
+      {stats.length > 0 && (
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-2xl border border-border bg-secondary/30 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{s.label}</p>
+              <p className="mt-1 font-display text-xl">{s.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {p.service_area_note && <p className="mt-4 text-sm text-foreground/80">{p.service_area_note}</p>}
+
+      {packages.length > 0 && (
+        <div className="mt-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Pricing &amp; packages</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {packages.map((pkg: any, i: number) => (
+              <div key={`${pkg.name}-${i}`} className="rounded-xl border border-border bg-secondary/20 px-4 py-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-sm font-medium">{pkg.name}</span>
+                  {pkg.price && <span className="text-sm text-brand">{pkg.price}</span>}
+                </div>
+                {pkg.note && <p className="mt-1 text-xs text-muted-foreground">{pkg.note}</p>}
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">Prices are provided by the practice and may change — confirm at consultation.</p>
+        </div>
+      )}
+
+      {p.client_types && (
+        <div className="mt-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Who we serve</p>
+          <p className="mt-1 whitespace-pre-line text-foreground/85 leading-relaxed">{p.client_types}</p>
+        </div>
+      )}
+
+      {p.not_a_fit && (
+        <div className="mt-6 rounded-2xl border border-border bg-secondary/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Not a good fit if…</p>
+          <p className="mt-1 whitespace-pre-line text-sm text-foreground/80">{p.not_a_fit}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   return (
