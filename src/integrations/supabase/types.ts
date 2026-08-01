@@ -410,12 +410,14 @@ export type Database = {
           city: string
           city_slug: string
           claimed_by: string | null
+          client_types: string | null
           created_at: string
           credentials: string | null
           document_urls: string[]
           email: string | null
           email_forward_to: string | null
           featured: boolean
+          founded_year: number | null
           gallery_urls: string[]
           google_maps_url: string | null
           hero_photo_url: string | null
@@ -428,6 +430,7 @@ export type Database = {
           lng: number | null
           longitude: number | null
           name: string
+          not_a_fit: string | null
           notes: string | null
           personality: Json | null
           phone: string | null
@@ -440,6 +443,8 @@ export type Database = {
           rating: number | null
           recovery_tags: string[] | null
           review_count: number | null
+          service_area: string | null
+          service_area_note: string | null
           services: string[] | null
           services_raw: string[] | null
           skin_types: string[] | null
@@ -448,10 +453,12 @@ export type Database = {
           specialists: string | null
           state: string
           team: Json | null
+          team_size: string | null
           updated_at: string
           video_urls: string[]
           view_count: number
           website: string | null
+          years_in_business: number | null
         }
         Insert: {
           about_description?: string | null
@@ -466,12 +473,14 @@ export type Database = {
           city: string
           city_slug: string
           claimed_by?: string | null
+          client_types?: string | null
           created_at?: string
           credentials?: string | null
           document_urls?: string[]
           email?: string | null
           email_forward_to?: string | null
           featured?: boolean
+          founded_year?: number | null
           gallery_urls?: string[]
           google_maps_url?: string | null
           hero_photo_url?: string | null
@@ -484,6 +493,7 @@ export type Database = {
           lng?: number | null
           longitude?: number | null
           name: string
+          not_a_fit?: string | null
           notes?: string | null
           personality?: Json | null
           phone?: string | null
@@ -496,6 +506,8 @@ export type Database = {
           rating?: number | null
           recovery_tags?: string[] | null
           review_count?: number | null
+          service_area?: string | null
+          service_area_note?: string | null
           services?: string[] | null
           services_raw?: string[] | null
           skin_types?: string[] | null
@@ -504,10 +516,12 @@ export type Database = {
           specialists?: string | null
           state?: string
           team?: Json | null
+          team_size?: string | null
           updated_at?: string
           video_urls?: string[]
           view_count?: number
           website?: string | null
+          years_in_business?: number | null
         }
         Update: {
           about_description?: string | null
@@ -522,12 +536,14 @@ export type Database = {
           city?: string
           city_slug?: string
           claimed_by?: string | null
+          client_types?: string | null
           created_at?: string
           credentials?: string | null
           document_urls?: string[]
           email?: string | null
           email_forward_to?: string | null
           featured?: boolean
+          founded_year?: number | null
           gallery_urls?: string[]
           google_maps_url?: string | null
           hero_photo_url?: string | null
@@ -540,6 +556,7 @@ export type Database = {
           lng?: number | null
           longitude?: number | null
           name?: string
+          not_a_fit?: string | null
           notes?: string | null
           personality?: Json | null
           phone?: string | null
@@ -552,6 +569,8 @@ export type Database = {
           rating?: number | null
           recovery_tags?: string[] | null
           review_count?: number | null
+          service_area?: string | null
+          service_area_note?: string | null
           services?: string[] | null
           services_raw?: string[] | null
           skin_types?: string[] | null
@@ -560,10 +579,12 @@ export type Database = {
           specialists?: string | null
           state?: string
           team?: Json | null
+          team_size?: string | null
           updated_at?: string
           video_urls?: string[]
           view_count?: number
           website?: string | null
+          years_in_business?: number | null
         }
         Relationships: [
           {
