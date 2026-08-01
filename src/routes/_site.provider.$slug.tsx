@@ -278,6 +278,10 @@ function ProviderPage() {
             </section>
           )}
 
+          <PracticeDetails p={p} />
+
+
+
           <ProviderMap lat={p.latitude} lng={p.longitude} name={p.name} address={p.address} city={p.city} />
 
           {p.city_slug && CITY_NEIGHBORS[p.city_slug] && (
