@@ -1,52 +1,37 @@
-# Analytics Dashboard Redesign
+# Provider profiles, sign-up, and match fixes
 
-Refresh the admin Analytics visuals to match the reference: clean horizontal bar rankings, a journey-style live activity feed with colored chips + arrows, and searchable Cities / Providers tables. No backend changes.
+## 1. FAQs on provider pages — owner-supplied only
 
-## 1. New shared bar-list component
+In the provider page FAQ section, drop the two hardcoded questions ("How do I book an appointment…", "Is a consultation required?"). Render the section only when the facility has added FAQs from their dashboard; otherwise hide the whole card. The FAQ JSON-LD block is likewise emitted only when real FAQs exist, so structured data matches what's visible.
 
-Replace Recharts vertical BarCharts and the plain `RankList` with one `HBarList` component used across Overview, Cities, and Providers:
+## 2. Sign in / sign up — business only
 
-- Row layout: bold label on top-left, secondary metrics on top-right (e.g. `19 searches · 13 clicks` or `107 clicks · 3.3% CTR`), thin colored horizontal bar underneath scaled to `value / max`.
-- Rounded ends, subtle grey track background, 8-10 rows visible.
-- Color prop per section (brand orange for cities, blue for providers-by-clicks, green for leads, etc.) so each card is visually distinct.
-- Optional right-side "click to drill in" affordance.
+The login page currently has three tabs: Sign in, Create account (consumer), For businesses. Collapse to two: **Sign in** and **Create account**, where Create account is the existing business sign-up wizard. The consumer-only panel is removed and the intro copy is rewritten for business owners (register your med spa, manage your listing).
 
-Applies to:
-- Overview → "Top cities by demand", "Top providers by clicks", "Top providers by leads" (new card).
-- Cities tab → the 3 "Top by …" cards.
-- Providers tab → the 3 "Top by …" cards.
+## 3. Match page — overlapping badge
 
-## 2. Live Activity Feed as journeys
+On `/match`, the "% match" pill sits at the same top-right corner as the favorite and compare buttons on each card. Move the match pill to the top-left of the card and add left padding to the card title row so it never sits under the heading, keeping favorite/compare where they are everywhere else.
 
-Rework the Overview live feed rows into single-line journeys:
+## 4. Richer business profile fields
 
-`{time ago}   [ENTRY CHIP]  →  {"query" if search}  →  {City, ST}  →  {Provider}  →  [ACTION CHIP]`
+Add a new **Business details** group in the provider dashboard (About & info tab) with:
 
-- Entry chip: `SEARCH` (amber), `BROWSE` (blue), `DIRECT` (green) — derived from event type (`search` = SEARCH, `impression`/`listing_click` = BROWSE, `page_view` without query = DIRECT).
-- Action chip on the right: `DIRECTIONS` / `WEBSITE` / `PHONE` (pin/link/phone icon, colored) when the event is a `lead_action`; `CLICK` for `listing_click`; `VIEW` for impression.
-- Arrows `→` between segments, muted color.
-- Alternating row background for scannability, hover highlight, provider name links to the provider page.
-- Empty segments gracefully hidden (e.g. no query → skip that segment).
-- Keeps the 10s polling and the pulsing "live" dot.
+- Year founded / years in business
+- Service area (Nationwide / Regional / Local — with a free-text note)
+- Team size
+- Credentials and licenses
+- Services offered (already exists — stays)
+- Pricing and packages (repeatable name + price range + description rows)
+- Types of clients served
+- "Not a good fit if…" message
+- Contact & connect: website, phone, Instagram, Facebook, TikTok, YouTube, LinkedIn, X (website/phone/socials already exist; socials extended)
 
-Since the current `getLiveFeed` returns individual events (not full journeys), each row still represents one event but is rendered in this journey shape using the fields it already has (`event_type`, `query`, `city_slug`, `provider`, `lead_type`). This matches the reference without touching server functions.
-
-## 3. Search bars on Cities and Providers activity tables
-
-- Cities tab: add a search input above the "City activity" table filtering by city name (case-insensitive substring). Show result count and a "Clear" affordance when active.
-- Providers tab: same treatment on the "Provider activity" table — filter by provider name or city name.
-- Debounce not needed (client-side filter over the already-loaded array). Empty-state row updates to "No cities match '<query>'".
-
-## 4. Small polish
-- Range picker chips: keep as-is (already matches the reference style).
-- StatCards: tighten typography to align with the calmer look (already close; only minor spacing tweak).
-- Remove the redundant vertical Recharts BarChart imports once `HBarList` replaces them.
+These render on the public provider page in a new "About this practice" panel: a small stat strip (Founded · Years in business · Team size · Serves), then Credentials & licenses, Pricing & packages, Who we serve, and a muted "Not a good fit if…" note. Every block hides when empty, so unclaimed listings look unchanged.
 
 ## Technical notes
 
-- All changes are in `src/components/analytics-dashboard.tsx` — one file.
-- No API / server-function / schema changes; uses existing `getOverview`, `getLiveFeed`, `getCityAnalytics`, `getProviderAnalytics` payloads.
-- New `HBarList<T>` generic component + `JourneyRow` component added inside the same file (kept together with their only consumer).
-- Search state is local `useState` in each panel; filtering runs on already-fetched `data.cities` / `data.providers` arrays.
-- Recharts `BarChart` usages inside Overview replaced by `HBarList`; LineChart and DonutChart stay.
-- Chip colors use existing Tailwind tokens (`bg-amber-100 text-amber-700`, `bg-sky-100 text-sky-700`, `bg-emerald-100 text-emerald-700`, `bg-rose-100 text-rose-700`) so no new design tokens needed.
+- Migration adds columns to `public.providers`: `founded_year int`, `years_in_business int`, `service_area text`, `service_area_note text`, `team_size text`, `client_types text`, `not_a_fit text`. Existing `credentials` (text), `price_ranges` (jsonb), and `social_links` (jsonb) are reused; pricing packages stored as `price_ranges: [{ name, price, note }]`.
+- New columns are public-readable (no grant/RLS change needed beyond the existing providers policies); no private data added.
+- `updateMyListing` in `src/lib/owner.functions.ts` gains matching zod fields (with `linkedin`/`x` allowed in `social_links`).
+- `PROVIDER_DETAIL_COLS` in `src/lib/providers.functions.ts` extended with the new columns.
+- Files touched: `src/lib/owner.functions.ts`, `src/lib/providers.functions.ts`, `src/routes/_site.dashboard.listing.$placeId.tsx`, `src/routes/_site.provider.$slug.tsx`, `src/routes/_site.login.tsx`, `src/routes/_site.match.tsx`.
