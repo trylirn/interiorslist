@@ -21,19 +21,18 @@ function LoginPage() {
       <div className="text-center">
         <h1 className="font-display text-4xl">Welcome to Texas Aesthetics</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Browsing is free — no account needed. Create one to leave reviews and save favorites, or register your medspa as a business.
+          Browsing is free — no account needed. Accounts are for med spas and clinics: register your business, claim your listing, and manage your profile.
         </p>
       </div>
       <Tabs defaultValue="signin" className="mt-8">
-        <TabsList className="grid grid-cols-3 w-full">
+        <TabsList className="grid grid-cols-2 w-full">
           <TabsTrigger value="signin">Sign in</TabsTrigger>
-          <TabsTrigger value="consumer">Create account</TabsTrigger>
-          <TabsTrigger value="business">For businesses</TabsTrigger>
+          <TabsTrigger value="business">Create account</TabsTrigger>
         </TabsList>
         <TabsContent value="signin" className="mt-6"><SignInPanel /></TabsContent>
-        <TabsContent value="consumer" className="mt-6"><ConsumerSignupPanel /></TabsContent>
         <TabsContent value="business" className="mt-6"><BusinessSignupWizard /></TabsContent>
       </Tabs>
+
       <p className="mt-6 text-center text-xs"><Link to="/" className="text-muted-foreground hover:underline">← Back home</Link></p>
     </div>
   );
