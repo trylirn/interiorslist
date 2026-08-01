@@ -414,14 +414,15 @@ function ProviderPage() {
             )}
           </section>
 
-          <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
-            <h2 className="font-display text-2xl flex items-center gap-2"><HelpCircle className="h-5 w-5" /> Frequently asked</h2>
-            <div className="mt-4 space-y-3">
-              {(faqsData?.faqs ?? []).map((f) => <FaqItem key={f.id} q={f.question} a={f.answer} />)}
-              <FaqItem q={`How do I book an appointment with ${p.name}?`} a="Use the contact form on this page, or visit their website to schedule a consultation." />
-              <FaqItem q="Is a consultation required?" a="Most aesthetic injectors recommend a consultation before treatment to discuss your goals and review medical history." />
-            </div>
-          </section>
+          {(faqsData?.faqs ?? []).length > 0 && (
+            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl flex items-center gap-2"><HelpCircle className="h-5 w-5" /> Frequently asked</h2>
+              <div className="mt-4 space-y-3">
+                {(faqsData?.faqs ?? []).map((f) => <FaqItem key={f.id} q={f.question} a={f.answer} />)}
+              </div>
+            </section>
+          )}
+
 
           <section className="mt-8 rounded-2xl border border-border bg-secondary/40 p-6">
             <p className="flex items-center gap-2 text-sm text-foreground/80">
