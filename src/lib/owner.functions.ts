@@ -51,7 +51,20 @@ export const updateMyListing = createServerFn({ method: "POST" })
       document_urls: z.array(z.string().max(500)).max(20).optional(),
       social_links: z.record(z.string().max(40), z.string().max(500)).optional(),
       email_forward_to: z.string().email().max(255).optional().or(z.literal("")),
+      credentials: z.string().max(2000).optional(),
+      founded_year: z.number().int().min(1800).max(2100).nullable().optional(),
+      years_in_business: z.number().int().min(0).max(200).nullable().optional(),
+      service_area: z.enum(["local", "regional", "nationwide"]).nullable().optional(),
+      service_area_note: z.string().max(500).optional(),
+      team_size: z.string().max(60).optional(),
+      client_types: z.string().max(2000).optional(),
+      not_a_fit: z.string().max(2000).optional(),
+      price_ranges: z
+        .array(z.object({ name: z.string().max(120), price: z.string().max(80).optional(), note: z.string().max(300).optional() }))
+        .max(20)
+        .optional(),
     }).parse(d),
+
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
