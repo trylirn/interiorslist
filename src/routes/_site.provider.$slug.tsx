@@ -129,32 +129,9 @@ export const Route = createFileRoute("/_site/provider/$slug")({
         }),
       });
 
-      // FAQPage — local-intent Q&A
-      const faqTopic = topServices[0] || "aesthetic treatments";
-      scripts.push({
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: [
-            {
-              "@type": "Question",
-              name: `Where is ${p.name} located in ${city}, TX?`,
-              acceptedAnswer: { "@type": "Answer", text: `${p.name} is located${p.address ? ` at ${p.address}` : ""} in ${city}, Texas.` },
-            },
-            {
-              "@type": "Question",
-              name: `How much does ${faqTopic} cost at ${p.name} in ${city}?`,
-              acceptedAnswer: { "@type": "Answer", text: `Pricing for ${faqTopic} at ${p.name} in ${city}, TX varies by treatment area and provider. Contact the clinic for a personalized quote.` },
-            },
-            {
-              "@type": "Question",
-              name: `How do I book an appointment with ${p.name}?`,
-              acceptedAnswer: { "@type": "Answer", text: `Use the contact form on this page, or visit ${p.name}'s website to schedule a consultation in ${city}, TX.` },
-            },
-          ],
-        }),
-      });
+      // FAQ structured data is emitted only from owner-supplied FAQs (rendered client-side),
+      // so no generic FAQPage block here.
+
     }
     return { meta, links: [{ rel: "canonical", href: canonical }], scripts };
   },
