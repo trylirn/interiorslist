@@ -150,6 +150,49 @@ function InfoEditor({ placeId, listing }: { placeId: string; listing: Listing })
       <div className="space-y-1.5"><Label>Practitioners</Label><Textarea rows={3} value={form.specialists} onChange={(e) => setForm({ ...form, specialists: e.target.value })} placeholder="Dr. Jane Doe, MD; Jamie Smith, APRN" /></div>
       <div className="space-y-1.5"><Label>Internal notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Operational notes — not displayed publicly" /></div>
 
+      <div className="space-y-3 rounded-2xl border border-border p-4">
+        <p className="font-display text-lg">Business details</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5"><Label>Year founded</Label><Input inputMode="numeric" value={form.founded_year} onChange={(e) => setForm({ ...form, founded_year: e.target.value.replace(/\D/g, "").slice(0, 4) })} placeholder="2015" /></div>
+          <div className="space-y-1.5"><Label>Years in business</Label><Input inputMode="numeric" value={form.years_in_business} onChange={(e) => setForm({ ...form, years_in_business: e.target.value.replace(/\D/g, "").slice(0, 3) })} placeholder="10" /></div>
+          <div className="space-y-1.5"><Label>Team size</Label><Input value={form.team_size} onChange={(e) => setForm({ ...form, team_size: e.target.value })} placeholder="e.g. 5–10 staff" maxLength={60} /></div>
+          <div className="space-y-1.5">
+            <Label>Serves clients</Label>
+            <Select value={form.service_area || undefined} onValueChange={(v) => setForm({ ...form, service_area: v })}>
+              <SelectTrigger><SelectValue placeholder="Select service area" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="local">Local area</SelectItem>
+                <SelectItem value="regional">Regional</SelectItem>
+                <SelectItem value="nationwide">Nationwide</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="space-y-1.5"><Label>Service area note</Label><Input value={form.service_area_note} onChange={(e) => setForm({ ...form, service_area_note: e.target.value })} placeholder="Serving Dallas–Fort Worth and North Texas" maxLength={500} /></div>
+        <div className="space-y-1.5"><Label>Credentials &amp; licenses</Label><Textarea rows={3} value={form.credentials} onChange={(e) => setForm({ ...form, credentials: e.target.value })} placeholder="Board-certified dermatologist, TX RN license #…" maxLength={2000} /></div>
+        <div className="space-y-1.5"><Label>Types of clients served</Label><Textarea rows={3} value={form.client_types} onChange={(e) => setForm({ ...form, client_types: e.target.value })} placeholder="First-time injectable patients, brides, post-partum skin care…" maxLength={2000} /></div>
+        <div className="space-y-1.5">
+          <Label>Not a good fit if…</Label>
+          <Textarea rows={3} value={form.not_a_fit} onChange={(e) => setForm({ ...form, not_a_fit: e.target.value })} placeholder="We're not the right fit if you're looking for surgical procedures or same-day walk-ins." maxLength={2000} />
+        </div>
+      </div>
+
+      <div className="space-y-3 rounded-2xl border border-border p-4">
+        <div className="flex items-center justify-between">
+          <p className="font-display text-lg">Pricing &amp; packages</p>
+          <Button type="button" size="sm" variant="outline" onClick={() => setPackages((ps) => (ps.length >= 20 ? ps : [...ps, { name: "", price: "", note: "" }]))}>Add package</Button>
+        </div>
+        {packages.length === 0 && <p className="text-sm text-muted-foreground">No packages yet.</p>}
+        {packages.map((pkg, i) => (
+          <div key={i} className="grid gap-2 sm:grid-cols-[1fr_140px_1fr_auto]">
+            <Input value={pkg.name} onChange={(e) => setPackages((ps) => ps.map((p, j) => (j === i ? { ...p, name: e.target.value } : p)))} placeholder="Package name" maxLength={120} />
+            <Input value={pkg.price} onChange={(e) => setPackages((ps) => ps.map((p, j) => (j === i ? { ...p, price: e.target.value } : p)))} placeholder="$350" maxLength={80} />
+            <Input value={pkg.note} onChange={(e) => setPackages((ps) => ps.map((p, j) => (j === i ? { ...p, note: e.target.value } : p)))} placeholder="What's included" maxLength={300} />
+            <Button type="button" variant="ghost" size="icon" aria-label="Remove package" onClick={() => setPackages((ps) => ps.filter((_, j) => j !== i))}><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        ))}
+      </div>
+
       <div className="space-y-2">
         <Label>Social media links</Label>
         <div className="grid gap-2 sm:grid-cols-2">
@@ -157,8 +200,11 @@ function InfoEditor({ placeId, listing }: { placeId: string; listing: Listing })
           <Input value={form.social_facebook} onChange={(e) => setForm({ ...form, social_facebook: e.target.value })} placeholder="Facebook URL" />
           <Input value={form.social_tiktok} onChange={(e) => setForm({ ...form, social_tiktok: e.target.value })} placeholder="TikTok URL" />
           <Input value={form.social_youtube} onChange={(e) => setForm({ ...form, social_youtube: e.target.value })} placeholder="YouTube URL" />
+          <Input value={form.social_linkedin} onChange={(e) => setForm({ ...form, social_linkedin: e.target.value })} placeholder="LinkedIn URL" />
+          <Input value={form.social_x} onChange={(e) => setForm({ ...form, social_x: e.target.value })} placeholder="X (Twitter) URL" />
         </div>
       </div>
+
 
       <div className="space-y-2">
         <Label>Services offered</Label>
