@@ -74,7 +74,6 @@ export const Route = createFileRoute("/api/public/track")({
             sessionRow.entry_path = b.entry_path ?? null;
             sessionRow.entry_method = b.entry_method ?? "direct";
             sessionRow.referrer = b.referrer ?? null;
-            sessionRow.user_agent = b.user_agent ?? null;
           }
           await admin.from("analytics_sessions").upsert(sessionRow, { onConflict: "id" });
 

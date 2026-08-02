@@ -214,3 +214,18 @@ export const getLicenseDocSignedUrl = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { url: signed.signedUrl };
   });
+
+export const purgeAnalytics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ confirm: z.literal("PURGE") }).parse(d))
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const events = await supabaseAdmin.from("analytics_events").delete().gt("id", 0);
+    if (events.error) throw new Error(events.error.message);
+    const sessions = await supabaseAdmin
+      .from("analytics_sessions")
+      .delete()
+      .gte("started_at", "1970-01-01T00:00:00Z");
+    if (sessions.error) throw new Error(sessions.error.message);
+    return { ok: true };
+  });
