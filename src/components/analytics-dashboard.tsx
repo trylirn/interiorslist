@@ -1,5 +1,9 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { purgeAnalytics } from "@/lib/admin.functions";
+import { setInternalTraffic } from "@/lib/analytics";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -15,7 +19,7 @@ import {
 } from "@/lib/analytics.functions";
 import {
   ArrowLeft, ArrowRight, Eye, MousePointerClick, Phone, Globe, MapPin,
-  Search as SearchIcon, Smartphone, Zap, X, Compass,
+  Search as SearchIcon, Smartphone, Zap, X, Compass, Trash2,
 } from "lucide-react";
 
 type Range = "today" | "yesterday" | "7d" | "30d" | "this_month" | "last_month";
