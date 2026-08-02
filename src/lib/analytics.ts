@@ -19,6 +19,43 @@ function isBrowser() {
   return typeof window !== "undefined" && typeof localStorage !== "undefined";
 }
 
+const OPT_OUT_KEY = "tx_no_track";
+const BOT_UA = /bot|crawl|spider|slurp|headless|phantom|puppeteer|playwright|lighthouse|pingdom|monitor|preview|scrape|curl|wget|python-requests|axios|node-fetch/i;
+
+/** Mark this browser as internal traffic (admins, team) so it is never tracked. */
+export function setInternalTraffic(on: boolean) {
+  if (!isBrowser()) return;
+  if (on) localStorage.setItem(OPT_OUT_KEY, "1");
+  else localStorage.removeItem(OPT_OUT_KEY);
+}
+
+/**
+ * Skip analytics for anything that is not a real public visitor:
+ * editor/preview iframes, Lovable preview hosts, localhost, bots, opted-out admins.
+ */
+export function trackingDisabled(): boolean {
+  if (!isBrowser()) return true;
+  try {
+    if (localStorage.getItem(OPT_OUT_KEY) === "1") return true;
+    if (window.self !== window.top) return true; // editor / preview iframe
+    const host = window.location.hostname;
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host.endsWith(".lovableproject.com") ||
+      host.endsWith(".lovable.dev") ||
+      host.startsWith("id-preview--") ||
+      host.endsWith("-dev.lovable.app")
+    ) return true;
+    if (window.location.search.includes("__lovable")) return true;
+    if (BOT_UA.test(navigator.userAgent)) return true;
+    if ((navigator as unknown as { webdriver?: boolean }).webdriver) return true;
+  } catch {
+    return true;
+  }
+  return false;
+}
+
 function getVisitorId(): string {
   if (!isBrowser()) return "";
   let v = localStorage.getItem(VISITOR_KEY);
@@ -83,6 +120,7 @@ function inferEntryMethod(path: string): "search" | "browse" | "direct" {
 function flush() {
   flushTimer = null;
   if (!isBrowser() || queue.length === 0) return;
+  if (trackingDisabled()) { queue = []; return; }
   const { id: sessionId, isNew } = getSessionId();
   const visitorId = getVisitorId();
   if (!sessionId || !visitorId) return;
@@ -96,7 +134,7 @@ function flush() {
     entry_path: isNew ? path : undefined,
     entry_method: isNew ? inferEntryMethod(window.location.pathname) : undefined,
     referrer: isNew ? document.referrer || undefined : undefined,
-    user_agent: isNew ? navigator.userAgent : undefined,
+    user_agent: navigator.userAgent.slice(0, 500),
     is_mobile: isMobile(),
     events: events.map((e) => ({ ...e, path: e.path ?? path })),
   });
@@ -119,7 +157,7 @@ function flush() {
 }
 
 function enqueue(e: EventInput) {
-  if (!isBrowser()) return;
+  if (!isBrowser() || trackingDisabled()) return;
   queue.push(e);
   scheduleFlush();
   if (queue.length >= 10) flush();
@@ -134,7 +172,7 @@ export function trackSearch(query: string, city_slug?: string) {
 }
 
 export function trackImpressions(placeIds: string[], city_slug?: string) {
-  if (!isBrowser() || placeIds.length === 0) return;
+  if (!isBrowser() || trackingDisabled() || placeIds.length === 0) return;
   const raw = sessionStorage.getItem(IMPRESSION_KEY) || "";
   const seen = new Set(raw ? raw.split(",") : []);
   const fresh = placeIds.filter((id) => id && !seen.has(id));
