@@ -1,10 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyListing, updateMyListing } from "@/lib/owner.functions";
-import { listProviderFaqs, upsertProviderFaq, deleteProviderFaq, getListingMetrics } from "@/lib/brand-extra.functions";
+import { getMyListing, updateMyListing, listMyLeads, listMyReviews, updateLeadStatus } from "@/lib/owner.functions";
+import { listProviderFaqs, upsertProviderFaq, deleteProviderFaq, getListingMetrics, respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { SERVICES } from "@/lib/cities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,32 +13,33 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import { Eye, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award } from "lucide-react";
+import { Eye, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_site/dashboard/listing/$placeId")({
-  head: () => ({ meta: [{ title: "Manage listing | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
-  component: ManageListing,
-});
-
-function ManageListing() {
-  const { placeId } = Route.useParams();
+export function ListingManager({ placeId, admin = false }: { placeId: string; admin?: boolean }) {
   const { data, isLoading } = useQuery({ queryKey: ["my-listing", placeId], queryFn: () => getMyListing({ data: { placeId } }) });
+  const backTo = admin ? "/admin" : "/dashboard";
 
   if (isLoading) return <div className="mx-auto max-w-3xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
   if (!data?.listing) return (
     <div className="mx-auto max-w-md py-24 text-center px-4">
       <h1 className="font-display text-3xl">Not found</h1>
-      <p className="mt-3 text-muted-foreground">This listing doesn't exist or isn't claimed by you.</p>
-      <Button asChild className="mt-6"><Link to="/dashboard">Back to dashboard</Link></Button>
+      <p className="mt-3 text-muted-foreground">This listing doesn't exist{admin ? "." : " or isn't claimed by you."}</p>
+      <Button asChild className="mt-6"><Link to={backTo}>Back</Link></Button>
     </div>
   );
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-brand">← Back to dashboard</Link>
-      <h1 className="mt-3 font-display text-4xl">{data.listing.name}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{data.listing.city}, TX</p>
+      <Link to={backTo} className="text-sm text-muted-foreground hover:text-brand">← Back to {admin ? "admin" : "dashboard"}</Link>
+      {admin && (
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-brand/40 bg-brand/5 px-4 py-2.5 text-sm">
+          <Shield className="h-4 w-4 text-brand" />
+          <span>Viewing as admin — changes save to the provider's live listing.</span>
+        </div>
+      )}
+      <h1 className="mt-3 font-display text-4xl">{(data.listing as Listing).name as string}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{(data.listing as Listing).city as string}, TX</p>
 
       <Tabs defaultValue="info" className="mt-8">
         <TabsList className="flex flex-wrap">
@@ -46,12 +47,16 @@ function ManageListing() {
           <TabsTrigger value="media">Media</TabsTrigger>
           <TabsTrigger value="docs">Certificates & files</TabsTrigger>
           <TabsTrigger value="faqs">FAQs</TabsTrigger>
+          <TabsTrigger value="leads">Leads</TabsTrigger>
+          <TabsTrigger value="reviews">Reviews</TabsTrigger>
           <TabsTrigger value="metrics">Metrics</TabsTrigger>
         </TabsList>
-        <TabsContent value="info" className="mt-6"><InfoEditor placeId={placeId} listing={data.listing} /></TabsContent>
+        <TabsContent value="info" className="mt-6"><InfoEditor placeId={placeId} listing={data.listing} backTo={backTo} /></TabsContent>
         <TabsContent value="media" className="mt-6"><MediaEditor placeId={placeId} listing={data.listing} /></TabsContent>
         <TabsContent value="docs" className="mt-6"><DocsEditor placeId={placeId} listing={data.listing} /></TabsContent>
         <TabsContent value="faqs" className="mt-6"><FaqEditor placeId={placeId} /></TabsContent>
+        <TabsContent value="leads" className="mt-6"><ListingLeads placeId={placeId} /></TabsContent>
+        <TabsContent value="reviews" className="mt-6"><ListingReviews placeId={placeId} /></TabsContent>
         <TabsContent value="metrics" className="mt-6"><MetricsPanel placeId={placeId} /></TabsContent>
       </Tabs>
     </div>
@@ -60,7 +65,7 @@ function ManageListing() {
 
 type Listing = Record<string, unknown>;
 
-function InfoEditor({ placeId, listing }: { placeId: string; listing: Listing }) {
+function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Listing; backTo: string }) {
   const navigate = useNavigate();
   const update = useServerFn(updateMyListing);
   const qc = useQueryClient();
@@ -128,7 +133,7 @@ function InfoEditor({ placeId, listing }: { placeId: string; listing: Listing })
       });
       toast.success("Listing updated");
       qc.invalidateQueries({ queryKey: ["my-listing", placeId] });
-      navigate({ to: "/dashboard" });
+      navigate({ to: backTo });
     } catch (err) { toast.error(err instanceof Error ? err.message : "Failed to save"); }
 
     finally { setSaving(false); }
@@ -462,6 +467,108 @@ function MetricsPanel({ placeId }: { placeId: string }) {
           <p className="mt-1 font-display text-3xl">{t.value}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+function ListingLeads({ placeId }: { placeId: string }) {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({ queryKey: ["listing-leads", placeId], queryFn: () => listMyLeads({ data: { placeId } }) });
+  const setStatusFn = useServerFn(updateLeadStatus);
+  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
+  const leads = data?.leads ?? [];
+  if (!leads.length) return <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No leads yet for this listing.</p>;
+  return (
+    <div className="space-y-3">
+      {leads.map((l) => (
+        <div key={l.id} className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="font-medium">{l.first_name} {l.last_name}</p>
+              <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{l.email}</span>
+                {l.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{l.phone}</span>}
+                <span>{new Date(l.created_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+            <Select
+              value={l.status}
+              onValueChange={async (v) => {
+                try {
+                  await setStatusFn({ data: { id: l.id, status: v as "new" | "contacted" | "closed" } });
+                  toast.success("Updated");
+                  qc.invalidateQueries({ queryKey: ["listing-leads", placeId] });
+                } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+              }}
+            >
+              <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="new">New</SelectItem>
+                <SelectItem value="contacted">Contacted</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <p className="mt-3 whitespace-pre-line text-sm">{l.message}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ListingReviews({ placeId }: { placeId: string }) {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({ queryKey: ["listing-reviews", placeId], queryFn: () => listMyReviews({ data: { placeId } }) });
+  const reviews = data?.reviews ?? [];
+  const ids = reviews.map((r) => r.id);
+  const { data: respData } = useQuery({
+    queryKey: ["listing-review-responses", placeId, ids.join(",")],
+    queryFn: () => listReviewResponses({ data: { reviewIds: ids } }),
+    enabled: ids.length > 0,
+  });
+  const respond = useServerFn(respondToReview);
+  const respMap = new Map((respData?.responses ?? []).map((r) => [r.review_id, r.body]));
+  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
+  if (!reviews.length) return <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No reviews yet for this listing.</p>;
+  return (
+    <div className="space-y-3">
+      {reviews.map((r) => (
+        <ListingReviewCard
+          key={r.id}
+          review={r}
+          existingResponse={respMap.get(r.id) ?? ""}
+          onSave={async (body) => {
+            try {
+              await respond({ data: { reviewId: r.id, body } });
+              toast.success("Response posted");
+              qc.invalidateQueries({ queryKey: ["listing-review-responses", placeId, ids.join(",")] });
+            } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ListingReviewCard({ review: r, existingResponse, onSave }: { review: { id: string; author_name: string | null; rating: number | null; text: string | null }; existingResponse: string; onSave: (body: string) => Promise<void> }) {
+  const [body, setBody] = useState(existingResponse);
+  const [busy, setBusy] = useState(false);
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-center gap-3">
+        <p className="font-medium">{r.author_name ?? "Anonymous"}</p>
+        <span className="flex items-center gap-0.5 text-amber-500">
+          {Array.from({ length: r.rating ?? 0 }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-current" />)}
+        </span>
+      </div>
+      {r.text && <p className="mt-3 text-sm">{r.text}</p>}
+      <div className="mt-4 border-t border-border pt-4">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Response</p>
+        <Textarea className="mt-2 min-h-20" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Thanks for your feedback…" maxLength={2000} />
+        <Button size="sm" className="mt-2" disabled={busy || body.trim().length < 2} onClick={async () => { setBusy(true); await onSave(body.trim()); setBusy(false); }}>
+          {busy ? "Saving…" : existingResponse ? "Update response" : "Post response"}
+        </Button>
+      </div>
     </div>
   );
 }
