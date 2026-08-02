@@ -2,6 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+async function callerIsAdmin(supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }> }, userId: string) {
+  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+  return data === true;
+}
+
 
 
 export const listMyListings = createServerFn({ method: "GET" })
@@ -22,14 +27,12 @@ export const getMyListing = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase
-      .from("providers")
-      .select("*")
-      .eq("place_id", data.placeId)
-      .eq("claimed_by", userId)
-      .maybeSingle();
+    const admin = await callerIsAdmin(supabase as never, userId);
+    let query = supabase.from("providers").select("*").eq("place_id", data.placeId);
+    if (!admin) query = query.eq("claimed_by", userId);
+    const { data: row, error } = await query.maybeSingle();
     if (error) throw new Error(error.message);
-    return { listing: row };
+    return { listing: row, asAdmin: admin };
   });
 
 export const updateMyListing = createServerFn({ method: "POST" })
@@ -73,11 +76,10 @@ export const updateMyListing = createServerFn({ method: "POST" })
       ...rest,
       ...(email_forward_to !== undefined ? { email_forward_to: email_forward_to === "" ? null : email_forward_to } : {}),
     };
-    const { error } = await supabase
-      .from("providers")
-      .update(patch)
-      .eq("place_id", placeId)
-      .eq("claimed_by", userId);
+    const admin = await callerIsAdmin(supabase as never, userId);
+    let query = supabase.from("providers").update(patch).eq("place_id", placeId);
+    if (!admin) query = query.eq("claimed_by", userId);
+    const { error } = await query;
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -85,11 +87,14 @@ export const updateMyListing = createServerFn({ method: "POST" })
 
 export const listMyLeads = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200).optional() }).optional().parse(d))
+  .handler(async ({ data: input, context }) => {
     const { supabase } = context;
-    const { data, error } = await supabase
+    let q = supabase
       .from("contact_messages")
-      .select("id, provider_place_id, first_name, last_name, email, phone, message, status, created_at")
+      .select("id, provider_place_id, first_name, last_name, email, phone, message, status, created_at");
+    if (input?.placeId) q = q.eq("provider_place_id", input.placeId);
+    const { data, error } = await q
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
@@ -116,8 +121,20 @@ export const updateLeadStatus = createServerFn({ method: "POST" })
 
 export const listMyReviews = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200).optional() }).optional().parse(d))
+  .handler(async ({ data: input, context }) => {
     const { supabase, userId } = context;
+    if (input?.placeId) {
+      const { data: one } = await supabase.from("providers").select("place_id, name").eq("place_id", input.placeId).maybeSingle();
+      const { data: rows, error: err } = await supabase
+        .from("reviews")
+        .select("id, provider_place_id, author_name, rating, text, published_at")
+        .eq("provider_place_id", input.placeId)
+        .order("published_at", { ascending: false })
+        .limit(200);
+      if (err) throw new Error(err.message);
+      return { reviews: (rows ?? []).map((r) => ({ ...r, providerName: one?.name ?? "" })) };
+    }
     // Fetch owned place_ids first (RLS-scoped via owner UPDATE policy still allows SELECT through public read).
     const { data: mine } = await supabase
       .from("providers")
