@@ -121,15 +121,42 @@ function HBarList({ rows, color = BAR_COLORS.brand, max: maxOverride, emptyLabel
 
 export function AnalyticsDashboard() {
   const [range, setRange] = useState<Range>("7d");
+  const purge = useServerFn(purgeAnalytics);
+  const [purging, setPurging] = useState(false);
+  const qc = useQueryClient();
+
+  // Admins never count as visitors — mark this browser as internal.
+  useEffect(() => { setInternalTraffic(true); }, []);
+
+  async function runPurge() {
+    if (!window.confirm("Delete ALL recorded analytics sessions and events? This cannot be undone.")) return;
+    setPurging(true);
+    try {
+      await purge({ data: { confirm: "PURGE" } });
+      toast.success("Analytics data cleared");
+      qc.invalidateQueries();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to clear analytics");
+    } finally { setPurging(false); }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-2xl">Analytics</h2>
-          <p className="text-sm text-muted-foreground">User behavior across the directory.</p>
+          <p className="text-sm text-muted-foreground">
+            Real public visitors only — editor previews, bots and admin sessions are excluded.
+          </p>
         </div>
-        <RangePicker value={range} onChange={setRange} />
+        <div className="flex flex-wrap items-center gap-2">
+          <RangePicker value={range} onChange={setRange} />
+          <Button size="sm" variant="outline" onClick={runPurge} disabled={purging}>
+            <Trash2 className="mr-2 h-3.5 w-3.5" />{purging ? "Clearing…" : "Clear test data"}
+          </Button>
+        </div>
       </div>
+
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
