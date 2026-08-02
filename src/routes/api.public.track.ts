@@ -23,11 +23,25 @@ const BodySchema = z.object({
   events: z.array(EventSchema).max(50),
 });
 
+const BOT_UA = /bot|crawl|spider|slurp|headless|phantom|puppeteer|playwright|lighthouse|pingdom|monitor|scrape|curl|wget|python-requests|axios|node-fetch/i;
+const INTERNAL_HOST = /(lovableproject\.com|lovable\.dev|^https?:\/\/localhost|id-preview--|-dev\.lovable\.app)/i;
+
+function isInternalOrBot(request: Request): boolean {
+  const ua = request.headers.get("user-agent") ?? "";
+  if (!ua || BOT_UA.test(ua)) return true;
+  const origin = request.headers.get("origin") ?? "";
+  const referer = request.headers.get("referer") ?? "";
+  if (INTERNAL_HOST.test(origin) || INTERNAL_HOST.test(referer)) return true;
+  return false;
+}
+
 export const Route = createFileRoute("/api/public/track")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         try {
+          // Drop editor/preview and bot traffic before it ever reaches the tables.
+          if (isInternalOrBot(request)) return new Response(null, { status: 204 });
           let body: unknown;
           try {
             body = await request.json();
@@ -53,6 +67,7 @@ export const Route = createFileRoute("/api/public/track")({
             visitor_id: b.visitor_id,
             last_seen_at: new Date().toISOString(),
             is_mobile: !!b.is_mobile,
+            user_agent: b.user_agent ?? request.headers.get("user-agent")?.slice(0, 500) ?? null,
           };
           if (b.session_new) {
             sessionRow.started_at = new Date().toISOString();
