@@ -3,7 +3,18 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
+async function isAdminUser(userId: string) {
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  return !!data;
+}
+
 async function ownsProvider(userId: string, placeId: string) {
+  if (await isAdminUser(userId)) return true;
   const { data } = await supabaseAdmin
     .from("providers")
     .select("place_id")

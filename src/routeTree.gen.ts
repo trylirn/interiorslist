@@ -38,6 +38,7 @@ import { Route as SiteTreatmentSlugRouteImport } from './routes/_site.treatment.
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
+import { Route as SiteAdminProviderPlaceIdRouteImport } from './routes/_site.admin.provider.$placeId'
 import { Route as SiteDashboardListingPlaceIdRouteImport } from './routes/_site.dashboard.listing.$placeId'
 
 const SiteRoute = SiteRouteImport.update({
@@ -185,6 +186,12 @@ const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   path: '/api/public/track',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SiteAdminProviderPlaceIdRoute =
+  SiteAdminProviderPlaceIdRouteImport.update({
+    id: '/provider/$placeId',
+    path: '/provider/$placeId',
+    getParentRoute: () => SiteAdminRoute,
+  } as any)
 const SiteDashboardListingPlaceIdRoute =
   SiteDashboardListingPlaceIdRouteImport.update({
     id: '/listing/$placeId',
@@ -221,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
 export interface FileRoutesByTo {
@@ -252,6 +260,7 @@ export interface FileRoutesByTo {
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
 export interface FileRoutesById {
@@ -285,6 +294,7 @@ export interface FileRoutesById {
   '/_site/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/_site/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
 export interface FileRouteTypes {
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/tx/$city'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
+    | '/admin/provider/$placeId'
     | '/dashboard/listing/$placeId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -349,6 +360,7 @@ export interface FileRouteTypes {
     | '/tx/$city'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
+    | '/admin/provider/$placeId'
     | '/dashboard/listing/$placeId'
   id:
     | '__root__'
@@ -381,6 +393,7 @@ export interface FileRouteTypes {
     | '/_site/tx/$city'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
+    | '/_site/admin/provider/$placeId'
     | '/_site/dashboard/listing/$placeId'
   fileRoutesById: FileRoutesById
 }
@@ -596,6 +609,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_site/admin/provider/$placeId': {
+      id: '/_site/admin/provider/$placeId'
+      path: '/provider/$placeId'
+      fullPath: '/admin/provider/$placeId'
+      preLoaderRoute: typeof SiteAdminProviderPlaceIdRouteImport
+      parentRoute: typeof SiteAdminRoute
+    }
     '/_site/dashboard/listing/$placeId': {
       id: '/_site/dashboard/listing/$placeId'
       path: '/listing/$placeId'
@@ -608,10 +628,12 @@ declare module '@tanstack/react-router' {
 
 interface SiteAdminRouteChildren {
   SiteAdminArticlesRoute: typeof SiteAdminArticlesRoute
+  SiteAdminProviderPlaceIdRoute: typeof SiteAdminProviderPlaceIdRoute
 }
 
 const SiteAdminRouteChildren: SiteAdminRouteChildren = {
   SiteAdminArticlesRoute: SiteAdminArticlesRoute,
+  SiteAdminProviderPlaceIdRoute: SiteAdminProviderPlaceIdRoute,
 }
 
 const SiteAdminRouteWithChildren = SiteAdminRoute._addFileChildren(
@@ -695,13 +717,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

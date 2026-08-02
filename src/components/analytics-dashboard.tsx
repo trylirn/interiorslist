@@ -1,5 +1,9 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { purgeAnalytics } from "@/lib/admin.functions";
+import { setInternalTraffic } from "@/lib/analytics";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -15,7 +19,7 @@ import {
 } from "@/lib/analytics.functions";
 import {
   ArrowLeft, ArrowRight, Eye, MousePointerClick, Phone, Globe, MapPin,
-  Search as SearchIcon, Smartphone, Zap, X, Compass,
+  Search as SearchIcon, Smartphone, Zap, X, Compass, Trash2,
 } from "lucide-react";
 
 type Range = "today" | "yesterday" | "7d" | "30d" | "this_month" | "last_month";
@@ -121,15 +125,42 @@ function HBarList({ rows, color = BAR_COLORS.brand, max: maxOverride, emptyLabel
 
 export function AnalyticsDashboard() {
   const [range, setRange] = useState<Range>("7d");
+  const purge = useServerFn(purgeAnalytics);
+  const [purging, setPurging] = useState(false);
+  const qc = useQueryClient();
+
+  // Admins never count as visitors — mark this browser as internal.
+  useEffect(() => { setInternalTraffic(true); }, []);
+
+  async function runPurge() {
+    if (!window.confirm("Delete ALL recorded analytics sessions and events? This cannot be undone.")) return;
+    setPurging(true);
+    try {
+      await purge({ data: { confirm: "PURGE" } });
+      toast.success("Analytics data cleared");
+      qc.invalidateQueries();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to clear analytics");
+    } finally { setPurging(false); }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-2xl">Analytics</h2>
-          <p className="text-sm text-muted-foreground">User behavior across the directory.</p>
+          <p className="text-sm text-muted-foreground">
+            Real public visitors only — editor previews, bots and admin sessions are excluded.
+          </p>
         </div>
-        <RangePicker value={range} onChange={setRange} />
+        <div className="flex flex-wrap items-center gap-2">
+          <RangePicker value={range} onChange={setRange} />
+          <Button size="sm" variant="outline" onClick={runPurge} disabled={purging}>
+            <Trash2 className="mr-2 h-3.5 w-3.5" />{purging ? "Clearing…" : "Clear test data"}
+          </Button>
+        </div>
       </div>
+
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>

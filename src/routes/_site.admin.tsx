@@ -227,10 +227,10 @@ function ListingsTab() {
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <tr><th className="p-2">Name</th><th>City</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Featured</th></tr>
+            <tr><th className="p-2">Name</th><th>City</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Featured</th><th>Dashboard</th></tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
+            {isLoading && <tr><td colSpan={7} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
             {data?.providers.map((p) => (
               <tr key={p.place_id} className="border-t border-border">
                 <td className="p-2"><Link to="/provider/$slug" params={{ slug: p.slug }} className="hover:text-brand">{p.name}</Link></td>
@@ -239,6 +239,11 @@ function ListingsTab() {
                 <td><Switch checked={p.is_verified} onCheckedChange={(v) => flip(p.place_id, "is_verified", v)} /></td>
                 <td><Switch checked={p.published} onCheckedChange={(v) => flip(p.place_id, "published", v)} /></td>
                 <td><Switch checked={p.featured} onCheckedChange={(v) => flip(p.place_id, "featured", v)} /></td>
+                <td>
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/admin/provider/$placeId" params={{ placeId: p.place_id }}>Open</Link>
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
