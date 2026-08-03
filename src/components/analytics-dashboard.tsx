@@ -267,17 +267,7 @@ function OverviewPanel({ range }: { range: Range }) {
       </div>
 
       <ChartCard title="Activity Over Time" subtitle="Impressions, clicks and leads by day">
-        <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={data.timeseries} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <XAxis dataKey="day" tick={{ fontSize: 11 }} tickLine={false} axisLine={{ stroke: "hsl(var(--border))" }} />
-            <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={30} />
-            <ChartTooltip />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="impressions" stroke={BAR_COLORS.violet} dot={false} strokeWidth={2} />
-            <Line type="monotone" dataKey="clicks" stroke={BAR_COLORS.brand} dot={false} strokeWidth={2} />
-            <Line type="monotone" dataKey="leads" stroke={BAR_COLORS.emerald} dot={false} strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
+        <TimeseriesChart data={data.timeseries} height={240} />
       </ChartCard>
 
       <div className="rounded-2xl border border-border bg-card">
