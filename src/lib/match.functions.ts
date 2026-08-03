@@ -51,14 +51,17 @@ export const getMatches = createServerFn({ method: "POST" })
     let q = supabaseAdmin
       .from("providers")
       .select(
-        "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, badges",
+        "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, badges, price_ranges, rating, review_count",
       );
     if (data.citySlug && data.citySlug !== "any") q = q.eq("city_slug", data.citySlug);
     const { data: rows, error } = await q.limit(200);
     if (error) throw new Error(error.message);
 
+    const prefs = new Set(data.preferences ?? []);
+    const budget = data.budget && BUDGET_ORDER.includes(data.budget as any) ? data.budget : undefined;
+
     const scored = (rows ?? [])
-      .map((p) => {
+      .map((p: any) => {
         let score = 0;
         const services = (p.services ?? []) as string[];
         for (const s of services) if (wantedServices.has(s)) score += 25;
@@ -66,10 +69,28 @@ export const getMatches = createServerFn({ method: "POST" })
         for (const kw of wantedKeywords) if (kw && blob.includes(kw)) score += 8;
         if (p.is_verified) score += 5;
         if (p.brand_id) score += 3;
+
+        // Budget fit — providers that published pricing in the requested tier rank higher
+        if (budget && budget !== "flexible") {
+          const pr = p.price_ranges;
+          const tier = pr && typeof pr === "object" ? String(pr.tier ?? "").toLowerCase() : "";
+          if (tier && tier === budget) score += 12;
+          else if (tier) score -= 4;
+          else if (pr) score += 2;
+        }
+
+        // Preferences
+        if (prefs.has("verified-only") && p.is_verified) score += 10;
+        if (prefs.has("highly-rated") && (p.rating ?? 0) >= 4.5) score += 10;
+        if (prefs.has("well-reviewed") && (p.review_count ?? 0) >= 50) score += 8;
+        if (prefs.has("boutique") && !p.brand_id) score += 6;
+        if (prefs.has("medical-director") && `${p.specialists ?? ""}`.toLowerCase().match(/\b(md|do|physician|dermatolog)/)) score += 8;
+
         return { ...p, score };
       })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 8);
+      .filter((p: any) => !(prefs.has("verified-only") && !p.is_verified))
+      .sort((a: any, b: any) => b.score - a.score)
+      .slice(0, 9);
 
     const max = scored[0]?.score || 1;
     const matches = scored.map((m) => ({
