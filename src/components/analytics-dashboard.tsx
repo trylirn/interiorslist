@@ -670,33 +670,33 @@ function ProvidersPanel({ range }: { range: Range }) {
 function ProvidersTable({ rows, onRowClick, emptyLabel = "No provider data yet." }: { rows: any[]; onRowClick?: (p: any) => void; emptyLabel?: string }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[720px] text-sm">
-        <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-          <tr>
-            <th className="p-3">Provider</th>
-            <th className="p-3">City</th>
-            <th className="p-3 text-right">Impressions</th>
-            <th className="p-3 text-right">Clicks</th>
-            <th className="p-3 text-right">CTR</th>
-            <th className="p-3 text-right">Leads</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table className="min-w-[720px]">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Provider</TableHead>
+            <TableHead>City</TableHead>
+            <TableHead className="text-right">Impressions</TableHead>
+            <TableHead className="text-right">Clicks</TableHead>
+            <TableHead className="text-right">CTR</TableHead>
+            <TableHead className="text-right">Leads</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {rows.map((p) => (
-            <tr key={p.place_id} onClick={() => onRowClick?.(p)} className={`border-t border-border ${onRowClick ? "cursor-pointer hover:bg-secondary/40" : ""}`}>
-              <td className="p-3 font-medium">{p.name}</td>
-              <td className="p-3">{p.city}</td>
-              <td className="p-3 text-right">{num(p.impressions)}</td>
-              <td className="p-3 text-right">{num(p.clicks)}</td>
-              <td className="p-3 text-right">{pct(p.ctr ?? 0)}</td>
-              <td className="p-3 text-right">{num(p.leads)}</td>
-            </tr>
+            <TableRow key={p.place_id} onClick={() => onRowClick?.(p)} className={onRowClick ? "cursor-pointer" : ""}>
+              <TableCell className="font-medium">{p.name}</TableCell>
+              <TableCell>{p.city}</TableCell>
+              <TableCell className="text-right">{num(p.impressions)}</TableCell>
+              <TableCell className="text-right">{num(p.clicks)}</TableCell>
+              <TableCell className="text-right">{pct(p.ctr ?? 0)}</TableCell>
+              <TableCell className="text-right">{num(p.leads)}</TableCell>
+            </TableRow>
           ))}
           {rows.length === 0 && (
-            <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{emptyLabel}</td></tr>
+            <TableRow><TableCell colSpan={6} className="p-8 text-center text-muted-foreground">{emptyLabel}</TableCell></TableRow>
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
