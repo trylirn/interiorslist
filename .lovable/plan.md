@@ -36,3 +36,16 @@ Replace it with a single **"My dashboard"** entry in the admin console that open
 - New route `src/routes/_site.admin.demo.tsx` renders the existing `ListingManager` against the demo listing, `noindex`, admin-guarded.
 - Migration/seed: one `providers` row with `published=false`, `place_id='demo-admin-listing'`, `claimed_by` set to the admin user; all public provider queries already filter `published`, and the sitemap/search/match queries get an explicit exclusion of this place_id.
 - Delete `src/routes/_site.admin.provider.$placeId.tsx`; the admin-aware branches in `owner.functions.ts` / `brand-extra.functions.ts` stay (harmless and needed for the admin-owned demo row).
+
+## 3. Admin analytics rebuilt on shadcn/ui + Recharts
+
+The analytics dashboard mixes hand-rolled divs (custom `HBarList` bars, plain cards, custom range buttons) with Recharts. Standardise it:
+
+- All panels use shadcn `Card`/`CardHeader`/`CardContent`, `Tabs`, `Table`, `Badge`, `Select`, `Input`, and `Skeleton` for loading states — no ad-hoc div cards.
+- All charts use Recharts wrapped in the shadcn `ChartContainer`/`ChartTooltip`/`ChartLegend` pattern with a shared chart config, so colors come from design tokens rather than hardcoded hex.
+- Replace `HBarList` with a Recharts horizontal `BarChart` (vertical layout) keeping the same info: label, value, and sub-metrics.
+- Time series stays an `AreaChart`, discovery mix stays a donut `PieChart`, both moved onto `ChartContainer`.
+- Range picker becomes a shadcn `Select`/`ToggleGroup`; city and provider tables become shadcn `Table` with the existing search inputs.
+- Same data, same metrics — presentation layer only.
+
+Technical note: adds `src/components/ui/chart.tsx` (shadcn chart primitives) if not present, and rewrites `src/components/analytics-dashboard.tsx` around it.
