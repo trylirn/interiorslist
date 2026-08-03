@@ -79,6 +79,7 @@ function AdminPage() {
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="maps">Maps</TabsTrigger>
+          <TabsTrigger value="mine">My dashboard</TabsTrigger>
         </TabsList>
         <TabsContent value="analytics" className="mt-6"><AnalyticsDashboard /></TabsContent>
         <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
@@ -86,6 +87,17 @@ function AdminPage() {
         <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
         <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
         <TabsContent value="maps" className="mt-6"><MapsTab /></TabsContent>
+        <TabsContent value="mine" className="mt-6">
+          <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
+            <p className="font-medium">Your own provider dashboard (sandbox)</p>
+            <p className="mt-1 text-muted-foreground">
+              A private demo listing that behaves exactly like a real provider account — edit anything here to explore the provider experience. It is never published to the directory.
+            </p>
+            <Button asChild size="sm" className="mt-3">
+              <Link to="/admin/provider/$placeId" params={{ placeId: "demo-admin-listing" }}>Open my dashboard</Link>
+            </Button>
+          </div>
+        </TabsContent>
       </Tabs>
       <p className="mt-6 text-xs text-muted-foreground">
         <Link to="/admin/articles" className="text-brand underline">Scrape provider articles →</Link>
