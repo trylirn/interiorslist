@@ -88,6 +88,15 @@
   /* Gold for stars */
   --rating: oklch(0.78 0.14 80);
 
+  /* Chart palette */
+  --chart-1: oklch(0.42 0.075 155);
+  --chart-2: oklch(0.55 0.10 230);
+  --chart-3: oklch(0.72 0.14 75);
+  --chart-4: oklch(0.60 0.11 160);
+  --chart-5: oklch(0.52 0.14 300);
+
+
+
   --sidebar: oklch(0.965 0.014 90);
   --sidebar-foreground: oklch(0.20 0.02 60);
   --sidebar-primary: oklch(0.32 0.055 155);
