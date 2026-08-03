@@ -100,44 +100,51 @@ function StatCard({ label, value, sub, icon }: { label: string; value: React.Rea
 function pct(n: number) { return `${(n * 100).toFixed(1)}%`; }
 function num(n: number) { return n.toLocaleString(); }
 
-// ---------- Horizontal bar list ----------
+// ---------- Horizontal bar list (Recharts) ----------
 
 type HBarRow = { key: string; label: string; sub?: string; value: number; onClick?: () => void };
 
-function HBarList({ rows, color = BAR_COLORS.brand, max: maxOverride, emptyLabel = "No data yet." }: {
+function HBarList({ rows, color = BAR_COLORS.brand, emptyLabel = "No data yet." }: {
   rows: HBarRow[];
   color?: string;
   max?: number;
   emptyLabel?: string;
 }) {
   if (rows.length === 0) return <p className="py-6 text-center text-sm text-muted-foreground">{emptyLabel}</p>;
-  const max = Math.max(1, maxOverride ?? Math.max(...rows.map((r) => r.value)));
+  const config: ChartConfig = { value: { label: "Value", color } };
+  const height = Math.max(140, rows.length * 38);
   return (
-    <ul className="space-y-3">
-      {rows.map((r) => {
-        const pctW = Math.max(2, (r.value / max) * 100);
-        const isMuted = r.value === 0;
-        return (
-          <li
-            key={r.key}
-            onClick={r.onClick}
-            className={`group ${r.onClick ? "cursor-pointer" : ""}`}
-          >
-            <div className="flex items-baseline justify-between gap-3">
-              <p className={`truncate text-sm font-semibold ${isMuted ? "text-muted-foreground" : "text-foreground"} ${r.onClick ? "group-hover:text-brand" : ""}`}>{r.label}</p>
-              {r.sub && <p className="shrink-0 text-xs text-muted-foreground">{r.sub}</p>}
-            </div>
-            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-secondary/60">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${pctW}%`, backgroundColor: isMuted ? "hsl(var(--muted-foreground) / 0.25)" : color }}
-              />
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+    <ChartContainer config={config} className="aspect-auto w-full" style={{ height }}>
+      <BarChart data={rows} layout="vertical" margin={{ left: 4, right: 40, top: 4, bottom: 4 }}>
+        <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+        <XAxis type="number" hide />
+        <YAxis
+          type="category"
+          dataKey="label"
+          width={150}
+          tickLine={false}
+          axisLine={false}
+          tick={{ fontSize: 12 }}
+        />
+        <ChartTooltip
+          cursor={false}
+          content={<ChartTooltipContent hideLabel formatter={(v, _n, item: any) => (
+            <span className="text-xs">{num(Number(v))}{item?.payload?.sub ? ` · ${item.payload.sub}` : ""}</span>
+          )} />}
+        />
+        <Bar
+          dataKey="value"
+          fill={color}
+          radius={4}
+          onClick={(d: any) => d?.payload?.onClick?.()}
+          className={rows.some((r) => r.onClick) ? "cursor-pointer" : ""}
+        >
+          <LabelList dataKey="value" position="right" className="fill-muted-foreground" fontSize={11} formatter={(v: number) => num(v)} />
+        </Bar>
+      </BarChart>
+    </ChartContainer>
   );
+
 }
 
 // ---------- Dashboard shell ----------
