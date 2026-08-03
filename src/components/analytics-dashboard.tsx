@@ -7,11 +7,20 @@ import { setInternalTraffic } from "@/lib/analytics";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
-  XAxis, YAxis, Tooltip as ChartTooltip, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, Legend,
+  XAxis, YAxis, CartesianGrid, AreaChart, Area, BarChart, Bar, Cell,
+  PieChart, Pie, LabelList,
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   getOverview, getLiveFeed, getCityAnalytics, getCityDetail,
@@ -33,17 +42,27 @@ const RANGE_LABELS: { value: Range; label: string }[] = [
   { value: "last_month", label: "Last Month" },
 ];
 
-const PIE_COLORS = ["hsl(var(--brand))", "#f59e0b", "#10b981", "#8b5cf6", "#ef4444"];
+const PALETTE = [
+  "var(--chart-1)", "var(--chart-2)", "var(--chart-3)",
+  "var(--chart-4)", "var(--chart-5)",
+];
+const PIE_COLORS = PALETTE;
 
 // Bar colors per section — semantic hues that stay legible in both themes.
 const BAR_COLORS = {
-  brand: "hsl(var(--brand))",
-  sky: "#0284c7",
-  amber: "#d97706",
-  emerald: "#059669",
-  violet: "#7c3aed",
-  olive: "#a3a534",
+  brand: "var(--chart-1)",
+  sky: "var(--chart-2)",
+  amber: "var(--chart-3)",
+  emerald: "var(--chart-4)",
+  violet: "var(--chart-5)",
+  olive: "var(--chart-2)",
 } as const;
+
+const SERIES_CONFIG = {
+  impressions: { label: "Impressions", color: "var(--chart-5)" },
+  clicks: { label: "Clicks", color: "var(--chart-1)" },
+  leads: { label: "Leads", color: "var(--chart-4)" },
+} satisfies ChartConfig;
 
 function RangePicker({ value, onChange }: { value: Range; onChange: (r: Range) => void }) {
   return (
@@ -81,44 +100,51 @@ function StatCard({ label, value, sub, icon }: { label: string; value: React.Rea
 function pct(n: number) { return `${(n * 100).toFixed(1)}%`; }
 function num(n: number) { return n.toLocaleString(); }
 
-// ---------- Horizontal bar list ----------
+// ---------- Horizontal bar list (Recharts) ----------
 
 type HBarRow = { key: string; label: string; sub?: string; value: number; onClick?: () => void };
 
-function HBarList({ rows, color = BAR_COLORS.brand, max: maxOverride, emptyLabel = "No data yet." }: {
+function HBarList({ rows, color = BAR_COLORS.brand, emptyLabel = "No data yet." }: {
   rows: HBarRow[];
   color?: string;
   max?: number;
   emptyLabel?: string;
 }) {
   if (rows.length === 0) return <p className="py-6 text-center text-sm text-muted-foreground">{emptyLabel}</p>;
-  const max = Math.max(1, maxOverride ?? Math.max(...rows.map((r) => r.value)));
+  const config: ChartConfig = { value: { label: "Value", color } };
+  const height = Math.max(140, rows.length * 38);
   return (
-    <ul className="space-y-3">
-      {rows.map((r) => {
-        const pctW = Math.max(2, (r.value / max) * 100);
-        const isMuted = r.value === 0;
-        return (
-          <li
-            key={r.key}
-            onClick={r.onClick}
-            className={`group ${r.onClick ? "cursor-pointer" : ""}`}
-          >
-            <div className="flex items-baseline justify-between gap-3">
-              <p className={`truncate text-sm font-semibold ${isMuted ? "text-muted-foreground" : "text-foreground"} ${r.onClick ? "group-hover:text-brand" : ""}`}>{r.label}</p>
-              {r.sub && <p className="shrink-0 text-xs text-muted-foreground">{r.sub}</p>}
-            </div>
-            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-secondary/60">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${pctW}%`, backgroundColor: isMuted ? "hsl(var(--muted-foreground) / 0.25)" : color }}
-              />
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+    <ChartContainer config={config} className="aspect-auto w-full" style={{ height }}>
+      <BarChart data={rows} layout="vertical" margin={{ left: 4, right: 40, top: 4, bottom: 4 }}>
+        <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+        <XAxis type="number" hide />
+        <YAxis
+          type="category"
+          dataKey="label"
+          width={150}
+          tickLine={false}
+          axisLine={false}
+          tick={{ fontSize: 12 }}
+        />
+        <ChartTooltip
+          cursor={false}
+          content={<ChartTooltipContent hideLabel formatter={(v, _n, item: any) => (
+            <span className="text-xs">{num(Number(v))}{item?.payload?.sub ? ` · ${item.payload.sub}` : ""}</span>
+          )} />}
+        />
+        <Bar
+          dataKey="value"
+          fill={color}
+          radius={4}
+          onClick={(d: any) => d?.payload?.onClick?.()}
+          className={rows.some((r) => r.onClick) ? "cursor-pointer" : ""}
+        >
+          <LabelList dataKey="value" position="right" className="fill-muted-foreground" fontSize={11} formatter={(v: number) => num(v)} />
+        </Bar>
+      </BarChart>
+    </ChartContainer>
   );
+
 }
 
 // ---------- Dashboard shell ----------
@@ -258,17 +284,7 @@ function OverviewPanel({ range }: { range: Range }) {
       </div>
 
       <ChartCard title="Activity Over Time" subtitle="Impressions, clicks and leads by day">
-        <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={data.timeseries} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <XAxis dataKey="day" tick={{ fontSize: 11 }} tickLine={false} axisLine={{ stroke: "hsl(var(--border))" }} />
-            <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={30} />
-            <ChartTooltip />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="impressions" stroke={BAR_COLORS.violet} dot={false} strokeWidth={2} />
-            <Line type="monotone" dataKey="clicks" stroke={BAR_COLORS.brand} dot={false} strokeWidth={2} />
-            <Line type="monotone" dataKey="leads" stroke={BAR_COLORS.emerald} dot={false} strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
+        <TimeseriesChart data={data.timeseries} height={240} />
       </ChartCard>
 
       <div className="rounded-2xl border border-border bg-card">
@@ -391,34 +407,63 @@ function prettifyCity(slug: string) {
 
 function ChartCard({ title, subtitle, children, action }: { title: string; subtitle?: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="mb-4 flex items-start justify-between gap-3">
+    <Card className="rounded-2xl">
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
         <div>
-          <h3 className="font-display text-lg">{title}</h3>
-          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+          <CardTitle className="font-display text-lg font-normal">{title}</CardTitle>
+          {subtitle && <CardDescription className="text-xs">{subtitle}</CardDescription>}
         </div>
         {action}
-      </div>
-      {children}
-    </div>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}
+
+function TimeseriesChart({ data, height = 240, legend = true }: { data: any[]; height?: number; legend?: boolean }) {
+  return (
+    <ChartContainer config={SERIES_CONFIG} className="aspect-auto w-full" style={{ height }}>
+      <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <defs>
+          {(["impressions", "clicks", "leads"] as const).map((k) => (
+            <linearGradient key={k} id={`fill-${k}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={`var(--color-${k})`} stopOpacity={0.35} />
+              <stop offset="95%" stopColor={`var(--color-${k})`} stopOpacity={0.02} />
+            </linearGradient>
+          ))}
+        </defs>
+        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
+        <YAxis tickLine={false} axisLine={false} width={32} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+        {legend && <ChartLegend content={<ChartLegendContent />} />}
+        {(["impressions", "clicks", "leads"] as const).map((k) => (
+          <Area key={k} type="monotone" dataKey={k} stroke={`var(--color-${k})`} fill={`url(#fill-${k})`} strokeWidth={2} />
+        ))}
+      </AreaChart>
+    </ChartContainer>
   );
 }
 
 function DonutChart({ data }: { data: { name: string; value: number }[] }) {
   const total = data.reduce((s, d) => s + d.value, 0);
   if (total === 0) return <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">No data</div>;
+  const config: ChartConfig = Object.fromEntries(
+    data.map((d, i) => [d.name, { label: d.name, color: PALETTE[i % PALETTE.length] }]),
+  );
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ChartContainer config={config} className="aspect-auto w-full" style={{ height: 220 }}>
       <PieChart>
+        <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
         <Pie data={data} dataKey="value" nameKey="name" innerRadius={55} outerRadius={85} paddingAngle={2}>
-          {data.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+          {data.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} />)}
         </Pie>
-        <ChartTooltip />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
+        <ChartLegend content={<ChartLegendContent nameKey="name" />} />
       </PieChart>
-    </ResponsiveContainer>
+    </ChartContainer>
   );
 }
+
 
 // ---------- Search bar ----------
 
@@ -501,37 +546,37 @@ function CitiesPanel({ range }: { range: Range }) {
           <SearchBar value={search} onChange={setSearch} placeholder="Search cities…" />
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="p-3">City</th>
-                <th className="p-3 text-right">Impressions</th>
-                <th className="p-3 text-right">Searches</th>
-                <th className="p-3 text-right">Clicks</th>
-                <th className="p-3 text-right">CTR</th>
-                <th className="p-3 text-right">Leads</th>
-                <th className="p-3 text-right">Unique</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table className="min-w-[720px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead>City</TableHead>
+                <TableHead className="text-right">Impressions</TableHead>
+                <TableHead className="text-right">Searches</TableHead>
+                <TableHead className="text-right">Clicks</TableHead>
+                <TableHead className="text-right">CTR</TableHead>
+                <TableHead className="text-right">Leads</TableHead>
+                <TableHead className="text-right">Unique</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filtered.map((c) => (
-                <tr key={c.slug} onClick={() => setDrill({ slug: c.slug, name: c.name })} className="cursor-pointer border-t border-border hover:bg-secondary/40">
-                  <td className="p-3 font-medium">{c.name}</td>
-                  <td className="p-3 text-right">{num(c.impressions)}</td>
-                  <td className="p-3 text-right">{num(c.searches)}</td>
-                  <td className="p-3 text-right">{num(c.clicks)}</td>
-                  <td className="p-3 text-right">{pct(c.ctr)}</td>
-                  <td className="p-3 text-right">{num(c.lead_actions)}</td>
-                  <td className="p-3 text-right">{num(c.unique_visitors)}</td>
-                </tr>
+                <TableRow key={c.slug} onClick={() => setDrill({ slug: c.slug, name: c.name })} className="cursor-pointer">
+                  <TableCell className="font-medium">{c.name}</TableCell>
+                  <TableCell className="text-right">{num(c.impressions)}</TableCell>
+                  <TableCell className="text-right">{num(c.searches)}</TableCell>
+                  <TableCell className="text-right">{num(c.clicks)}</TableCell>
+                  <TableCell className="text-right">{pct(c.ctr)}</TableCell>
+                  <TableCell className="text-right">{num(c.lead_actions)}</TableCell>
+                  <TableCell className="text-right">{num(c.unique_visitors)}</TableCell>
+                </TableRow>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">
+                <TableRow><TableCell colSpan={7} className="p-8 text-center text-muted-foreground">
                   {search ? `No cities match "${search}".` : "No city data yet."}
-                </td></tr>
+                </TableCell></TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>
@@ -559,16 +604,7 @@ function CityDetail({ range, citySlug, cityName, onBack }: { range: Range; cityS
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <ChartCard title="Activity over time">
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={data.timeseries}>
-                  <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <ChartTooltip />
-                  <Line type="monotone" dataKey="impressions" stroke={BAR_COLORS.violet} dot={false} />
-                  <Line type="monotone" dataKey="clicks" stroke={BAR_COLORS.brand} dot={false} />
-                  <Line type="monotone" dataKey="leads" stroke={BAR_COLORS.emerald} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+              <TimeseriesChart data={data.timeseries} height={220} legend={false} />
             </ChartCard>
             <ChartCard title="Top searched queries">
               {data.topQueries.length === 0 ? <p className="text-sm text-muted-foreground">No search queries yet.</p> : (
@@ -661,33 +697,33 @@ function ProvidersPanel({ range }: { range: Range }) {
 function ProvidersTable({ rows, onRowClick, emptyLabel = "No provider data yet." }: { rows: any[]; onRowClick?: (p: any) => void; emptyLabel?: string }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[720px] text-sm">
-        <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-          <tr>
-            <th className="p-3">Provider</th>
-            <th className="p-3">City</th>
-            <th className="p-3 text-right">Impressions</th>
-            <th className="p-3 text-right">Clicks</th>
-            <th className="p-3 text-right">CTR</th>
-            <th className="p-3 text-right">Leads</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table className="min-w-[720px]">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Provider</TableHead>
+            <TableHead>City</TableHead>
+            <TableHead className="text-right">Impressions</TableHead>
+            <TableHead className="text-right">Clicks</TableHead>
+            <TableHead className="text-right">CTR</TableHead>
+            <TableHead className="text-right">Leads</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {rows.map((p) => (
-            <tr key={p.place_id} onClick={() => onRowClick?.(p)} className={`border-t border-border ${onRowClick ? "cursor-pointer hover:bg-secondary/40" : ""}`}>
-              <td className="p-3 font-medium">{p.name}</td>
-              <td className="p-3">{p.city}</td>
-              <td className="p-3 text-right">{num(p.impressions)}</td>
-              <td className="p-3 text-right">{num(p.clicks)}</td>
-              <td className="p-3 text-right">{pct(p.ctr ?? 0)}</td>
-              <td className="p-3 text-right">{num(p.leads)}</td>
-            </tr>
+            <TableRow key={p.place_id} onClick={() => onRowClick?.(p)} className={onRowClick ? "cursor-pointer" : ""}>
+              <TableCell className="font-medium">{p.name}</TableCell>
+              <TableCell>{p.city}</TableCell>
+              <TableCell className="text-right">{num(p.impressions)}</TableCell>
+              <TableCell className="text-right">{num(p.clicks)}</TableCell>
+              <TableCell className="text-right">{pct(p.ctr ?? 0)}</TableCell>
+              <TableCell className="text-right">{num(p.leads)}</TableCell>
+            </TableRow>
           ))}
           {rows.length === 0 && (
-            <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{emptyLabel}</td></tr>
+            <TableRow><TableCell colSpan={6} className="p-8 text-center text-muted-foreground">{emptyLabel}</TableCell></TableRow>
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
@@ -712,17 +748,7 @@ function ProviderDetailPanel({ range, placeId, name, onBack }: { range: Range; p
             <StatCard label="Lead mix" value={`${data.leads.phone}/${data.leads.website}/${data.leads.directions}`} sub="phone / web / directions" />
           </div>
           <ChartCard title="Activity over time">
-            <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={data.timeseries}>
-                <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <ChartTooltip />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="impressions" stroke={BAR_COLORS.violet} />
-                <Line type="monotone" dataKey="clicks" stroke={BAR_COLORS.brand} />
-                <Line type="monotone" dataKey="leads" stroke={BAR_COLORS.emerald} />
-              </LineChart>
-            </ResponsiveContainer>
+            <TimeseriesChart data={data.timeseries} height={260} />
           </ChartCard>
         </>
       )}

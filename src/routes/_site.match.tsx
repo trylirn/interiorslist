@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_site/match")({
   head: () => ({
     meta: [
       { title: "Find a Texas Medspa | Texas Aesthetics" },
-      { name: "description", content: "Pick your priority and city to browse verified Texas medspas and aesthetic injectors that match." },
+      { name: "description", content: "Answer a few quick questions and browse verified Texas medspas and aesthetic injectors that match your treatment, city, budget and preferences." },
       { property: "og:title", content: "Find a Texas Medspa — Texas Aesthetics" },
       { property: "og:description", content: "Browse verified Texas medspas in seconds." },
       { property: "og:url", content: "/match" },
@@ -36,21 +36,90 @@ const PRIORITY_OPTS = [
   { id: "exploring", label: "Just exploring", desc: "Show me everything" },
 ];
 
+const CONCERN_OPTS = [
+  { id: "wrinkles", label: "Fine lines & wrinkles" },
+  { id: "lip-volume", label: "Lip volume" },
+  { id: "volume", label: "Facial volume loss" },
+  { id: "jawline", label: "Jawline & chin definition" },
+  { id: "acne-scars", label: "Acne scars & texture" },
+  { id: "pigmentation", label: "Pigmentation & sun damage" },
+  { id: "hair-loss", label: "Hair thinning" },
+  { id: "glow", label: "Overall glow & maintenance" },
+  { id: "body-contouring", label: "Stubborn fat & contouring" },
+];
+
+const BUDGET_OPTS = [
+  { id: "budget", label: "Value-focused", desc: "Best price for a solid result" },
+  { id: "moderate", label: "Mid-range", desc: "Balanced price and experience" },
+  { id: "premium", label: "Premium", desc: "Top injectors, luxury experience" },
+  { id: "flexible", label: "Not sure yet", desc: "Show me the full range" },
+];
+
+const PREFERENCE_OPTS = [
+  { id: "verified-only", label: "Verified listings only" },
+  { id: "highly-rated", label: "Rated 4.5★ and above" },
+  { id: "well-reviewed", label: "Lots of reviews (50+)" },
+  { id: "boutique", label: "Independent / boutique" },
+  { id: "medical-director", label: "Physician-led (MD/DO)" },
+];
+
+const TIMING_OPTS = [
+  { id: "asap", label: "As soon as possible" },
+  { id: "few-weeks", label: "In the next few weeks" },
+  { id: "researching", label: "Just researching" },
+];
+
+const TOTAL_STEPS = 5;
+
+function OptionRow({ selected, label, desc, onClick, multi }: {
+  selected: boolean; label: string; desc?: string; onClick: () => void; multi?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition ${selected ? "border-brand bg-brand/5" : "border-border bg-card hover:border-brand/60"}`}
+    >
+      <div className={`flex h-5 w-5 shrink-0 items-center justify-center border ${multi ? "rounded" : "rounded-full"} ${selected ? "border-brand bg-brand text-brand-foreground" : "border-border"}`}>
+        {selected && <Check className="h-3 w-3" />}
+      </div>
+      <div>
+        <p className="font-medium">{label}</p>
+        {desc && <p className="text-sm text-muted-foreground">{desc}</p>}
+      </div>
+    </button>
+  );
+}
+
 function MatchPage() {
   const { priority: initialPriority, city: initialCity } = Route.useSearch();
   const [step, setStep] = useState(initialPriority ? 1 : 0);
   const [priority, setPriority] = useState(initialPriority ?? "");
+  const [concerns, setConcerns] = useState<string[]>([]);
   const [citySlug, setCitySlug] = useState(initialCity ?? "any");
+  const [budget, setBudget] = useState("");
+  const [timing, setTiming] = useState("");
+  const [preferences, setPreferences] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState<Awaited<ReturnType<typeof getMatches>>["matches"] | null>(null);
   const fetchMatches = useServerFn(getMatches);
 
-  const canNext = step === 0 ? !!priority : !!citySlug;
+  function toggle(list: string[], set: (v: string[]) => void, id: string) {
+    set(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
+  }
+
+  const canNext =
+    step === 0 ? !!priority :
+    step === 1 ? true :
+    step === 2 ? !!citySlug :
+    step === 3 ? !!budget :
+    true;
 
   async function submit() {
     setSubmitting(true);
     try {
-      const res = await fetchMatches({ data: { priority, citySlug } });
+      const res = await fetchMatches({
+        data: { priority, concerns, citySlug, budget, timing, preferences },
+      });
       setResults(res.matches);
     } finally {
       setSubmitting(false);
@@ -62,7 +131,7 @@ function MatchPage() {
       return (
         <div className="mx-auto max-w-2xl px-4 py-24 text-center">
           <h1 className="font-display text-4xl">No matches yet</h1>
-          <p className="mt-3 text-muted-foreground">Try widening your city or treatment criteria.</p>
+          <p className="mt-3 text-muted-foreground">Try widening your city, budget or preference filters.</p>
           <div className="mt-6 flex justify-center gap-3">
             <Button variant="outline" onClick={() => { setResults(null); setStep(0); }}>Start over</Button>
             <Button asChild><Link to="/search">Browse all providers</Link></Button>
@@ -79,7 +148,7 @@ function MatchPage() {
         </button>
         <h1 className="mt-4 font-display text-4xl md:text-5xl">Your matches</h1>
         <p className="mt-3 text-muted-foreground">
-          {results.length} verified {results.length === 1 ? "provider" : "providers"} in {cityName} for{" "}
+          {results.length} {results.length === 1 ? "provider" : "providers"} in {cityName} for{" "}
           <span className="font-medium text-foreground">{PRIORITY_OPTS.find((o) => o.id === priority)?.label ?? priority}</span>.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
@@ -92,8 +161,6 @@ function MatchPage() {
               <span className="mb-2 self-start rounded-full bg-brand px-2.5 py-0.5 text-xs font-semibold text-brand-foreground">
                 {r.matchPercent}% match
               </span>
-
-
               <ProviderCard
                 place_id={r.place_id}
                 slug={r.slug}
@@ -117,13 +184,12 @@ function MatchPage() {
     );
   }
 
-  const totalSteps = 2;
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <div className="text-center">
-        <p className="text-sm text-muted-foreground">Step {step + 1} of {totalSteps}</p>
+        <p className="text-sm text-muted-foreground">Step {step + 1} of {TOTAL_STEPS}</p>
         <div className="mx-auto mt-3 flex max-w-md gap-2">
-          {Array.from({ length: totalSteps }).map((_, i) => (
+          {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
             <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-brand" : "bg-border"}`} />
           ))}
         </div>
@@ -142,25 +208,25 @@ function MatchPage() {
             <p className="mt-2 text-muted-foreground">Pick the treatment category you want to explore.</p>
             <div className="mt-6 space-y-3">
               {PRIORITY_OPTS.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => setPriority(opt.id)}
-                  className={`flex w-full items-center gap-4 rounded-2xl border p-5 text-left transition ${priority === opt.id ? "border-brand bg-brand/5" : "border-border bg-card hover:border-brand/60"}`}
-                >
-                  <div className={`flex h-5 w-5 items-center justify-center rounded border ${priority === opt.id ? "border-brand bg-brand text-brand-foreground" : "border-border"}`}>
-                    {priority === opt.id && <Check className="h-3 w-3" />}
-                  </div>
-                  <div>
-                    <p className="font-medium">{opt.label}</p>
-                    <p className="text-sm text-muted-foreground">{opt.desc}</p>
-                  </div>
-                </button>
+                <OptionRow key={opt.id} selected={priority === opt.id} label={opt.label} desc={opt.desc} onClick={() => setPriority(opt.id)} />
               ))}
             </div>
           </div>
         )}
 
         {step === 1 && (
+          <div>
+            <h1 className="font-display text-3xl md:text-4xl">What would you like to improve?</h1>
+            <p className="mt-2 text-muted-foreground">Choose as many as apply — or skip if you're still deciding.</p>
+            <div className="mt-6 grid gap-2 sm:grid-cols-2">
+              {CONCERN_OPTS.map((opt) => (
+                <OptionRow key={opt.id} multi selected={concerns.includes(opt.id)} label={opt.label} onClick={() => toggle(concerns, setConcerns, opt.id)} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
           <div>
             <h1 className="font-display text-3xl md:text-4xl">Where in Texas?</h1>
             <p className="mt-2 text-muted-foreground">We'll prioritize verified providers in your area.</p>
@@ -183,18 +249,54 @@ function MatchPage() {
             </div>
           </div>
         )}
+
+        {step === 3 && (
+          <div>
+            <h1 className="font-display text-3xl md:text-4xl">What's your budget comfort?</h1>
+            <p className="mt-2 text-muted-foreground">This only sorts results — no pricing is shared with providers.</p>
+            <div className="mt-6 space-y-3">
+              {BUDGET_OPTS.map((opt) => (
+                <OptionRow key={opt.id} selected={budget === opt.id} label={opt.label} desc={opt.desc} onClick={() => setBudget(opt.id)} />
+              ))}
+            </div>
+            <h2 className="mt-8 font-display text-xl">When are you hoping to book?</h2>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              {TIMING_OPTS.map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => setTiming(opt.id)}
+                  className={`rounded-xl border p-3 text-sm transition ${timing === opt.id ? "border-brand bg-brand/5 font-medium" : "border-border bg-card hover:border-brand/60"}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div>
+            <h1 className="font-display text-3xl md:text-4xl">Any preferences?</h1>
+            <p className="mt-2 text-muted-foreground">Optional — these fine-tune which providers rank highest.</p>
+            <div className="mt-6 space-y-3">
+              {PREFERENCE_OPTS.map((opt) => (
+                <OptionRow key={opt.id} multi selected={preferences.includes(opt.id)} label={opt.label} onClick={() => toggle(preferences, setPreferences, opt.id)} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="mt-8 flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground flex items-center gap-1">
+        <p className="flex items-center gap-1 text-xs text-muted-foreground">
           <BadgeCheck className="h-3.5 w-3.5 text-brand" /> No forms, no lead-selling. Browse and reach out directly.
         </p>
-        {step < totalSteps - 1 ? (
+        {step < TOTAL_STEPS - 1 ? (
           <Button disabled={!canNext} onClick={() => setStep(step + 1)} className="rounded-full px-8">
             Continue
           </Button>
         ) : (
-          <Button disabled={!canNext || submitting} onClick={submit} className="rounded-full px-8">
+          <Button disabled={submitting} onClick={submit} className="rounded-full px-8">
             <Sparkles className="mr-2 h-4 w-4" />
             {submitting ? "Finding…" : "Show matches"}
           </Button>

@@ -79,6 +79,7 @@ function AdminPage() {
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="maps">Maps</TabsTrigger>
+          <TabsTrigger value="mine">My dashboard</TabsTrigger>
         </TabsList>
         <TabsContent value="analytics" className="mt-6"><AnalyticsDashboard /></TabsContent>
         <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
@@ -86,6 +87,17 @@ function AdminPage() {
         <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
         <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
         <TabsContent value="maps" className="mt-6"><MapsTab /></TabsContent>
+        <TabsContent value="mine" className="mt-6">
+          <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
+            <p className="font-medium">Your own provider dashboard (sandbox)</p>
+            <p className="mt-1 text-muted-foreground">
+              A private demo listing that behaves exactly like a real provider account — edit anything here to explore the provider experience. It is never published to the directory.
+            </p>
+            <Button asChild size="sm" className="mt-3">
+              <Link to="/admin/provider/$placeId" params={{ placeId: "demo-admin-listing" }}>Open my dashboard</Link>
+            </Button>
+          </div>
+        </TabsContent>
       </Tabs>
       <p className="mt-6 text-xs text-muted-foreground">
         <Link to="/admin/articles" className="text-brand underline">Scrape provider articles →</Link>
@@ -227,10 +239,10 @@ function ListingsTab() {
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <tr><th className="p-2">Name</th><th>City</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Featured</th><th>Dashboard</th></tr>
+            <tr><th className="p-2">Name</th><th>City</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Featured</th></tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={7} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
+            {isLoading && <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
             {data?.providers.map((p) => (
               <tr key={p.place_id} className="border-t border-border">
                 <td className="p-2"><Link to="/provider/$slug" params={{ slug: p.slug }} className="hover:text-brand">{p.name}</Link></td>
@@ -239,11 +251,6 @@ function ListingsTab() {
                 <td><Switch checked={p.is_verified} onCheckedChange={(v) => flip(p.place_id, "is_verified", v)} /></td>
                 <td><Switch checked={p.published} onCheckedChange={(v) => flip(p.place_id, "published", v)} /></td>
                 <td><Switch checked={p.featured} onCheckedChange={(v) => flip(p.place_id, "featured", v)} /></td>
-                <td>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/admin/provider/$placeId" params={{ placeId: p.place_id }}>Open</Link>
-                  </Button>
-                </td>
               </tr>
             ))}
           </tbody>
