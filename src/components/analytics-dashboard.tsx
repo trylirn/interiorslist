@@ -7,11 +7,20 @@ import { setInternalTraffic } from "@/lib/analytics";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
-  XAxis, YAxis, Tooltip as ChartTooltip, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, Legend,
+  XAxis, YAxis, CartesianGrid, AreaChart, Area, BarChart, Bar, Cell,
+  PieChart, Pie, LabelList,
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   getOverview, getLiveFeed, getCityAnalytics, getCityDetail,
