@@ -568,16 +568,7 @@ function CityDetail({ range, citySlug, cityName, onBack }: { range: Range; cityS
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <ChartCard title="Activity over time">
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={data.timeseries}>
-                  <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <ChartTooltip />
-                  <Line type="monotone" dataKey="impressions" stroke={BAR_COLORS.violet} dot={false} />
-                  <Line type="monotone" dataKey="clicks" stroke={BAR_COLORS.brand} dot={false} />
-                  <Line type="monotone" dataKey="leads" stroke={BAR_COLORS.emerald} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+              <TimeseriesChart data={data.timeseries} height={220} legend={false} />
             </ChartCard>
             <ChartCard title="Top searched queries">
               {data.topQueries.length === 0 ? <p className="text-sm text-muted-foreground">No search queries yet.</p> : (
