@@ -8,7 +8,10 @@ const matchInput = z.object({
   citySlug: z.string().max(80).optional(),
   budget: z.string().max(40).optional(),
   timing: z.string().max(40).optional(),
+  preferences: z.array(z.string().min(1).max(40)).max(8).optional(),
 });
+
+const BUDGET_ORDER = ["budget", "moderate", "premium", "flexible"] as const;
 
 // Map "concern" → service slugs that satisfy it
 export const CONCERN_TREATMENTS: Record<string, string[]> = {
