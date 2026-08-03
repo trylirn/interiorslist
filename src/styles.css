@@ -130,6 +130,11 @@
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.62 0.10 155);
   --rating: oklch(0.80 0.15 80);
+  --chart-1: oklch(0.70 0.11 155);
+  --chart-2: oklch(0.70 0.11 230);
+  --chart-3: oklch(0.80 0.13 75);
+  --chart-4: oklch(0.75 0.12 160);
+  --chart-5: oklch(0.68 0.14 300);
 }
 
 @layer base {
