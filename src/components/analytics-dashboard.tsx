@@ -400,34 +400,63 @@ function prettifyCity(slug: string) {
 
 function ChartCard({ title, subtitle, children, action }: { title: string; subtitle?: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="mb-4 flex items-start justify-between gap-3">
+    <Card className="rounded-2xl">
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
         <div>
-          <h3 className="font-display text-lg">{title}</h3>
-          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+          <CardTitle className="font-display text-lg font-normal">{title}</CardTitle>
+          {subtitle && <CardDescription className="text-xs">{subtitle}</CardDescription>}
         </div>
         {action}
-      </div>
-      {children}
-    </div>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}
+
+function TimeseriesChart({ data, height = 240, legend = true }: { data: any[]; height?: number; legend?: boolean }) {
+  return (
+    <ChartContainer config={SERIES_CONFIG} className="aspect-auto w-full" style={{ height }}>
+      <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <defs>
+          {(["impressions", "clicks", "leads"] as const).map((k) => (
+            <linearGradient key={k} id={`fill-${k}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={`var(--color-${k})`} stopOpacity={0.35} />
+              <stop offset="95%" stopColor={`var(--color-${k})`} stopOpacity={0.02} />
+            </linearGradient>
+          ))}
+        </defs>
+        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
+        <YAxis tickLine={false} axisLine={false} width={32} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+        {legend && <ChartLegend content={<ChartLegendContent />} />}
+        {(["impressions", "clicks", "leads"] as const).map((k) => (
+          <Area key={k} type="monotone" dataKey={k} stroke={`var(--color-${k})`} fill={`url(#fill-${k})`} strokeWidth={2} />
+        ))}
+      </AreaChart>
+    </ChartContainer>
   );
 }
 
 function DonutChart({ data }: { data: { name: string; value: number }[] }) {
   const total = data.reduce((s, d) => s + d.value, 0);
   if (total === 0) return <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">No data</div>;
+  const config: ChartConfig = Object.fromEntries(
+    data.map((d, i) => [d.name, { label: d.name, color: PALETTE[i % PALETTE.length] }]),
+  );
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ChartContainer config={config} className="aspect-auto w-full" style={{ height: 220 }}>
       <PieChart>
+        <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
         <Pie data={data} dataKey="value" nameKey="name" innerRadius={55} outerRadius={85} paddingAngle={2}>
-          {data.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+          {data.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} />)}
         </Pie>
-        <ChartTooltip />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
+        <ChartLegend content={<ChartLegendContent nameKey="name" />} />
       </PieChart>
-    </ResponsiveContainer>
+    </ChartContainer>
   );
 }
+
 
 // ---------- Search bar ----------
 
