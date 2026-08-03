@@ -510,37 +510,37 @@ function CitiesPanel({ range }: { range: Range }) {
           <SearchBar value={search} onChange={setSearch} placeholder="Search cities…" />
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="p-3">City</th>
-                <th className="p-3 text-right">Impressions</th>
-                <th className="p-3 text-right">Searches</th>
-                <th className="p-3 text-right">Clicks</th>
-                <th className="p-3 text-right">CTR</th>
-                <th className="p-3 text-right">Leads</th>
-                <th className="p-3 text-right">Unique</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table className="min-w-[720px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead>City</TableHead>
+                <TableHead className="text-right">Impressions</TableHead>
+                <TableHead className="text-right">Searches</TableHead>
+                <TableHead className="text-right">Clicks</TableHead>
+                <TableHead className="text-right">CTR</TableHead>
+                <TableHead className="text-right">Leads</TableHead>
+                <TableHead className="text-right">Unique</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filtered.map((c) => (
-                <tr key={c.slug} onClick={() => setDrill({ slug: c.slug, name: c.name })} className="cursor-pointer border-t border-border hover:bg-secondary/40">
-                  <td className="p-3 font-medium">{c.name}</td>
-                  <td className="p-3 text-right">{num(c.impressions)}</td>
-                  <td className="p-3 text-right">{num(c.searches)}</td>
-                  <td className="p-3 text-right">{num(c.clicks)}</td>
-                  <td className="p-3 text-right">{pct(c.ctr)}</td>
-                  <td className="p-3 text-right">{num(c.lead_actions)}</td>
-                  <td className="p-3 text-right">{num(c.unique_visitors)}</td>
-                </tr>
+                <TableRow key={c.slug} onClick={() => setDrill({ slug: c.slug, name: c.name })} className="cursor-pointer">
+                  <TableCell className="font-medium">{c.name}</TableCell>
+                  <TableCell className="text-right">{num(c.impressions)}</TableCell>
+                  <TableCell className="text-right">{num(c.searches)}</TableCell>
+                  <TableCell className="text-right">{num(c.clicks)}</TableCell>
+                  <TableCell className="text-right">{pct(c.ctr)}</TableCell>
+                  <TableCell className="text-right">{num(c.lead_actions)}</TableCell>
+                  <TableCell className="text-right">{num(c.unique_visitors)}</TableCell>
+                </TableRow>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">
+                <TableRow><TableCell colSpan={7} className="p-8 text-center text-muted-foreground">
                   {search ? `No cities match "${search}".` : "No city data yet."}
-                </td></tr>
+                </TableCell></TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>
