@@ -42,17 +42,27 @@ const RANGE_LABELS: { value: Range; label: string }[] = [
   { value: "last_month", label: "Last Month" },
 ];
 
-const PIE_COLORS = ["hsl(var(--brand))", "#f59e0b", "#10b981", "#8b5cf6", "#ef4444"];
+const PALETTE = [
+  "hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))", "hsl(var(--chart-5))",
+];
+const PIE_COLORS = PALETTE;
 
 // Bar colors per section — semantic hues that stay legible in both themes.
 const BAR_COLORS = {
-  brand: "hsl(var(--brand))",
-  sky: "#0284c7",
-  amber: "#d97706",
-  emerald: "#059669",
-  violet: "#7c3aed",
-  olive: "#a3a534",
+  brand: "hsl(var(--chart-1))",
+  sky: "hsl(var(--chart-2))",
+  amber: "hsl(var(--chart-3))",
+  emerald: "hsl(var(--chart-4))",
+  violet: "hsl(var(--chart-5))",
+  olive: "hsl(var(--chart-2))",
 } as const;
+
+const SERIES_CONFIG = {
+  impressions: { label: "Impressions", color: "hsl(var(--chart-5))" },
+  clicks: { label: "Clicks", color: "hsl(var(--chart-1))" },
+  leads: { label: "Leads", color: "hsl(var(--chart-4))" },
+} satisfies ChartConfig;
 
 function RangePicker({ value, onChange }: { value: Range; onChange: (r: Range) => void }) {
   return (
