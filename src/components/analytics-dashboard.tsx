@@ -721,17 +721,7 @@ function ProviderDetailPanel({ range, placeId, name, onBack }: { range: Range; p
             <StatCard label="Lead mix" value={`${data.leads.phone}/${data.leads.website}/${data.leads.directions}`} sub="phone / web / directions" />
           </div>
           <ChartCard title="Activity over time">
-            <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={data.timeseries}>
-                <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <ChartTooltip />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="impressions" stroke={BAR_COLORS.violet} />
-                <Line type="monotone" dataKey="clicks" stroke={BAR_COLORS.brand} />
-                <Line type="monotone" dataKey="leads" stroke={BAR_COLORS.emerald} />
-              </LineChart>
-            </ResponsiveContainer>
+            <TimeseriesChart data={data.timeseries} height={260} />
           </ChartCard>
         </>
       )}
