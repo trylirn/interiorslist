@@ -1,15 +1,15 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getProviderBySlug } from "@/lib/providers.functions";
-import { submitClaim } from "@/lib/owner.functions";
+import { submitPublicClaim } from "@/lib/claim.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_site/claim/$slug")({
   head: () => ({
@@ -22,14 +22,12 @@ export const Route = createFileRoute("/_site/claim/$slug")({
   component: ClaimPage,
 });
 
-
 function ClaimPage() {
   const { provider } = Route.useLoaderData();
-  const navigate = useNavigate();
-  const [authReady, setAuthReady] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
   const [form, setForm] = useState({
-    contactName: "",
+    firstName: "",
+    lastName: "",
     contactEmail: "",
     contactPhone: "",
     businessRole: "",
@@ -37,21 +35,22 @@ function ClaimPage() {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const submit = useServerFn(submitClaim);
+  const submit = useServerFn(submitPublicClaim);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSignedIn(!!data.session);
-      setAuthReady(true);
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setUserId(data.user.id);
+        setForm((f) => ({ ...f, contactEmail: f.contactEmail || data.user!.email || "" }));
+      }
     });
   }, []);
-
 
   if (!provider) {
     return (
       <div className="mx-auto max-w-md py-24 text-center px-4">
         <h1 className="font-display text-3xl">Listing not found</h1>
-        <Button asChild className="mt-6"><Link to="/">Back home</Link></Button>
+        <Button asChild className="mt-6"><Link to="/claim">Find your business</Link></Button>
       </div>
     );
   }
@@ -65,7 +64,7 @@ function ClaimPage() {
         <h1 className="mt-6 font-display text-3xl">Claim received</h1>
         <p className="mt-4 text-muted-foreground">
           Someone from our team will reach out to you within a few minutes. If you decide you want to be listed,
-          the cost is <span className="font-semibold text-foreground">$99 per year</span>.
+          the cost is <span className="font-semibold text-foreground">$50 per month</span>.
         </p>
         <div className="mt-8 flex justify-center gap-2">
           <Button asChild variant="outline"><Link to="/provider/$slug" params={{ slug: provider.slug }}>Back to listing</Link></Button>
@@ -75,35 +74,27 @@ function ClaimPage() {
     );
   }
 
-  if (authReady && !signedIn) {
-    return (
-      <div className="mx-auto max-w-md py-24 text-center px-4">
-        <h1 className="font-display text-3xl">Sign in to claim</h1>
-        <p className="mt-3 text-sm text-muted-foreground">Please sign in or create an account to submit a claim for {provider.name}.</p>
-        <Button
-          className="mt-6"
-          onClick={() => navigate({ to: "/login", search: { next: `/claim/${provider.slug}` } as never })}
-        >
-          Sign in to continue
-        </Button>
-      </div>
-    );
-  }
+  const valid =
+    form.firstName.trim().length > 0 &&
+    form.lastName.trim().length > 0 &&
+    /.+@.+\..+/.test(form.contactEmail) &&
+    form.contactPhone.trim().length >= 7;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!valid || !provider) return;
     setLoading(true);
     try {
-      const proof = form.contactName
-        ? `Name: ${form.contactName}\n${form.proofNotes ?? ""}`.trim()
-        : form.proofNotes || undefined;
       await submit({
         data: {
-          placeId: provider!.place_id,
-          contactEmail: form.contactEmail,
-          contactPhone: form.contactPhone || undefined,
-          businessRole: form.businessRole || undefined,
-          proofNotes: proof,
+          placeId: provider.place_id,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          contactEmail: form.contactEmail.trim(),
+          contactPhone: form.contactPhone.trim() || undefined,
+          businessRole: form.businessRole.trim() || undefined,
+          proofNotes: form.proofNotes.trim() || undefined,
+          userId,
         },
       });
       setSubmitted(true);
@@ -115,59 +106,38 @@ function ClaimPage() {
     }
   }
 
-
   return (
     <div className="mx-auto max-w-xl px-4 py-16">
-      <p className="text-xs font-semibold uppercase tracking-widest text-brand">Claim Listing</p>
+      <Link to="/claim" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand">
+        <ArrowLeft className="h-4 w-4" /> Choose a different profile
+      </Link>
+      <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-brand">Claim your profile</p>
       <h1 className="mt-3 font-display text-4xl">{provider.name}</h1>
       <p className="mt-2 text-muted-foreground">{provider.city}, TX</p>
       <p className="mt-6 text-sm text-foreground/85">
-        Tell us a bit about your role and we'll reach out within a few minutes. No account required.
+        Tell us who you are and we'll verify your connection to this business. No account required.
       </p>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-5">
-        <Field label="Your name">
-          <Input
-            value={form.contactName}
-            onChange={(e) => setForm({ ...form, contactName: e.target.value })}
-            placeholder="Jane Doe"
-            maxLength={120}
-          />
-        </Field>
+      <form onSubmit={onSubmit} className="mt-8 space-y-5 rounded-3xl border border-border bg-card p-6">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="First name" required>
+            <Input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} placeholder="Jane" maxLength={80} required />
+          </Field>
+          <Field label="Last name" required>
+            <Input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} placeholder="Doe" maxLength={80} required />
+          </Field>
+        </div>
         <Field label="Business email" required>
-          <Input
-            type="email"
-            required
-            value={form.contactEmail}
-            onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
-            placeholder="you@yourclinic.com"
-            maxLength={255}
-          />
+          <Input type="email" required value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })} placeholder="you@yourclinic.com" maxLength={255} />
         </Field>
-        <Field label="Phone">
-          <Input
-            value={form.contactPhone}
-            onChange={(e) => setForm({ ...form, contactPhone: e.target.value })}
-            placeholder="(214) 555-1234"
-            maxLength={40}
-          />
+        <Field label="Phone number" required>
+          <Input type="tel" required value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} placeholder="(214) 555-1234" maxLength={40} />
         </Field>
-        <Field label="Your role at the business">
-          <Input
-            value={form.businessRole}
-            onChange={(e) => setForm({ ...form, businessRole: e.target.value })}
-            placeholder="Owner / Manager / Medical Director"
-            maxLength={120}
-          />
+        <Field label="Your position at the business">
+          <Input value={form.businessRole} onChange={(e) => setForm({ ...form, businessRole: e.target.value })} placeholder="Owner / Manager / Medical Director" maxLength={120} />
         </Field>
-        <Field label="Anything we should know">
-          <Textarea
-            value={form.proofNotes}
-            onChange={(e) => setForm({ ...form, proofNotes: e.target.value })}
-            placeholder="Link to your About page, business email match, etc."
-            rows={4}
-            maxLength={2000}
-          />
+        <Field label="Why are you claiming this profile?">
+          <Textarea value={form.proofNotes} onChange={(e) => setForm({ ...form, proofNotes: e.target.value })} rows={4} maxLength={2000} placeholder="Tell us how you're connected to this business — a link to your About page, a matching business email, etc." />
         </Field>
 
         <div className="rounded-2xl border border-brand/20 bg-brand/5 p-4 text-sm text-foreground/85">
@@ -175,12 +145,12 @@ function ClaimPage() {
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
             <span>
               Someone from our team will reach out to you within a few minutes. If you decide you want to be listed,
-              the cost is <span className="font-semibold">$99 per year</span>.
+              the cost is <span className="font-semibold">$50 per month</span>.
             </span>
           </p>
         </div>
 
-        <Button type="submit" disabled={loading} className="w-full h-11">
+        <Button type="submit" disabled={loading || !valid} className="h-11 w-full">
           {loading ? "Submitting…" : "Submit claim"}
         </Button>
       </form>
