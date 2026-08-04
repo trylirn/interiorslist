@@ -50,7 +50,7 @@ export function SiteHeader() {
           ) : (
             <Link to="/login" className="text-sm font-medium hover:text-brand">Sign In</Link>
           )}
-          <Button asChild className="rounded-none px-5"><Link to="/search" search={{ intent: "review" } as never}>Write a Review</Link></Button>
+          <Button asChild className="rounded-none px-5"><Link to="/review">Write a Review</Link></Button>
         </div>
         <button className="lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu">
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -64,7 +64,7 @@ export function SiteHeader() {
             <Link to="/safety" onClick={() => setOpen(false)}>Safety</Link>
             <Link to="/for-business" onClick={() => setOpen(false)}>For Business</Link>
             <Link to="/favorites" onClick={() => setOpen(false)}>Favorites</Link>
-            <Link to="/search" search={{ intent: "review" } as never} onClick={() => setOpen(false)}>Write a Review</Link>
+            <Link to="/review" onClick={() => setOpen(false)}>Write a Review</Link>
             {roles?.isAdmin && <Link to="/admin" onClick={() => setOpen(false)}>Admin</Link>}
             {userEmail
               ? <Link to="/dashboard" onClick={() => setOpen(false)}>Account</Link>

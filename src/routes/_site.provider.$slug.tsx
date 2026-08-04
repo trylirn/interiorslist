@@ -362,7 +362,7 @@ function ProviderPage() {
           <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-2xl">Reviews ({data.reviews.length})</h2>
-              <ReviewDialog placeId={p.place_id} slug={slug} />
+              <Button asChild variant="outline" className="rounded-full"><Link to="/review/$slug" params={{ slug }}>Write a Review</Link></Button>
             </div>
             {data.reviews.length === 0 ? (
               <p className="mt-6 text-center text-muted-foreground">No reviews yet. Be the first to review!</p>
