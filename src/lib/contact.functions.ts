@@ -40,6 +40,17 @@ export const submitReview = createServerFn({ method: "POST" })
         email: z.string().trim().email().max(255),
         rating: z.number().int().min(1).max(5),
         text: z.string().max(4000).optional().or(z.literal("")),
+        clientType: z.string().max(80).optional().or(z.literal("")),
+        isCurrentClient: z.string().max(40).optional().or(z.literal("")),
+        startYear: z.number().int().min(1950).max(2100).nullable().optional(),
+        endYear: z.number().int().min(1950).max(2100).nullable().optional(),
+        decisionFactors: z.string().max(2000).optional().or(z.literal("")),
+        ratingCommunication: z.number().int().min(1).max(5).nullable().optional(),
+        ratingResults: z.number().int().min(1).max(5).nullable().optional(),
+        ratingCleanliness: z.number().int().min(1).max(5).nullable().optional(),
+        ratingValue: z.number().int().min(1).max(5).nullable().optional(),
+        relationshipDisclosure: z.string().max(200).optional().or(z.literal("")),
+        benefitDisclosure: z.string().max(200).optional().or(z.literal("")),
       })
       .parse(d),
   )
@@ -53,6 +64,17 @@ export const submitReview = createServerFn({ method: "POST" })
       text: data.text || null,
       relative_time: "just now",
       published_at: new Date().toISOString(),
+      client_type: data.clientType || null,
+      is_current_client: data.isCurrentClient || null,
+      start_year: data.startYear ?? null,
+      end_year: data.endYear ?? null,
+      decision_factors: data.decisionFactors || null,
+      rating_communication: data.ratingCommunication ?? null,
+      rating_results: data.ratingResults ?? null,
+      rating_cleanliness: data.ratingCleanliness ?? null,
+      rating_value: data.ratingValue ?? null,
+      relationship_disclosure: data.relationshipDisclosure || null,
+      benefit_disclosure: data.benefitDisclosure || null,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
