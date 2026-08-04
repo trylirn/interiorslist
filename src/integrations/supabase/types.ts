@@ -135,6 +135,7 @@ export type Database = {
         Row: {
           business_role: string | null
           contact_email: string
+          contact_name: string | null
           contact_phone: string | null
           id: string
           proof_notes: string | null
@@ -148,6 +149,7 @@ export type Database = {
         Insert: {
           business_role?: string | null
           contact_email: string
+          contact_name?: string | null
           contact_phone?: string | null
           id?: string
           proof_notes?: string | null
@@ -161,6 +163,7 @@ export type Database = {
         Update: {
           business_role?: string | null
           contact_email?: string
+          contact_name?: string | null
           contact_phone?: string | null
           id?: string
           proof_notes?: string | null
@@ -632,37 +635,70 @@ export type Database = {
         Row: {
           author_name: string | null
           author_photo: string | null
+          benefit_disclosure: string | null
+          client_type: string | null
           created_at: string
+          decision_factors: string | null
           email: string | null
+          end_year: number | null
           id: string
+          is_current_client: string | null
           provider_place_id: string
           published_at: string | null
           rating: number | null
+          rating_cleanliness: number | null
+          rating_communication: number | null
+          rating_results: number | null
+          rating_value: number | null
+          relationship_disclosure: string | null
           relative_time: string | null
+          start_year: number | null
           text: string | null
         }
         Insert: {
           author_name?: string | null
           author_photo?: string | null
+          benefit_disclosure?: string | null
+          client_type?: string | null
           created_at?: string
+          decision_factors?: string | null
           email?: string | null
+          end_year?: number | null
           id?: string
+          is_current_client?: string | null
           provider_place_id: string
           published_at?: string | null
           rating?: number | null
+          rating_cleanliness?: number | null
+          rating_communication?: number | null
+          rating_results?: number | null
+          rating_value?: number | null
+          relationship_disclosure?: string | null
           relative_time?: string | null
+          start_year?: number | null
           text?: string | null
         }
         Update: {
           author_name?: string | null
           author_photo?: string | null
+          benefit_disclosure?: string | null
+          client_type?: string | null
           created_at?: string
+          decision_factors?: string | null
           email?: string | null
+          end_year?: number | null
           id?: string
+          is_current_client?: string | null
           provider_place_id?: string
           published_at?: string | null
           rating?: number | null
+          rating_cleanliness?: number | null
+          rating_communication?: number | null
+          rating_results?: number | null
+          rating_value?: number | null
+          relationship_disclosure?: string | null
           relative_time?: string | null
+          start_year?: number | null
           text?: string | null
         }
         Relationships: [
