@@ -4,22 +4,17 @@ import { ReviewWizard } from "@/components/review-wizard";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_site/review/$slug")({
-  head: ({ loaderData }) => {
-    const name = loaderData?.provider?.name;
-    const title = name ? `Review ${name} | Texas Aesthetics` : "Write a review | Texas Aesthetics";
-    return {
-      meta: [
-        { title },
-        { name: "description", content: name ? `Share your experience with ${name} — treatments, results, communication and value.` : "Share your med spa experience." },
-        { property: "og:title", content: title },
-        { property: "og:description", content: "Help others choose with confidence." },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "robots", content: "noindex" },
-      ],
-    };
-  },
-  loader: ({ params }) => getProviderBySlug({ data: { slug: params.slug } }),
+  head: () => ({
+    meta: [
+      { title: "Write a review | Texas Aesthetics" },
+      { name: "description", content: "Share your med spa experience — treatments, results, communication and value." },
+      { property: "og:title", content: "Write a review | Texas Aesthetics" },
+      { property: "og:description", content: "Help others choose with confidence." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: ReviewForProvider,
 });
 

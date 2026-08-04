@@ -35,6 +35,7 @@ import { Route as SiteClaimSlugRouteImport } from './routes/_site.claim.$slug'
 import { Route as SiteConcernSlugRouteImport } from './routes/_site.concern.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
 import { Route as SiteReviewIndexRouteImport } from './routes/_site.review.index'
+import { Route as SiteReviewSlugRouteImport } from './routes/_site.review.$slug'
 import { Route as SiteTreatmentSlugRouteImport } from './routes/_site.treatment.$slug'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
@@ -171,6 +172,11 @@ const SiteReviewIndexRoute = SiteReviewIndexRouteImport.update({
   path: '/review/',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteReviewSlugRoute = SiteReviewSlugRouteImport.update({
+  id: '/review/$slug',
+  path: '/review/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteTreatmentSlugRoute = SiteTreatmentSlugRouteImport.update({
   id: '/treatment/$slug',
   path: '/treatment/$slug',
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/concern/$slug': typeof SiteConcernSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
+  '/review/$slug': typeof SiteReviewSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
@@ -263,6 +270,7 @@ export interface FileRoutesByTo {
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/concern/$slug': typeof SiteConcernSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
+  '/review/$slug': typeof SiteReviewSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
@@ -298,6 +306,7 @@ export interface FileRoutesById {
   '/_site/claim/$slug': typeof SiteClaimSlugRoute
   '/_site/concern/$slug': typeof SiteConcernSlugRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
+  '/_site/review/$slug': typeof SiteReviewSlugRoute
   '/_site/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/_site/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
@@ -333,6 +342,7 @@ export interface FileRouteTypes {
     | '/claim/$slug'
     | '/concern/$slug'
     | '/provider/$slug'
+    | '/review/$slug'
     | '/treatment/$slug'
     | '/tx/$city'
     | '/api/public/admin-seed-import'
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/claim/$slug'
     | '/concern/$slug'
     | '/provider/$slug'
+    | '/review/$slug'
     | '/treatment/$slug'
     | '/tx/$city'
     | '/api/public/admin-seed-import'
@@ -400,6 +411,7 @@ export interface FileRouteTypes {
     | '/_site/claim/$slug'
     | '/_site/concern/$slug'
     | '/_site/provider/$slug'
+    | '/_site/review/$slug'
     | '/_site/treatment/$slug'
     | '/_site/tx/$city'
     | '/api/public/admin-seed-import'
@@ -600,6 +612,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteReviewIndexRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/review/$slug': {
+      id: '/_site/review/$slug'
+      path: '/review/$slug'
+      fullPath: '/review/$slug'
+      preLoaderRoute: typeof SiteReviewSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/treatment/$slug': {
       id: '/_site/treatment/$slug'
       path: '/treatment/$slug'
@@ -694,6 +713,7 @@ interface SiteRouteChildren {
   SiteClaimSlugRoute: typeof SiteClaimSlugRoute
   SiteConcernSlugRoute: typeof SiteConcernSlugRoute
   SiteProviderSlugRoute: typeof SiteProviderSlugRoute
+  SiteReviewSlugRoute: typeof SiteReviewSlugRoute
   SiteTreatmentSlugRoute: typeof SiteTreatmentSlugRoute
   SiteTxCityRoute: typeof SiteTxCityRoute
   SiteReviewIndexRoute: typeof SiteReviewIndexRoute
@@ -722,6 +742,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteClaimSlugRoute: SiteClaimSlugRoute,
   SiteConcernSlugRoute: SiteConcernSlugRoute,
   SiteProviderSlugRoute: SiteProviderSlugRoute,
+  SiteReviewSlugRoute: SiteReviewSlugRoute,
   SiteTreatmentSlugRoute: SiteTreatmentSlugRoute,
   SiteTxCityRoute: SiteTxCityRoute,
   SiteReviewIndexRoute: SiteReviewIndexRoute,
