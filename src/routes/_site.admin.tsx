@@ -1,9 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyRoles } from "@/lib/role.functions";
+import { getMyRoles, listAdmins, grantRole, revokeRole, cancelInvite } from "@/lib/role.functions";
 import {
   adminMetrics,
   listPendingClaims,
@@ -14,18 +14,26 @@ import {
   toggleProviderFlag,
   getLicenseDocSignedUrl,
 } from "@/lib/admin.functions";
-import { countMissingCoords, geocodeAllMissing } from "@/lib/geocode.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 
 export const Route = createFileRoute("/_site/admin")({
   head: () => ({ meta: [{ title: "Admin | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
-  component: AdminPage,
+  component: AdminLayout,
 });
+
+function AdminLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isChild = pathname.replace(/\/$/, "") !== "/admin";
+  if (isChild) return <Outlet />;
+  return <AdminPage />;
+}
+
 
 function AdminPage() {
   const navigate = useNavigate();
