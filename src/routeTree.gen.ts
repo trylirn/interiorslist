@@ -34,6 +34,7 @@ import { Route as SiteBestCityRouteImport } from './routes/_site.best.$city'
 import { Route as SiteClaimSlugRouteImport } from './routes/_site.claim.$slug'
 import { Route as SiteConcernSlugRouteImport } from './routes/_site.concern.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
+import { Route as SiteReviewIndexRouteImport } from './routes/_site.review.index'
 import { Route as SiteTreatmentSlugRouteImport } from './routes/_site.treatment.$slug'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
@@ -165,6 +166,11 @@ const SiteProviderSlugRoute = SiteProviderSlugRouteImport.update({
   path: '/provider/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteReviewIndexRoute = SiteReviewIndexRouteImport.update({
+  id: '/review/',
+  path: '/review/',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteTreatmentSlugRoute = SiteTreatmentSlugRouteImport.update({
   id: '/treatment/$slug',
   path: '/treatment/$slug',
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/review/': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/review': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/_site/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/_site/review/': typeof SiteReviewIndexRoute
   '/_site/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
@@ -328,6 +337,7 @@ export interface FileRouteTypes {
     | '/tx/$city'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
+    | '/review/'
     | '/admin/provider/$placeId'
     | '/dashboard/listing/$placeId'
   fileRoutesByTo: FileRoutesByTo
@@ -360,6 +370,7 @@ export interface FileRouteTypes {
     | '/tx/$city'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
+    | '/review'
     | '/admin/provider/$placeId'
     | '/dashboard/listing/$placeId'
   id:
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/_site/tx/$city'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
+    | '/_site/review/'
     | '/_site/admin/provider/$placeId'
     | '/_site/dashboard/listing/$placeId'
   fileRoutesById: FileRoutesById
@@ -581,6 +593,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteProviderSlugRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/review/': {
+      id: '/_site/review/'
+      path: '/review'
+      fullPath: '/review/'
+      preLoaderRoute: typeof SiteReviewIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/treatment/$slug': {
       id: '/_site/treatment/$slug'
       path: '/treatment/$slug'
@@ -677,6 +696,7 @@ interface SiteRouteChildren {
   SiteProviderSlugRoute: typeof SiteProviderSlugRoute
   SiteTreatmentSlugRoute: typeof SiteTreatmentSlugRoute
   SiteTxCityRoute: typeof SiteTxCityRoute
+  SiteReviewIndexRoute: typeof SiteReviewIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
@@ -704,6 +724,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteProviderSlugRoute: SiteProviderSlugRoute,
   SiteTreatmentSlugRoute: SiteTreatmentSlugRoute,
   SiteTxCityRoute: SiteTxCityRoute,
+  SiteReviewIndexRoute: SiteReviewIndexRoute,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
