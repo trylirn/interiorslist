@@ -8,7 +8,7 @@ New flow, modelled on the Sam's List screens:
 
 - **Step 0 (new page `/claim`)** — "Claim Your Profile": paste your listing URL, or search by name. Results list matching med spas; picking one goes to `/claim/{slug}`.
 - **Step 1 (`/claim/$slug`)** — a single clean card: "← Choose a different profile", then First name, Last name, Email, Phone, Position in company, Reason for claiming. Submit with no account needed.
-- Confirmation keeps the existing message: someone reaches out shortly, listing costs $99/year.
+- Confirmation keeps the existing message: someone reaches out shortly, listing costs $50/month.
 - Signed-in users see the same form, pre-filled with their email, and the claim is linked to their account.
 
 Security: the claim is written by a server function using a trusted server client — no anonymous write access is opened on the database. Input is validated and length-capped, and a simple per-email/per-listing throttle prevents spam.
