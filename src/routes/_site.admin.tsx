@@ -267,3 +267,113 @@ function ListingsTab() {
     </div>
   );
 }
+
+function TeamTab() {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({ queryKey: ["admin-team"], queryFn: () => listAdmins() });
+  const grant = useServerFn(grantRole);
+  const revoke = useServerFn(revokeRole);
+  const cancel = useServerFn(cancelInvite);
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<"admin" | "super_admin">("admin");
+  const [busy, setBusy] = useState(false);
+
+  if (isLoading || !data) return <p className="text-muted-foreground">Loading…</p>;
+  const canManage = data.isSuperAdmin;
+
+  async function add() {
+    setBusy(true);
+    try {
+      const r = await grant({ data: { email: email.trim(), role } });
+      toast.success(r.invited ? "Invite saved — access applies when they sign up" : "Access granted");
+      setEmail("");
+      qc.invalidateQueries({ queryKey: ["admin-team"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(userId: string, r: string) {
+    try {
+      await revoke({ data: { userId, role: r as "admin" | "super_admin" } });
+      toast.success("Access removed");
+      qc.invalidateQueries({ queryKey: ["admin-team"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {canManage ? (
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="font-display text-xl">Add a team member</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            They get access right away if they already have an account — otherwise the moment they sign up with this email.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" className="max-w-sm" maxLength={255} />
+            <Select value={role} onValueChange={(v) => setRole(v as "admin" | "super_admin")}>
+              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="super_admin">Super admin</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={add} disabled={busy || !/.+@.+\..+/.test(email)}>Grant access</Button>
+          </div>
+        </div>
+      ) : (
+        <p className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+          Only a super admin can add or remove team members.
+        </p>
+      )}
+
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="font-display text-xl">Team access</h3>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[600px] text-sm">
+            <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+              <tr><th className="p-2">Person</th><th>Role</th><th>Granted</th><th /></tr>
+            </thead>
+            <tbody>
+              {data.members.map((m) => (
+                <tr key={m.id} className="border-t border-border">
+                  <td className="p-2">{m.email ?? m.userId}{m.isMe && <span className="ml-2 text-xs text-muted-foreground">(you)</span>}</td>
+                  <td>{m.role === "super_admin" ? "Super admin" : "Admin"}</td>
+                  <td>{new Date(m.grantedAt).toLocaleDateString()}</td>
+                  <td className="text-right">
+                    {canManage && !m.isMe && (
+                      <Button size="sm" variant="outline" onClick={() => remove(m.userId, m.role)}>Remove</Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {data.invites.length > 0 && (
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="font-display text-xl">Pending invites</h3>
+          <ul className="mt-4 space-y-2">
+            {data.invites.map((i) => (
+              <li key={i.id} className="flex items-center justify-between border-b border-border py-2 text-sm">
+                <span>{i.email} · {i.role === "super_admin" ? "Super admin" : "Admin"}</span>
+                {canManage && (
+                  <Button size="sm" variant="ghost" onClick={async () => {
+                    try { await cancel({ data: { id: i.id } }); qc.invalidateQueries({ queryKey: ["admin-team"] }); }
+                    catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+                  }}>Cancel</Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
