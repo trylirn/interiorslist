@@ -1,9 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyRoles } from "@/lib/role.functions";
+import { getMyRoles, listAdmins, grantRole, revokeRole, cancelInvite } from "@/lib/role.functions";
 import {
   adminMetrics,
   listPendingClaims,
@@ -14,18 +14,26 @@ import {
   toggleProviderFlag,
   getLicenseDocSignedUrl,
 } from "@/lib/admin.functions";
-import { countMissingCoords, geocodeAllMissing } from "@/lib/geocode.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 
 export const Route = createFileRoute("/_site/admin")({
   head: () => ({ meta: [{ title: "Admin | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
-  component: AdminPage,
+  component: AdminLayout,
 });
+
+function AdminLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isChild = pathname.replace(/\/$/, "") !== "/admin";
+  if (isChild) return <Outlet />;
+  return <AdminPage />;
+}
+
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -78,7 +86,7 @@ function AdminPage() {
           <TabsTrigger value="claims">Claims</TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
-          <TabsTrigger value="maps">Maps</TabsTrigger>
+          <TabsTrigger value="team">Team</TabsTrigger>
           <TabsTrigger value="mine">My dashboard</TabsTrigger>
         </TabsList>
         <TabsContent value="analytics" className="mt-6"><AnalyticsDashboard /></TabsContent>
@@ -86,7 +94,7 @@ function AdminPage() {
         <TabsContent value="claims" className="mt-6"><ClaimsTab /></TabsContent>
         <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
         <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
-        <TabsContent value="maps" className="mt-6"><MapsTab /></TabsContent>
+        <TabsContent value="team" className="mt-6"><TeamTab /></TabsContent>
         <TabsContent value="mine" className="mt-6">
           <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
             <p className="font-medium">Your own provider dashboard (sandbox)</p>
@@ -260,48 +268,112 @@ function ListingsTab() {
   );
 }
 
-function MapsTab() {
+function TeamTab() {
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["missing-coords"], queryFn: () => countMissingCoords() });
-  const geocode = useServerFn(geocodeAllMissing);
-  const [running, setRunning] = useState(false);
-  const [result, setResult] = useState<{ ok: number; failed: number; total: number } | null>(null);
-  async function run() {
-    setRunning(true);
-    setResult(null);
+  const { data, isLoading } = useQuery({ queryKey: ["admin-team"], queryFn: () => listAdmins() });
+  const grant = useServerFn(grantRole);
+  const revoke = useServerFn(revokeRole);
+  const cancel = useServerFn(cancelInvite);
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<"admin" | "super_admin">("admin");
+  const [busy, setBusy] = useState(false);
+
+  if (isLoading || !data) return <p className="text-muted-foreground">Loading…</p>;
+  const canManage = data.isSuperAdmin;
+
+  async function add() {
+    setBusy(true);
     try {
-      const r = await geocode({ data: { limit: 200 } });
-      setResult(r);
-      toast.success(`Geocoded ${r.ok} of ${r.total} providers`);
-      qc.invalidateQueries({ queryKey: ["missing-coords"] });
+      const r = await grant({ data: { email: email.trim(), role } });
+      toast.success(r.invited ? "Invite saved — access applies when they sign up" : "Access granted");
+      setEmail("");
+      qc.invalidateQueries({ queryKey: ["admin-team"] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
     } finally {
-      setRunning(false);
+      setBusy(false);
     }
   }
+
+  async function remove(userId: string, r: string) {
+    try {
+      await revoke({ data: { userId, role: r as "admin" | "super_admin" } });
+      toast.success("Access removed");
+      qc.invalidateQueries({ queryKey: ["admin-team"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <h3 className="font-display text-xl">Provider coordinates</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Providers without latitude/longitude fall back to a text-only "Get directions" link. Run this to geocode addresses via Google Maps.
-        </p>
-        <p className="mt-4 text-sm">
-          {isLoading ? "Checking…" : (
-            <>Missing: <span className="font-semibold">{data?.missing ?? 0}</span></>
-          )}
-        </p>
-        <Button className="mt-4" onClick={run} disabled={running || !data?.missing}>
-          {running ? "Geocoding…" : `Geocode missing (up to 200)`}
-        </Button>
-        {result && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            Last run: {result.ok} succeeded, {result.failed} failed of {result.total}.
+    <div className="space-y-6">
+      {canManage ? (
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="font-display text-xl">Add a team member</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            They get access right away if they already have an account — otherwise the moment they sign up with this email.
           </p>
-        )}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" className="max-w-sm" maxLength={255} />
+            <Select value={role} onValueChange={(v) => setRole(v as "admin" | "super_admin")}>
+              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="super_admin">Super admin</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={add} disabled={busy || !/.+@.+\..+/.test(email)}>Grant access</Button>
+          </div>
+        </div>
+      ) : (
+        <p className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+          Only a super admin can add or remove team members.
+        </p>
+      )}
+
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="font-display text-xl">Team access</h3>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[600px] text-sm">
+            <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+              <tr><th className="p-2">Person</th><th>Role</th><th>Granted</th><th /></tr>
+            </thead>
+            <tbody>
+              {data.members.map((m) => (
+                <tr key={m.id} className="border-t border-border">
+                  <td className="p-2">{m.email ?? m.userId}{m.isMe && <span className="ml-2 text-xs text-muted-foreground">(you)</span>}</td>
+                  <td>{m.role === "super_admin" ? "Super admin" : "Admin"}</td>
+                  <td>{new Date(m.grantedAt).toLocaleDateString()}</td>
+                  <td className="text-right">
+                    {canManage && !m.isMe && (
+                      <Button size="sm" variant="outline" onClick={() => remove(m.userId, m.role)}>Remove</Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {data.invites.length > 0 && (
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="font-display text-xl">Pending invites</h3>
+          <ul className="mt-4 space-y-2">
+            {data.invites.map((i) => (
+              <li key={i.id} className="flex items-center justify-between border-b border-border py-2 text-sm">
+                <span>{i.email} · {i.role === "super_admin" ? "Super admin" : "Admin"}</span>
+                {canManage && (
+                  <Button size="sm" variant="ghost" onClick={async () => {
+                    try { await cancel({ data: { id: i.id } }); qc.invalidateQueries({ queryKey: ["admin-team"] }); }
+                    catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+                  }}>Cancel</Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
-

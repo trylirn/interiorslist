@@ -31,9 +31,12 @@ import { Route as SiteTermsRouteImport } from './routes/_site.terms'
 import { Route as SiteWelcomeRouteImport } from './routes/_site.welcome'
 import { Route as SiteAdminArticlesRouteImport } from './routes/_site.admin.articles'
 import { Route as SiteBestCityRouteImport } from './routes/_site.best.$city'
+import { Route as SiteClaimIndexRouteImport } from './routes/_site.claim.index'
 import { Route as SiteClaimSlugRouteImport } from './routes/_site.claim.$slug'
 import { Route as SiteConcernSlugRouteImport } from './routes/_site.concern.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
+import { Route as SiteReviewIndexRouteImport } from './routes/_site.review.index'
+import { Route as SiteReviewSlugRouteImport } from './routes/_site.review.$slug'
 import { Route as SiteTreatmentSlugRouteImport } from './routes/_site.treatment.$slug'
 import { Route as SiteTxCityRouteImport } from './routes/_site.tx.$city'
 import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
@@ -150,6 +153,11 @@ const SiteBestCityRoute = SiteBestCityRouteImport.update({
   path: '/best/$city',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteClaimIndexRoute = SiteClaimIndexRouteImport.update({
+  id: '/claim/',
+  path: '/claim/',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteClaimSlugRoute = SiteClaimSlugRouteImport.update({
   id: '/claim/$slug',
   path: '/claim/$slug',
@@ -163,6 +171,16 @@ const SiteConcernSlugRoute = SiteConcernSlugRouteImport.update({
 const SiteProviderSlugRoute = SiteProviderSlugRouteImport.update({
   id: '/provider/$slug',
   path: '/provider/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteReviewIndexRoute = SiteReviewIndexRouteImport.update({
+  id: '/review/',
+  path: '/review/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteReviewSlugRoute = SiteReviewSlugRouteImport.update({
+  id: '/review/$slug',
+  path: '/review/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteTreatmentSlugRoute = SiteTreatmentSlugRouteImport.update({
@@ -224,10 +242,13 @@ export interface FileRoutesByFullPath {
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/concern/$slug': typeof SiteConcernSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
+  '/review/$slug': typeof SiteReviewSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/claim/': typeof SiteClaimIndexRoute
+  '/review/': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
@@ -256,10 +277,13 @@ export interface FileRoutesByTo {
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/concern/$slug': typeof SiteConcernSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
+  '/review/$slug': typeof SiteReviewSlugRoute
   '/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/claim': typeof SiteClaimIndexRoute
+  '/review': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
@@ -290,10 +314,13 @@ export interface FileRoutesById {
   '/_site/claim/$slug': typeof SiteClaimSlugRoute
   '/_site/concern/$slug': typeof SiteConcernSlugRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
+  '/_site/review/$slug': typeof SiteReviewSlugRoute
   '/_site/treatment/$slug': typeof SiteTreatmentSlugRoute
   '/_site/tx/$city': typeof SiteTxCityRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/_site/claim/': typeof SiteClaimIndexRoute
+  '/_site/review/': typeof SiteReviewIndexRoute
   '/_site/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
 }
@@ -324,10 +351,13 @@ export interface FileRouteTypes {
     | '/claim/$slug'
     | '/concern/$slug'
     | '/provider/$slug'
+    | '/review/$slug'
     | '/treatment/$slug'
     | '/tx/$city'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
+    | '/claim/'
+    | '/review/'
     | '/admin/provider/$placeId'
     | '/dashboard/listing/$placeId'
   fileRoutesByTo: FileRoutesByTo
@@ -356,10 +386,13 @@ export interface FileRouteTypes {
     | '/claim/$slug'
     | '/concern/$slug'
     | '/provider/$slug'
+    | '/review/$slug'
     | '/treatment/$slug'
     | '/tx/$city'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
+    | '/claim'
+    | '/review'
     | '/admin/provider/$placeId'
     | '/dashboard/listing/$placeId'
   id:
@@ -389,10 +422,13 @@ export interface FileRouteTypes {
     | '/_site/claim/$slug'
     | '/_site/concern/$slug'
     | '/_site/provider/$slug'
+    | '/_site/review/$slug'
     | '/_site/treatment/$slug'
     | '/_site/tx/$city'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
+    | '/_site/claim/'
+    | '/_site/review/'
     | '/_site/admin/provider/$placeId'
     | '/_site/dashboard/listing/$placeId'
   fileRoutesById: FileRoutesById
@@ -560,6 +596,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteBestCityRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/claim/': {
+      id: '/_site/claim/'
+      path: '/claim'
+      fullPath: '/claim/'
+      preLoaderRoute: typeof SiteClaimIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/claim/$slug': {
       id: '/_site/claim/$slug'
       path: '/claim/$slug'
@@ -579,6 +622,20 @@ declare module '@tanstack/react-router' {
       path: '/provider/$slug'
       fullPath: '/provider/$slug'
       preLoaderRoute: typeof SiteProviderSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/review/': {
+      id: '/_site/review/'
+      path: '/review'
+      fullPath: '/review/'
+      preLoaderRoute: typeof SiteReviewIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/review/$slug': {
+      id: '/_site/review/$slug'
+      path: '/review/$slug'
+      fullPath: '/review/$slug'
+      preLoaderRoute: typeof SiteReviewSlugRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/treatment/$slug': {
@@ -675,8 +732,11 @@ interface SiteRouteChildren {
   SiteClaimSlugRoute: typeof SiteClaimSlugRoute
   SiteConcernSlugRoute: typeof SiteConcernSlugRoute
   SiteProviderSlugRoute: typeof SiteProviderSlugRoute
+  SiteReviewSlugRoute: typeof SiteReviewSlugRoute
   SiteTreatmentSlugRoute: typeof SiteTreatmentSlugRoute
   SiteTxCityRoute: typeof SiteTxCityRoute
+  SiteClaimIndexRoute: typeof SiteClaimIndexRoute
+  SiteReviewIndexRoute: typeof SiteReviewIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
@@ -702,8 +762,11 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteClaimSlugRoute: SiteClaimSlugRoute,
   SiteConcernSlugRoute: SiteConcernSlugRoute,
   SiteProviderSlugRoute: SiteProviderSlugRoute,
+  SiteReviewSlugRoute: SiteReviewSlugRoute,
   SiteTreatmentSlugRoute: SiteTreatmentSlugRoute,
   SiteTxCityRoute: SiteTxCityRoute,
+  SiteClaimIndexRoute: SiteClaimIndexRoute,
+  SiteReviewIndexRoute: SiteReviewIndexRoute,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
@@ -717,13 +780,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
