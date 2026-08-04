@@ -15,6 +15,7 @@ export const Route = createFileRoute("/_site/review/$slug")({
       { name: "robots", content: "noindex" },
     ],
   }),
+  loader: ({ params }) => getProviderBySlug({ data: { slug: params.slug } }),
   component: ReviewForProvider,
 });
 
