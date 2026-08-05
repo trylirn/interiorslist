@@ -27,8 +27,8 @@ function ForBusiness() {
             Get discovered by patients actively searching for Botox, fillers, and aesthetic treatments in your city — free.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" className="rounded-full"><Link to="/submit">Submit your business</Link></Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full"><Link to="/login">Claim existing listing</Link></Button>
+            <Button asChild size="lg" className="rounded-full"><Link to="/login">Submit your business</Link></Button>
+            <Button asChild size="lg" variant="outline" className="rounded-full"><Link to="/claim">Claim existing listing</Link></Button>
           </div>
         </div>
       </section>
