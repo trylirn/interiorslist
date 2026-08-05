@@ -3,10 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/_site/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Service | Texas Aesthetics" },
-      { name: "description", content: "Terms governing use of Texas Aesthetics, including HIPAA notice, arbitration, and medical disclaimers." },
+      { title: "Terms of Service | Discover Medspa" },
+      { name: "description", content: "Terms governing use of Discover Medspa, including HIPAA notice, arbitration, and medical disclaimers." },
       { name: "robots", content: "index, follow" },
-      { property: "og:title", content: "Terms of Service — Texas Aesthetics" },
+      { property: "og:title", content: "Terms of Service — Discover Medspa" },
       { property: "og:description", content: "Terms, disclaimers, HIPAA notice, and dispute resolution." },
       { property: "og:url", content: "/terms" },
     ],
@@ -29,7 +29,7 @@ function TermsPage() {
       </p>
 
       <Section title="1. Agreement to these Terms">
-        These Terms of Service ("Terms") form a binding agreement between you and Texas Aesthetics ("Texas Aesthetics", "we", "us", or "our") governing your access to and use of the texas-beauty-glow.lovable.app website and any related services, features, and content (collectively, the "Site"). By accessing or using the Site — including by browsing, searching, creating an account, submitting a claim or business listing, posting a review, or contacting a provider through the Site — you agree to be bound by these Terms and by our <Link to="/privacy" className="text-brand underline">Privacy Policy</Link>, which is incorporated by reference. If you do not agree, do not use the Site.
+        These Terms of Service ("Terms") form a binding agreement between you and Discover Medspa ("Discover Medspa", "we", "us", or "our") governing your access to and use of the texas-beauty-glow.lovable.app website and any related services, features, and content (collectively, the "Site"). By accessing or using the Site — including by browsing, searching, creating an account, submitting a claim or business listing, posting a review, or contacting a provider through the Site — you agree to be bound by these Terms and by our <Link to="/privacy" className="text-brand underline">Privacy Policy</Link>, which is incorporated by reference. If you do not agree, do not use the Site.
       </Section>
 
       <Section title="2. Eligibility">
@@ -37,7 +37,7 @@ function TermsPage() {
       </Section>
 
       <Section title="3. Nature of the service — informational directory only">
-        Texas Aesthetics is a consumer-facing informational directory that lists Texas-based medical spas, aesthetic clinics, and injectors. We are not a healthcare provider, medical practice, clinic, insurance plan, pharmacy, or laboratory. We do not:
+        Discover Medspa is a consumer-facing informational directory that lists Texas-based medical spas, aesthetic clinics, and injectors. We are not a healthcare provider, medical practice, clinic, insurance plan, pharmacy, or laboratory. We do not:
         <ul className="mt-2 list-disc pl-5 space-y-1">
           <li>diagnose, treat, prescribe, or provide any medical service;</li>
           <li>form a doctor–patient, nurse–patient, or clinician–patient relationship with you;</li>
@@ -52,7 +52,7 @@ function TermsPage() {
       </Section>
 
       <Section title="5. HIPAA notice">
-        Texas Aesthetics is <strong>not a Covered Entity or Business Associate</strong> under the Health Insurance Portability and Accountability Act ("HIPAA"). We do not collect, store, or process protected health information ("PHI") in the HIPAA-regulated sense. You agree <strong>not to submit</strong> PHI or any sensitive health information through the Site, including in reviews, contact forms, submission forms, claim forms, or messages to providers. If you voluntarily transmit health-related information through the Site, you acknowledge and agree that (a) such information is not protected by HIPAA when in our possession, (b) we may store, display, forward to the applicable provider, or delete such information consistent with these Terms and our Privacy Policy, and (c) you release us from any claim arising out of your voluntary disclosure. If you need to communicate PHI to a healthcare provider, do so directly through that provider's HIPAA-compliant channels — not through the Site.
+        Discover Medspa is <strong>not a Covered Entity or Business Associate</strong> under the Health Insurance Portability and Accountability Act ("HIPAA"). We do not collect, store, or process protected health information ("PHI") in the HIPAA-regulated sense. You agree <strong>not to submit</strong> PHI or any sensitive health information through the Site, including in reviews, contact forms, submission forms, claim forms, or messages to providers. If you voluntarily transmit health-related information through the Site, you acknowledge and agree that (a) such information is not protected by HIPAA when in our possession, (b) we may store, display, forward to the applicable provider, or delete such information consistent with these Terms and our Privacy Policy, and (c) you release us from any claim arising out of your voluntary disclosure. If you need to communicate PHI to a healthcare provider, do so directly through that provider's HIPAA-compliant channels — not through the Site.
       </Section>
 
       <Section title="6. Accounts and account security">
@@ -72,7 +72,7 @@ function TermsPage() {
       </Section>
 
       <Section title="8. User content and reviews">
-        You retain ownership of any content you submit (reviews, photos, submissions, claim materials, messages) ("User Content"). By submitting User Content, you grant Texas Aesthetics a worldwide, non-exclusive, royalty-free, perpetual, irrevocable, sublicensable license to host, store, reproduce, modify (for formatting), publish, display, and distribute the User Content in connection with operating and promoting the Site. You represent and warrant that (a) you own or control all rights to the User Content, (b) it is accurate and not misleading, (c) it does not contain PHI you were prohibited from submitting under Section 5, and (d) it does not violate these Terms or any law.<br /><br />
+        You retain ownership of any content you submit (reviews, photos, submissions, claim materials, messages) ("User Content"). By submitting User Content, you grant Discover Medspa a worldwide, non-exclusive, royalty-free, perpetual, irrevocable, sublicensable license to host, store, reproduce, modify (for formatting), publish, display, and distribute the User Content in connection with operating and promoting the Site. You represent and warrant that (a) you own or control all rights to the User Content, (b) it is accurate and not misleading, (c) it does not contain PHI you were prohibited from submitting under Section 5, and (d) it does not violate these Terms or any law.<br /><br />
         Reviews must reflect your genuine, first-hand experience. We may remove any User Content at our sole discretion, including for suspected fake, incentivized, defamatory, or off-topic reviews.
       </Section>
 
@@ -85,7 +85,7 @@ function TermsPage() {
       </Section>
 
       <Section title="11. Intellectual property">
-        The Site, including its design, code, editorial content, aggregated data, trademarks, and logos, is owned by Texas Aesthetics or its licensors and protected by U.S. and international intellectual-property laws. Provider names, brands, and logos are the property of their respective owners and are used for identification purposes only. Except for the limited license to use the Site for personal, non-commercial purposes, we grant you no rights in our intellectual property.
+        The Site, including its design, code, editorial content, aggregated data, trademarks, and logos, is owned by Discover Medspa or its licensors and protected by U.S. and international intellectual-property laws. Provider names, brands, and logos are the property of their respective owners and are used for identification purposes only. Except for the limited license to use the Site for personal, non-commercial purposes, we grant you no rights in our intellectual property.
       </Section>
 
       <Section title="12. DMCA copyright policy">
@@ -101,7 +101,7 @@ function TermsPage() {
       </Section>
 
       <Section title="15. Indemnification">
-        You will indemnify, defend, and hold harmless Texas Aesthetics and its officers, employees, and agents from and against any claims, damages, liabilities, and reasonable expenses (including attorneys' fees) arising out of or related to (a) your User Content, (b) your use of the Site, (c) your interactions with any provider, (d) your violation of these Terms or any law, or (e) your violation of any third-party right.
+        You will indemnify, defend, and hold harmless Discover Medspa and its officers, employees, and agents from and against any claims, damages, liabilities, and reasonable expenses (including attorneys' fees) arising out of or related to (a) your User Content, (b) your use of the Site, (c) your interactions with any provider, (d) your violation of these Terms or any law, or (e) your violation of any third-party right.
       </Section>
 
       <Section title="16. Termination">
@@ -114,8 +114,8 @@ function TermsPage() {
 
       <Section title="18. Binding arbitration and class-action waiver">
         <strong>Please read this section carefully. It affects your legal rights.</strong><br /><br />
-        You and Texas Aesthetics agree that any dispute, claim, or controversy arising out of or relating to these Terms or the Site ("Dispute") will be resolved by <strong>binding, individual arbitration</strong> administered by the American Arbitration Association ("AAA") under its Consumer Arbitration Rules, and not in court, except that (a) either party may bring an individual action in small-claims court, and (b) either party may seek injunctive or other equitable relief in court for infringement or misuse of intellectual property. Arbitration will take place in Travis County, Texas, or another location the parties agree on. Judgment on the award may be entered in any court of competent jurisdiction. The arbitrator, not any court, has exclusive authority to resolve threshold issues of arbitrability.<br /><br />
-        <strong>Class-action waiver.</strong> You and Texas Aesthetics agree that each may bring claims against the other only in an individual capacity, and <strong>not as a plaintiff or class member in any purported class, collective, consolidated, or representative proceeding</strong>. The arbitrator may not consolidate claims of multiple persons and may not preside over any form of representative or class proceeding. If this class-action waiver is found unenforceable as to a particular claim, that claim will be severed and heard in court, and the rest of this Section 18 will remain in force.<br /><br />
+        You and Discover Medspa agree that any dispute, claim, or controversy arising out of or relating to these Terms or the Site ("Dispute") will be resolved by <strong>binding, individual arbitration</strong> administered by the American Arbitration Association ("AAA") under its Consumer Arbitration Rules, and not in court, except that (a) either party may bring an individual action in small-claims court, and (b) either party may seek injunctive or other equitable relief in court for infringement or misuse of intellectual property. Arbitration will take place in Travis County, Texas, or another location the parties agree on. Judgment on the award may be entered in any court of competent jurisdiction. The arbitrator, not any court, has exclusive authority to resolve threshold issues of arbitrability.<br /><br />
+        <strong>Class-action waiver.</strong> You and Discover Medspa agree that each may bring claims against the other only in an individual capacity, and <strong>not as a plaintiff or class member in any purported class, collective, consolidated, or representative proceeding</strong>. The arbitrator may not consolidate claims of multiple persons and may not preside over any form of representative or class proceeding. If this class-action waiver is found unenforceable as to a particular claim, that claim will be severed and heard in court, and the rest of this Section 18 will remain in force.<br /><br />
         <strong>30-day opt-out.</strong> You may opt out of this Section 18 by sending written notice to the contact address in Section 20 within 30 days after first accepting these Terms. The notice must include your name, address, and a clear statement that you opt out of arbitration.
       </Section>
 
@@ -124,7 +124,7 @@ function TermsPage() {
       </Section>
 
       <Section title="20. Miscellaneous and contact">
-        These Terms, together with the Privacy Policy, are the entire agreement between you and Texas Aesthetics with respect to the Site and supersede prior agreements. If any provision is held unenforceable, the remaining provisions remain in effect. Our failure to enforce any right is not a waiver of that right. You may not assign these Terms; we may assign them freely. Questions, notices, and legal contact: <Link to="/contact" className="text-brand underline">use our contact form</Link>.
+        These Terms, together with the Privacy Policy, are the entire agreement between you and Discover Medspa with respect to the Site and supersede prior agreements. If any provision is held unenforceable, the remaining provisions remain in effect. Our failure to enforce any right is not a waiver of that right. You may not assign these Terms; we may assign them freely. Questions, notices, and legal contact: <Link to="/contact" className="text-brand underline">use our contact form</Link>.
       </Section>
 
       <p className="mt-12"><Link to="/" className="text-brand underline">← Back home</Link></p>

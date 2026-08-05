@@ -8,7 +8,7 @@ import { BadgeCheck, ExternalLink, MapPin, Star } from "lucide-react";
 export const Route = createFileRoute("/_site/compare")({
   head: () => ({
     meta: [
-      { title: "Compare Providers | Texas Aesthetics" },
+      { title: "Compare Providers | Discover Medspa" },
       { name: "description", content: "Compare verified Texas aesthetic injectors side-by-side." },
       { name: "robots", content: "noindex" },
     ],

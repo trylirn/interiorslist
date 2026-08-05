@@ -85,7 +85,7 @@ export const reviewClaim = createServerFn({ method: "POST" })
     await assertAdmin(context.userId);
     const { data: claim, error } = await supabaseAdmin
       .from("claims")
-      .select("id, user_id, provider_place_id, status")
+      .select("id, user_id, provider_place_id, status, contact_email")
       .eq("id", data.id)
       .maybeSingle();
     if (error || !claim) throw new Error("Claim not found");
@@ -96,9 +96,20 @@ export const reviewClaim = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (upErr) throw new Error(upErr.message);
     if (data.action === "approve") {
+      // Public claims can arrive without an account. If an account already
+      // exists for the contact email, attach the listing to it.
+      let ownerId = claim.user_id as string | null;
+      if (!ownerId && claim.contact_email) {
+        const { data: match } = await supabaseAdmin
+          .from("profiles")
+          .select("id")
+          .ilike("email", claim.contact_email as string)
+          .maybeSingle();
+        ownerId = match?.id ?? null;
+      }
       await supabaseAdmin
         .from("providers")
-        .update({ claimed_by: claim.user_id, is_verified: true })
+        .update({ claimed_by: ownerId, is_verified: true, published: true })
         .eq("place_id", claim.provider_place_id);
     }
     return { ok: true };

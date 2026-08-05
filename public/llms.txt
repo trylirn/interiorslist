@@ -1,15 +1,15 @@
-# Texas Aesthetics
+# Discover Medspa
 
 > Trusted directory of aesthetic injectors across every major Texas metro — Botox, dermal fillers, Sculptra, lip filler, and medspa services, ranked by real patient reviews.
 
-Texas Aesthetics helps patients find verified, currently-operating aesthetic injectors in Texas. Listings are continuously refreshed and no provider pays for placement.
+Discover Medspa helps patients find verified, currently-operating aesthetic injectors in Texas. Listings are continuously refreshed and no provider pays for placement.
 
 ## Pages
 
 - [Home](/): Search and browse trusted Texas aesthetic injectors.
 - [Search](/search): Search injectors by clinic, name, or treatment.
 - [Submit a business](/submit): Suggest a Texas injector for the directory.
-- [About](/about): What Texas Aesthetics is and how listings are vetted.
+- [About](/about): What Discover Medspa is and how listings are vetted.
 - [Contact](/contact): Reach the team for corrections, partnerships, or support.
 - [Privacy](/privacy): How we handle your data and third-party sources.
 - [Terms](/terms): Terms of use and medical disclaimers.

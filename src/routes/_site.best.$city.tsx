@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_site/best/$city")({
     const path = `/best/${params.city}`;
     return {
       meta: [
-        { title: `Best Medspas & Aesthetic Injectors in ${name}, TX (${new Date().getFullYear()}) | Texas Aesthetics` },
+        { title: `Best Medspas & Aesthetic Injectors in ${name}, TX (${new Date().getFullYear()}) | Discover Medspa` },
         { name: "description", content: `The top verified Botox, filler, and medspa providers in ${name}, Texas — curated, reviewed, and ranked.` },
         { property: "og:title", content: `Best Medspas in ${name}, TX` },
         { property: "og:description", content: `Top verified aesthetic injectors in ${name}.` },

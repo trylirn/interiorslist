@@ -6,9 +6,9 @@ import { BadgeCheck, Eye, MessageSquare, BarChart3, ShieldCheck, Building2 } fro
 export const Route = createFileRoute("/_site/for-business")({
   head: () => ({
     meta: [
-      { title: "For Business — Claim Your Medspa Listing | Texas Aesthetics" },
+      { title: "For Business — Claim Your Medspa Listing | Discover Medspa" },
       { name: "description", content: "Claim or submit your Texas medspa listing free. Manage your profile, respond to inquiries, and reach high-intent patients across Texas." },
-      { property: "og:title", content: "For Business | Texas Aesthetics" },
+      { property: "og:title", content: "For Business | Discover Medspa" },
       { property: "og:description", content: "Claim or submit your Texas medspa listing free." },
     ],
     links: [{ rel: "canonical", href: "/for-business" }],
@@ -27,8 +27,8 @@ function ForBusiness() {
             Get discovered by patients actively searching for Botox, fillers, and aesthetic treatments in your city — free.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" className="rounded-full"><Link to="/submit">Submit your business</Link></Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full"><Link to="/login">Claim existing listing</Link></Button>
+            <Button asChild size="lg" className="rounded-full"><Link to="/login">Submit your business</Link></Button>
+            <Button asChild size="lg" variant="outline" className="rounded-full"><Link to="/claim">Claim existing listing</Link></Button>
           </div>
         </div>
       </section>
@@ -77,8 +77,8 @@ function ForBusiness() {
         <div className="mt-12 rounded-3xl bg-brand p-10 text-center text-brand-foreground">
           <h3 className="font-display text-3xl">Ready to start?</h3>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/submit">Submit your business</Link></Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/login">Sign in to claim</Link></Button>
+            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/login">Submit your business</Link></Button>
+            <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/claim">Claim existing listing</Link></Button>
           </div>
         </div>
       </section>

@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { CompareDrawer } from "@/components/compare-drawer";
+import { QuizPrompt } from "@/components/quiz-prompt";
 
 export const Route = createFileRoute("/_site")({
   component: SiteLayout,
@@ -15,6 +16,7 @@ function SiteLayout() {
       </main>
       <SiteFooter />
       <CompareDrawer />
+      <QuizPrompt />
     </div>
   );
 }

@@ -55,7 +55,7 @@ export const Route = createFileRoute("/_site/tx/$city")({
       name: `Aesthetic Injectors & Medspas in ${name}, TX`,
       url: canonical,
       about: { "@type": "City", name, containedInPlace: { "@type": "State", name: "Texas" } },
-      isPartOf: { "@type": "WebSite", name: "Texas Aesthetics", url: "https://texas-beauty-glow.lovable.app/" },
+      isPartOf: { "@type": "WebSite", name: "Discover Medspa", url: "https://texas-beauty-glow.lovable.app/" },
     };
     if (geo) collectionLd.geo = { "@type": "GeoCoordinates", latitude: geo.lat, longitude: geo.lng };
     return {
@@ -84,7 +84,7 @@ export const Route = createFileRoute("/_site/tx/$city")({
               { "@type": "Question", name: `How much does Botox cost in ${name}, TX?`,
                 acceptedAnswer: { "@type": "Answer", text: `Botox in ${name}, Texas typically ranges $12–$18 per unit depending on the injector's experience and clinic. Compare local providers above for pricing details.` } },
               { "@type": "Question", name: `Are medspas in ${name} licensed?`,
-                acceptedAnswer: { "@type": "Answer", text: `Reputable medspas in ${name}, TX operate under a licensed Medical Director. Every listing on Texas Aesthetics can be cross-checked with the Texas Medical Board and Texas Board of Nursing.` } },
+                acceptedAnswer: { "@type": "Answer", text: `Reputable medspas in ${name}, TX operate under a licensed Medical Director. Every listing on Discover Medspa can be cross-checked with the Texas Medical Board and Texas Board of Nursing.` } },
               { "@type": "Question", name: `Where can I find the best filler injector near me in ${name}?`,
                 acceptedAnswer: { "@type": "Answer", text: `Browse verified filler and Botox injectors in ${name}, TX on this page. Each provider profile lists services, reviews, and contact details.` } },
             ],

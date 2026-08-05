@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/login")({
-  head: () => ({ meta: [{ title: "Sign in | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Sign in | Discover Medspa" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: LoginPage,
 });
 
@@ -19,7 +19,7 @@ function LoginPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <div className="text-center">
-        <h1 className="font-display text-4xl">Welcome to Texas Aesthetics</h1>
+        <h1 className="font-display text-4xl">Welcome to Discover Medspa</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Browsing is free — no account needed. Accounts are for med spas and clinics: register your business, claim your listing, and manage your profile.
         </p>
@@ -32,6 +32,12 @@ function LoginPage() {
         <TabsContent value="signin" className="mt-6"><SignInPanel /></TabsContent>
         <TabsContent value="business" className="mt-6"><BusinessSignupWizard /></TabsContent>
       </Tabs>
+
+      <div className="mx-auto mt-6 max-w-md rounded-2xl border border-border bg-secondary/40 p-4 text-center text-sm">
+        Are you a professional?{" "}
+        <Link to="/claim" className="font-medium text-brand hover:underline">Claim your profile →</Link>
+        <p className="mt-1 text-xs text-muted-foreground">No account needed — just submit your claim and our team follows up.</p>
+      </div>
 
       <p className="mt-6 text-center text-xs"><Link to="/" className="text-muted-foreground hover:underline">← Back home</Link></p>
     </div>
@@ -186,7 +192,7 @@ function BusinessSignupWizard() {
       {step === 2 && (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Texas Aesthetics lists licensed providers. You can add credentials now or later from your dashboard — none of this is required to create your account.
+            Discover Medspa lists licensed providers. You can add credentials now or later from your dashboard — none of this is required to create your account.
           </p>
           <div className="space-y-1.5">
             <Label>License type</Label>

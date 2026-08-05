@@ -35,7 +35,7 @@ export const Route = createFileRoute("/_site/provider/$slug")({
     const serviceBlurb = topServices.length ? topServices.join(", ") : "Botox, filler & medspa treatments";
     const title = p
       ? `${displayName} — ${topServices[0] ? topServices[0].replace(/\b\w/g, (m: string) => m.toUpperCase()) + " & Medspa" : "Medspa & Injector"} in ${city}, TX`
-      : `${displayName} — Texas Aesthetics`;
+      : `${displayName} — Discover Medspa`;
     const description = p
       ? `${p.name} in ${city}, TX. ${serviceBlurb}. Read patient reviews, view services, and book a consultation with this verified Texas aesthetic injector near you.`
       : `Verified Texas aesthetic injector. Services, contact, and reviews.`;
@@ -463,7 +463,7 @@ function UnclaimedSidebar({ slug, website, mapsHref }: { slug: string; website: 
         <h3 className="font-display text-lg">Listing not yet claimed</h3>
       </div>
       <p className="mt-3 text-sm text-muted-foreground">
-        This business hasn't claimed their Texas Aesthetics listing yet, so we can't deliver messages on their behalf. You can still reach them directly:
+        This business hasn't claimed their Discover Medspa listing yet, so we can't deliver messages on their behalf. You can still reach them directly:
       </p>
       <div className="mt-4 flex flex-col gap-2">
         {website && <Button asChild variant="outline" className="w-full rounded-full"><a href={website} target="_blank" rel="noopener noreferrer"><Globe className="mr-2 h-4 w-4" />Visit website</a></Button>}

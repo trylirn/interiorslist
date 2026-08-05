@@ -31,7 +31,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4">
         <Link to="/" className="font-display text-xl font-semibold tracking-[0.15em] uppercase">
-          Texas Aesthetics
+          Discover Medspa
         </Link>
         <nav className="hidden items-center gap-8 lg:flex">
           <Link to="/search" className="text-sm font-medium hover:text-brand">Find a Pro</Link>
@@ -84,7 +84,7 @@ export function SiteFooter() {
     <footer className="mt-24 border-t border-border/60 bg-secondary/30">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-6">
         <div className="lg:col-span-1">
-          <p className="font-display text-lg font-semibold uppercase tracking-[0.15em]">Texas Aesthetics</p>
+          <p className="font-display text-lg font-semibold uppercase tracking-[0.15em]">Discover Medspa</p>
           <p className="mt-4 text-sm text-muted-foreground">
             The trusted directory helping Texans find vetted, verified aesthetic injectors and medspas.
           </p>
@@ -127,7 +127,7 @@ export function SiteFooter() {
       <div className="border-t border-border/60">
         <div className="mx-auto max-w-7xl px-4 py-6 text-xs text-muted-foreground">
           <p>
-            © {new Date().getFullYear()} Texas Aesthetics. Informational directory only — not medical advice.
+            © {new Date().getFullYear()} Discover Medspa. Informational directory only — not medical advice.
             Always verify a provider's licensure with the Texas Medical Board or Texas Board of Nursing
             before treatment.
           </p>

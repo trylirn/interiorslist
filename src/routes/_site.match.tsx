@@ -15,9 +15,9 @@ export const Route = createFileRoute("/_site/match")({
   }),
   head: () => ({
     meta: [
-      { title: "Find a Texas Medspa | Texas Aesthetics" },
+      { title: "Find a Texas Medspa | Discover Medspa" },
       { name: "description", content: "Answer a few quick questions and browse verified Texas medspas and aesthetic injectors that match your treatment, city, budget and preferences." },
-      { property: "og:title", content: "Find a Texas Medspa — Texas Aesthetics" },
+      { property: "og:title", content: "Find a Texas Medspa — Discover Medspa" },
       { property: "og:description", content: "Browse verified Texas medspas in seconds." },
       { property: "og:url", content: "/match" },
     ],

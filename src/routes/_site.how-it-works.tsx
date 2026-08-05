@@ -5,9 +5,9 @@ import { Search, ListChecks, MessageSquare, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/_site/how-it-works")({
   head: () => ({
     meta: [
-      { title: "How It Works | Texas Aesthetics" },
-      { name: "description", content: "How Texas Aesthetics verifies medspas and helps you find a trusted aesthetic injector." },
-      { property: "og:title", content: "How It Works | Texas Aesthetics" },
+      { title: "How It Works | Discover Medspa" },
+      { name: "description", content: "How Discover Medspa verifies medspas and helps you find a trusted aesthetic injector." },
+      { property: "og:title", content: "How It Works | Discover Medspa" },
       { property: "og:description", content: "How we verify medspas and help you find a trusted injector." },
     ],
     links: [{ rel: "canonical", href: "/how-it-works" }],
@@ -21,7 +21,7 @@ function HowItWorks() {
       <p className="text-xs font-semibold uppercase tracking-widest text-brand">How It Works</p>
       <h1 className="mt-3 font-display text-5xl md:text-6xl">A simple, transparent process.</h1>
       <p className="mt-6 text-lg text-muted-foreground">
-        Texas Aesthetics is an independent directory. We verify every listing, surface credentials, and let you contact providers directly — no middlemen.
+        Discover Medspa is an independent directory. We verify every listing, surface credentials, and let you contact providers directly — no middlemen.
       </p>
 
       <div className="mt-14 space-y-10">

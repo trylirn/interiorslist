@@ -3,9 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/_site/credentials")({
   head: () => ({
     meta: [
-      { title: "Provider Credentials Guide | Texas Aesthetics" },
+      { title: "Provider Credentials Guide | Discover Medspa" },
       { name: "description", content: "Understand MD, DO, NP, PA, RN, and Esthetician credentials — what each can do legally in Texas medspas." },
-      { property: "og:title", content: "Credentials Guide | Texas Aesthetics" },
+      { property: "og:title", content: "Credentials Guide | Discover Medspa" },
       { property: "og:description", content: "Understand who can legally treat you in a Texas medspa." },
     ],
     links: [{ rel: "canonical", href: "/credentials" }],
@@ -19,7 +19,7 @@ function Credentials() {
       <p className="text-xs font-semibold uppercase tracking-widest text-brand">Credentials</p>
       <h1 className="mt-3 font-display text-5xl md:text-6xl">Who can treat you?</h1>
       <p className="mt-6 text-lg text-muted-foreground">
-        In Texas, the practice of medical aesthetics is regulated by the Texas Medical Board and the Texas Board of Nursing. Here's a quick guide to the credentials you'll see on Texas Aesthetics profiles.
+        In Texas, the practice of medical aesthetics is regulated by the Texas Medical Board and the Texas Board of Nursing. Here's a quick guide to the credentials you'll see on Discover Medspa profiles.
       </p>
 
       <div className="mt-12 space-y-8">

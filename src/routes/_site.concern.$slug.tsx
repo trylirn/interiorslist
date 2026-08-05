@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_site/concern/$slug")({
     if (!c) return { meta: [{ title: "Concern not found" }] };
     return {
       meta: [
-        { title: `${c.label} — Texas Medspas | Texas Aesthetics` },
+        { title: `${c.label} — Texas Medspas | Discover Medspa` },
         { name: "description", content: c.intro },
         { property: "og:title", content: `${c.label} in Texas` },
         { property: "og:description", content: c.intro },

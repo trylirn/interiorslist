@@ -8,7 +8,7 @@ import { ProviderCard } from "@/components/provider-card";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_site/favorites")({
-  head: () => ({ meta: [{ title: "My Favorites | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "My Favorites | Discover Medspa" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: FavoritesPage,
 });
 

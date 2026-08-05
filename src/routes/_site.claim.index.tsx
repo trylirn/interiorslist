@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_site/claim/")({
   head: () => ({
     meta: [
-      { title: "Claim Your Med Spa Profile | Texas Aesthetics" },
+      { title: "Claim Your Med Spa Profile | Discover Medspa" },
       { name: "description", content: "Claim your Texas med spa listing in under a minute. Paste your listing link or search by business name — no account required." },
-      { property: "og:title", content: "Claim Your Med Spa Profile | Texas Aesthetics" },
+      { property: "og:title", content: "Claim Your Med Spa Profile | Discover Medspa" },
       { property: "og:description", content: "Take control of your listing: photos, services, FAQs and leads." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

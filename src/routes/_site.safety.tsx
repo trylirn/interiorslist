@@ -4,7 +4,7 @@ import { ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/_site/safety")({
   head: () => ({
     meta: [
-      { title: "Patient Safety Guide | Texas Aesthetics" },
+      { title: "Patient Safety Guide | Discover Medspa" },
       { name: "description", content: "Risks, recovery expectations, and how to verify your aesthetic injector's credentials in Texas." },
       { property: "og:title", content: "Patient Safety Guide" },
       { property: "og:description", content: "Risks, recovery, and credential verification for Texas aesthetic patients." },
@@ -53,7 +53,7 @@ function SafetyPage() {
       </Section>
 
       <p className="mt-12 rounded-xl border border-border bg-card p-5 text-sm text-foreground/80">
-        Texas Aesthetics is an informational directory. Nothing on this page is medical advice. Always consult a qualified healthcare professional before any cosmetic procedure.
+        Discover Medspa is an informational directory. Nothing on this page is medical advice. Always consult a qualified healthcare professional before any cosmetic procedure.
       </p>
 
       <p className="mt-8"><Link to="/" className="text-brand underline">← Back home</Link></p>
