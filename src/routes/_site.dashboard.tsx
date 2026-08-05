@@ -14,7 +14,7 @@ import { Star, Mail, Phone, ExternalLink, Building2, Shield } from "lucide-react
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Dashboard | Discover Medspa" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: Dashboard,
 });
 

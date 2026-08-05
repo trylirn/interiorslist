@@ -3,10 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/_site/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Texas Aesthetics — Partnership & Support" },
-      { name: "description", content: "Get in touch with Texas Aesthetics for corrections, partnership inquiries, or support." },
-      { property: "og:title", content: "Contact Texas Aesthetics" },
-      { property: "og:description", content: "Reach the Texas Aesthetics team for corrections, partnerships, and support." },
+      { title: "Contact Discover Medspa — Partnership & Support" },
+      { name: "description", content: "Get in touch with Discover Medspa for corrections, partnership inquiries, or support." },
+      { property: "og:title", content: "Contact Discover Medspa" },
+      { property: "og:description", content: "Reach the Discover Medspa team for corrections, partnerships, and support." },
       { property: "og:url", content: "/contact" },
     ],
     links: [{ rel: "canonical", href: "/contact" }],

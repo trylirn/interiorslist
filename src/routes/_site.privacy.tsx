@@ -3,11 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/_site/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy | Texas Aesthetics" },
-      { name: "description", content: "How Texas Aesthetics collects, uses, shares, and protects your information — including CCPA, GDPR, and Texas TDPSA rights." },
+      { title: "Privacy Policy | Discover Medspa" },
+      { name: "description", content: "How Discover Medspa collects, uses, shares, and protects your information — including CCPA, GDPR, and Texas TDPSA rights." },
       { name: "robots", content: "index, follow" },
-      { property: "og:title", content: "Privacy Policy — Texas Aesthetics" },
-      { property: "og:description", content: "How Texas Aesthetics handles your data." },
+      { property: "og:title", content: "Privacy Policy — Discover Medspa" },
+      { property: "og:description", content: "How Discover Medspa handles your data." },
       { property: "og:url", content: "/privacy" },
     ],
     links: [{ rel: "canonical", href: "/privacy" }],
@@ -29,11 +29,11 @@ function PrivacyPage() {
       </p>
 
       <Section title="1. Overview">
-        Texas Aesthetics ("we", "us", or "our") operates a consumer-facing directory of Texas medspas and aesthetic injectors at texas-beauty-glow.lovable.app (the "Site"). This Privacy Policy explains what information we collect, how we use it, who we share it with, and the choices and rights you have. It applies to visitors, account holders, business owners who claim or submit listings, and reviewers.
+        Discover Medspa ("we", "us", or "our") operates a consumer-facing directory of Texas medspas and aesthetic injectors at texas-beauty-glow.lovable.app (the "Site"). This Privacy Policy explains what information we collect, how we use it, who we share it with, and the choices and rights you have. It applies to visitors, account holders, business owners who claim or submit listings, and reviewers.
       </Section>
 
       <Section title="2. HIPAA and health information — please do not send us PHI">
-        Texas Aesthetics is <strong>not a Covered Entity or Business Associate</strong> under HIPAA. We do not knowingly collect protected health information ("PHI"), medical records, diagnosis codes, prescription information, or treatment history. Please do not include health-related details in reviews, contact forms, submission forms, claim forms, or any messages you send through the Site. If you voluntarily submit such information, it is not protected by HIPAA in our hands and is governed by these terms and by the Terms of Service. Communicate with healthcare providers directly through their own HIPAA-compliant channels.
+        Discover Medspa is <strong>not a Covered Entity or Business Associate</strong> under HIPAA. We do not knowingly collect protected health information ("PHI"), medical records, diagnosis codes, prescription information, or treatment history. Please do not include health-related details in reviews, contact forms, submission forms, claim forms, or any messages you send through the Site. If you voluntarily submit such information, it is not protected by HIPAA in our hands and is governed by these terms and by the Terms of Service. Communicate with healthcare providers directly through their own HIPAA-compliant channels.
       </Section>
 
       <Section title="3. Information we collect">
@@ -87,7 +87,7 @@ function PrivacyPage() {
           <li><strong>Providers you contact.</strong> When you use a provider contact form, we deliver your message and contact details to that specific provider. Once delivered, the provider is an independent controller of that information.</li>
           <li><strong>Service providers (subprocessors).</strong> Hosting, database, authentication, email delivery, error monitoring, analytics, maps and geocoding, and content ingestion vendors, bound by confidentiality and data-processing obligations.</li>
           <li><strong>Business owners.</strong> Aggregate view counts and lead counts related to their own listing.</li>
-          <li><strong>Legal and safety.</strong> To comply with a lawful subpoena, court order, or government request; to enforce our Terms; to protect the rights, safety, or property of Texas Aesthetics, users, or the public; or in connection with fraud investigations.</li>
+          <li><strong>Legal and safety.</strong> To comply with a lawful subpoena, court order, or government request; to enforce our Terms; to protect the rights, safety, or property of Discover Medspa, users, or the public; or in connection with fraud investigations.</li>
           <li><strong>Corporate transactions.</strong> If we're involved in a merger, acquisition, financing, or sale of assets, information may transfer as part of that transaction, subject to reasonable confidentiality protections.</li>
         </ul>
         We do not sell or rent your personal information to third parties for their independent marketing.

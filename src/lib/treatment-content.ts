@@ -30,7 +30,7 @@ function defaultContent(name: string): TreatmentContent {
     faqs: [
       { q: `How long does ${name} last?`, a: `Duration varies by individual, product, and treatment area. Your provider will discuss expected longevity at your consultation.` },
       { q: `Is ${name} painful?`, a: `Most patients tolerate ${name} well. Topical numbing or ice is used at many clinics to keep the experience comfortable.` },
-      { q: `How do I choose a provider for ${name} in Texas?`, a: `Look for a licensed MD, DO, NP, PA, or RN operating under a Medical Director. Verified listings on Texas Aesthetics link directly to provider websites and reviews.` },
+      { q: `How do I choose a provider for ${name} in Texas?`, a: `Look for a licensed MD, DO, NP, PA, or RN operating under a Medical Director. Verified listings on Discover Medspa link directly to provider websites and reviews.` },
     ],
   };
 }

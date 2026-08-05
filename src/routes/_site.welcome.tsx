@@ -2,14 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/_site/welcome")({
-  head: () => ({ meta: [{ title: "Welcome | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Welcome | Discover Medspa" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: Welcome,
 });
 
 function Welcome() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-      <h1 className="font-display text-5xl md:text-6xl">Welcome to Texas Aesthetics</h1>
+      <h1 className="font-display text-5xl md:text-6xl">Welcome to Discover Medspa</h1>
       <p className="mt-4 text-lg text-muted-foreground">What brings you here today?</p>
 
       <div className="mt-12 grid gap-6 md:grid-cols-2">

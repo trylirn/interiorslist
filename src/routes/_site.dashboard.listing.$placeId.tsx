@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ListingManager } from "@/components/listing-manager";
 
 export const Route = createFileRoute("/_site/dashboard/listing/$placeId")({
-  head: () => ({ meta: [{ title: "Manage listing | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Manage listing | Discover Medspa" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: ManageListingRoute,
 });
 

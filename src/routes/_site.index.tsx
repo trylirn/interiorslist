@@ -17,9 +17,9 @@ const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCit
 export const Route = createFileRoute("/_site/")({
   head: () => ({
     meta: [
-      { title: "Texas Aesthetics — Trusted Injector Directory" },
+      { title: "Discover Medspa — Trusted Injector Directory" },
       { name: "description", content: "Verified Botox, filler & medspa injectors across Houston, Dallas, Austin, San Antonio and every major Texas metro." },
-      { property: "og:title", content: "Texas Aesthetics — Trusted Injector Directory" },
+      { property: "og:title", content: "Discover Medspa — Trusted Injector Directory" },
       { property: "og:description", content: "Search top verified Botox, filler, and medspa providers in Texas." },
       { property: "og:url", content: "https://texas-beauty-glow.lovable.app/" },
       { property: "og:type", content: "website" },
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_site/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "Texas Aesthetics",
+          name: "Discover Medspa",
           url: "https://texas-beauty-glow.lovable.app/",
           potentialAction: {
             "@type": "SearchAction",
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_site/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "Texas Aesthetics",
+          name: "Discover Medspa",
           url: "https://texas-beauty-glow.lovable.app/",
           description: "Verified directory of Botox, filler, and medspa injectors across Texas.",
         }),
@@ -57,7 +57,7 @@ export const Route = createFileRoute("/_site/")({
           "@context": "https://schema.org",
           "@type": "FAQPage",
           mainEntity: [
-            { "@type": "Question", name: "Is Texas Aesthetics free for patients?", acceptedAnswer: { "@type": "Answer", text: "Yes — searching, browsing, and contacting providers is always free." } },
+            { "@type": "Question", name: "Is Discover Medspa free for patients?", acceptedAnswer: { "@type": "Answer", text: "Yes — searching, browsing, and contacting providers is always free." } },
             { "@type": "Question", name: "How are providers verified?", acceptedAnswer: { "@type": "Answer", text: "We review every listing for valid business info, an active website, and credentialed practitioners before publication." } },
             { "@type": "Question", name: "Do you accept paid placements?", acceptedAnswer: { "@type": "Answer", text: "No. There are no paid placements or commissions on inquiries. Featured spots are based on verification status." } },
             { "@type": "Question", name: "How do I claim my business listing?", acceptedAnswer: { "@type": "Answer", text: "Sign in and visit your business profile — you'll see a 'Claim this listing' button. We verify ownership before granting access." } },
@@ -316,7 +316,7 @@ function TrustCard({ Icon, title, body }: { Icon: React.ComponentType<{ classNam
 }
 
 const FAQ = [
-  { q: "Is Texas Aesthetics free for patients?", a: "Yes — searching, browsing, and contacting providers is always free." },
+  { q: "Is Discover Medspa free for patients?", a: "Yes — searching, browsing, and contacting providers is always free." },
   { q: "How are providers verified?", a: "We review every listing for valid business info, an active website, and credentialed practitioners before publication." },
   { q: "Do you accept paid placements?", a: "No. There are no paid placements or commissions on inquiries. Featured spots are based on verification status." },
   { q: "How do I claim my business listing?", a: "Sign in and visit your business profile — you'll see a 'Claim this listing' button. We verify ownership before granting access." },

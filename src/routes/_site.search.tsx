@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_site/search")({
   }),
   head: () => ({
     meta: [
-      { title: "Find a Pro — Texas Aesthetic Injectors | Texas Aesthetics" },
+      { title: "Find a Pro — Texas Aesthetic Injectors | Discover Medspa" },
       { name: "description", content: "Browse and search verified Botox, filler, and medspa injectors across every major Texas city." },
       { property: "og:title", content: "Find a Pro — Texas Aesthetic Injectors" },
       { property: "og:url", content: "/search" },

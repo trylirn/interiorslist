@@ -6,9 +6,9 @@ import { BadgeCheck, Eye, MessageSquare, BarChart3, ShieldCheck, Building2 } fro
 export const Route = createFileRoute("/_site/for-business")({
   head: () => ({
     meta: [
-      { title: "For Business — Claim Your Medspa Listing | Texas Aesthetics" },
+      { title: "For Business — Claim Your Medspa Listing | Discover Medspa" },
       { name: "description", content: "Claim or submit your Texas medspa listing free. Manage your profile, respond to inquiries, and reach high-intent patients across Texas." },
-      { property: "og:title", content: "For Business | Texas Aesthetics" },
+      { property: "og:title", content: "For Business | Discover Medspa" },
       { property: "og:description", content: "Claim or submit your Texas medspa listing free." },
     ],
     links: [{ rel: "canonical", href: "/for-business" }],

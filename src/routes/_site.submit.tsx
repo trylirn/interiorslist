@@ -11,9 +11,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_site/submit")({
   head: () => ({
     meta: [
-      { title: "Submit a Business | Texas Aesthetics" },
+      { title: "Submit a Business | Discover Medspa" },
       { name: "description", content: "Know a great Texas aesthetic injector we're missing? Submit them to the directory." },
-      { property: "og:title", content: "Submit a Business — Texas Aesthetics" },
+      { property: "og:title", content: "Submit a Business — Discover Medspa" },
       { property: "og:description", content: "Submit a Texas aesthetic injector to the directory." },
       { property: "og:url", content: "/submit" },
     ],

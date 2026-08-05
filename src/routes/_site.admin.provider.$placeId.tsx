@@ -7,7 +7,7 @@ import { ListingManager } from "@/components/listing-manager";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_site/admin/provider/$placeId")({
-  head: () => ({ meta: [{ title: "Provider dashboard (admin) | Texas Aesthetics" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Provider dashboard (admin) | Discover Medspa" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: AdminProviderDashboard,
 });
 

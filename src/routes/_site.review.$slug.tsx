@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_site/review/$slug")({
   head: () => ({
     meta: [
-      { title: "Write a review | Texas Aesthetics" },
+      { title: "Write a review | Discover Medspa" },
       { name: "description", content: "Share your med spa experience — treatments, results, communication and value." },
-      { property: "og:title", content: "Write a review | Texas Aesthetics" },
+      { property: "og:title", content: "Write a review | Discover Medspa" },
       { property: "og:description", content: "Help others choose with confidence." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
