@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { listMyListings, listMyLeads, listMyReviews, updateLeadStatus } from "@/lib/owner.functions";
+import { listMyListings, listMyLeads, listMyReviews, updateLeadStatus, getMyOnboardingStatus } from "@/lib/owner.functions";
 import { respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { getMyRoles } from "@/lib/role.functions";
-import { Star, Mail, Phone, ExternalLink, Building2, Shield } from "lucide-react";
+import { Star, Mail, Phone, ExternalLink, Building2, Shield, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/dashboard")({
@@ -29,6 +29,7 @@ function Dashboard() {
     queryKey: ["my-listings"], queryFn: () => listMyListings(), enabled: !!email,
   });
   const ownsListings = (listingsData?.listings.length ?? 0) > 0;
+  const { data: onboarding } = useQuery({ queryKey: ["my-onboarding"], queryFn: () => getMyOnboardingStatus(), enabled: !!email });
 
   if (!ready) return <div className="mx-auto max-w-2xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
   if (!email) return (
@@ -51,6 +52,10 @@ function Dashboard() {
           <Button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/"; }} variant="outline" size="sm">Sign out</Button>
         </div>
       </div>
+
+      {onboarding && !roles?.isAdmin && (
+        <OnboardingBanner status={onboarding} />
+      )}
 
       {listingsLoading ? (
         <p className="mt-10 text-muted-foreground">Loading…</p>
@@ -90,6 +95,48 @@ function Dashboard() {
       )}
     </div>
   );
+}
+
+type Onboarding = Awaited<ReturnType<typeof getMyOnboardingStatus>>;
+
+function OnboardingBanner({ status }: { status: Onboarding }) {
+  const pendingClaim = status.pendingClaims.length > 0;
+  const pendingSub = status.pendingSubmissions.length > 0;
+
+  if (pendingClaim || pendingSub) {
+    return (
+      <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-5">
+        <Clock className="h-5 w-5 shrink-0 text-brand" />
+        <div className="min-w-[16rem] flex-1">
+          <p className="font-medium">
+            {pendingClaim ? "Your claim is under review" : "Your listing is under review"}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Our team verifies every {pendingClaim ? "claim" : "submission"} — usually within 1–2 business days. You'll get access to manage the listing as soon as it's approved.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status.listingCount === 0 || !status.profileComplete) {
+    return (
+      <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-secondary/40 p-5">
+        <Building2 className="h-5 w-5 shrink-0 text-brand" />
+        <div className="min-w-[16rem] flex-1">
+          <p className="font-medium">Finish setting up your provider profile</p>
+          <p className="text-sm text-muted-foreground">
+            Claim your med spa or submit it, then add treatments, photos, credentials and FAQs so patients can find you.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button asChild size="sm"><Link to="/claim">Claim your listing</Link></Button>
+          <Button asChild size="sm" variant="outline"><Link to="/submit">Submit a business</Link></Button>
+        </div>
+      </div>
+    );
+  }
+  return null;
 }
 
 function ListingsTab() {
