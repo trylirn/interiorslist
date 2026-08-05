@@ -173,3 +173,29 @@ export const submitClaim = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// Onboarding / approval status for the signed-in account: pending claims and
+// submissions awaiting admin review, plus whether the profile has been set up.
+export const getMyOnboardingStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    const [{ data: listings }, { data: claims }, { data: subs }, { data: profile }] = await Promise.all([
+      supabase.from("providers").select("place_id").eq("claimed_by", userId),
+      supabase.from("claims").select("id, status, provider_place_id, submitted_at").eq("user_id", userId).order("submitted_at", { ascending: false }),
+      supabase.from("submissions").select("id, status, business_name, created_at").eq("submitted_by", userId).order("created_at", { ascending: false }),
+      supabase.from("profiles").select("account_type, contact_name, phone, business_role").eq("id", userId).maybeSingle(),
+    ]);
+
+    const profileComplete = !!(profile?.contact_name && profile?.phone && profile?.business_role);
+
+    return {
+      listingCount: listings?.length ?? 0,
+      pendingClaims: (claims ?? []).filter((c) => c.status === "pending"),
+      pendingSubmissions: (subs ?? []).filter((s) => s.status === "pending"),
+      latestClaim: claims?.[0] ?? null,
+      latestSubmission: subs?.[0] ?? null,
+      profileComplete,
+    };
+  });
