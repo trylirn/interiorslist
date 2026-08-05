@@ -77,8 +77,8 @@ function ForBusiness() {
         <div className="mt-12 rounded-3xl bg-brand p-10 text-center text-brand-foreground">
           <h3 className="font-display text-3xl">Ready to start?</h3>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/submit">Submit your business</Link></Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/login">Sign in to claim</Link></Button>
+            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/login">Submit your business</Link></Button>
+            <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/claim">Claim existing listing</Link></Button>
           </div>
         </div>
       </section>
