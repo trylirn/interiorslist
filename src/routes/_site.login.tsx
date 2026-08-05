@@ -33,6 +33,12 @@ function LoginPage() {
         <TabsContent value="business" className="mt-6"><BusinessSignupWizard /></TabsContent>
       </Tabs>
 
+      <div className="mx-auto mt-6 max-w-md rounded-2xl border border-border bg-secondary/40 p-4 text-center text-sm">
+        Are you a professional?{" "}
+        <Link to="/claim" className="font-medium text-brand hover:underline">Claim your profile →</Link>
+        <p className="mt-1 text-xs text-muted-foreground">No account needed — just submit your claim and our team follows up.</p>
+      </div>
+
       <p className="mt-6 text-center text-xs"><Link to="/" className="text-muted-foreground hover:underline">← Back home</Link></p>
     </div>
   );
