@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
+import { CITIES, SERVICES, STYLES } from "@/lib/cities";
 
 const BASE_URL = "https://texas-beauty-glow.lovable.app";
 
@@ -22,8 +22,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/match", changefreq: "weekly", priority: "0.7" },
           { path: "/how-it-works", changefreq: "monthly", priority: "0.5" },
           { path: "/for-business", changefreq: "monthly", priority: "0.6" },
-          { path: "/safety", changefreq: "monthly", priority: "0.5" },
-          { path: "/credentials", changefreq: "monthly", priority: "0.5" },
+          { path: "/guide", changefreq: "monthly", priority: "0.5" },
           { path: "/submit", changefreq: "monthly", priority: "0.5" },
           { path: "/about", changefreq: "monthly", priority: "0.5" },
           { path: "/contact", changefreq: "monthly", priority: "0.4" },
@@ -32,18 +31,18 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/compare", changefreq: "monthly", priority: "0.4" },
         ];
 
-
-        for (const c of TEXAS_CITIES) {
-          entries.push({ path: `/tx/${c.slug}`, changefreq: "weekly", priority: "0.8" });
-          entries.push({ path: `/best/${c.slug}`, changefreq: "weekly", priority: "0.7" });
+        for (const c of CITIES) {
+          const st = c.state.toLowerCase();
+          entries.push({ path: `/designers/${st}/${c.slug}`, changefreq: "weekly", priority: "0.8" });
+          entries.push({ path: `/best/${st}/${c.slug}`, changefreq: "weekly", priority: "0.7" });
         }
-        for (const s of SERVICES) entries.push({ path: `/treatment/${s.slug}`, changefreq: "weekly", priority: "0.7" });
-        for (const k of CONCERNS) entries.push({ path: `/concern/${k.slug}`, changefreq: "weekly", priority: "0.6" });
-        // Treatment × city permutations for local-intent SEO (top 8 services × all cities)
+        for (const s of SERVICES) entries.push({ path: `/service/${s.slug}`, changefreq: "weekly", priority: "0.7" });
+        for (const k of STYLES) entries.push({ path: `/style/${k.slug}`, changefreq: "weekly", priority: "0.6" });
+
         const topServices = SERVICES.slice(0, 8);
-        for (const c of TEXAS_CITIES) {
+        for (const c of CITIES) {
           for (const s of topServices) {
-            entries.push({ path: `/treatment/${s.slug}?city=${c.slug}`, changefreq: "weekly", priority: "0.6" });
+            entries.push({ path: `/service/${s.slug}?city=${c.slug}`, changefreq: "weekly", priority: "0.6" });
           }
         }
 
@@ -57,8 +56,6 @@ export const Route = createFileRoute("/sitemap.xml")({
               changefreq: "weekly", priority: "0.6",
             });
           }
-
-
         } catch {
           // sitemap still serves static entries if DB fetch fails
         }
