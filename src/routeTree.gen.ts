@@ -19,6 +19,7 @@ import { Route as SiteContactRouteImport } from './routes/_site.contact'
 import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
 import { Route as SiteFavoritesRouteImport } from './routes/_site.favorites'
 import { Route as SiteForBusinessRouteImport } from './routes/_site.for-business'
+import { Route as SiteGuideRouteImport } from './routes/_site.guide'
 import { Route as SiteHowItWorksRouteImport } from './routes/_site.how-it-works'
 import { Route as SiteLoginRouteImport } from './routes/_site.login'
 import { Route as SiteMatchRouteImport } from './routes/_site.match'
@@ -38,7 +39,9 @@ import { Route as SiteStyleSlugRouteImport } from './routes/_site.style.$slug'
 import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as SiteAdminProviderPlaceIdRouteImport } from './routes/_site.admin.provider.$placeId'
+import { Route as SiteBestStateCityRouteImport } from './routes/_site.best.$state.$city'
 import { Route as SiteDashboardListingPlaceIdRouteImport } from './routes/_site.dashboard.listing.$placeId'
+import { Route as SiteDesignersStateCityRouteImport } from './routes/_site.designers.$state.$city'
 
 const SiteRoute = SiteRouteImport.update({
   id: '/_site',
@@ -87,6 +90,11 @@ const SiteFavoritesRoute = SiteFavoritesRouteImport.update({
 const SiteForBusinessRoute = SiteForBusinessRouteImport.update({
   id: '/for-business',
   path: '/for-business',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteGuideRoute = SiteGuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteHowItWorksRoute = SiteHowItWorksRouteImport.update({
@@ -186,12 +194,22 @@ const SiteAdminProviderPlaceIdRoute =
     path: '/provider/$placeId',
     getParentRoute: () => SiteAdminRoute,
   } as any)
+const SiteBestStateCityRoute = SiteBestStateCityRouteImport.update({
+  id: '/best/$state/$city',
+  path: '/best/$state/$city',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteDashboardListingPlaceIdRoute =
   SiteDashboardListingPlaceIdRouteImport.update({
     id: '/listing/$placeId',
     path: '/listing/$placeId',
     getParentRoute: () => SiteDashboardRoute,
   } as any)
+const SiteDesignersStateCityRoute = SiteDesignersStateCityRouteImport.update({
+  id: '/designers/$state/$city',
+  path: '/designers/$state/$city',
+  getParentRoute: () => SiteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
@@ -203,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof SiteDashboardRouteWithChildren
   '/favorites': typeof SiteFavoritesRoute
   '/for-business': typeof SiteForBusinessRoute
+  '/guide': typeof SiteGuideRoute
   '/how-it-works': typeof SiteHowItWorksRoute
   '/login': typeof SiteLoginRoute
   '/match': typeof SiteMatchRoute
@@ -222,7 +241,9 @@ export interface FileRoutesByFullPath {
   '/claim/': typeof SiteClaimIndexRoute
   '/review/': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
+  '/best/$state/$city': typeof SiteBestStateCityRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
+  '/designers/$state/$city': typeof SiteDesignersStateCityRoute
 }
 export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -233,6 +254,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof SiteDashboardRouteWithChildren
   '/favorites': typeof SiteFavoritesRoute
   '/for-business': typeof SiteForBusinessRoute
+  '/guide': typeof SiteGuideRoute
   '/how-it-works': typeof SiteHowItWorksRoute
   '/login': typeof SiteLoginRoute
   '/match': typeof SiteMatchRoute
@@ -253,7 +275,9 @@ export interface FileRoutesByTo {
   '/claim': typeof SiteClaimIndexRoute
   '/review': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
+  '/best/$state/$city': typeof SiteBestStateCityRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
+  '/designers/$state/$city': typeof SiteDesignersStateCityRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -266,6 +290,7 @@ export interface FileRoutesById {
   '/_site/dashboard': typeof SiteDashboardRouteWithChildren
   '/_site/favorites': typeof SiteFavoritesRoute
   '/_site/for-business': typeof SiteForBusinessRoute
+  '/_site/guide': typeof SiteGuideRoute
   '/_site/how-it-works': typeof SiteHowItWorksRoute
   '/_site/login': typeof SiteLoginRoute
   '/_site/match': typeof SiteMatchRoute
@@ -286,7 +311,9 @@ export interface FileRoutesById {
   '/_site/claim/': typeof SiteClaimIndexRoute
   '/_site/review/': typeof SiteReviewIndexRoute
   '/_site/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
+  '/_site/best/$state/$city': typeof SiteBestStateCityRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
+  '/_site/designers/$state/$city': typeof SiteDesignersStateCityRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -300,6 +327,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/favorites'
     | '/for-business'
+    | '/guide'
     | '/how-it-works'
     | '/login'
     | '/match'
@@ -319,7 +347,9 @@ export interface FileRouteTypes {
     | '/claim/'
     | '/review/'
     | '/admin/provider/$placeId'
+    | '/best/$state/$city'
     | '/dashboard/listing/$placeId'
+    | '/designers/$state/$city'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sitemap.xml'
@@ -330,6 +360,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/favorites'
     | '/for-business'
+    | '/guide'
     | '/how-it-works'
     | '/login'
     | '/match'
@@ -350,7 +381,9 @@ export interface FileRouteTypes {
     | '/claim'
     | '/review'
     | '/admin/provider/$placeId'
+    | '/best/$state/$city'
     | '/dashboard/listing/$placeId'
+    | '/designers/$state/$city'
   id:
     | '__root__'
     | '/_site'
@@ -362,6 +395,7 @@ export interface FileRouteTypes {
     | '/_site/dashboard'
     | '/_site/favorites'
     | '/_site/for-business'
+    | '/_site/guide'
     | '/_site/how-it-works'
     | '/_site/login'
     | '/_site/match'
@@ -382,7 +416,9 @@ export interface FileRouteTypes {
     | '/_site/claim/'
     | '/_site/review/'
     | '/_site/admin/provider/$placeId'
+    | '/_site/best/$state/$city'
     | '/_site/dashboard/listing/$placeId'
+    | '/_site/designers/$state/$city'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -462,6 +498,13 @@ declare module '@tanstack/react-router' {
       path: '/for-business'
       fullPath: '/for-business'
       preLoaderRoute: typeof SiteForBusinessRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/guide': {
+      id: '/_site/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof SiteGuideRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/how-it-works': {
@@ -597,12 +640,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteAdminProviderPlaceIdRouteImport
       parentRoute: typeof SiteAdminRoute
     }
+    '/_site/best/$state/$city': {
+      id: '/_site/best/$state/$city'
+      path: '/best/$state/$city'
+      fullPath: '/best/$state/$city'
+      preLoaderRoute: typeof SiteBestStateCityRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/dashboard/listing/$placeId': {
       id: '/_site/dashboard/listing/$placeId'
       path: '/listing/$placeId'
       fullPath: '/dashboard/listing/$placeId'
       preLoaderRoute: typeof SiteDashboardListingPlaceIdRouteImport
       parentRoute: typeof SiteDashboardRoute
+    }
+    '/_site/designers/$state/$city': {
+      id: '/_site/designers/$state/$city'
+      path: '/designers/$state/$city'
+      fullPath: '/designers/$state/$city'
+      preLoaderRoute: typeof SiteDesignersStateCityRouteImport
+      parentRoute: typeof SiteRoute
     }
   }
 }
@@ -641,6 +698,7 @@ interface SiteRouteChildren {
   SiteDashboardRoute: typeof SiteDashboardRouteWithChildren
   SiteFavoritesRoute: typeof SiteFavoritesRoute
   SiteForBusinessRoute: typeof SiteForBusinessRoute
+  SiteGuideRoute: typeof SiteGuideRoute
   SiteHowItWorksRoute: typeof SiteHowItWorksRoute
   SiteLoginRoute: typeof SiteLoginRoute
   SiteMatchRoute: typeof SiteMatchRoute
@@ -657,6 +715,8 @@ interface SiteRouteChildren {
   SiteStyleSlugRoute: typeof SiteStyleSlugRoute
   SiteClaimIndexRoute: typeof SiteClaimIndexRoute
   SiteReviewIndexRoute: typeof SiteReviewIndexRoute
+  SiteBestStateCityRoute: typeof SiteBestStateCityRoute
+  SiteDesignersStateCityRoute: typeof SiteDesignersStateCityRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
@@ -667,6 +727,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteDashboardRoute: SiteDashboardRouteWithChildren,
   SiteFavoritesRoute: SiteFavoritesRoute,
   SiteForBusinessRoute: SiteForBusinessRoute,
+  SiteGuideRoute: SiteGuideRoute,
   SiteHowItWorksRoute: SiteHowItWorksRoute,
   SiteLoginRoute: SiteLoginRoute,
   SiteMatchRoute: SiteMatchRoute,
@@ -683,6 +744,8 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteStyleSlugRoute: SiteStyleSlugRoute,
   SiteClaimIndexRoute: SiteClaimIndexRoute,
   SiteReviewIndexRoute: SiteReviewIndexRoute,
+  SiteBestStateCityRoute: SiteBestStateCityRoute,
+  SiteDesignersStateCityRoute: SiteDesignersStateCityRoute,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
