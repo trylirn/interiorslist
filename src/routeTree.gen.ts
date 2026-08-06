@@ -33,6 +33,8 @@ import { Route as SiteClaimSlugRouteImport } from './routes/_site.claim.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
 import { Route as SiteReviewIndexRouteImport } from './routes/_site.review.index'
 import { Route as SiteReviewSlugRouteImport } from './routes/_site.review.$slug'
+import { Route as SiteServiceSlugRouteImport } from './routes/_site.service.$slug'
+import { Route as SiteStyleSlugRouteImport } from './routes/_site.style.$slug'
 import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as SiteAdminProviderPlaceIdRouteImport } from './routes/_site.admin.provider.$placeId'
@@ -157,6 +159,16 @@ const SiteReviewSlugRoute = SiteReviewSlugRouteImport.update({
   path: '/review/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteServiceSlugRoute = SiteServiceSlugRouteImport.update({
+  id: '/service/$slug',
+  path: '/service/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteStyleSlugRoute = SiteStyleSlugRouteImport.update({
+  id: '/style/$slug',
+  path: '/style/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
 const ApiPublicAdminSeedImportRoute =
   ApiPublicAdminSeedImportRouteImport.update({
     id: '/api/public/admin-seed-import',
@@ -203,6 +215,8 @@ export interface FileRoutesByFullPath {
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/review/$slug': typeof SiteReviewSlugRoute
+  '/service/$slug': typeof SiteServiceSlugRoute
+  '/style/$slug': typeof SiteStyleSlugRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/claim/': typeof SiteClaimIndexRoute
@@ -232,6 +246,8 @@ export interface FileRoutesByTo {
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/review/$slug': typeof SiteReviewSlugRoute
+  '/service/$slug': typeof SiteServiceSlugRoute
+  '/style/$slug': typeof SiteStyleSlugRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/claim': typeof SiteClaimIndexRoute
@@ -263,6 +279,8 @@ export interface FileRoutesById {
   '/_site/claim/$slug': typeof SiteClaimSlugRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
   '/_site/review/$slug': typeof SiteReviewSlugRoute
+  '/_site/service/$slug': typeof SiteServiceSlugRoute
+  '/_site/style/$slug': typeof SiteStyleSlugRoute
   '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_site/claim/': typeof SiteClaimIndexRoute
@@ -294,6 +312,8 @@ export interface FileRouteTypes {
     | '/claim/$slug'
     | '/provider/$slug'
     | '/review/$slug'
+    | '/service/$slug'
+    | '/style/$slug'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
     | '/claim/'
@@ -323,6 +343,8 @@ export interface FileRouteTypes {
     | '/claim/$slug'
     | '/provider/$slug'
     | '/review/$slug'
+    | '/service/$slug'
+    | '/style/$slug'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
     | '/claim'
@@ -353,6 +375,8 @@ export interface FileRouteTypes {
     | '/_site/claim/$slug'
     | '/_site/provider/$slug'
     | '/_site/review/$slug'
+    | '/_site/service/$slug'
+    | '/_site/style/$slug'
     | '/api/public/admin-seed-import'
     | '/api/public/track'
     | '/_site/claim/'
@@ -538,6 +562,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteReviewSlugRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/service/$slug': {
+      id: '/_site/service/$slug'
+      path: '/service/$slug'
+      fullPath: '/service/$slug'
+      preLoaderRoute: typeof SiteServiceSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/style/$slug': {
+      id: '/_site/style/$slug'
+      path: '/style/$slug'
+      fullPath: '/style/$slug'
+      preLoaderRoute: typeof SiteStyleSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/api/public/admin-seed-import': {
       id: '/api/public/admin-seed-import'
       path: '/api/public/admin-seed-import'
@@ -615,6 +653,8 @@ interface SiteRouteChildren {
   SiteClaimSlugRoute: typeof SiteClaimSlugRoute
   SiteProviderSlugRoute: typeof SiteProviderSlugRoute
   SiteReviewSlugRoute: typeof SiteReviewSlugRoute
+  SiteServiceSlugRoute: typeof SiteServiceSlugRoute
+  SiteStyleSlugRoute: typeof SiteStyleSlugRoute
   SiteClaimIndexRoute: typeof SiteClaimIndexRoute
   SiteReviewIndexRoute: typeof SiteReviewIndexRoute
 }
@@ -639,6 +679,8 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteClaimSlugRoute: SiteClaimSlugRoute,
   SiteProviderSlugRoute: SiteProviderSlugRoute,
   SiteReviewSlugRoute: SiteReviewSlugRoute,
+  SiteServiceSlugRoute: SiteServiceSlugRoute,
+  SiteStyleSlugRoute: SiteStyleSlugRoute,
   SiteClaimIndexRoute: SiteClaimIndexRoute,
   SiteReviewIndexRoute: SiteReviewIndexRoute,
 }
