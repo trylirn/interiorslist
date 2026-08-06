@@ -472,9 +472,12 @@ export type Database = {
           postal_code: string | null
           price_level: number | null
           price_ranges: Json | null
+          price_tier: string | null
+          project_types: string[]
           published: boolean
           rating: number | null
           recovery_tags: string[] | null
+          remote_services: boolean
           review_count: number | null
           service_area: string | null
           service_area_note: string | null
@@ -485,8 +488,10 @@ export type Database = {
           social_links: Json | null
           specialists: string | null
           state: string
+          styles: string[]
           team: Json | null
           team_size: string | null
+          typical_project_budget: string | null
           updated_at: string
           video_urls: string[]
           view_count: number
@@ -535,9 +540,12 @@ export type Database = {
           postal_code?: string | null
           price_level?: number | null
           price_ranges?: Json | null
+          price_tier?: string | null
+          project_types?: string[]
           published?: boolean
           rating?: number | null
           recovery_tags?: string[] | null
+          remote_services?: boolean
           review_count?: number | null
           service_area?: string | null
           service_area_note?: string | null
@@ -548,8 +556,10 @@ export type Database = {
           social_links?: Json | null
           specialists?: string | null
           state?: string
+          styles?: string[]
           team?: Json | null
           team_size?: string | null
+          typical_project_budget?: string | null
           updated_at?: string
           video_urls?: string[]
           view_count?: number
@@ -598,9 +608,12 @@ export type Database = {
           postal_code?: string | null
           price_level?: number | null
           price_ranges?: Json | null
+          price_tier?: string | null
+          project_types?: string[]
           published?: boolean
           rating?: number | null
           recovery_tags?: string[] | null
+          remote_services?: boolean
           review_count?: number | null
           service_area?: string | null
           service_area_note?: string | null
@@ -611,8 +624,10 @@ export type Database = {
           social_links?: Json | null
           specialists?: string | null
           state?: string
+          styles?: string[]
           team?: Json | null
           team_size?: string | null
+          typical_project_budget?: string | null
           updated_at?: string
           video_urls?: string[]
           view_count?: number

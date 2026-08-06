@@ -1,15 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
-import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { CITIES, SERVICES, STYLES } from "@/lib/cities";
 import { getFeaturedProviders, getCityStats } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Search, ShieldCheck, MapPin, BadgeCheck, Building2, Sparkles, MessageSquare, ListChecks } from "lucide-react";
+import { Search, ShieldCheck, MapPin, BadgeCheck, Sparkles, MessageSquare, ListChecks } from "lucide-react";
 import { LookingForHero } from "@/components/looking-for-hero";
-
 
 const featuredOpts = queryOptions({ queryKey: ["featured"], queryFn: () => getFeaturedProviders() });
 const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCityStats() });
@@ -17,26 +16,25 @@ const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCit
 export const Route = createFileRoute("/_site/")({
   head: () => ({
     meta: [
-      { title: "Discover Medspa — Trusted Injector Directory" },
-      { name: "description", content: "Verified Botox, filler & medspa injectors across Houston, Dallas, Austin, San Antonio and every major Texas metro." },
-      { property: "og:title", content: "Discover Medspa — Trusted Injector Directory" },
-      { property: "og:description", content: "Search top verified Botox, filler, and medspa providers in Texas." },
-      { property: "og:url", content: "https://texas-beauty-glow.lovable.app/" },
+      { title: "Interiors List — Find an Interior Designer Near You" },
+      { name: "description", content: "Browse vetted interior design studios across New York, Los Angeles, Chicago, Austin, Miami and more. Compare styles, services and budgets, then request a consultation." },
+      { property: "og:title", content: "Interiors List — Find an Interior Designer Near You" },
+      { property: "og:description", content: "A nationwide directory of vetted interior design studios. Compare styles, services and budgets." },
+      { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://texas-beauty-glow.lovable.app/" }],
+    links: [{ rel: "canonical", href: "/" }],
     scripts: [
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "Discover Medspa",
-          url: "https://texas-beauty-glow.lovable.app/",
+          name: "Interiors List",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://texas-beauty-glow.lovable.app/search?q={search_term_string}",
+            target: "/search?q={search_term_string}",
             "query-input": "required name=search_term_string",
           },
         }),
@@ -46,9 +44,8 @@ export const Route = createFileRoute("/_site/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "Discover Medspa",
-          url: "https://texas-beauty-glow.lovable.app/",
-          description: "Verified directory of Botox, filler, and medspa injectors across Texas.",
+          name: "Interiors List",
+          description: "A nationwide directory of vetted interior design studios.",
         }),
       },
       {
@@ -56,16 +53,11 @@ export const Route = createFileRoute("/_site/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          mainEntity: [
-            { "@type": "Question", name: "Is Discover Medspa free for patients?", acceptedAnswer: { "@type": "Answer", text: "Yes — searching, browsing, and contacting providers is always free." } },
-            { "@type": "Question", name: "How are providers verified?", acceptedAnswer: { "@type": "Answer", text: "We review every listing for valid business info, an active website, and credentialed practitioners before publication." } },
-            { "@type": "Question", name: "Do you accept paid placements?", acceptedAnswer: { "@type": "Answer", text: "No. There are no paid placements or commissions on inquiries. Featured spots are based on verification status." } },
-            { "@type": "Question", name: "How do I claim my business listing?", acceptedAnswer: { "@type": "Answer", text: "Sign in and visit your business profile — you'll see a 'Claim this listing' button. We verify ownership before granting access." } },
-            { "@type": "Question", name: "What credentials should I look for?", acceptedAnswer: { "@type": "Answer", text: "In Texas, neuromodulators and fillers must be administered by or under the supervision of a licensed physician (MD or DO). NPs, PAs, and RNs commonly inject under physician oversight." } },
-            { "@type": "Question", name: "Can I leave a review?", acceptedAnswer: { "@type": "Answer", text: "Yes — sign in to leave a verified review on any provider's profile." } },
-            { "@type": "Question", name: "Do you cover the whole state?", acceptedAnswer: { "@type": "Answer", text: "We focus on Texas only, with deep coverage of the largest metros and growing across mid-size cities." } },
-            { "@type": "Question", name: "How do I report incorrect info?", acceptedAnswer: { "@type": "Answer", text: "Use the contact form on any provider's profile, or email us via the Contact page." } },
-          ],
+          mainEntity: FAQ.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
         }),
       },
     ],
@@ -80,7 +72,7 @@ export const Route = createFileRoute("/_site/")({
 function HomePage() {
   const { data: featured } = useSuspenseQuery(featuredOpts);
   const { data: stats } = useSuspenseQuery(statsOpts);
-  
+
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
@@ -90,20 +82,20 @@ function HomePage() {
       <section className="border-b border-border/60">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 pt-16 pb-20 md:grid-cols-[1.1fr_0.9fr] md:gap-16 md:pt-24 md:pb-28">
           <div>
-            <h1 className="font-display text-5xl leading-[1.02] md:text-7xl">Find Your<br />Trusted Injector</h1>
+            <h1 className="font-display text-5xl leading-[1.02] md:text-7xl">Find Your<br />Interior Designer</h1>
             <p className="mt-6 max-w-lg text-lg text-muted-foreground">
-              Verified Botox, filler, and medspa providers across Texas — vetted contact info, treatments, and locations all in one place.
+              Vetted design studios across the country — see their services, styles, typical project budgets and portfolios, then request a consultation in one step.
             </p>
 
-            <p className="mt-10 text-sm font-medium text-muted-foreground">I'm looking for…</p>
+            <p className="mt-10 text-sm font-medium text-muted-foreground">I need help with…</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {SERVICES.slice(0, 6).map((s) => (
-                <Link key={s.slug} to="/treatment/$slug" params={{ slug: s.slug }} className="rounded-full border border-foreground/15 bg-card px-5 py-2.5 text-sm font-medium transition hover:border-brand hover:text-brand">
+                <Link key={s.slug} to="/service/$slug" params={{ slug: s.slug }} className="rounded-full border border-foreground/15 bg-card px-5 py-2.5 text-sm font-medium transition hover:border-brand hover:text-brand">
                   {s.name}
                 </Link>
               ))}
             </div>
-            <Link to="/search" className="mt-3 inline-block text-sm text-muted-foreground hover:text-brand">Or browse all treatments →</Link>
+            <Link to="/search" className="mt-3 inline-block text-sm text-muted-foreground hover:text-brand">Or browse all services →</Link>
 
             <form
               onSubmit={(e) => { e.preventDefault(); navigate({ to: "/search", search: { q } as never }); }}
@@ -111,7 +103,7 @@ function HomePage() {
             >
               <div className="flex flex-1 items-center gap-2 rounded-full border border-border bg-card px-4">
                 <Search className="h-4 w-4 text-muted-foreground" />
-                <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Clinic, injector, or city…" className="h-11 border-0 bg-transparent shadow-none focus-visible:ring-0" />
+                <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Studio, designer, city, or style…" className="h-11 border-0 bg-transparent shadow-none focus-visible:ring-0" />
               </div>
               <Button type="submit" className="h-11 rounded-full px-6">Search</Button>
             </form>
@@ -119,34 +111,32 @@ function HomePage() {
 
           <div className="relative">
             <div className="rounded-3xl border border-border bg-card p-8 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.2)]">
-              <p className="font-display text-2xl">Not sure where to start?</p>
-              <p className="mt-3 text-sm text-muted-foreground">Answer 4 quick questions and we'll match you with verified Texas medspas.</p>
+              <p className="font-display text-2xl">Not sure who's right for your project?</p>
+              <p className="mt-3 text-sm text-muted-foreground">Answer a few questions about your space, style and budget and we'll shortlist studios that fit.</p>
               <Button asChild className="mt-6 w-full rounded-full"><Link to="/match">Get matched →</Link></Button>
               <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-                <Stat label="Cities" value={String(TEXAS_CITIES.length)} />
-                <Stat label="Treatments" value={String(SERVICES.length)} />
-                <Stat label="Verified" value="100%" />
+                <Stat label="Cities" value={String(CITIES.length)} />
+                <Stat label="Services" value={String(SERVICES.length)} />
+                <Stat label="Vetted" value="100%" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* I AM LOOKING FOR A */}
       <LookingForHero />
 
       {/* HOW IT WORKS */}
-
       <section className="border-b border-border/60 bg-secondary/30">
         <div className="mx-auto max-w-7xl px-4 py-20">
           <div className="mb-10 text-center">
             <p className="text-xs font-semibold uppercase tracking-widest text-brand">How it works</p>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl">Find a provider in 3 steps</h2>
+            <h2 className="mt-2 font-display text-4xl md:text-5xl">Hire a designer in 3 steps</h2>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
-            <Step n="1" Icon={ListChecks} title="Tell us what you want" desc="Pick a treatment, concern, or just a city. Filter by brand or verified status." />
-            <Step n="2" Icon={Sparkles} title="See verified matches" desc="Compare specialists, services, and locations — all reviewed before publication." />
-            <Step n="3" Icon={MessageSquare} title="Reach out directly" desc="Message the clinic from their profile. No middlemen, no commissions." />
+            <Step n="1" Icon={ListChecks} title="Describe your project" desc="Rooms, style, budget and timeline — it takes about two minutes." />
+            <Step n="2" Icon={Sparkles} title="Review your matches" desc="Compare studios on services, style, credentials and typical project size." />
+            <Step n="3" Icon={MessageSquare} title="Request a consultation" desc="Send your brief straight to the studio. No commissions, no middlemen." />
           </div>
         </div>
       </section>
@@ -155,50 +145,55 @@ function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-20">
         <div className="mb-10">
           <p className="text-xs font-semibold uppercase tracking-widest text-brand">By City</p>
-          <h2 className="mt-2 font-display text-4xl md:text-5xl">Browse Texas's biggest metros</h2>
+          <h2 className="mt-2 font-display text-4xl md:text-5xl">Browse designers by city</h2>
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {TEXAS_CITIES.map((c) => {
+          {CITIES.map((c) => {
             const count = stats.counts[c.slug] ?? 0;
             return (
-              <Link key={c.slug} to="/tx/$city" params={{ city: c.slug }} className="group rounded-2xl border border-border bg-card p-5 transition hover:border-brand hover:shadow-md">
+              <Link
+                key={c.slug}
+                to="/designers/$state/$city"
+                params={{ state: c.state.toLowerCase(), city: c.slug }}
+                className="group rounded-2xl border border-border bg-card p-5 transition hover:border-brand hover:shadow-md"
+              >
                 <MapPin className="h-5 w-5 text-brand" />
                 <h3 className="mt-3 font-display text-xl">{c.name}</h3>
                 <p className="text-xs text-muted-foreground">{c.tagline}</p>
-                <p className="mt-3 text-sm font-medium">{count} {count === 1 ? "provider" : "providers"}</p>
+                <p className="mt-3 text-xs font-medium text-brand">{count} studio{count === 1 ? "" : "s"} →</p>
               </Link>
             );
           })}
         </div>
       </section>
 
-      {/* TREATMENTS */}
+      {/* SERVICES */}
       <section className="border-y border-border/60 bg-secondary/30">
         <div className="mx-auto max-w-7xl px-4 py-20">
           <div className="mb-10">
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand">By Treatment</p>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl">Popular Texas treatments</h2>
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand">By Service</p>
+            <h2 className="mt-2 font-display text-4xl md:text-5xl">What do you need designed?</h2>
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
-            {SERVICES.slice(0, 18).map((s) => (
-              <Link key={s.slug} to="/treatment/$slug" params={{ slug: s.slug }} className="rounded-xl border border-border bg-card px-4 py-4 text-center text-sm font-medium transition hover:border-brand hover:text-brand">
+            {SERVICES.map((s) => (
+              <Link key={s.slug} to="/service/$slug" params={{ slug: s.slug }} className="rounded-xl border border-border bg-card px-4 py-4 text-center text-sm font-medium transition hover:border-brand hover:text-brand">
                 {s.name}
               </Link>
             ))}
           </div>
-          <p className="mt-6 text-center"><Link to="/search" className="text-sm font-medium text-brand hover:underline">See all {SERVICES.length} treatments →</Link></p>
+          <p className="mt-6 text-center"><Link to="/search" className="text-sm font-medium text-brand hover:underline">See all {SERVICES.length} services →</Link></p>
         </div>
       </section>
 
-      {/* CONCERNS */}
+      {/* STYLES */}
       <section className="mx-auto max-w-7xl px-4 py-20">
         <div className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand">By Concern</p>
-          <h2 className="mt-2 font-display text-4xl md:text-5xl">What are you trying to fix?</h2>
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand">By Style</p>
+          <h2 className="mt-2 font-display text-4xl md:text-5xl">Find a studio that matches your taste</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {CONCERNS.map((c) => (
-            <Link key={c.slug} to="/concern/$slug" params={{ slug: c.slug }} className="rounded-2xl border border-border bg-card p-6 transition hover:border-brand hover:shadow-md">
+          {STYLES.map((c) => (
+            <Link key={c.slug} to="/style/$slug" params={{ slug: c.slug }} className="rounded-2xl border border-border bg-card p-6 transition hover:border-brand hover:shadow-md">
               <h3 className="font-display text-lg">{c.label}</h3>
               <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{c.intro}</p>
             </Link>
@@ -212,7 +207,7 @@ function HomePage() {
           <div className="mx-auto max-w-7xl px-4 py-20">
             <div className="mb-10">
               <p className="text-xs font-semibold uppercase tracking-widest text-brand">Featured</p>
-              <h2 className="mt-2 font-display text-4xl md:text-5xl">Verified providers</h2>
+              <h2 className="mt-2 font-display text-4xl md:text-5xl">Vetted design studios</h2>
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {featured.providers.slice(0, 6).map((p) => <ProviderCard key={p.place_id} {...p} />)}
@@ -221,45 +216,40 @@ function HomePage() {
         </section>
       )}
 
-
-
-
-      {/* SAFETY */}
+      {/* TRUST */}
       <section className="border-t border-border/60 bg-secondary/30">
         <div className="mx-auto max-w-7xl px-4 py-20">
           <div className="grid gap-10 md:grid-cols-[1fr_1fr]">
             <div>
               <ShieldCheck className="h-10 w-10 text-brand" />
-              <h2 className="mt-4 font-display text-4xl">Safety first, always</h2>
+              <h2 className="mt-4 font-display text-4xl">Hire with confidence</h2>
               <p className="mt-4 text-muted-foreground">
-                Every listing is reviewed before publication. We surface practitioner credentials (MD, DO, NP, PA, RN, Esthetician) and link directly to provider websites so you can verify licensure with the Texas Medical Board or Texas Board of Nursing.
+                Every listing is reviewed before it goes live. We show credentials such as NCIDQ certification, ASID or IIDA membership and state registration, and link straight to each studio's own portfolio so you can check the work yourself.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild variant="outline" className="rounded-full"><Link to="/safety">Read our safety guide</Link></Button>
-                <Button asChild variant="outline" className="rounded-full"><Link to="/credentials">Credentials glossary</Link></Button>
+                <Button asChild variant="outline" className="rounded-full"><Link to="/guide">Read the hiring guide</Link></Button>
+                <Button asChild variant="outline" className="rounded-full"><Link to="/search">Browse all studios</Link></Button>
               </div>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <TrustCard Icon={BadgeCheck} title="Verified" body="Listings reviewed before publication." />
-              <TrustCard Icon={ShieldCheck} title="Credentialed" body="Practitioner licenses shown on every profile." />
-              <TrustCard Icon={MapPin} title="Texas only" body="Curated for the Lone Star State." />
+              <TrustCard Icon={BadgeCheck} title="Vetted" body="Listings reviewed before publication." />
+              <TrustCard Icon={ShieldCheck} title="Credentials shown" body="NCIDQ, ASID, IIDA and registration on every profile." />
+              <TrustCard Icon={MapPin} title="Nationwide" body="Major metros across the country, plus virtual e-design." />
               <TrustCard Icon={Sparkles} title="Independent" body="No paid placements or referral fees." />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials removed */}
-
       {/* FOR BUSINESS CTA */}
       <section className="mx-auto max-w-7xl px-4 py-24">
         <div className="rounded-3xl bg-brand p-12 text-center text-brand-foreground md:p-16">
-          <p className="text-xs font-semibold uppercase tracking-widest opacity-80">For business owners</p>
-          <h2 className="mt-3 font-display text-4xl md:text-5xl">Own a Texas medspa?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-base opacity-90">Claim or submit your listing — free. Manage hours, services, photos, and respond to inquiries directly.</p>
+          <p className="text-xs font-semibold uppercase tracking-widest opacity-80">For design studios</p>
+          <h2 className="mt-3 font-display text-4xl md:text-5xl">Run an interior design studio?</h2>
+          <p className="mx-auto mt-4 max-w-xl text-base opacity-90">Claim or submit your listing — free. Manage services, styles, portfolio images and respond to enquiries directly.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/for-business">Learn about business benefits</Link></Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/submit">Submit your business</Link></Button>
+            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/for-business">See how it works for studios</Link></Button>
+            <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/submit">Submit your studio</Link></Button>
           </div>
         </div>
       </section>
@@ -316,12 +306,12 @@ function TrustCard({ Icon, title, body }: { Icon: React.ComponentType<{ classNam
 }
 
 const FAQ = [
-  { q: "Is Discover Medspa free for patients?", a: "Yes — searching, browsing, and contacting providers is always free." },
-  { q: "How are providers verified?", a: "We review every listing for valid business info, an active website, and credentialed practitioners before publication." },
-  { q: "Do you accept paid placements?", a: "No. There are no paid placements or commissions on inquiries. Featured spots are based on verification status." },
-  { q: "How do I claim my business listing?", a: "Sign in and visit your business profile — you'll see a 'Claim this listing' button. We verify ownership before granting access." },
-  { q: "What credentials should I look for?", a: "In Texas, neuromodulators and fillers must be administered by or under the supervision of a licensed physician (MD or DO). NPs, PAs, and RNs commonly inject under physician oversight." },
-  { q: "Can I leave a review?", a: "Yes — sign in to leave a verified review on any provider's profile." },
-  { q: "Do you cover the whole state?", a: "We focus on Texas only, with deep coverage of the largest metros and growing across mid-size cities." },
-  { q: "How do I report incorrect info?", a: "Use the contact form on any provider's profile, or email us via the Contact page." },
+  { q: "Is Interiors List free to use?", a: "Yes — searching, comparing and contacting design studios is always free for homeowners and businesses." },
+  { q: "How are studios vetted?", a: "We review every listing for a real business address, an active portfolio or website, and any credentials the studio claims before it is published." },
+  { q: "Do you accept paid placements?", a: "No. There are no paid placements and no commission on projects. Featured studios are chosen on verification status and review quality." },
+  { q: "How much does an interior designer cost?", a: "Fees are usually charged as a flat project fee, an hourly rate, a cost-plus percentage on furnishings, or a mix. Every listing shows a typical project budget so you can shortlist studios that work at your scale." },
+  { q: "What credentials should I look for?", a: "NCIDQ certification is the main professional standard in the US, with ASID and IIDA as leading membership bodies. Some states also register or license interior designers for commercial work." },
+  { q: "How do I claim my studio's listing?", a: "Sign in and open your studio's profile — you'll see a 'Claim this listing' button. We verify ownership before granting access." },
+  { q: "Can I leave a review?", a: "Yes. Sign in and leave a review on any studio's profile, including how the project went on budget, communication and results." },
+  { q: "Do you cover my city?", a: "We cover major metros nationwide and are adding cities continuously. Many studios also offer virtual e-design anywhere in the country." },
 ];
