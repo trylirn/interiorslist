@@ -1,81 +1,79 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Button } from "@/components/ui/button";
-import { TEXAS_CITIES } from "@/lib/cities";
-import { getMatches } from "@/lib/match.functions";
-import { ProviderCard } from "@/components/provider-card";
-import { BadgeCheck, Check, ChevronLeft, Sparkles } from "lucide-react";
 import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { ProviderCard } from "@/components/provider-card";
+import { CITIES, STYLES, PROJECT_TYPES, BUDGET_BANDS } from "@/lib/cities";
+import { getMatches } from "@/lib/match.functions";
+import { BadgeCheck, Check, ChevronLeft, Sparkles } from "lucide-react";
+
+const TOTAL_STEPS = 8;
+
+const PRIORITY_OPTS = [
+  { id: "full-home", label: "Full-home design", desc: "Every room, one coherent scheme" },
+  { id: "kitchen-bath", label: "Kitchen or bathroom", desc: "Cabinetry, tile, fixtures and layout" },
+  { id: "living-spaces", label: "Living, dining or bedroom", desc: "Furnishing and finishing key rooms" },
+  { id: "workspace", label: "Home office or workspace", desc: "Work-from-home or studio setup" },
+  { id: "commercial", label: "Commercial or hospitality", desc: "Office, retail, restaurant or clinic" },
+  { id: "furnishing", label: "Furniture & styling only", desc: "No construction involved" },
+  { id: "virtual", label: "Virtual / e-design", desc: "Remote plan you install yourself" },
+  { id: "exploring", label: "Just exploring", desc: "Show me a bit of everything" },
+];
+
+const ROOM_OPTS = [
+  { id: "whole-home", label: "Whole home" },
+  { id: "kitchen", label: "Kitchen" },
+  { id: "bathroom", label: "Bathroom" },
+  { id: "living-room", label: "Living room" },
+  { id: "dining-room", label: "Dining room" },
+  { id: "bedroom", label: "Bedroom" },
+  { id: "home-office", label: "Home office" },
+  { id: "outdoor", label: "Outdoor / patio" },
+  { id: "storage", label: "Storage & millwork" },
+  { id: "lighting", label: "Lighting" },
+  { id: "window-treatments", label: "Window treatments" },
+  { id: "paint-color", label: "Paint & colour" },
+];
+
+const TIMING_OPTS = [
+  { id: "asap", label: "As soon as possible" },
+  { id: "1-3-months", label: "In 1–3 months" },
+  { id: "3-6-months", label: "In 3–6 months" },
+  { id: "planning", label: "Just planning" },
+];
+
+const PREFERENCE_OPTS = [
+  { id: "verified-only", label: "Only show vetted studios" },
+  { id: "highly-rated", label: "Highly rated (4.5★ and up)" },
+  { id: "well-reviewed", label: "Lots of reviews" },
+  { id: "boutique", label: "Small, boutique studio" },
+  { id: "certified", label: "NCIDQ / ASID / IIDA credentials" },
+  { id: "manages-build", label: "Can manage contractors and the build" },
+  { id: "remote-ok", label: "Open to remote / virtual work" },
+];
 
 export const Route = createFileRoute("/_site/match")({
-  validateSearch: z.object({
-    priority: z.string().optional(),
-    city: z.string().optional(),
-  }),
+  validateSearch: z.object({ priority: z.string().optional(), city: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Find a Texas Medspa | Discover Medspa" },
-      { name: "description", content: "Answer a few quick questions and browse verified Texas medspas and aesthetic injectors that match your treatment, city, budget and preferences." },
-      { property: "og:title", content: "Find a Texas Medspa — Discover Medspa" },
-      { property: "og:description", content: "Browse verified Texas medspas in seconds." },
+      { title: "Get Matched with an Interior Designer | Interiors List" },
+      { name: "description", content: "Answer eight quick questions about your space, style, budget and timeline and we'll shortlist interior design studios that fit your project." },
+      { property: "og:title", content: "Get Matched with an Interior Designer" },
+      { property: "og:description", content: "Tell us about your project and we'll shortlist design studios that fit." },
       { property: "og:url", content: "/match" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "/match" }],
   }),
   component: MatchPage,
 });
 
-const PRIORITY_OPTS = [
-  { id: "botox", label: "Botox & wrinkle relaxers", desc: "Forehead, frown, crow's feet" },
-  { id: "fillers", label: "Dermal fillers", desc: "Lips, cheeks, jawline, volume" },
-  { id: "skin", label: "Skin treatments", desc: "Microneedling, peels, PRP, glow" },
-  { id: "body", label: "Body contouring", desc: "Kybella, Sculptra, slimming" },
-  { id: "laser", label: "Laser treatments", desc: "Hair removal, resurfacing, IPL" },
-  { id: "wellness", label: "IV therapy & wellness", desc: "Hydration, vitamins, recovery" },
-  { id: "exploring", label: "Just exploring", desc: "Show me everything" },
-];
-
-const CONCERN_OPTS = [
-  { id: "wrinkles", label: "Fine lines & wrinkles" },
-  { id: "lip-volume", label: "Lip volume" },
-  { id: "volume", label: "Facial volume loss" },
-  { id: "jawline", label: "Jawline & chin definition" },
-  { id: "acne-scars", label: "Acne scars & texture" },
-  { id: "pigmentation", label: "Pigmentation & sun damage" },
-  { id: "hair-loss", label: "Hair thinning" },
-  { id: "glow", label: "Overall glow & maintenance" },
-  { id: "body-contouring", label: "Stubborn fat & contouring" },
-];
-
-const BUDGET_OPTS = [
-  { id: "budget", label: "Value-focused", desc: "Best price for a solid result" },
-  { id: "moderate", label: "Mid-range", desc: "Balanced price and experience" },
-  { id: "premium", label: "Premium", desc: "Top injectors, luxury experience" },
-  { id: "flexible", label: "Not sure yet", desc: "Show me the full range" },
-];
-
-const PREFERENCE_OPTS = [
-  { id: "verified-only", label: "Verified listings only" },
-  { id: "highly-rated", label: "Rated 4.5★ and above" },
-  { id: "well-reviewed", label: "Lots of reviews (50+)" },
-  { id: "boutique", label: "Independent / boutique" },
-  { id: "medical-director", label: "Physician-led (MD/DO)" },
-];
-
-const TIMING_OPTS = [
-  { id: "asap", label: "As soon as possible" },
-  { id: "few-weeks", label: "In the next few weeks" },
-  { id: "researching", label: "Just researching" },
-];
-
-const TOTAL_STEPS = 5;
-
-function OptionRow({ selected, label, desc, onClick, multi }: {
-  selected: boolean; label: string; desc?: string; onClick: () => void; multi?: boolean;
-}) {
+function OptionRow({ selected, label, desc, onClick, multi }: { selected: boolean; label: string; desc?: string; onClick: () => void; multi?: boolean }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition ${selected ? "border-brand bg-brand/5" : "border-border bg-card hover:border-brand/60"}`}
     >
@@ -95,6 +93,8 @@ function MatchPage() {
   const [step, setStep] = useState(initialPriority ? 1 : 0);
   const [priority, setPriority] = useState(initialPriority ?? "");
   const [concerns, setConcerns] = useState<string[]>([]);
+  const [projectType, setProjectType] = useState("");
+  const [styles, setStyles] = useState<string[]>([]);
   const [citySlug, setCitySlug] = useState(initialCity ?? "any");
   const [budget, setBudget] = useState("");
   const [timing, setTiming] = useState("");
@@ -109,16 +109,16 @@ function MatchPage() {
 
   const canNext =
     step === 0 ? !!priority :
-    step === 1 ? true :
-    step === 2 ? !!citySlug :
-    step === 3 ? !!budget :
+    step === 2 ? !!projectType :
+    step === 4 ? !!citySlug :
+    step === 5 ? !!budget :
     true;
 
   async function submit() {
     setSubmitting(true);
     try {
       const res = await fetchMatches({
-        data: { priority, concerns, citySlug, budget, timing, preferences },
+        data: { priority, concerns, citySlug, budget, timing, preferences, styles, projectType },
       });
       setResults(res.matches);
     } finally {
@@ -134,25 +134,25 @@ function MatchPage() {
           <p className="mt-3 text-muted-foreground">Try widening your city, budget or preference filters.</p>
           <div className="mt-6 flex justify-center gap-3">
             <Button variant="outline" onClick={() => { setResults(null); setStep(0); }}>Start over</Button>
-            <Button asChild><Link to="/search">Browse all providers</Link></Button>
+            <Button asChild><Link to="/search">Browse all studios</Link></Button>
           </div>
         </div>
       );
     }
 
-    const cityName = citySlug === "any" ? "Texas" : (TEXAS_CITIES.find((c) => c.slug === citySlug)?.name ?? "Texas");
+    const cityName = citySlug === "any" ? "your area" : (CITIES.find((c) => c.slug === citySlug)?.name ?? "your area");
     return (
       <div className="mx-auto max-w-6xl px-4 py-12">
         <button onClick={() => setResults(null)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-brand">
-          <ChevronLeft className="h-4 w-4" /> Refine your search
+          <ChevronLeft className="h-4 w-4" /> Refine your answers
         </button>
         <h1 className="mt-4 font-display text-4xl md:text-5xl">Your matches</h1>
         <p className="mt-3 text-muted-foreground">
-          {results.length} {results.length === 1 ? "provider" : "providers"} in {cityName} for{" "}
+          {results.length} {results.length === 1 ? "studio" : "studios"} in {cityName} for{" "}
           <span className="font-medium text-foreground">{PRIORITY_OPTS.find((o) => o.id === priority)?.label ?? priority}</span>.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
-          Tap a card to view services, hours, reviews, and contact details. Reach out to any provider directly — we don't share your info.
+          Open any profile to see services, styles, typical project budgets and to send an enquiry form straight to the studio.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -177,7 +177,7 @@ function MatchPage() {
         </div>
 
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <Button asChild variant="outline" className="rounded-full"><Link to="/search">Browse all providers</Link></Button>
+          <Button asChild variant="outline" className="rounded-full"><Link to="/search">Browse all studios</Link></Button>
           <Button variant="ghost" className="rounded-full" onClick={() => { setResults(null); setStep(0); }}>Start over</Button>
         </div>
       </div>
@@ -204,8 +204,8 @@ function MatchPage() {
       <div className="mt-6">
         {step === 0 && (
           <div>
-            <h1 className="font-display text-3xl md:text-4xl">What are you looking for?</h1>
-            <p className="mt-2 text-muted-foreground">Pick the treatment category you want to explore.</p>
+            <h1 className="font-display text-3xl md:text-4xl">What do you need designed?</h1>
+            <p className="mt-2 text-muted-foreground">Pick the closest description of your project.</p>
             <div className="mt-6 space-y-3">
               {PRIORITY_OPTS.map((opt) => (
                 <OptionRow key={opt.id} selected={priority === opt.id} label={opt.label} desc={opt.desc} onClick={() => setPriority(opt.id)} />
@@ -216,10 +216,10 @@ function MatchPage() {
 
         {step === 1 && (
           <div>
-            <h1 className="font-display text-3xl md:text-4xl">What would you like to improve?</h1>
-            <p className="mt-2 text-muted-foreground">Choose as many as apply — or skip if you're still deciding.</p>
+            <h1 className="font-display text-3xl md:text-4xl">Which spaces are involved?</h1>
+            <p className="mt-2 text-muted-foreground">Choose as many as apply — or skip if you're not sure yet.</p>
             <div className="mt-6 grid gap-2 sm:grid-cols-2">
-              {CONCERN_OPTS.map((opt) => (
+              {ROOM_OPTS.map((opt) => (
                 <OptionRow key={opt.id} multi selected={concerns.includes(opt.id)} label={opt.label} onClick={() => toggle(concerns, setConcerns, opt.id)} />
               ))}
             </div>
@@ -228,23 +228,11 @@ function MatchPage() {
 
         {step === 2 && (
           <div>
-            <h1 className="font-display text-3xl md:text-4xl">Where in Texas?</h1>
-            <p className="mt-2 text-muted-foreground">We'll prioritize verified providers in your area.</p>
-            <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <button
-                onClick={() => setCitySlug("any")}
-                className={`rounded-xl border p-3 text-sm transition ${citySlug === "any" ? "border-brand bg-brand/5 font-medium" : "border-border bg-card hover:border-brand/60"}`}
-              >
-                Any city
-              </button>
-              {TEXAS_CITIES.map((c) => (
-                <button
-                  key={c.slug}
-                  onClick={() => setCitySlug(c.slug)}
-                  className={`rounded-xl border p-3 text-sm transition ${citySlug === c.slug ? "border-brand bg-brand/5 font-medium" : "border-border bg-card hover:border-brand/60"}`}
-                >
-                  {c.name}
-                </button>
+            <h1 className="font-display text-3xl md:text-4xl">What kind of project is it?</h1>
+            <p className="mt-2 text-muted-foreground">This tells us how much construction is involved.</p>
+            <div className="mt-6 space-y-3">
+              {PROJECT_TYPES.map((opt) => (
+                <OptionRow key={opt.slug} selected={projectType === opt.slug} label={opt.label} desc={opt.desc} onClick={() => setProjectType(opt.slug)} />
               ))}
             </div>
           </div>
@@ -252,23 +240,11 @@ function MatchPage() {
 
         {step === 3 && (
           <div>
-            <h1 className="font-display text-3xl md:text-4xl">What's your budget comfort?</h1>
-            <p className="mt-2 text-muted-foreground">This only sorts results — no pricing is shared with providers.</p>
-            <div className="mt-6 space-y-3">
-              {BUDGET_OPTS.map((opt) => (
-                <OptionRow key={opt.id} selected={budget === opt.id} label={opt.label} desc={opt.desc} onClick={() => setBudget(opt.id)} />
-              ))}
-            </div>
-            <h2 className="mt-8 font-display text-xl">When are you hoping to book?</h2>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              {TIMING_OPTS.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => setTiming(opt.id)}
-                  className={`rounded-xl border p-3 text-sm transition ${timing === opt.id ? "border-brand bg-brand/5 font-medium" : "border-border bg-card hover:border-brand/60"}`}
-                >
-                  {opt.label}
-                </button>
+            <h1 className="font-display text-3xl md:text-4xl">Which styles appeal to you?</h1>
+            <p className="mt-2 text-muted-foreground">Pick one or more — we'll rank studios whose work matches.</p>
+            <div className="mt-6 grid gap-2 sm:grid-cols-2">
+              {STYLES.map((opt) => (
+                <OptionRow key={opt.slug} multi selected={styles.includes(opt.slug)} label={opt.label} onClick={() => toggle(styles, setStyles, opt.slug)} />
               ))}
             </div>
           </div>
@@ -276,8 +252,55 @@ function MatchPage() {
 
         {step === 4 && (
           <div>
+            <h1 className="font-display text-3xl md:text-4xl">Where is your project?</h1>
+            <p className="mt-2 text-muted-foreground">We'll prioritise studios working in your area.</p>
+            <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <button
+                onClick={() => setCitySlug("any")}
+                className={`rounded-xl border p-3 text-sm transition ${citySlug === "any" ? "border-brand bg-brand/5 font-medium" : "border-border bg-card hover:border-brand/60"}`}
+              >
+                Anywhere / virtual
+              </button>
+              {CITIES.map((c) => (
+                <button
+                  key={c.slug}
+                  onClick={() => setCitySlug(c.slug)}
+                  className={`rounded-xl border p-3 text-sm transition ${citySlug === c.slug ? "border-brand bg-brand/5 font-medium" : "border-border bg-card hover:border-brand/60"}`}
+                >
+                  {c.name}, {c.state}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 5 && (
+          <div>
+            <h1 className="font-display text-3xl md:text-4xl">What's your budget range?</h1>
+            <p className="mt-2 text-muted-foreground">Design fees plus furnishings and construction, all in. This only sorts results.</p>
+            <div className="mt-6 space-y-3">
+              {BUDGET_BANDS.map((opt) => (
+                <OptionRow key={opt.slug} selected={budget === opt.slug} label={opt.label} onClick={() => setBudget(opt.slug)} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 6 && (
+          <div>
+            <h1 className="font-display text-3xl md:text-4xl">When would you like to start?</h1>
+            <div className="mt-6 grid gap-2 sm:grid-cols-2">
+              {TIMING_OPTS.map((opt) => (
+                <OptionRow key={opt.id} selected={timing === opt.id} label={opt.label} onClick={() => setTiming(opt.id)} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 7 && (
+          <div>
             <h1 className="font-display text-3xl md:text-4xl">Any preferences?</h1>
-            <p className="mt-2 text-muted-foreground">Optional — these fine-tune which providers rank highest.</p>
+            <p className="mt-2 text-muted-foreground">Optional — these fine-tune which studios rank highest.</p>
             <div className="mt-6 space-y-3">
               {PREFERENCE_OPTS.map((opt) => (
                 <OptionRow key={opt.id} multi selected={preferences.includes(opt.id)} label={opt.label} onClick={() => toggle(preferences, setPreferences, opt.id)} />
@@ -289,7 +312,7 @@ function MatchPage() {
 
       <div className="mt-8 flex items-center justify-between gap-3">
         <p className="flex items-center gap-1 text-xs text-muted-foreground">
-          <BadgeCheck className="h-3.5 w-3.5 text-brand" /> No forms, no lead-selling. Browse and reach out directly.
+          <BadgeCheck className="h-3.5 w-3.5 text-brand" /> We never sell your details. You choose who to contact.
         </p>
         {step < TOTAL_STEPS - 1 ? (
           <Button disabled={!canNext} onClick={() => setStep(step + 1)} className="rounded-full px-8">

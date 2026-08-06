@@ -1,14 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { SERVICES, TEXAS_CITIES, cityFromSlug } from "@/lib/cities";
+import { SERVICES, CITIES, cityFromSlug } from "@/lib/cities";
 import { listByTreatment, listCitiesForTreatment } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
-import { getTreatmentContent } from "@/lib/treatment-content";
+import { getServiceContent } from "@/lib/service-content";
 import { z } from "zod";
 
 const searchSchema = z.object({ city: z.string().optional() });
 
-export const Route = createFileRoute("/_site/treatment/$slug")({
+export const Route = createFileRoute("/_site/service/$slug")({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => search,
   beforeLoad: ({ params }) => {
@@ -19,42 +19,36 @@ export const Route = createFileRoute("/_site/treatment/$slug")({
     const name = svc?.name ?? params.slug;
     const cityParam = (loaderData as { citySlug?: string } | undefined)?.citySlug;
     const city = cityParam ? cityFromSlug(cityParam) : undefined;
-    const path = cityParam ? `/treatment/${params.slug}?city=${cityParam}` : `/treatment/${params.slug}`;
-    const canonical = `https://texas-beauty-glow.lovable.app${path}`;
-    const content = getTreatmentContent(params.slug, name);
+    const path = cityParam ? `/service/${params.slug}?city=${cityParam}` : `/service/${params.slug}`;
+    const content = getServiceContent(params.slug, name);
     const title = city
-      ? `${name} in ${city.name}, TX — Cost, Recovery & Top Medspas`
-      : `${name} in Texas — What It Is, Cost, Recovery & Top Medspas`;
+      ? `${name} in ${city.name}, ${city.state} — Cost, Process & Top Studios`
+      : `${name} — What It Involves, Cost & Top Design Studios`;
     const description = city
-      ? `${name} in ${city.name}, TX: what it is, benefits, risks, recovery, and average cost. Compare verified ${name.toLowerCase()} providers in ${city.name}.`
-      : `Everything about ${name} in Texas: what it is, benefits, risks, recovery, average cost, and top verified providers.`;
-    const keywords = city
-      ? `${name} ${city.name}, ${name} near me ${city.name}, best ${name.toLowerCase()} ${city.name} TX, ${city.name} medspa ${name.toLowerCase()}, ${name.toLowerCase()} cost ${city.name}`
-      : `${name} Texas, ${name} near me, best ${name.toLowerCase()} TX, ${name.toLowerCase()} cost Texas, ${name.toLowerCase()} recovery`;
+      ? `${name} in ${city.name}, ${city.state}: what it involves, what it costs, and vetted interior design studios offering it.`
+      : `${name}: what it involves, what it costs, how the process works, and vetted interior design studios offering it nationwide.`;
     return {
       meta: [
         { title },
         { name: "description", content: description },
-        { name: "keywords", content: keywords },
-        { name: "geo.region", content: "US-TX" },
-        ...(city ? [{ name: "geo.placename", content: `${city.name}, Texas` }] : []),
         { property: "og:title", content: title },
         { property: "og:description", content: description },
-        { property: "og:url", content: canonical },
+        { property: "og:url", content: path },
         { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: canonical }],
+      links: [{ rel: "canonical", href: path }],
       scripts: [
         {
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "MedicalProcedure",
+            "@type": "Service",
             name,
+            serviceType: name,
             description: content.what,
-            howPerformed: content.what,
-            preparation: content.candidate,
-            followup: content.recovery,
+            provider: { "@type": "Organization", name: "Interiors List" },
+            ...(city ? { areaServed: { "@type": "City", name: city.name } } : { areaServed: { "@type": "Country", name: "United States" } }),
           }),
         },
         {
@@ -69,17 +63,6 @@ export const Route = createFileRoute("/_site/treatment/$slug")({
             })),
           }),
         },
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            name: title,
-            url: canonical,
-            about: { "@type": "MedicalProcedure", name },
-            ...(city ? { spatialCoverage: { "@type": "City", name: city.name, containedInPlace: { "@type": "State", name: "Texas" } } } : {}),
-          }),
-        },
       ],
     };
   },
@@ -87,81 +70,87 @@ export const Route = createFileRoute("/_site/treatment/$slug")({
     const [result, cities] = await Promise.all([
       context.queryClient.ensureQueryData(
         queryOptions({
-          queryKey: ["treatment", params.slug, deps],
+          queryKey: ["service", params.slug, deps],
           queryFn: () => listByTreatment({ data: { service: params.slug, city: deps.city } }),
         }),
       ),
       context.queryClient.ensureQueryData(
         queryOptions({
-          queryKey: ["treatment-cities", params.slug],
+          queryKey: ["service-cities", params.slug],
           queryFn: () => listCitiesForTreatment({ data: { service: params.slug } }),
         }),
       ),
     ]);
     return { ...result, cities: cities.cities, citySlug: deps.city };
   },
-  component: TreatmentPage,
+  component: ServicePage,
+  notFoundComponent: () => (
+    <div className="mx-auto max-w-md px-4 py-24 text-center">
+      <h1 className="font-display text-3xl">Service not found</h1>
+      <p className="mt-3"><Link to="/search" className="text-brand underline">Browse all studios</Link></p>
+    </div>
+  ),
 });
 
-function TreatmentPage() {
+function ServicePage() {
   const { slug } = Route.useParams();
   const search = Route.useSearch();
   const svc = SERVICES.find((s) => s.slug === slug)!;
   const city = search.city ? cityFromSlug(search.city) : undefined;
-  const content = getTreatmentContent(slug, svc.name);
+  const content = getServiceContent(slug, svc.name);
   const { data } = useSuspenseQuery(
     queryOptions({
-      queryKey: ["treatment", slug, search],
+      queryKey: ["service", slug, search],
       queryFn: () => listByTreatment({ data: { service: slug, city: search.city } }),
     }),
   );
   const { data: citiesData } = useSuspenseQuery(
     queryOptions({
-      queryKey: ["treatment-cities", slug],
+      queryKey: ["service-cities", slug],
       queryFn: () => listCitiesForTreatment({ data: { service: slug } }),
     }),
   );
 
   const providersShown = data.providers.slice(0, 6);
-  const siblingTreatments = SERVICES.filter((s) => s.slug !== slug).slice(0, 8);
+  const siblings = SERVICES.filter((s) => s.slug !== slug).slice(0, 8);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-        <Link to="/" className="hover:text-brand">Home</Link> / Treatments / <span className="text-foreground">{svc.name}{city ? ` in ${city.name}` : ""}</span>
+        <Link to="/" className="hover:text-brand">Home</Link> / Services / <span className="text-foreground">{svc.name}{city ? ` in ${city.name}` : ""}</span>
       </nav>
 
       <h1 className="mt-2 font-display text-4xl md:text-5xl">
-        {svc.name} {city ? `in ${city.name}, TX` : "in Texas"}
+        {svc.name} {city ? `in ${city.name}, ${city.state}` : ""}
       </h1>
       <p className="mt-3 max-w-3xl text-lg text-foreground/85 leading-relaxed">{content.what}</p>
 
       <section className="mt-10 grid gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="font-display text-2xl">Benefits</h2>
-          <ul className="mt-3 space-y-2 text-sm text-foreground/85 list-disc pl-5">
+          <h2 className="font-display text-2xl">What you get</h2>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-foreground/85">
             {content.benefits.map((b) => <li key={b}>{b}</li>)}
           </ul>
         </div>
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="font-display text-2xl">Risks & side effects</h2>
-          <ul className="mt-3 space-y-2 text-sm text-foreground/85 list-disc pl-5">
-            {content.risks.map((r) => <li key={r}>{r}</li>)}
+          <h2 className="font-display text-2xl">What to watch for</h2>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-foreground/85">
+            {content.considerations.map((r) => <li key={r}>{r}</li>)}
           </ul>
         </div>
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="font-display text-2xl">Recovery</h2>
-          <p className="mt-3 text-sm text-foreground/85 leading-relaxed">{content.recovery}</p>
+          <h2 className="font-display text-2xl">How the process works</h2>
+          <p className="mt-3 text-sm leading-relaxed text-foreground/85">{content.process}</p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="font-display text-2xl">Average cost</h2>
-          <p className="mt-3 text-sm text-foreground/85 leading-relaxed">{content.avgCost}</p>
+          <h2 className="font-display text-2xl">Typical cost</h2>
+          <p className="mt-3 text-sm leading-relaxed text-foreground/85">{content.avgCost}</p>
         </div>
       </section>
 
       <section className="mt-8 rounded-2xl border border-border bg-secondary/30 p-6">
-        <h2 className="font-display text-2xl">Who is a good candidate?</h2>
-        <p className="mt-3 text-sm text-foreground/85 leading-relaxed">{content.candidate}</p>
+        <h2 className="font-display text-2xl">Is this right for you?</h2>
+        <p className="mt-3 text-sm leading-relaxed text-foreground/85">{content.candidate}</p>
       </section>
 
       <section className="mt-8 rounded-2xl border border-border bg-card p-6">
@@ -176,24 +165,23 @@ function TreatmentPage() {
         </div>
       </section>
 
-      {/* Providers */}
       <section className="mt-14 border-t border-border/60 pt-10">
         <h2 className="font-display text-3xl md:text-4xl">
-          Find med spas offering {svc.name} {city ? `in ${city.name}, TX` : "near you"}
+          Design studios offering {svc.name} {city ? `in ${city.name}, ${city.state}` : "near you"}
         </h2>
         <p className="mt-2 text-muted-foreground">
-          {data.providers.length} verified {city ? `${city.name}` : "Texas"} provider{data.providers.length === 1 ? "" : "s"}
+          {data.providers.length} vetted studio{data.providers.length === 1 ? "" : "s"}
         </p>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <Link to="/treatment/$slug" params={{ slug }} className={`rounded-full border px-3 py-1 text-sm ${!search.city ? "border-brand bg-brand text-brand-foreground" : "border-border"}`}>All Texas</Link>
-          {TEXAS_CITIES.map((c) => (
-            <Link key={c.slug} to="/treatment/$slug" params={{ slug }} search={{ city: c.slug } as never} className={`rounded-full border px-3 py-1 text-sm ${search.city === c.slug ? "border-brand bg-brand text-brand-foreground" : "border-border hover:border-brand"}`}>{c.name}</Link>
+          <Link to="/service/$slug" params={{ slug }} className={`rounded-full border px-3 py-1 text-sm ${!search.city ? "border-brand bg-brand text-brand-foreground" : "border-border"}`}>All cities</Link>
+          {CITIES.map((c) => (
+            <Link key={c.slug} to="/service/$slug" params={{ slug }} search={{ city: c.slug } as never} className={`rounded-full border px-3 py-1 text-sm ${search.city === c.slug ? "border-brand bg-brand text-brand-foreground" : "border-border hover:border-brand"}`}>{c.name}</Link>
           ))}
         </div>
 
         {providersShown.length === 0 ? (
-          <p className="mt-8 rounded-2xl border border-dashed border-border bg-card p-8 text-center text-muted-foreground">No verified providers listed yet{city ? ` in ${city.name}` : ""}.</p>
+          <p className="mt-8 rounded-2xl border border-dashed border-border bg-card p-8 text-center text-muted-foreground">No studios listed yet{city ? ` in ${city.name}` : ""}.</p>
         ) : (
           <>
             <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -202,7 +190,7 @@ function TreatmentPage() {
             {data.providers.length > providersShown.length && (
               <p className="mt-6 text-center">
                 <Link to="/search" search={{ service: slug, ...(search.city ? { city: search.city } : {}) } as never} className="text-sm font-medium text-brand hover:underline">
-                  See all {data.providers.length} providers →
+                  See all {data.providers.length} studios →
                 </Link>
               </p>
             )}
@@ -210,13 +198,12 @@ function TreatmentPage() {
         )}
       </section>
 
-      {/* Interlinks */}
       {citiesData.cities.length > 0 && (
         <section className="mt-12 rounded-2xl border border-border bg-secondary/30 p-6">
           <h2 className="font-display text-2xl">{svc.name} is also offered in</h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {citiesData.cities.slice(0, 12).map((c) => (
-              <Link key={c.slug} to="/treatment/$slug" params={{ slug }} search={{ city: c.slug } as never} className="rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:border-brand">
+              <Link key={c.slug} to="/service/$slug" params={{ slug }} search={{ city: c.slug } as never} className="rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:border-brand">
                 {svc.name} in {c.name} <span className="text-muted-foreground">({c.count})</span>
               </Link>
             ))}
@@ -225,10 +212,10 @@ function TreatmentPage() {
       )}
 
       <section className="mt-8 rounded-2xl border border-border bg-card p-6">
-        <h2 className="font-display text-2xl">Related treatments</h2>
+        <h2 className="font-display text-2xl">Related services</h2>
         <div className="mt-4 flex flex-wrap gap-2">
-          {siblingTreatments.map((s) => (
-            <Link key={s.slug} to="/treatment/$slug" params={{ slug: s.slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-sm hover:border-brand">
+          {siblings.map((s) => (
+            <Link key={s.slug} to="/service/$slug" params={{ slug: s.slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-sm hover:border-brand">
               {s.name}
             </Link>
           ))}

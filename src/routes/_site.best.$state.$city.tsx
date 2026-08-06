@@ -1,25 +1,31 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { cityFromSlug, TEXAS_CITIES } from "@/lib/cities";
+import { cityFromSlug, CITIES } from "@/lib/cities";
 import { listProvidersByCity } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Trophy } from "lucide-react";
 
-export const Route = createFileRoute("/_site/best/$city")({
+export const Route = createFileRoute("/_site/best/$state/$city")({
   beforeLoad: ({ params }) => {
-    if (!cityFromSlug(params.city)) throw notFound();
+    const c = cityFromSlug(params.city);
+    if (!c || c.state.toLowerCase() !== params.state.toLowerCase()) throw notFound();
   },
   head: ({ params }) => {
     const c = cityFromSlug(params.city);
     const name = c?.name ?? params.city;
-    const path = `/best/${params.city}`;
+    const st = c?.state ?? params.state.toUpperCase();
+    const path = `/best/${params.state}/${params.city}`;
+    const title = `Best Interior Designers in ${name}, ${st} (${new Date().getFullYear()}) | Interiors List`;
+    const description = `The top vetted interior design studios in ${name}, ${st} — curated, reviewed and ranked.`;
     return {
       meta: [
-        { title: `Best Medspas & Aesthetic Injectors in ${name}, TX (${new Date().getFullYear()}) | Discover Medspa` },
-        { name: "description", content: `The top verified Botox, filler, and medspa providers in ${name}, Texas — curated, reviewed, and ranked.` },
-        { property: "og:title", content: `Best Medspas in ${name}, TX` },
-        { property: "og:description", content: `Top verified aesthetic injectors in ${name}.` },
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: `Best Interior Designers in ${name}, ${st}` },
+        { property: "og:description", content: description },
         { property: "og:url", content: path },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: path }],
     };
@@ -32,6 +38,7 @@ export const Route = createFileRoute("/_site/best/$city")({
       }),
     ),
   component: BestCity,
+  notFoundComponent: () => <div className="mx-auto max-w-md px-4 py-24 text-center"><h1 className="font-display text-3xl">City not found</h1></div>,
 });
 
 function BestCity() {
@@ -45,13 +52,13 @@ function BestCity() {
   );
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
-      <p className="text-sm text-muted-foreground"><Link to="/" className="hover:underline">Texas</Link> / Best in {c.name}</p>
+      <p className="text-sm text-muted-foreground"><Link to="/" className="hover:underline">Home</Link> / Best in {c.name}</p>
       <div className="mt-2 flex items-center gap-3">
         <Trophy className="h-8 w-8 text-brand" />
-        <h1 className="font-display text-4xl md:text-5xl">Best Medspas in {c.name}, TX</h1>
+        <h1 className="font-display text-4xl md:text-5xl">Best Interior Designers in {c.name}, {c.state}</h1>
       </div>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        The top {Math.min(10, data.providers.length)} verified aesthetic injectors and medspas in {c.name}, hand-curated for {new Date().getFullYear()}. {c.tagline}.
+        The top {Math.min(10, data.providers.length)} vetted design studios in {c.name}, curated for {new Date().getFullYear()}. {c.tagline}.
       </p>
 
       <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -64,10 +71,10 @@ function BestCity() {
       </div>
 
       <section className="mt-16 rounded-3xl bg-secondary/40 p-8">
-        <h2 className="font-display text-2xl">Other top Texas cities</h2>
+        <h2 className="font-display text-2xl">Other top cities</h2>
         <div className="mt-4 flex flex-wrap gap-2">
-          {TEXAS_CITIES.filter((x) => x.slug !== city).map((x) => (
-            <Link key={x.slug} to="/best/$city" params={{ city: x.slug }} className="rounded-full border border-border bg-card px-4 py-1.5 text-sm hover:border-brand">
+          {CITIES.filter((x) => x.slug !== city).map((x) => (
+            <Link key={x.slug} to="/best/$state/$city" params={{ state: x.state.toLowerCase(), city: x.slug }} className="rounded-full border border-border bg-card px-4 py-1.5 text-sm hover:border-brand">
               Best in {x.name}
             </Link>
           ))}

@@ -4,9 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Menu, Search, X } from "lucide-react";
-import { TEXAS_CITIES, SERVICES, CONCERNS } from "@/lib/cities";
+import { CITIES, SERVICES, STYLES } from "@/lib/cities";
 import { getMyRoles } from "@/lib/role.functions";
-
 
 export function SiteHeader() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -30,14 +29,14 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4">
-        <Link to="/" className="font-display text-xl font-semibold tracking-[0.15em] uppercase">
-          Discover Medspa
+        <Link to="/" className="font-display text-xl font-semibold uppercase tracking-[0.15em]">
+          Interiors List
         </Link>
         <nav className="hidden items-center gap-8 lg:flex">
-          <Link to="/search" className="text-sm font-medium hover:text-brand">Find a Pro</Link>
+          <Link to="/search" className="text-sm font-medium hover:text-brand">Find a Designer</Link>
           <Link to="/match" className="text-sm font-medium hover:text-brand">Get Matched</Link>
-          <Link to="/safety" className="text-sm font-medium hover:text-brand">Safety</Link>
-          <Link to="/for-business" className="text-sm font-medium hover:text-brand">For Business</Link>
+          <Link to="/guide" className="text-sm font-medium hover:text-brand">Hiring Guide</Link>
+          <Link to="/for-business" className="text-sm font-medium hover:text-brand">For Studios</Link>
         </nav>
 
         <div className="hidden items-center gap-4 lg:flex">
@@ -59,10 +58,10 @@ export function SiteHeader() {
       {open && (
         <div className="border-t border-border bg-background lg:hidden">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 text-sm">
-            <Link to="/search" onClick={() => setOpen(false)}>Find a Pro</Link>
+            <Link to="/search" onClick={() => setOpen(false)}>Find a Designer</Link>
             <Link to="/match" onClick={() => setOpen(false)}>Get Matched</Link>
-            <Link to="/safety" onClick={() => setOpen(false)}>Safety</Link>
-            <Link to="/for-business" onClick={() => setOpen(false)}>For Business</Link>
+            <Link to="/guide" onClick={() => setOpen(false)}>Hiring Guide</Link>
+            <Link to="/for-business" onClick={() => setOpen(false)}>For Studios</Link>
             <Link to="/favorites" onClick={() => setOpen(false)}>Favorites</Link>
             <Link to="/review" onClick={() => setOpen(false)}>Write a Review</Link>
             {roles?.isAdmin && <Link to="/admin" onClick={() => setOpen(false)}>Admin</Link>}
@@ -72,54 +71,55 @@ export function SiteHeader() {
           </div>
         </div>
       )}
-
     </header>
   );
 }
 
 export function SiteFooter() {
-  const treatments = SERVICES.slice(0, 12);
+  const services = SERVICES.slice(0, 12);
 
   return (
     <footer className="mt-24 border-t border-border/60 bg-secondary/30">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-6">
         <div className="lg:col-span-1">
-          <p className="font-display text-lg font-semibold uppercase tracking-[0.15em]">Discover Medspa</p>
+          <p className="font-display text-lg font-semibold uppercase tracking-[0.15em]">Interiors List</p>
           <p className="mt-4 text-sm text-muted-foreground">
-            The trusted directory helping Texans find vetted, verified aesthetic injectors and medspas.
+            The independent directory for finding vetted interior design studios across the country.
           </p>
         </div>
 
         <FooterCol title="Cities">
-          {TEXAS_CITIES.map((c) => (
-            <li key={c.slug}><Link to="/tx/$city" params={{ city: c.slug }} className="hover:text-brand">{c.name}</Link></li>
+          {CITIES.map((c) => (
+            <li key={c.slug}>
+              <Link to="/designers/$state/$city" params={{ state: c.state.toLowerCase(), city: c.slug }} className="hover:text-brand">
+                {c.name}, {c.state}
+              </Link>
+            </li>
           ))}
         </FooterCol>
 
-        <FooterCol title="Treatments">
-          {treatments.map((s) => (
-            <li key={s.slug}><Link to="/treatment/$slug" params={{ slug: s.slug }} className="hover:text-brand">{s.name}</Link></li>
+        <FooterCol title="Services">
+          {services.map((s) => (
+            <li key={s.slug}><Link to="/service/$slug" params={{ slug: s.slug }} className="hover:text-brand">{s.name}</Link></li>
           ))}
         </FooterCol>
 
-        <FooterCol title="Concerns">
-          {CONCERNS.map((c) => (
-            <li key={c.slug}><Link to="/concern/$slug" params={{ slug: c.slug }} className="hover:text-brand">{c.label}</Link></li>
+        <FooterCol title="Styles">
+          {STYLES.map((c) => (
+            <li key={c.slug}><Link to="/style/$slug" params={{ slug: c.slug }} className="hover:text-brand">{c.label}</Link></li>
           ))}
         </FooterCol>
-
 
         <FooterCol title="Company">
           <li><Link to="/about" className="hover:text-brand">About</Link></li>
           <li><Link to="/how-it-works" className="hover:text-brand">How it works</Link></li>
-          <li><Link to="/submit" className="hover:text-brand">Submit a medspa</Link></li>
-          <li><Link to="/for-business" className="hover:text-brand">For business</Link></li>
+          <li><Link to="/submit" className="hover:text-brand">Submit a studio</Link></li>
+          <li><Link to="/for-business" className="hover:text-brand">For studios</Link></li>
           <li><Link to="/contact" className="hover:text-brand">Contact</Link></li>
         </FooterCol>
 
         <FooterCol title="Trust">
-          <li><Link to="/safety" className="hover:text-brand">Patient safety</Link></li>
-          <li><Link to="/credentials" className="hover:text-brand">Credentials guide</Link></li>
+          <li><Link to="/guide" className="hover:text-brand">Hiring guide</Link></li>
           <li><Link to="/privacy" className="hover:text-brand">Privacy</Link></li>
           <li><Link to="/terms" className="hover:text-brand">Terms</Link></li>
         </FooterCol>
@@ -127,9 +127,8 @@ export function SiteFooter() {
       <div className="border-t border-border/60">
         <div className="mx-auto max-w-7xl px-4 py-6 text-xs text-muted-foreground">
           <p>
-            © {new Date().getFullYear()} Discover Medspa. Informational directory only — not medical advice.
-            Always verify a provider's licensure with the Texas Medical Board or Texas Board of Nursing
-            before treatment.
+            © {new Date().getFullYear()} Interiors List. An independent directory — we don't sell placement.
+            Always confirm a studio's credentials, insurance and contract terms before hiring.
           </p>
         </div>
       </div>

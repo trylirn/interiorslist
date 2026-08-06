@@ -1,132 +1,188 @@
-export type TexasCity = {
+export type City = {
   slug: string;
   name: string;
-  state: string;
-  population?: string;
+  state: string; // two-letter code, lowercase in URLs
+  stateName: string;
   tagline: string;
+  geo: { lat: number; lng: number };
+  neighbors: string[];
+  intro: string;
 };
 
-export const TEXAS_CITIES: TexasCity[] = [
-  { slug: "houston", name: "Houston", state: "TX", tagline: "Bayou City glow" },
-  { slug: "dallas", name: "Dallas", state: "TX", tagline: "Big D refinement" },
-  { slug: "austin", name: "Austin", state: "TX", tagline: "Capital cool" },
-  { slug: "san-antonio", name: "San Antonio", state: "TX", tagline: "Alamo elegance" },
-  { slug: "fort-worth", name: "Fort Worth", state: "TX", tagline: "Cowtown polish" },
-  { slug: "el-paso", name: "El Paso", state: "TX", tagline: "Sun City radiance" },
-  { slug: "arlington", name: "Arlington", state: "TX", tagline: "Mid-cities glow" },
-  { slug: "plano", name: "Plano", state: "TX", tagline: "North Dallas elite" },
-  { slug: "corpus-christi", name: "Corpus Christi", state: "TX", tagline: "Coastal beauty" },
-  { slug: "lubbock", name: "Lubbock", state: "TX", tagline: "West Texas wow" },
-  { slug: "southlake", name: "Southlake", state: "TX", tagline: "DFW luxury" },
-  { slug: "the-woodlands", name: "The Woodlands", state: "TX", tagline: "Forested polish" },
-  { slug: "waxahachie", name: "Waxahachie", state: "TX", tagline: "Historic charm" },
+export const CITIES: City[] = [
+  {
+    slug: "new-york", name: "New York", state: "NY", stateName: "New York",
+    tagline: "Townhouses, lofts and pre-war classics",
+    geo: { lat: 40.7128, lng: -74.006 },
+    neighbors: ["Brooklyn", "Queens", "Hoboken", "Westchester", "The Hamptons"],
+    intro: "Serving Manhattan, Brooklyn, Queens and the surrounding metro area.",
+  },
+  {
+    slug: "los-angeles", name: "Los Angeles", state: "CA", stateName: "California",
+    tagline: "Indoor-outdoor living, done well",
+    geo: { lat: 34.0522, lng: -118.2437 },
+    neighbors: ["Santa Monica", "Pasadena", "Silver Lake", "Malibu", "Beverly Hills"],
+    intro: "Serving Los Angeles, the Westside, the Valley and the South Bay.",
+  },
+  {
+    slug: "chicago", name: "Chicago", state: "IL", stateName: "Illinois",
+    tagline: "Greystones, high-rises and warm modernism",
+    geo: { lat: 41.8781, lng: -87.6298 },
+    neighbors: ["Evanston", "Oak Park", "Wicker Park", "Naperville", "Hinsdale"],
+    intro: "Serving Chicago, the North Shore and the western suburbs.",
+  },
+  {
+    slug: "houston", name: "Houston", state: "TX", stateName: "Texas",
+    tagline: "Gracious rooms built for entertaining",
+    geo: { lat: 29.7604, lng: -95.3698 },
+    neighbors: ["The Woodlands", "Sugar Land", "Katy", "Pearland", "Bellaire"],
+    intro: "Serving Houston, River Oaks, The Heights and the surrounding suburbs.",
+  },
+  {
+    slug: "dallas", name: "Dallas", state: "TX", stateName: "Texas",
+    tagline: "New builds and tailored renovations",
+    geo: { lat: 32.7767, lng: -96.797 },
+    neighbors: ["Plano", "Frisco", "Highland Park", "Southlake", "Fort Worth"],
+    intro: "Serving Dallas, Highland Park, Preston Hollow and the greater DFW metroplex.",
+  },
+  {
+    slug: "austin", name: "Austin", state: "TX", stateName: "Texas",
+    tagline: "Hill Country modern",
+    geo: { lat: 30.2672, lng: -97.7431 },
+    neighbors: ["Westlake", "Round Rock", "Cedar Park", "Dripping Springs", "Lakeway"],
+    intro: "Serving Austin, Westlake, Round Rock and the Texas Hill Country.",
+  },
+  {
+    slug: "miami", name: "Miami", state: "FL", stateName: "Florida",
+    tagline: "Tropical modern and waterfront living",
+    geo: { lat: 25.7617, lng: -80.1918 },
+    neighbors: ["Coral Gables", "Miami Beach", "Coconut Grove", "Fort Lauderdale", "Key Biscayne"],
+    intro: "Serving Miami, Coral Gables, Miami Beach and Broward County.",
+  },
+  {
+    slug: "atlanta", name: "Atlanta", state: "GA", stateName: "Georgia",
+    tagline: "Southern classicism, updated",
+    geo: { lat: 33.749, lng: -84.388 },
+    neighbors: ["Buckhead", "Decatur", "Marietta", "Alpharetta", "Sandy Springs"],
+    intro: "Serving Atlanta, Buckhead, Decatur and the northern suburbs.",
+  },
+  {
+    slug: "seattle", name: "Seattle", state: "WA", stateName: "Washington",
+    tagline: "Daylight, cedar and calm",
+    geo: { lat: 47.6062, lng: -122.3321 },
+    neighbors: ["Bellevue", "Kirkland", "Ballard", "Tacoma", "Mercer Island"],
+    intro: "Serving Seattle, the Eastside and the greater Puget Sound region.",
+  },
+  {
+    slug: "denver", name: "Denver", state: "CO", stateName: "Colorado",
+    tagline: "Mountain modern with real durability",
+    geo: { lat: 39.7392, lng: -104.9903 },
+    neighbors: ["Boulder", "Golden", "Littleton", "Cherry Creek", "Fort Collins"],
+    intro: "Serving Denver, Boulder, Cherry Creek and the Front Range.",
+  },
+  {
+    slug: "phoenix", name: "Phoenix", state: "AZ", stateName: "Arizona",
+    tagline: "Desert modern, heat-smart materials",
+    geo: { lat: 33.4484, lng: -112.074 },
+    neighbors: ["Scottsdale", "Tempe", "Paradise Valley", "Mesa", "Chandler"],
+    intro: "Serving Phoenix, Scottsdale, Paradise Valley and the East Valley.",
+  },
+  {
+    slug: "boston", name: "Boston", state: "MA", stateName: "Massachusetts",
+    tagline: "Historic bones, contemporary comfort",
+    geo: { lat: 42.3601, lng: -71.0589 },
+    neighbors: ["Cambridge", "Brookline", "Somerville", "Newton", "The North Shore"],
+    intro: "Serving Boston, Cambridge, Brookline and the surrounding towns.",
+  },
 ];
 
-// Nearby cities/neighborhoods for local-intent SEO ("near me" queries and areaServed).
-export const CITY_NEIGHBORS: Record<string, string[]> = {
-  houston: ["The Woodlands", "Sugar Land", "Katy", "Pearland", "Cypress", "Spring"],
-  dallas: ["Plano", "Frisco", "Irving", "Richardson", "Garland", "Highland Park"],
-  austin: ["Round Rock", "Cedar Park", "Pflugerville", "Lakeway", "Georgetown", "Bee Cave"],
-  "san-antonio": ["Alamo Heights", "Stone Oak", "Boerne", "New Braunfels", "Schertz"],
-  "fort-worth": ["Arlington", "Southlake", "Keller", "Grapevine", "Colleyville"],
-  "el-paso": ["Horizon City", "Socorro", "Canutillo"],
-  arlington: ["Fort Worth", "Grand Prairie", "Mansfield", "Kennedale"],
-  plano: ["Frisco", "Allen", "McKinney", "Richardson", "Dallas"],
-  "corpus-christi": ["Portland", "Rockport", "Kingsville"],
-  lubbock: ["Wolfforth", "Shallowater", "Idalou"],
-  southlake: ["Grapevine", "Colleyville", "Keller", "Westlake"],
-  "the-woodlands": ["Spring", "Conroe", "Magnolia", "Tomball"],
-  waxahachie: ["Midlothian", "Red Oak", "Ennis", "Ovilla", "Dallas"],
-};
+export const STATES = Array.from(
+  new Map(CITIES.map((c) => [c.state, { code: c.state, name: c.stateName }])).values(),
+).sort((a, b) => a.name.localeCompare(b.name));
 
-// City centroid approx lat/lng for LocalBusiness/CollectionPage geo hints.
-export const CITY_GEO: Record<string, { lat: number; lng: number }> = {
-  houston: { lat: 29.7604, lng: -95.3698 },
-  dallas: { lat: 32.7767, lng: -96.797 },
-  austin: { lat: 30.2672, lng: -97.7431 },
-  "san-antonio": { lat: 29.4241, lng: -98.4936 },
-  "fort-worth": { lat: 32.7555, lng: -97.3308 },
-  "el-paso": { lat: 31.7619, lng: -106.485 },
-  arlington: { lat: 32.7357, lng: -97.1081 },
-  plano: { lat: 33.0198, lng: -96.6989 },
-  "corpus-christi": { lat: 27.8006, lng: -97.3964 },
-  lubbock: { lat: 33.5779, lng: -101.8552 },
-  southlake: { lat: 32.9412, lng: -97.1342 },
-  "the-woodlands": { lat: 30.1658, lng: -95.4613 },
-  waxahachie: { lat: 32.3865, lng: -96.8483 },
-};
-
-// Short local intro copy for each city (visible + description meta).
-export const CITY_INTRO: Record<string, string> = {
-  houston: "Serving Houston and the surrounding communities of The Woodlands, Sugar Land, Katy, and Pearland.",
-  dallas: "Serving Dallas, Highland Park, Uptown, Preston Hollow, and the greater DFW metroplex.",
-  austin: "Serving Austin, Westlake, Round Rock, Cedar Park, and the Texas Hill Country.",
-  "san-antonio": "Serving San Antonio, Alamo Heights, Stone Oak, Boerne, and New Braunfels.",
-  "fort-worth": "Serving Fort Worth, Southlake, Keller, Grapevine, and the western DFW metroplex.",
-  "el-paso": "Serving El Paso, Horizon City, Socorro, and the Sun City region.",
-  arlington: "Serving Arlington, Grand Prairie, Mansfield, and the Mid-Cities.",
-  plano: "Serving Plano, Frisco, Allen, McKinney, and North Dallas.",
-  "corpus-christi": "Serving Corpus Christi, Portland, Rockport, and the Texas Coastal Bend.",
-  lubbock: "Serving Lubbock, Wolfforth, Shallowater, and the South Plains region.",
-  southlake: "Serving Southlake, Westlake, Grapevine, Colleyville, and DFW luxury communities.",
-  "the-woodlands": "Serving The Woodlands, Spring, Conroe, Magnolia, and North Houston.",
-  waxahachie: "Serving Waxahachie, Midlothian, Red Oak, Ennis, and Southern Dallas County.",
-};
+// Back-compat lookups used across the app
+export const CITY_NEIGHBORS: Record<string, string[]> = Object.fromEntries(
+  CITIES.map((c) => [c.slug, c.neighbors]),
+);
+export const CITY_GEO: Record<string, { lat: number; lng: number }> = Object.fromEntries(
+  CITIES.map((c) => [c.slug, c.geo]),
+);
+export const CITY_INTRO: Record<string, string> = Object.fromEntries(
+  CITIES.map((c) => [c.slug, c.intro]),
+);
 
 export const SERVICES = [
-  { slug: "botox", name: "Botox" },
-  { slug: "dysport", name: "Dysport" },
-  { slug: "xeomin", name: "Xeomin" },
-  { slug: "jeuveau", name: "Jeuveau" },
-  { slug: "fillers", name: "Dermal Fillers" },
-  { slug: "lip-filler", name: "Lip Filler" },
-  { slug: "cheek-filler", name: "Cheek Filler" },
-  { slug: "jawline-filler", name: "Jawline Filler" },
-  { slug: "sculptra", name: "Sculptra" },
-  { slug: "kybella", name: "Kybella" },
-  { slug: "prp", name: "PRP / PRF" },
-  { slug: "microneedling", name: "Microneedling" },
-  { slug: "morpheus8", name: "Morpheus8" },
-  { slug: "chemical-peels", name: "Chemical Peels" },
-  { slug: "hydrafacial", name: "HydraFacial" },
-  { slug: "dermaplaning", name: "Dermaplaning" },
-  { slug: "laser-hair-removal", name: "Laser Hair Removal" },
-  { slug: "ipl-photofacial", name: "IPL Photofacial" },
-  { slug: "laser-resurfacing", name: "Laser Resurfacing" },
-  { slug: "halo-laser", name: "Halo Laser" },
-  { slug: "bbl", name: "BBL" },
-  { slug: "coolsculpting", name: "CoolSculpting" },
-  { slug: "emsculpt", name: "Emsculpt" },
-  { slug: "body-contouring", name: "Body Contouring" },
-  { slug: "skin-tightening", name: "Skin Tightening" },
-  { slug: "microblading", name: "Microblading" },
-  { slug: "permanent-makeup", name: "Permanent Makeup" },
-  { slug: "lash-extensions", name: "Lash Extensions" },
-  { slug: "iv-therapy", name: "IV Therapy" },
-  { slug: "weight-loss", name: "Weight Loss" },
-  { slug: "hormone-therapy", name: "Hormone Therapy" },
-  { slug: "prp-hair", name: "PRP for Hair" },
-  { slug: "vampire-facial", name: "Vampire Facial" },
-  { slug: "ultherapy", name: "Ultherapy" },
+  { slug: "full-home-design", name: "Full-Home Design" },
+  { slug: "kitchen-design", name: "Kitchen Design" },
+  { slug: "bathroom-design", name: "Bathroom Design" },
+  { slug: "living-dining", name: "Living & Dining" },
+  { slug: "bedroom-design", name: "Bedroom Design" },
+  { slug: "home-office", name: "Home Office" },
+  { slug: "outdoor-patio", name: "Outdoor & Patio" },
+  { slug: "commercial-office", name: "Commercial & Office" },
+  { slug: "retail-hospitality", name: "Retail & Hospitality" },
+  { slug: "home-staging", name: "Home Staging" },
+  { slug: "e-design", name: "E-Design / Virtual" },
+  { slug: "space-planning", name: "Space Planning" },
+  { slug: "custom-millwork", name: "Custom Millwork" },
+  { slug: "lighting-design", name: "Lighting Design" },
+  { slug: "window-treatments", name: "Window Treatments" },
+  { slug: "furniture-sourcing", name: "Furniture Sourcing" },
+  { slug: "color-consultation", name: "Color Consultation" },
+  { slug: "renovation-management", name: "Renovation Management" },
 ];
 
-export const CONCERNS: { slug: string; label: string; intro: string }[] = [
-  { slug: "wrinkles", label: "Fine lines & wrinkles", intro: "Soften forehead lines, crow's feet, and 11s with neuromodulators and skin treatments." },
-  { slug: "lip-volume", label: "Lip volume & shape", intro: "Restore or enhance lip shape with hyaluronic-acid fillers and lip flips." },
-  { slug: "jawline", label: "Jawline definition", intro: "Sharpen the jawline with fillers, Kybella, and skin tightening." },
-  { slug: "acne-scars", label: "Acne scars", intro: "Resurface and rebuild collagen with microneedling, lasers, and peels." },
-  { slug: "pigmentation", label: "Sun damage & pigment", intro: "Lift melasma and sun spots with IPL, BBL, and medical-grade peels." },
-  { slug: "hair-loss", label: "Hair thinning", intro: "PRP for hair and prescription protocols to restore density." },
-  { slug: "glow", label: "Healthy glow", intro: "Hydrafacials, dermaplaning, and IV drips for radiant skin." },
-  { slug: "body-contouring", label: "Body contouring", intro: "Non-surgical fat reduction and muscle toning with CoolSculpting and Emsculpt." },
+export const STYLES: { slug: string; label: string; intro: string }[] = [
+  { slug: "modern", label: "Modern", intro: "Clean lines, honest materials and uncluttered rooms that still feel warm." },
+  { slug: "mid-century", label: "Mid-Century", intro: "Walnut, tapered legs, graphic pattern and 1950s–60s optimism." },
+  { slug: "traditional", label: "Traditional", intro: "Classic proportions, millwork, antiques and layered textiles." },
+  { slug: "transitional", label: "Transitional", intro: "The middle ground — traditional bones with contemporary furnishings." },
+  { slug: "farmhouse", label: "Modern Farmhouse", intro: "Shiplap, natural wood, matte black and generous kitchens." },
+  { slug: "industrial", label: "Industrial", intro: "Exposed brick, steel, concrete and loft-scale volumes." },
+  { slug: "coastal", label: "Coastal", intro: "Light woods, breezy fabrics and a sun-washed palette." },
+  { slug: "minimalist", label: "Minimalist", intro: "Restraint, storage that disappears, and a very short material list." },
+  { slug: "maximalist", label: "Maximalist", intro: "Saturated colour, pattern-on-pattern and collected objects." },
+  { slug: "scandinavian", label: "Scandinavian", intro: "Pale timber, wool, daylight and quiet functionality." },
+  { slug: "eclectic", label: "Eclectic", intro: "Mixed eras and provenances, held together by a confident eye." },
+  { slug: "contemporary-luxury", label: "Contemporary Luxury", intro: "Stone, bespoke joinery and hotel-grade detailing." },
 ];
 
-export function cityFromSlug(slug: string): TexasCity | undefined {
-  return TEXAS_CITIES.find((c) => c.slug === slug);
+export const PROJECT_TYPES = [
+  { slug: "new-build", label: "New build", desc: "Designing from architectural plans" },
+  { slug: "full-renovation", label: "Full renovation", desc: "Gut or major remodel of an existing space" },
+  { slug: "single-room", label: "Single room refresh", desc: "One space, start to finish" },
+  { slug: "furnishing-only", label: "Furnishing only", desc: "No construction — furniture, art and styling" },
+  { slug: "commercial-fitout", label: "Commercial fit-out", desc: "Office, retail, restaurant or hospitality" },
+  { slug: "rental", label: "Rental or short-term let", desc: "Renter-friendly or income-property design" },
+];
+
+export const BUDGET_BANDS = [
+  { slug: "under-10k", label: "Under $10k", tier: "budget" },
+  { slug: "10-25k", label: "$10k – $25k", tier: "budget" },
+  { slug: "25-75k", label: "$25k – $75k", tier: "moderate" },
+  { slug: "75-150k", label: "$75k – $150k", tier: "premium" },
+  { slug: "150k-plus", label: "$150k+", tier: "premium" },
+  { slug: "not-sure", label: "Not sure yet", tier: "flexible" },
+];
+
+export function cityFromSlug(slug: string): City | undefined {
+  return CITIES.find((c) => c.slug === slug);
 }
 
-export function concernFromSlug(slug: string) {
-  return CONCERNS.find((c) => c.slug === slug);
+export function styleFromSlug(slug: string) {
+  return STYLES.find((s) => s.slug === slug);
+}
+
+export function serviceName(slug: string) {
+  return SERVICES.find((s) => s.slug === slug)?.name ?? slug.replace(/-/g, " ");
+}
+
+export function styleLabel(slug: string) {
+  return STYLES.find((s) => s.slug === slug)?.label ?? slug.replace(/-/g, " ");
+}
+
+export function projectTypeLabel(slug: string) {
+  return PROJECT_TYPES.find((p) => p.slug === slug)?.label ?? slug.replace(/-/g, " ");
 }
 
 export function slugify(input: string): string {

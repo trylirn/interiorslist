@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { TEXAS_CITIES, SERVICES } from "@/lib/cities";
+import { CITIES as TEXAS_CITIES, SERVICES } from "@/lib/cities";
 import { Search, X } from "lucide-react";
 
 export const Route = createFileRoute("/_site/search")({
