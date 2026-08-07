@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/login")({
-  head: () => ({ meta: [{ title: "Sign in | Discover Medspa" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Sign in | Interiors List" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: LoginPage,
 });
 
@@ -19,9 +19,9 @@ function LoginPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <div className="text-center">
-        <h1 className="font-display text-4xl">Welcome to Discover Medspa</h1>
+        <h1 className="font-display text-4xl">Welcome to Interiors List</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Browsing is free — no account needed. Accounts are for med spas and clinics: register your business, claim your listing, and manage your profile.
+          Browsing is free — no account needed. Accounts are for design studios: register your business, claim your listing, and manage your profile.
         </p>
       </div>
       <Tabs defaultValue="signin" className="mt-8">
@@ -83,7 +83,7 @@ function SignInPanel() {
 
 
 
-const LICENSE_TYPES = ["MD", "DO", "NP", "PA", "RN", "Esthetician", "Medical Director Supervised", "Other"];
+const LICENSE_TYPES = ["ASID", "NCIDQ", "IIDA", "Licensed Interior Designer", "Design Principal", "Other"];
 
 function BusinessSignupWizard() {
   const navigate = useNavigate();
@@ -192,19 +192,19 @@ function BusinessSignupWizard() {
       {step === 2 && (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Discover Medspa lists licensed providers. You can add credentials now or later from your dashboard — none of this is required to create your account.
+            Interiors List features professional design studios. You can add credentials now or later from your dashboard — none of this is required to create your account.
           </p>
           <div className="space-y-1.5">
-            <Label>License type</Label>
+            <Label>Credential type</Label>
             <Select value={form.licenseType} onValueChange={(v) => update("licenseType", v)}>
               <SelectTrigger><SelectValue placeholder="Select (optional)…" /></SelectTrigger>
               <SelectContent>{LICENSE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5"><Label>License number</Label><Input value={form.licenseNumber} onChange={(e) => update("licenseNumber", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Credential number</Label><Input value={form.licenseNumber} onChange={(e) => update("licenseNumber", e.target.value)} /></div>
           <div className="space-y-1.5"><Label>NPI</Label><Input value={form.npi} onChange={(e) => update("npi", e.target.value)} /></div>
           <div className="space-y-1.5">
-            <Label>License document (PDF or image)</Label>
+            <Label>Credential document (PDF or image)</Label>
             <Input type="file" accept=".pdf,image/*" onChange={(e) => setLicenseFile(e.target.files?.[0] ?? null)} />
             {licenseFile && <p className="text-xs text-muted-foreground">{licenseFile.name}</p>}
             <p className="text-[11px] text-muted-foreground">Optional — speeds up listing approval.</p>
@@ -219,7 +219,7 @@ function BusinessSignupWizard() {
       {step === 3 && (
         <div className="space-y-3">
           <div className="space-y-1.5"><Label>Your name *</Label><Input required value={form.contactName} onChange={(e) => update("contactName", e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Your role at the business</Label><Input value={form.contactRole} onChange={(e) => update("contactRole", e.target.value)} placeholder="Owner, Medical Director, Manager…" /></div>
+          <div className="space-y-1.5"><Label>Your role at the business</Label><Input value={form.contactRole} onChange={(e) => update("contactRole", e.target.value)} placeholder="Owner, Principal Designer, Manager…" /></div>
           <div className="space-y-1.5"><Label>Account email *</Label><Input type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} /></div>
           <div className="space-y-1.5"><Label>Password *</Label><Input type="password" required minLength={8} value={form.password} onChange={(e) => update("password", e.target.value)} /></div>
           <div className="space-y-1.5"><Label>Anything else?</Label><Textarea rows={3} value={form.notes} onChange={(e) => update("notes", e.target.value)} /></div>
