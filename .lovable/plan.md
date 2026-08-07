@@ -33,6 +33,20 @@ Every file still carrying medspa language gets fixed, including the ones you spo
 - Service and style detail pages, favourites, root metadata and structured data
 - Old medspa seed JSON files and the one-off seed import route removed
 
+
+## 4. Make the site look like interior design
+
+Same features and sections, but a visually rich, editorial interiors look instead of a plain directory.
+
+- **Imagery** — generate a set of high-quality interior photography-style images: a full-bleed hero (styled living room, warm natural light), and cover images for each style card (modern, mid-century, farmhouse, coastal, etc.), the top service tiles, and the city cards. Loaded as CDN assets, lazy-loaded below the fold, with descriptive alt text.
+- **Hero** — large image treatment with the headline and search overlaid, "Get matched" panel floating over it, and the trust stats beneath.
+- **Style and service sections** — image-led cards with the label over a soft gradient, hover zoom, magazine-style grid rather than plain bordered boxes.
+- **City cards** — small skyline/interior thumbnail with the studio count.
+- **Palette and type** — warm editorial interiors direction: deep clay/terracotta accent, warm off-white surfaces, charcoal text, a serif display face for headings paired with a clean sans for body. All applied through the design tokens in `src/styles.css`, so cards, buttons and dashboards shift together.
+- **Detail** — generous whitespace, subtle shadows and rounded corners, quiet fade/scale-in on scroll. Profiles get a portfolio-style gallery layout; studios without photos fall back to a tasteful monogram card so the grid never looks broken.
+
+
+
 ## Technical notes
 
 - One migration: delete demo rows, then insert the parsed firms as literal INSERTs. Import script runs locally to generate the SQL; nothing is seeded at page load.
