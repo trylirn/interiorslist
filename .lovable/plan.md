@@ -31,6 +31,8 @@ Every file still carrying medspa language gets fixed, including the ones you spo
 - Review wizard and review pages (rating criteria reworded: communication, design results, project management, value)
 - Compare page and compare drawer, nearby/related studios, quiz prompt, provider cards
 - Service and style detail pages, favourites, root metadata and structured data
+- Old medspa seed JSON files and the one-off seed import route removed
+
 
 ## 4. Make the site look like interior design
 
