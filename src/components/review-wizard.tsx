@@ -21,14 +21,14 @@ import {
 
 type Picked = { place_id: string; slug: string; name: string; city: string | null };
 
-const STEPS = ["Find the med spa", "Your experience", "Ratings & disclosures", "About you"];
+const STEPS = ["Find the studio", "Your project", "Ratings & disclosures", "About you"];
 
 const CLIENT_TYPES = [
-  "Individual — first time",
-  "Individual — returning",
-  "Couple / family",
-  "Referred by another provider",
-  "Corporate / group booking",
+  "Homeowner — first project",
+  "Homeowner — returning client",
+  "Developer / builder",
+  "Referred by another designer",
+  "Commercial / hospitality client",
 ];
 
 const RELATIONSHIP_OPTIONS = [
@@ -40,14 +40,14 @@ const RELATIONSHIP_OPTIONS = [
 
 const BENEFIT_OPTIONS = [
   "No — I received nothing for this review",
-  "I received a discount or free treatment",
+  "I received a discount or free service",
   "I was paid or compensated",
 ];
 
 const SUBRATINGS = [
   { key: "communication", label: "Communication" },
-  { key: "results", label: "Treatment results" },
-  { key: "cleanliness", label: "Cleanliness & safety" },
+  { key: "results", label: "Design results" },
+  { key: "cleanliness", label: "Project management" },
   { key: "value", label: "Value for money" },
 ] as const;
 
@@ -194,7 +194,7 @@ export function ReviewWizard({ initialProvider }: { initialProvider?: Picked }) 
       <div className="mt-8 rounded-3xl border border-border bg-card p-6">
         {step === 1 && (
           <div>
-            <h2 className="font-display text-xl">Find the med spa</h2>
+            <h2 className="font-display text-xl">Find the studio</h2>
             <p className="mt-1 text-sm text-muted-foreground">Search by business name or city.</p>
             <div className="relative mt-4">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -202,7 +202,7 @@ export function ReviewWizard({ initialProvider }: { initialProvider?: Picked }) 
                 className="pl-9"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="e.g. Glow Med Spa, Dallas"
+                placeholder="e.g. Studio Haus, Austin"
                 maxLength={120}
               />
             </div>
@@ -231,7 +231,7 @@ export function ReviewWizard({ initialProvider }: { initialProvider?: Picked }) 
                 ))}
                 {q.trim().length >= 2 && !isFetching && !results?.providers.length && (
                   <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-                    No match yet. <Link to="/submit" className="text-brand underline">Add this med spa</Link> and review it once it's live.
+                    No match yet. <Link to="/submit" className="text-brand underline">Add this studio</Link> and review it once it's live.
                   </p>
                 )}
               </div>
@@ -241,7 +241,7 @@ export function ReviewWizard({ initialProvider }: { initialProvider?: Picked }) 
 
         {step === 2 && (
           <div className="space-y-5">
-            <h2 className="font-display text-xl">Your experience</h2>
+            <h2 className="font-display text-xl">Your project</h2>
             <div className="space-y-1.5">
               <Label>What kind of client were you? <span className="text-brand">*</span></Label>
               <Select value={clientType} onValueChange={setClientType}>
@@ -285,7 +285,7 @@ export function ReviewWizard({ initialProvider }: { initialProvider?: Picked }) 
                 onChange={(e) => setDecisionFactors(e.target.value)}
                 rows={3}
                 maxLength={2000}
-                placeholder="Pricing, reviews, a referral, location, specific treatment…"
+                placeholder="Pricing, reviews, a referral, location, specific room or project type…"
               />
             </div>
             <div className="space-y-1.5">
@@ -295,7 +295,7 @@ export function ReviewWizard({ initialProvider }: { initialProvider?: Picked }) 
                 onChange={(e) => setText(e.target.value)}
                 rows={6}
                 maxLength={4000}
-                placeholder="Treatments you had, how the team communicated, results, anything future clients should know."
+                placeholder="The rooms or project you worked on, how the studio communicated, results, and anything future clients should know."
               />
               <p className={`text-xs ${text.trim().length >= MIN_TEXT ? "text-muted-foreground" : "text-brand"}`}>
                 {text.trim().length}/{MIN_TEXT} characters minimum
