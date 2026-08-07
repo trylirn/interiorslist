@@ -14,7 +14,7 @@ import { ArrowLeft, CheckCircle2, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/_site/claim/$slug")({
   head: () => ({
     meta: [
-      { title: "Claim your listing | Discover Medspa" },
+      { title: "Claim your listing | Interiors List" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -113,7 +113,7 @@ function ClaimPage() {
       </Link>
       <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-brand">Claim your profile</p>
       <h1 className="mt-3 font-display text-4xl">{provider.name}</h1>
-      <p className="mt-2 text-muted-foreground">{provider.city}, TX</p>
+      <p className="mt-2 text-muted-foreground">{provider.city}</p>
       <p className="mt-6 text-sm text-foreground/85">
         Tell us who you are and we'll verify your connection to this business. No account required.
       </p>
@@ -128,13 +128,13 @@ function ClaimPage() {
           </Field>
         </div>
         <Field label="Business email" required>
-          <Input type="email" required value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })} placeholder="you@yourclinic.com" maxLength={255} />
+          <Input type="email" required value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })} placeholder="you@yourstudio.com" maxLength={255} />
         </Field>
         <Field label="Phone number" required>
           <Input type="tel" required value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} placeholder="(214) 555-1234" maxLength={40} />
         </Field>
         <Field label="Your position at the business">
-          <Input value={form.businessRole} onChange={(e) => setForm({ ...form, businessRole: e.target.value })} placeholder="Owner / Manager / Medical Director" maxLength={120} />
+          <Input value={form.businessRole} onChange={(e) => setForm({ ...form, businessRole: e.target.value })} placeholder="Owner / Manager / Principal Designer" maxLength={120} />
         </Field>
         <Field label="Why are you claiming this profile?">
           <Textarea value={form.proofNotes} onChange={(e) => setForm({ ...form, proofNotes: e.target.value })} rows={4} maxLength={2000} placeholder="Tell us how you're connected to this business — a link to your About page, a matching business email, etc." />

@@ -109,11 +109,11 @@ function AdminArticles() {
     <Shell wide>
       <h1 className="font-display text-3xl">Scrape provider articles</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Uses Firecrawl to find up to 3 blog/article URLs per provider website. Consumes Firecrawl credits.
+        Uses Firecrawl to find up to 3 blog/article URLs per studio website. Consumes Firecrawl credits.
       </p>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <Stat label="Providers" value={providers.length} />
+        <Stat label="Studios" value={providers.length} />
         <Stat label="With articles" value={withArticles.length} />
         <Stat label="Missing" value={withoutArticles.length} />
       </div>
@@ -132,7 +132,7 @@ function AdminArticles() {
         <p className="mt-8 text-sm text-muted-foreground">Loading providers…</p>
       ) : providers.length === 0 ? (
         <p className="mt-8 rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          No providers with websites yet.
+          No studios with websites yet.
         </p>
       ) : (
         <div className="mt-8 space-y-2">

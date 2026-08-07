@@ -14,7 +14,7 @@ import { Star, Mail, Phone, ExternalLink, Building2, Shield, Clock } from "lucid
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard | Discover Medspa" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Dashboard | Interiors List" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: Dashboard,
 });
 
@@ -78,8 +78,8 @@ function Dashboard() {
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             {roles?.isAdmin
-              ? "The brand dashboard is for medspa owners. Head to the admin console to manage the site."
-              : "Are you a medspa owner? Find your business and claim it, or submit a new listing."}
+              ? "The brand dashboard is for studio owners. Head to the admin console to manage the site."
+              : "Are you a studio owner? Find your business and claim it, or submit a new listing."}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             {roles?.isAdmin ? (
@@ -124,9 +124,9 @@ function OnboardingBanner({ status }: { status: Onboarding }) {
       <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-secondary/40 p-5">
         <Building2 className="h-5 w-5 shrink-0 text-brand" />
         <div className="min-w-[16rem] flex-1">
-          <p className="font-medium">Finish setting up your provider profile</p>
+          <p className="font-medium">Finish setting up your studio profile</p>
           <p className="text-sm text-muted-foreground">
-            Claim your med spa or submit it, then add treatments, photos, credentials and FAQs so patients can find you.
+            Claim your studio or submit it, then add services, photos, credentials and FAQs so clients can find you.
           </p>
         </div>
         <div className="flex gap-2">
@@ -147,7 +147,7 @@ function ListingsTab() {
     <div className="rounded-2xl border border-dashed border-border p-10 text-center">
       <Building2 className="mx-auto h-8 w-8 text-muted-foreground" />
       <h3 className="mt-3 font-display text-xl">No claimed listings yet</h3>
-      <p className="mt-2 text-sm text-muted-foreground">Find your medspa and claim it to manage your profile.</p>
+      <p className="mt-2 text-sm text-muted-foreground">Find your studio and claim it to manage your profile.</p>
       <Button asChild className="mt-6"><Link to="/search">Find your listing</Link></Button>
     </div>
   );
@@ -156,7 +156,7 @@ function ListingsTab() {
       {listings.map((l) => (
         <div key={l.place_id} className="rounded-2xl border border-border bg-card p-5">
           <h3 className="font-display text-lg">{l.name}</h3>
-          <p className="text-sm text-muted-foreground">{l.city}, TX</p>
+          <p className="text-sm text-muted-foreground">{l.city}</p>
           {l.services && l.services.length > 0 && (
             <p className="mt-2 text-xs text-muted-foreground">{l.services.slice(0, 4).join(" · ")}</p>
           )}

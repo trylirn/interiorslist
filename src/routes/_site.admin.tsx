@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 
 export const Route = createFileRoute("/_site/admin")({
-  head: () => ({ meta: [{ title: "Admin | Discover Medspa" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Admin | Interiors List" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: AdminLayout,
 });
 
@@ -99,7 +99,7 @@ function AdminPage() {
           <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
             <p className="font-medium">Your own provider dashboard (sandbox)</p>
             <p className="mt-1 text-muted-foreground">
-              A private demo listing that behaves exactly like a real provider account — edit anything here to explore the provider experience. It is never published to the directory.
+              A private demo listing that behaves exactly like a real studio account — edit anything here to explore the studio experience. It is never published to the directory.
             </p>
             <Button asChild size="sm" className="mt-3">
               <Link to="/admin/provider/$placeId" params={{ placeId: "demo-admin-listing" }}>Open my dashboard</Link>
@@ -108,7 +108,7 @@ function AdminPage() {
         </TabsContent>
       </Tabs>
       <p className="mt-6 text-xs text-muted-foreground">
-        <Link to="/admin/articles" className="text-brand underline">Scrape provider articles →</Link>
+        <Link to="/admin/articles" className="text-brand underline">Scrape studio articles →</Link>
       </p>
     </div>
   );
@@ -118,7 +118,7 @@ function OverviewTab() {
   const { data, isLoading } = useQuery({ queryKey: ["admin-metrics"], queryFn: () => adminMetrics() });
   if (isLoading || !data) return <p className="text-muted-foreground">Loading…</p>;
   const tiles = [
-    { label: "Providers", value: data.totals.providers },
+    { label: "Studios", value: data.totals.providers },
     { label: "Claimed", value: data.totals.claimed },
     { label: "Pending Claims", value: data.totals.pendingClaims },
     { label: "Pending Submissions", value: data.totals.pendingSubmissions },
@@ -215,7 +215,7 @@ function SubmissionsTab() {
               <p className="mt-2 text-sm">{s.contact_email}{s.contact_phone && <> · {s.contact_phone}</>}</p>
               {s.website && <p className="text-sm"><a href={s.website} target="_blank" rel="noopener noreferrer" className="text-brand underline">{s.website}</a></p>}
               {s.license_number && <p className="mt-2 text-sm">License: <span className="font-medium">{s.license_type ?? "—"} #{s.license_number}</span></p>}
-              {s.npi && <p className="text-sm">NPI: {s.npi}</p>}
+              {s.npi && <p className="text-sm">License #: {s.npi}</p>}
               {s.notes && <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{s.notes}</p>}
               {s.license_doc_path && <Button size="sm" variant="outline" className="mt-3" onClick={() => viewDoc(s.license_doc_path!)}>View license doc</Button>}
             </div>

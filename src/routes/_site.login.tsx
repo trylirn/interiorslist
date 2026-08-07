@@ -202,7 +202,7 @@ function BusinessSignupWizard() {
             </Select>
           </div>
           <div className="space-y-1.5"><Label>Credential number</Label><Input value={form.licenseNumber} onChange={(e) => update("licenseNumber", e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>NPI</Label><Input value={form.npi} onChange={(e) => update("npi", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Business license #</Label><Input value={form.npi} onChange={(e) => update("npi", e.target.value)} /></div>
           <div className="space-y-1.5">
             <Label>Credential document (PDF or image)</Label>
             <Input type="file" accept=".pdf,image/*" onChange={(e) => setLicenseFile(e.target.files?.[0] ?? null)} />

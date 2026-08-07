@@ -8,8 +8,8 @@ import { BadgeCheck, ExternalLink, MapPin, Star } from "lucide-react";
 export const Route = createFileRoute("/_site/compare")({
   head: () => ({
     meta: [
-      { title: "Compare Providers | Discover Medspa" },
-      { name: "description", content: "Compare verified Texas aesthetic injectors side-by-side." },
+      { title: "Compare Studios | Interiors List" },
+      { name: "description", content: "Compare verified design studios side-by-side." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -35,26 +35,26 @@ function ComparePage() {
   if (!data.length) return (
     <div className="mx-auto max-w-md py-24 text-center px-4">
       <h1 className="font-display text-3xl">Nothing to compare</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Add up to 3 providers from search or city pages.</p>
-      <Button asChild className="mt-6"><Link to="/search">Find providers</Link></Button>
+      <p className="mt-2 text-sm text-muted-foreground">Add up to 3 studios from search or city pages.</p>
+      <Button asChild className="mt-6"><Link to="/search">Find studios</Link></Button>
     </div>
   );
 
   const rows: Array<{ label: string; render: (p: Provider) => React.ReactNode }> = [
-    { label: "City", render: (p) => <span>{p.city}, TX</span> },
+    { label: "City", render: (p) => <span>{p.city}</span> },
     { label: "Branch", render: (p) => p.branch_label ?? "—" },
     { label: "Rating", render: (p) => p.rating ? <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-rating text-rating" />{p.rating} <span className="text-xs text-muted-foreground">({p.review_count ?? 0})</span></span> : "—" },
     { label: "Verified", render: (p) => p.is_verified ? <BadgeCheck className="h-4 w-4 text-brand" /> : "—" },
     { label: "Claimed", render: (p) => p.claimed_by ? "Yes" : "No" },
-    { label: "Specialists", render: (p) => <span className="text-sm">{p.specialists ?? "—"}</span> },
+    { label: "Designers", render: (p) => <span className="text-sm">{p.specialists ?? "—"}</span> },
     { label: "Credentials", render: (p) => <span className="text-sm">{p.credentials ?? "—"}</span> },
     { label: "Services", render: (p) => p.services?.length ? (
       <div className="flex flex-wrap gap-1">
         {p.services.slice(0, 10).map((s: string) => <span key={s} className="rounded-full bg-accent px-2 py-0.5 text-xs capitalize">{s.replace(/-/g, " ")}</span>)}
       </div>
     ) : "—" },
-    { label: "Skin types", render: (p) => p.skin_types?.length ? p.skin_types.join(", ") : "—" },
-    { label: "Recovery", render: (p) => p.recovery_tags?.length ? p.recovery_tags.join(", ") : "—" },
+    { label: "Style focus", render: (p) => p.skin_types?.length ? p.skin_types.join(", ") : "—" },
+    { label: "Notes", render: (p) => p.recovery_tags?.length ? p.recovery_tags.join(", ") : "—" },
     { label: "Address", render: (p) => <span className="text-sm">{p.address ?? "—"}</span> },
     { label: "Website", render: (p) => p.website ? <a className="text-brand inline-flex items-center gap-1" href={p.website} target="_blank" rel="noopener noreferrer">Visit <ExternalLink className="h-3 w-3" /></a> : "—" },
     { label: "Phone", render: (p) => p.phone ?? "—" },
@@ -63,7 +63,7 @@ function ComparePage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="font-display text-4xl">Compare</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Side-by-side comparison of your selected providers.</p>
+      <p className="mt-2 text-sm text-muted-foreground">Side-by-side comparison of your selected studios.</p>
 
       <div className="mt-8 overflow-x-auto">
         <table className="w-full min-w-[700px] border-separate border-spacing-0 text-sm">
@@ -75,7 +75,7 @@ function ComparePage() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <Link to="/provider/$slug" params={{ slug: p.slug }} className="font-display text-lg hover:text-brand">{p.name}</Link>
-                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{p.city}, TX</p>
+                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{p.city}</p>
                     </div>
                     <button onClick={() => remove(p.place_id)} className="text-xs text-muted-foreground hover:text-foreground">Remove</button>
                   </div>
