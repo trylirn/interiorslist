@@ -35,6 +35,6 @@ export const useCompareStore = create<CompareState>()(
       clear: () => set({ items: [] }),
       isIn: (place_id) => get().items.some((i) => i.place_id === place_id),
     }),
-    { name: "tx-aesthetics-compare" },
+    { name: "interiors-list-compare" },
   ),
 );

@@ -5,13 +5,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyListing, updateMyListing, listMyLeads, listMyReviews, updateLeadStatus } from "@/lib/owner.functions";
 import { listProviderFaqs, upsertProviderFaq, deleteProviderFaq, getListingMetrics, respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
-import { SERVICES } from "@/lib/cities";
+import { SERVICES, STYLES, PROJECT_TYPES, BUDGET_BANDS } from "@/lib/cities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 import { Eye, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
@@ -79,6 +80,11 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
     branch_label: (listing.branch_label as string) ?? "",
     email_forward_to: (listing.email_forward_to as string) ?? "",
     services: ((listing.services as string[]) ?? []),
+    styles: ((listing.styles as string[]) ?? []),
+    project_types: ((listing.project_types as string[]) ?? []),
+    price_tier: (listing.price_tier as string) ?? "",
+    typical_project_budget: (listing.typical_project_budget as string) ?? "",
+    remote_services: Boolean(listing.remote_services),
     credentials: (listing.credentials as string) ?? "",
     founded_year: listing.founded_year != null ? String(listing.founded_year) : "",
     years_in_business: listing.years_in_business != null ? String(listing.years_in_business) : "",
@@ -103,6 +109,12 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
 
   function toggleService(slug: string) {
     setForm((f) => ({ ...f, services: f.services.includes(slug) ? f.services.filter((s) => s !== slug) : [...f.services, slug] }));
+  }
+  function toggleStyle(slug: string) {
+    setForm((f) => ({ ...f, styles: f.styles.includes(slug) ? f.styles.filter((s) => s !== slug) : [...f.styles, slug] }));
+  }
+  function toggleProjectType(slug: string) {
+    setForm((f) => ({ ...f, project_types: f.project_types.includes(slug) ? f.project_types.filter((s) => s !== slug) : [...f.project_types, slug] }));
   }
 
   async function onSave(e: React.FormEvent) {
@@ -150,11 +162,11 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
       <div className="space-y-1.5"><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
       <div className="space-y-1.5">
         <Label>Forward new leads to this email</Label>
-        <Input type="email" value={form.email_forward_to} onChange={(e) => setForm({ ...form, email_forward_to: e.target.value })} placeholder="leads@yourmedspa.com" />
+        <Input type="email" value={form.email_forward_to} onChange={(e) => setForm({ ...form, email_forward_to: e.target.value })} placeholder="leads@yourstudio.com" />
         <p className="text-[11px] text-muted-foreground">Optional. We'll mirror dashboard leads to this address (requires email setup).</p>
       </div>
       <div className="space-y-1.5"><Label>Branch label</Label><Input value={form.branch_label} onChange={(e) => setForm({ ...form, branch_label: e.target.value })} placeholder="Uptown, North, etc." /></div>
-      <div className="space-y-1.5"><Label>Practitioners</Label><Textarea rows={3} value={form.specialists} onChange={(e) => setForm({ ...form, specialists: e.target.value })} placeholder="Dr. Jane Doe, MD; Jamie Smith, APRN" /></div>
+      <div className="space-y-1.5"><Label>Designers on staff</Label><Textarea rows={3} value={form.specialists} onChange={(e) => setForm({ ...form, specialists: e.target.value })} placeholder="Jane Doe, Principal Designer; Jamie Smith, Design Associate" /></div>
       <div className="space-y-1.5"><Label>Internal notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Operational notes — not displayed publicly" /></div>
 
       <div className="space-y-3 rounded-2xl border border-border p-4">
@@ -175,12 +187,12 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
             </Select>
           </div>
         </div>
-        <div className="space-y-1.5"><Label>Service area note</Label><Input value={form.service_area_note} onChange={(e) => setForm({ ...form, service_area_note: e.target.value })} placeholder="Serving Dallas–Fort Worth and North Texas" maxLength={500} /></div>
-        <div className="space-y-1.5"><Label>Credentials &amp; licenses</Label><Textarea rows={3} value={form.credentials} onChange={(e) => setForm({ ...form, credentials: e.target.value })} placeholder="Board-certified dermatologist, TX RN license #…" maxLength={2000} /></div>
-        <div className="space-y-1.5"><Label>Types of clients served</Label><Textarea rows={3} value={form.client_types} onChange={(e) => setForm({ ...form, client_types: e.target.value })} placeholder="First-time injectable patients, brides, post-partum skin care…" maxLength={2000} /></div>
+        <div className="space-y-1.5"><Label>Service area note</Label><Input value={form.service_area_note} onChange={(e) => setForm({ ...form, service_area_note: e.target.value })} placeholder="Serving the metro area and surrounding suburbs" maxLength={500} /></div>
+        <div className="space-y-1.5"><Label>Credentials &amp; licenses</Label><Textarea rows={3} value={form.credentials} onChange={(e) => setForm({ ...form, credentials: e.target.value })} placeholder="ASID member, NCIDQ certified, licensed interior designer #…" maxLength={2000} /></div>
+        <div className="space-y-1.5"><Label>Types of clients served</Label><Textarea rows={3} value={form.client_types} onChange={(e) => setForm({ ...form, client_types: e.target.value })} placeholder="Homeowners, developers, boutique hotels…" maxLength={2000} /></div>
         <div className="space-y-1.5">
           <Label>Not a good fit if…</Label>
-          <Textarea rows={3} value={form.not_a_fit} onChange={(e) => setForm({ ...form, not_a_fit: e.target.value })} placeholder="We're not the right fit if you're looking for surgical procedures or same-day walk-ins." maxLength={2000} />
+          <Textarea rows={3} value={form.not_a_fit} onChange={(e) => setForm({ ...form, not_a_fit: e.target.value })} placeholder="We're not the right fit if you're looking for a same-day turnaround or a strict budget under $5k." maxLength={2000} />
         </div>
       </div>
 
@@ -225,6 +237,66 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
             );
           })}
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Design styles</Label>
+        <div className="flex flex-wrap gap-2">
+          {STYLES.map((s) => {
+            const active = form.styles.includes(s.slug);
+            return (
+              <button type="button" key={s.slug} onClick={() => toggleStyle(s.slug)} className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${active ? "border-brand bg-brand text-brand-foreground" : "border-border bg-card hover:border-brand"}`}>
+                {s.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Project types</Label>
+        <div className="flex flex-wrap gap-2">
+          {PROJECT_TYPES.map((p) => {
+            const active = form.project_types.includes(p.slug);
+            return (
+              <button type="button" key={p.slug} onClick={() => toggleProjectType(p.slug)} className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${active ? "border-brand bg-brand text-brand-foreground" : "border-border bg-card hover:border-brand"}`}>
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label>Price tier</Label>
+          <Select value={form.price_tier || undefined} onValueChange={(v) => setForm({ ...form, price_tier: v })}>
+            <SelectTrigger><SelectValue placeholder="Select price tier" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="budget">Budget</SelectItem>
+              <SelectItem value="moderate">Moderate</SelectItem>
+              <SelectItem value="premium">Premium</SelectItem>
+              <SelectItem value="flexible">Flexible</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Typical project budget</Label>
+          <Select value={form.typical_project_budget || undefined} onValueChange={(v) => setForm({ ...form, typical_project_budget: v })}>
+            <SelectTrigger><SelectValue placeholder="Select a range" /></SelectTrigger>
+            <SelectContent>
+              {BUDGET_BANDS.map((b) => <SelectItem key={b.slug} value={b.slug}>{b.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between rounded-2xl border border-border p-4">
+        <div>
+          <Label>Offers remote / e-design services</Label>
+          <p className="text-[11px] text-muted-foreground">Show clients you can work virtually, not just in person.</p>
+        </div>
+        <Switch checked={form.remote_services} onCheckedChange={(v) => setForm({ ...form, remote_services: v })} />
       </div>
 
       <Button type="submit" disabled={saving} className="w-full h-11">{saving ? "Saving…" : "Save changes"}</Button>

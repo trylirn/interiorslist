@@ -36,7 +36,6 @@ import { Route as SiteReviewIndexRouteImport } from './routes/_site.review.index
 import { Route as SiteReviewSlugRouteImport } from './routes/_site.review.$slug'
 import { Route as SiteServiceSlugRouteImport } from './routes/_site.service.$slug'
 import { Route as SiteStyleSlugRouteImport } from './routes/_site.style.$slug'
-import { Route as ApiPublicAdminSeedImportRouteImport } from './routes/api.public.admin-seed-import'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as SiteAdminProviderPlaceIdRouteImport } from './routes/_site.admin.provider.$placeId'
 import { Route as SiteBestStateCityRouteImport } from './routes/_site.best.$state.$city'
@@ -177,12 +176,6 @@ const SiteStyleSlugRoute = SiteStyleSlugRouteImport.update({
   path: '/style/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
-const ApiPublicAdminSeedImportRoute =
-  ApiPublicAdminSeedImportRouteImport.update({
-    id: '/api/public/admin-seed-import',
-    path: '/api/public/admin-seed-import',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   id: '/api/public/track',
   path: '/api/public/track',
@@ -236,7 +229,6 @@ export interface FileRoutesByFullPath {
   '/review/$slug': typeof SiteReviewSlugRoute
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
-  '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/claim/': typeof SiteClaimIndexRoute
   '/review/': typeof SiteReviewIndexRoute
@@ -270,7 +262,6 @@ export interface FileRoutesByTo {
   '/review/$slug': typeof SiteReviewSlugRoute
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
-  '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/claim': typeof SiteClaimIndexRoute
   '/review': typeof SiteReviewIndexRoute
@@ -306,7 +297,6 @@ export interface FileRoutesById {
   '/_site/review/$slug': typeof SiteReviewSlugRoute
   '/_site/service/$slug': typeof SiteServiceSlugRoute
   '/_site/style/$slug': typeof SiteStyleSlugRoute
-  '/api/public/admin-seed-import': typeof ApiPublicAdminSeedImportRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_site/claim/': typeof SiteClaimIndexRoute
   '/_site/review/': typeof SiteReviewIndexRoute
@@ -342,7 +332,6 @@ export interface FileRouteTypes {
     | '/review/$slug'
     | '/service/$slug'
     | '/style/$slug'
-    | '/api/public/admin-seed-import'
     | '/api/public/track'
     | '/claim/'
     | '/review/'
@@ -376,7 +365,6 @@ export interface FileRouteTypes {
     | '/review/$slug'
     | '/service/$slug'
     | '/style/$slug'
-    | '/api/public/admin-seed-import'
     | '/api/public/track'
     | '/claim'
     | '/review'
@@ -411,7 +399,6 @@ export interface FileRouteTypes {
     | '/_site/review/$slug'
     | '/_site/service/$slug'
     | '/_site/style/$slug'
-    | '/api/public/admin-seed-import'
     | '/api/public/track'
     | '/_site/claim/'
     | '/_site/review/'
@@ -424,7 +411,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  ApiPublicAdminSeedImportRoute: typeof ApiPublicAdminSeedImportRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
 
@@ -619,13 +605,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteStyleSlugRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/api/public/admin-seed-import': {
-      id: '/api/public/admin-seed-import'
-      path: '/api/public/admin-seed-import'
-      fullPath: '/api/public/admin-seed-import'
-      preLoaderRoute: typeof ApiPublicAdminSeedImportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/track': {
       id: '/api/public/track'
       path: '/api/public/track'
@@ -753,7 +732,6 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  ApiPublicAdminSeedImportRoute: ApiPublicAdminSeedImportRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
 }
 export const routeTree = rootRouteImport

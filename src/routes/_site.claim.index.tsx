@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_site/claim/")({
   head: () => ({
     meta: [
-      { title: "Claim Your Med Spa Profile | Discover Medspa" },
-      { name: "description", content: "Claim your Texas med spa listing in under a minute. Paste your listing link or search by business name — no account required." },
-      { property: "og:title", content: "Claim Your Med Spa Profile | Discover Medspa" },
+      { title: "Claim Your Studio Profile | Interiors List" },
+      { name: "description", content: "Claim your design studio listing in under a minute. Paste your listing link or search by business name — no account required." },
+      { property: "og:title", content: "Claim Your Studio Profile | Interiors List" },
       { property: "og:description", content: "Take control of your listing: photos, services, FAQs and leads." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -41,7 +41,7 @@ function ClaimEntry() {
       <p className="text-xs font-semibold uppercase tracking-widest text-brand">For businesses</p>
       <h1 className="mt-3 font-display text-4xl">Claim your profile</h1>
       <p className="mt-3 text-muted-foreground">
-        Find your med spa below. No account needed — just tell us who you are and we'll take it from there.
+        Find your studio below. No account needed — just tell us who you are and we'll take it from there.
       </p>
 
       <div className="mt-10 rounded-3xl border border-border bg-card p-6">
@@ -50,7 +50,7 @@ function ClaimEntry() {
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://texas-beauty-glow.lovable.app/provider/your-med-spa"
+            placeholder="https://interiorslist.com/provider/your-studio"
             maxLength={300}
           />
           <Button asChild disabled={!urlSlug} className="shrink-0">
@@ -70,7 +70,7 @@ function ClaimEntry() {
             className="pl-9"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="e.g. Glow Med Spa, Waxahachie"
+            placeholder="e.g. Studio Haus, Austin"
             maxLength={120}
           />
         </div>

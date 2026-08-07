@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_site/review/$slug")({
   head: () => ({
     meta: [
-      { title: "Write a review | Discover Medspa" },
-      { name: "description", content: "Share your med spa experience — treatments, results, communication and value." },
-      { property: "og:title", content: "Write a review | Discover Medspa" },
+      { title: "Write a review | Interiors List" },
+      { name: "description", content: "Share your studio experience — project results, communication and value." },
+      { property: "og:title", content: "Write a review | Interiors List" },
       { property: "og:description", content: "Help others choose with confidence." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -25,7 +25,7 @@ function ReviewForProvider() {
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center">
         <h1 className="font-display text-3xl">Listing not found</h1>
-        <Button asChild className="mt-6"><Link to="/review">Search for a med spa</Link></Button>
+        <Button asChild className="mt-6"><Link to="/review">Search for a studio</Link></Button>
       </div>
     );
   }

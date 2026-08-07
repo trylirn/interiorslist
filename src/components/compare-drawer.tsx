@@ -16,7 +16,7 @@ export function CompareDrawer() {
       </SheetTrigger>
       <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle className="font-display text-2xl">Compare providers</SheetTitle>
+          <SheetTitle className="font-display text-2xl">Compare studios</SheetTitle>
         </SheetHeader>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {items.map((p) => (
@@ -27,7 +27,7 @@ export function CompareDrawer() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">{p.city}, TX</p>
+              <p className="mt-1 text-sm text-muted-foreground">{p.city}</p>
               {p.branch_label && <p className="mt-1 text-xs text-brand">{p.branch_label}</p>}
               {p.specialists && <p className="mt-3 text-sm line-clamp-4">{p.specialists}</p>}
               {p.services && p.services.length > 0 && (

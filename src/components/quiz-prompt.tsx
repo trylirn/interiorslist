@@ -16,17 +16,17 @@ type State = { dismissed?: boolean; snoozeUntil?: number; seen?: number };
 const MESSAGES = [
   {
     title: "Not sure where to start?",
-    body: "Answer 5 quick questions and we'll shortlist med spas that fit your goals, budget and city.",
+    body: "Answer 5 quick questions and we'll shortlist design studios that fit your goals, budget and city.",
     cta: "Find my match",
   },
   {
     title: "Welcome back",
-    body: "New med spas were added since your last visit. Get a fresh shortlist tailored to your treatment.",
+    body: "New studios were added since your last visit. Get a fresh shortlist tailored to your project.",
     cta: "See my matches",
   },
   {
     title: "Still comparing?",
-    body: "Skip the scrolling — tell us your concern and we'll rank the closest, best-reviewed providers for you.",
+    body: "Skip the scrolling — tell us your project and we'll rank the closest, best-reviewed studios for you.",
     cta: "Rank them for me",
   },
 ];
@@ -83,7 +83,7 @@ export function QuizPrompt() {
   return (
     <div
       role="dialog"
-      aria-label="Get matched with a med spa"
+      aria-label="Get matched with a design studio"
       className="fixed bottom-4 left-4 z-40 w-[calc(100%-2rem)] max-w-sm rounded-3xl border border-border bg-card p-5 shadow-lg sm:bottom-6 sm:left-6"
     >
       <button

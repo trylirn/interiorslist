@@ -110,7 +110,9 @@ function inferEntryMethod(path: string): "search" | "browse" | "direct" {
   if (
     path.startsWith("/tx/") ||
     path.startsWith("/best/") ||
-    path.startsWith("/treatment/") ||
+    path.startsWith("/service/") ||
+    path.startsWith("/style/") ||
+    path.startsWith("/designers/") ||
     path.startsWith("/concern/") ||
     path.startsWith("/provider/")
   ) return "browse";
