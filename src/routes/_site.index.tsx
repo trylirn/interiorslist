@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Search, ShieldCheck, MapPin, BadgeCheck, Sparkles, MessageSquare, ListChecks } from "lucide-react";
 import { LookingForHero } from "@/components/looking-for-hero";
+import { HERO_IMAGE, styleImage } from "@/lib/style-images";
+
 
 const featuredOpts = queryOptions({ queryKey: ["featured"], queryFn: () => getFeaturedProviders() });
 const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCityStats() });
@@ -79,10 +81,19 @@ function HomePage() {
   return (
     <>
       {/* HERO */}
-      <section className="border-b border-border/60">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 pt-16 pb-20 md:grid-cols-[1.1fr_0.9fr] md:gap-16 md:pt-24 md:pb-28">
+      <section className="relative isolate overflow-hidden border-b border-border/60">
+        <img
+          src={HERO_IMAGE}
+          alt="Sunlit living room designed by an interior designer"
+          width={1536}
+          height={1024}
+          className="absolute inset-0 -z-10 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/90 to-background/30" />
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 pt-20 pb-24 md:grid-cols-[1.05fr_0.95fr] md:gap-16 md:pt-28 md:pb-32">
           <div>
-            <h1 className="font-display text-5xl leading-[1.02] md:text-7xl">Find Your<br />Interior Designer</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Nationwide interior design directory</p>
+            <h1 className="mt-4 font-display text-5xl leading-[1.02] md:text-7xl">Find Your<br />Interior Designer</h1>
             <p className="mt-6 max-w-lg text-lg text-muted-foreground">
               Vetted design studios across the country — see their services, styles, typical project budgets and portfolios, then request a consultation in one step.
             </p>
@@ -90,7 +101,7 @@ function HomePage() {
             <p className="mt-10 text-sm font-medium text-muted-foreground">I need help with…</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {SERVICES.slice(0, 6).map((s) => (
-                <Link key={s.slug} to="/service/$slug" params={{ slug: s.slug }} className="rounded-full border border-foreground/15 bg-card px-5 py-2.5 text-sm font-medium transition hover:border-brand hover:text-brand">
+                <Link key={s.slug} to="/service/$slug" params={{ slug: s.slug }} className="rounded-full border border-foreground/15 bg-card/80 px-5 py-2.5 text-sm font-medium backdrop-blur transition hover:border-brand hover:text-brand">
                   {s.name}
                 </Link>
               ))}
@@ -110,7 +121,7 @@ function HomePage() {
           </div>
 
           <div className="relative">
-            <div className="rounded-3xl border border-border bg-card p-8 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.2)]">
+            <div className="rounded-3xl border border-border bg-card/95 p-8 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.25)] backdrop-blur">
               <p className="font-display text-2xl">Not sure who's right for your project?</p>
               <p className="mt-3 text-sm text-muted-foreground">Answer a few questions about your space, style and budget and we'll shortlist studios that fit.</p>
               <Button asChild className="mt-6 w-full rounded-full"><Link to="/match">Get matched →</Link></Button>
@@ -141,65 +152,85 @@ function HomePage() {
         </div>
       </section>
 
-      {/* CITIES */}
+      {/* STYLES — magazine grid */}
       <section className="mx-auto max-w-7xl px-4 py-20">
-        <div className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand">By City</p>
-          <h2 className="mt-2 font-display text-4xl md:text-5xl">Browse designers by city</h2>
-        </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {CITIES.map((c) => {
-            const count = stats.counts[c.slug] ?? 0;
-            return (
-              <Link
-                key={c.slug}
-                to="/designers/$state/$city"
-                params={{ state: c.state.toLowerCase(), city: c.slug }}
-                className="group rounded-2xl border border-border bg-card p-5 transition hover:border-brand hover:shadow-md"
-              >
-                <MapPin className="h-5 w-5 text-brand" />
-                <h3 className="mt-3 font-display text-xl">{c.name}</h3>
-                <p className="text-xs text-muted-foreground">{c.tagline}</p>
-                <p className="mt-3 text-xs font-medium text-brand">{count} studio{count === 1 ? "" : "s"} →</p>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* SERVICES */}
-      <section className="border-y border-border/60 bg-secondary/30">
-        <div className="mx-auto max-w-7xl px-4 py-20">
-          <div className="mb-10">
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand">By Service</p>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl">What do you need designed?</h2>
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand">By Style</p>
+            <h2 className="mt-2 font-display text-4xl md:text-5xl">Find a studio that matches your taste</h2>
           </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
-            {SERVICES.map((s) => (
-              <Link key={s.slug} to="/service/$slug" params={{ slug: s.slug }} className="rounded-xl border border-border bg-card px-4 py-4 text-center text-sm font-medium transition hover:border-brand hover:text-brand">
-                {s.name}
-              </Link>
-            ))}
-          </div>
-          <p className="mt-6 text-center"><Link to="/search" className="text-sm font-medium text-brand hover:underline">See all {SERVICES.length} services →</Link></p>
+          <Link to="/search" className="text-sm font-medium text-brand hover:underline">Browse every studio →</Link>
         </div>
-      </section>
-
-      {/* STYLES */}
-      <section className="mx-auto max-w-7xl px-4 py-20">
-        <div className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand">By Style</p>
-          <h2 className="mt-2 font-display text-4xl md:text-5xl">Find a studio that matches your taste</h2>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {STYLES.map((c) => (
-            <Link key={c.slug} to="/style/$slug" params={{ slug: c.slug }} className="rounded-2xl border border-border bg-card p-6 transition hover:border-brand hover:shadow-md">
-              <h3 className="font-display text-lg">{c.label}</h3>
-              <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{c.intro}</p>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {STYLES.map((c, i) => (
+            <Link
+              key={c.slug}
+              to="/style/$slug"
+              params={{ slug: c.slug }}
+              className={`group relative isolate overflow-hidden rounded-3xl border border-border ${i === 0 ? "lg:col-span-2 lg:row-span-1" : ""}`}
+            >
+              <img
+                src={styleImage(c.slug)}
+                alt={`${c.label} interior design`}
+                loading="lazy"
+                width={1024}
+                height={768}
+                className={`w-full object-cover transition duration-500 group-hover:scale-[1.04] ${i === 0 ? "h-72 md:h-80" : "h-60"}`}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/25 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-6 text-background">
+                <h3 className="font-display text-2xl">{c.label}</h3>
+                <p className="mt-1 text-sm text-background/80 line-clamp-2">{c.intro}</p>
+              </div>
             </Link>
           ))}
         </div>
       </section>
+
+      {/* CITIES */}
+      <section className="border-y border-border/60 bg-secondary/30">
+        <div className="mx-auto max-w-7xl px-4 py-20">
+          <div className="mb-10">
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand">By City</p>
+            <h2 className="mt-2 font-display text-4xl md:text-5xl">Browse designers by city</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+            {CITIES.map((c) => {
+              const count = stats.counts[c.slug] ?? 0;
+              return (
+                <Link
+                  key={c.slug}
+                  to="/designers/$state/$city"
+                  params={{ state: c.state.toLowerCase(), city: c.slug }}
+                  className="group rounded-2xl border border-border bg-card p-5 transition hover:border-brand hover:shadow-md"
+                >
+                  <MapPin className="h-5 w-5 text-brand" />
+                  <h3 className="mt-3 font-display text-xl">{c.name}</h3>
+                  <p className="text-xs text-muted-foreground">{c.tagline}</p>
+                  <p className="mt-3 text-xs font-medium text-brand">{count} studio{count === 1 ? "" : "s"} →</p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* SERVICES */}
+      <section className="mx-auto max-w-7xl px-4 py-20">
+        <div className="mb-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand">By Service</p>
+          <h2 className="mt-2 font-display text-4xl md:text-5xl">What do you need designed?</h2>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
+          {SERVICES.map((s) => (
+            <Link key={s.slug} to="/service/$slug" params={{ slug: s.slug }} className="rounded-xl border border-border bg-card px-4 py-4 text-center text-sm font-medium transition hover:border-brand hover:text-brand">
+              {s.name}
+            </Link>
+          ))}
+        </div>
+        <p className="mt-6 text-center"><Link to="/search" className="text-sm font-medium text-brand hover:underline">See all {SERVICES.length} services →</Link></p>
+      </section>
+
 
       {/* FEATURED */}
       {featured.providers.length > 0 && (
