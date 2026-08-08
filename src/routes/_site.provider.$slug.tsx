@@ -36,11 +36,13 @@ export const Route = createFileRoute("/_site/provider/$slug")({
       ? p!.services.slice(0, 3).map((s: string) => s.replace(/-/g, " "))
       : [];
     const serviceBlurb = topServices.length ? topServices.join(", ") : "full-home design, kitchens & renovations";
+    const clamp = (s: string, max: number) =>
+      s.length <= max ? s : `${s.slice(0, max - 1).replace(/[\s,–—-]+$/, "")}…`;
     const title = p
-      ? `${displayName} — Interior Designer in ${loc}`
-      : `${displayName} — Intearior`;
+      ? clamp(`${displayName} — Interior Designer in ${loc}`, 60)
+      : clamp(`${displayName} — Intearior`, 60);
     const description = p
-      ? `${p.name} in ${loc}. ${serviceBlurb}. See portfolio details, services, reviews and request a consultation with this interior design studio.`
+      ? clamp(`${p.name} in ${loc}. ${serviceBlurb}. Services, reviews and free consultation requests.`, 160)
       : `Interior design studio profile on Intearior. Services, contact and reviews.`;
     const keywords = p
       ? [
