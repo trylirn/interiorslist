@@ -35,7 +35,7 @@ const TIER_LABEL: Record<string, string> = {
 function Chip({ children, on }: { children: React.ReactNode; on?: boolean }) {
   return (
     <span
-      className={`rounded-full px-2 py-0.5 text-[11px] ${
+      className={`rounded-full px-2 py-0.5 text-[10px] ${
         on ? "bg-brand text-brand-foreground font-medium" : "bg-secondary text-muted-foreground"
       }`}
     >
@@ -70,12 +70,12 @@ export function MatchResultCard({
 
   return (
     <article
-      className={`flex h-full flex-col rounded-2xl border bg-card p-4 transition ${
+      className={`flex h-full flex-col rounded-xl border bg-card p-3.5 transition ${
         selected ? "border-brand ring-2 ring-brand/30" : "border-border"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="rounded-full bg-brand px-2.5 py-0.5 text-xs font-semibold text-brand-foreground">
+        <span className="rounded-full bg-brand px-2 py-0.5 text-[11px] font-semibold text-brand-foreground">
           {m.matchPercent}% match
         </span>
         {selectable && (
@@ -83,30 +83,30 @@ export function MatchResultCard({
             type="button"
             onClick={onToggle}
             aria-label={selected ? `Deselect ${m.name}` : `Select ${m.name}`}
-            className={`flex h-6 w-6 items-center justify-center rounded border ${
+            className={`flex h-5 w-5 items-center justify-center rounded border ${
               selected ? "border-brand bg-brand text-brand-foreground" : "border-border"
             }`}
           >
-            {selected && <Check className="h-3.5 w-3.5" />}
+            {selected && <Check className="h-3 w-3" />}
           </button>
         )}
       </div>
 
-      <h3 className="mt-2.5 font-display text-lg leading-tight">
+      <h3 className="mt-2 font-display text-base leading-tight">
         <Link to="/provider/$slug" params={{ slug: m.slug }} className="hover:text-brand">
           {m.name}
         </Link>
         {m.is_verified && <BadgeCheck className="ml-1.5 inline h-4 w-4 text-brand" />}
       </h3>
 
-      <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-        <MapPin className="h-3.5 w-3.5" />
+      <p className="mt-1 flex items-start gap-1 text-xs text-muted-foreground">
+        <MapPin className="mt-0.5 h-3 w-3 shrink-0" />
         {m.branch_label ? `${m.branch_label} · ` : ""}
         {m.address || m.city}
       </p>
 
       {Boolean(m.rating) && (
-        <p className="mt-1 flex items-center gap-1 text-sm">
+        <p className="mt-1 flex items-center gap-1 text-xs">
           <Star className="h-3.5 w-3.5 fill-brand text-brand" />
           <span className="font-medium">{m.rating?.toFixed(1) ?? "—"}</span>
           <span className="text-muted-foreground">({m.review_count ?? 0} reviews)</span>
@@ -114,16 +114,16 @@ export function MatchResultCard({
       )}
 
       {reasons.length > 0 && (
-        <p className="mt-2.5 rounded-xl bg-brand/5 px-3 py-1.5 text-xs leading-relaxed">
+        <p className="mt-2 line-clamp-3 rounded-lg bg-brand/5 px-2.5 py-1.5 text-xs leading-snug">
           <span className="font-semibold">Why this match: </span>
           {reasons.join(", ")}.
         </p>
       )}
 
       {(matchedStyles.length > 0 || otherStyles.length > 0) && (
-        <div className="mt-2.5">
+        <div className="mt-2">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Styles</p>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
+          <div className="mt-1 flex flex-wrap gap-1">
             {matchedStyles.map((s) => <Chip key={s} on>{styleLabel(s)}</Chip>)}
             {otherStyles.map((s) => <Chip key={s}>{styleLabel(s)}</Chip>)}
           </div>
@@ -131,17 +131,17 @@ export function MatchResultCard({
       )}
 
       {(matchedServices.length > 0 || otherServices.length > 0) && (
-        <div className="mt-2.5">
+        <div className="mt-2">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Services</p>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {matchedServices.map((s) => <Chip key={s} on>{serviceName(s)}</Chip>)}
+          <div className="mt-1 flex flex-wrap gap-1">
+            {matchedServices.slice(0, 3).map((s) => <Chip key={s} on>{serviceName(s)}</Chip>)}
             {otherServices.map((s) => <Chip key={s}>{serviceName(s)}</Chip>)}
           </div>
         </div>
       )}
 
       {(m.project_types?.length || m.price_tier || m.remote_services) && (
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
+        <div className="mt-2 flex flex-wrap gap-1">
           {(m.project_types ?? []).slice(0, 3).map((p) => (
             <Chip key={p} on={p === m.matchedProjectType}>{projectTypeLabel(p)}</Chip>
           ))}
@@ -155,9 +155,9 @@ export function MatchResultCard({
         </div>
       )}
 
-      {m.specialists && <p className="mt-2.5 line-clamp-2 text-xs text-muted-foreground">{m.specialists}</p>}
+      {m.specialists && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{m.specialists}</p>}
 
-      <div className="mt-auto pt-3">
+      <div className="mt-auto pt-2.5">
         <Link to="/provider/$slug" params={{ slug: m.slug }} className="text-xs font-medium text-brand hover:underline">
           View full profile →
         </Link>
