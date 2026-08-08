@@ -76,10 +76,11 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
-  const services = SERVICES.slice(0, 12);
+  const services = SERVICES.slice(0, 6);
+  const styles = STYLES.slice(0, 6);
   const { data: cityData } = useQuery({
     queryKey: ["footer-cities"],
-    queryFn: () => listTopCities({ data: { limit: 18 } }),
+    queryFn: () => listTopCities({ data: { limit: 8 } }),
     staleTime: 30 * 60 * 1000,
   });
   const { data: stateData } = useQuery({
@@ -87,18 +88,19 @@ export function SiteFooter() {
     queryFn: () => listStates(),
     staleTime: 30 * 60 * 1000,
   });
+  const states = [...(stateData?.states ?? [])].sort((a, b) => b.count - a.count).slice(0, 8);
 
   return (
     <footer className="mt-24 border-t border-border/60 bg-secondary/30">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-8">
-        <div className="lg:col-span-1">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-6">
+        <div>
           <BrandStacked width={168} className="-ml-2" />
           <p className="mt-4 text-sm text-muted-foreground">
             The independent directory for finding vetted interior design studios across the country.
           </p>
         </div>
 
-        <FooterCol title="Cities">
+        <FooterCol title="Cities" to="/search">
           {(cityData?.cities ?? []).map((c) => (
             <li key={c.slug}>
               <Link to="/designers/$state/$city" params={{ state: c.state.toLowerCase(), city: c.slug }} className="hover:text-brand">
@@ -106,50 +108,49 @@ export function SiteFooter() {
               </Link>
             </li>
           ))}
+          <li><Link to="/search" className="font-medium text-brand hover:underline">All cities →</Link></li>
         </FooterCol>
 
-        <div className="lg:col-span-2">
-          <h4 className="text-xs font-semibold uppercase tracking-widest text-foreground/70">States</h4>
-          <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm text-muted-foreground">
-            {(stateData?.states ?? []).map((st) => (
-              <Link
-                key={st.code}
-                to="/designers/$state"
-                params={{ state: st.slug }}
-                className="whitespace-nowrap hover:text-brand"
-              >
-                {st.name}
+        <FooterCol title="States" to="/search">
+          {states.map((st) => (
+            <li key={st.code}>
+              <Link to="/designers/$state" params={{ state: st.slug }} className="hover:text-brand">
+                {st.name} <span className="text-muted-foreground/60">({st.count})</span>
               </Link>
-            ))}
-          </div>
-        </div>
+            </li>
+          ))}
+          <li><Link to="/search" className="font-medium text-brand hover:underline">All states →</Link></li>
+        </FooterCol>
 
-
-        <FooterCol title="Services">
+        <FooterCol title="Services" to="/search">
           {services.map((s) => (
             <li key={s.slug}><Link to="/service/$slug" params={{ slug: s.slug }} className="hover:text-brand">{s.name}</Link></li>
           ))}
+          <li><Link to="/search" className="font-medium text-brand hover:underline">All services →</Link></li>
         </FooterCol>
 
-        <FooterCol title="Styles">
-          {STYLES.map((c) => (
+        <FooterCol title="Styles" to="/search">
+          {styles.map((c) => (
             <li key={c.slug}><Link to="/style/$slug" params={{ slug: c.slug }} className="hover:text-brand">{c.label}</Link></li>
           ))}
+          <li><Link to="/search" className="font-medium text-brand hover:underline">All styles →</Link></li>
         </FooterCol>
 
-        <FooterCol title="Company">
-          <li><Link to="/about" className="hover:text-brand">About</Link></li>
-          <li><Link to="/how-it-works" className="hover:text-brand">How it works</Link></li>
-          <li><Link to="/submit" className="hover:text-brand">Submit a studio</Link></li>
-          <li><Link to="/for-business" className="hover:text-brand">For studios</Link></li>
-          <li><Link to="/contact" className="hover:text-brand">Contact</Link></li>
-        </FooterCol>
+        <div className="space-y-8">
+          <FooterCol title="Company">
+            <li><Link to="/about" className="hover:text-brand">About</Link></li>
+            <li><Link to="/how-it-works" className="hover:text-brand">How it works</Link></li>
+            <li><Link to="/submit" className="hover:text-brand">Submit a studio</Link></li>
+            <li><Link to="/for-business" className="hover:text-brand">For studios</Link></li>
+            <li><Link to="/contact" className="hover:text-brand">Contact</Link></li>
+          </FooterCol>
 
-        <FooterCol title="Trust">
-          <li><Link to="/guide" className="hover:text-brand">Hiring guide</Link></li>
-          <li><Link to="/privacy" className="hover:text-brand">Privacy</Link></li>
-          <li><Link to="/terms" className="hover:text-brand">Terms</Link></li>
-        </FooterCol>
+          <FooterCol title="Trust">
+            <li><Link to="/guide" className="hover:text-brand">Hiring guide</Link></li>
+            <li><Link to="/privacy" className="hover:text-brand">Privacy</Link></li>
+            <li><Link to="/terms" className="hover:text-brand">Terms</Link></li>
+          </FooterCol>
+        </div>
       </div>
       <div className="border-t border-border/60">
         <div className="mx-auto max-w-7xl px-4 py-6 text-xs text-muted-foreground">
@@ -163,11 +164,17 @@ export function SiteFooter() {
   );
 }
 
-function FooterCol({ title, children }: { title: string; children: React.ReactNode }) {
+function FooterCol({ title, to, children }: { title: string; to?: "/search"; children: React.ReactNode }) {
+  const heading = "text-xs font-semibold uppercase tracking-widest text-foreground/70";
   return (
     <div>
-      <h4 className="text-xs font-semibold uppercase tracking-widest text-foreground/70">{title}</h4>
+      {to ? (
+        <Link to={to} className={`${heading} hover:text-brand`}>{title}</Link>
+      ) : (
+        <h4 className={heading}>{title}</h4>
+      )}
       <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">{children}</ul>
     </div>
   );
 }
+
