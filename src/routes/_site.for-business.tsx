@@ -21,19 +21,22 @@ export const Route = createFileRoute("/_site/for-business")({
 function ForBusiness() {
   return (
     <>
-      <section className="border-b border-border/60">
-        <div className="mx-auto max-w-5xl px-4 py-20 text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand">For Studio Owners</p>
-          <h1 className="mt-3 font-display text-5xl md:text-6xl">Grow your design studio.</h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+      <section className="relative border-b border-border/60">
+        <img src={STUDIO_IMAGE} alt="Interior designers working on a project in their studio" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70" />
+        <div className="relative mx-auto max-w-5xl px-4 py-20 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/80">For Studio Owners</p>
+          <h1 className="mt-3 font-display text-5xl text-white md:text-6xl">Grow your design studio.</h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/85">
             Get discovered by clients actively searching for full-home design, kitchen & bath, and renovation help in your city — free.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="rounded-full"><Link to="/login">Submit your business</Link></Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full"><Link to="/claim">Claim existing listing</Link></Button>
+            <Button asChild size="lg" variant="outline" className="rounded-full border-white/50 bg-transparent text-white hover:bg-white/10 hover:text-white"><Link to="/claim">Claim existing listing</Link></Button>
           </div>
         </div>
       </section>
+
 
       <section className="mx-auto max-w-7xl px-4 py-20">
         <h2 className="text-center font-display text-3xl md:text-4xl">What you get</h2>
