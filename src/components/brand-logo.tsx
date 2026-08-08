@@ -8,10 +8,11 @@ export const LOGO_FULL_URL = full.url;
 /** Horizontal lockup: mark + wordmark. Used in the header. */
 export function BrandLockup({ className = "" }: { className?: string }) {
   return (
-    <Link to="/" aria-label="Intearior — home" className={`flex items-center gap-2.5 ${className}`}>
-      <img src={mark.url} alt="" aria-hidden className="h-9 w-9 object-contain" />
-      <span className="font-display text-xl font-semibold uppercase tracking-[0.15em]">Intearior</span>
+    <Link to="/" aria-label="Intearior — home" className={`flex items-center gap-3 ${className}`}>
+      <img src={mark.url} alt="" aria-hidden className="h-14 w-14 object-contain md:h-16 md:w-16" />
+      <span className="font-display text-2xl font-semibold uppercase tracking-[0.16em] md:text-[26px]">Intearior</span>
     </Link>
+
   );
 }
 
