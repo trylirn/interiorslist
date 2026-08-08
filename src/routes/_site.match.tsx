@@ -345,7 +345,7 @@ function MatchPage() {
                 {sending ? "Sending…" : `Send my brief to ${chosen.length} ${chosen.length === 1 ? "studio" : "studios"}`}
               </Button>
               <p className="mt-3 text-xs text-muted-foreground">
-                Your details go straight to the studios you pick. Intearior never charges a referral fee.
+                Your details go straight to the studios you pick.
               </p>
             </div>
           </section>
