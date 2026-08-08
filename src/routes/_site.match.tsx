@@ -550,7 +550,7 @@ function MatchPage() {
           {step.helper && <p className="mt-2 text-muted-foreground">{step.helper}</p>}
 
           {isStyleStep(step.question, step.options) ? (
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
               {step.options.map((opt) => {
                 const slug = matchStyleSlug(opt);
                 const toggle = () => {
