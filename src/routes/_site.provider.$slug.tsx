@@ -24,49 +24,51 @@ import { trackLeadAction } from "@/lib/analytics";
 export const Route = createFileRoute("/_site/provider/$slug")({
   head: ({ params, loaderData }) => {
     const path = `/provider/${params.slug}`;
-    const canonical = `https://texas-beauty-glow.lovable.app${path}`;
+    const canonical = `https://interiorslist.lovable.app${path}`;
     const p = (loaderData as { provider?: any; reviews?: any[] } | undefined)?.provider;
     const reviews = (loaderData as { reviews?: any[] } | undefined)?.reviews ?? [];
     const displayName = p?.name ?? params.slug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
-    const city = p?.city ?? "Texas";
+    const city = p?.city ?? "the US";
+    const stateCode = (p?.state ?? "").toUpperCase();
+    const loc = stateCode ? `${city}, ${stateCode}` : city;
     const topServices: string[] = Array.isArray(p?.services)
       ? p!.services.slice(0, 3).map((s: string) => s.replace(/-/g, " "))
       : [];
-    const serviceBlurb = topServices.length ? topServices.join(", ") : "Botox, filler & medspa treatments";
+    const serviceBlurb = topServices.length ? topServices.join(", ") : "full-home design, kitchens & renovations";
     const title = p
-      ? `${displayName} — ${topServices[0] ? topServices[0].replace(/\b\w/g, (m: string) => m.toUpperCase()) + " & Medspa" : "Medspa & Injector"} in ${city}, TX`
-      : `${displayName} — Discover Medspa`;
+      ? `${displayName} — Interior Designer in ${loc}`
+      : `${displayName} — Intearior`;
     const description = p
-      ? `${p.name} in ${city}, TX. ${serviceBlurb}. Read patient reviews, view services, and book a consultation with this verified Texas aesthetic injector near you.`
-      : `Verified Texas aesthetic injector. Services, contact, and reviews.`;
+      ? `${p.name} in ${loc}. ${serviceBlurb}. See portfolio details, services, reviews and request a consultation with this interior design studio.`
+      : `Interior design studio profile on Intearior. Services, contact and reviews.`;
     const keywords = p
       ? [
-          `${city} medspa`,
-          `medspa in ${city} TX`,
-          `${city} aesthetic injector`,
-          `botox ${city}`,
-          `filler ${city} TX`,
-          `medspa near me ${city}`,
+          `${city} interior designer`,
+          `interior design ${loc}`,
+          `${city} design studio`,
+          `interior decorator ${city}`,
           `${displayName} ${city}`,
           ...topServices.map((s) => `${s} ${city}`),
         ].join(", ")
-      : "Texas medspa, aesthetic injector Texas";
+      : "interior designers, interior design studios";
 
     const meta: Array<Record<string, string>> = [
       { title },
       { name: "description", content: description },
       { name: "keywords", content: keywords },
-      { name: "geo.region", content: "US-TX" },
-      { name: "geo.placename", content: `${city}, Texas` },
+      { name: "geo.placename", content: loc },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:url", content: canonical },
       { property: "og:type", content: "business.business" },
       { property: "og:locale", content: "en_US" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
       { property: "business:contact_data:locality", content: city },
-      { property: "business:contact_data:region", content: "TX" },
       { property: "business:contact_data:country_name", content: "United States" },
     ];
+    if (stateCode) meta.push({ property: "business:contact_data:region", content: stateCode });
     if (p?.address) meta.push({ property: "business:contact_data:street_address", content: p.address });
     if (p?.latitude != null && p?.longitude != null) {
       meta.push({ property: "place:location:latitude", content: String(p.latitude) });
@@ -79,18 +81,18 @@ export const Route = createFileRoute("/_site/provider/$slug")({
     if (p) {
       const ld: Record<string, unknown> = {
         "@context": "https://schema.org",
-        "@type": ["MedicalBusiness", "HealthAndBeautyBusiness", "LocalBusiness"],
+        "@type": ["HomeAndConstructionBusiness", "ProfessionalService", "LocalBusiness"],
         "@id": canonical,
         name: p.name,
         url: canonical,
         description,
         priceRange: "$$",
         areaServed: [
-          { "@type": "City", name: city, containedInPlace: { "@type": "State", name: "Texas" } },
+          { "@type": "City", name: city, containedInPlace: { "@type": "State", name: stateCode || "United States" } },
         ],
       };
       if (p.hero_photo_url) ld.image = p.hero_photo_url;
-      if (p.address) ld.address = { "@type": "PostalAddress", streetAddress: p.address, addressLocality: p.city, addressRegion: "TX", addressCountry: "US" };
+      if (p.address) ld.address = { "@type": "PostalAddress", streetAddress: p.address, addressLocality: p.city, addressRegion: stateCode, addressCountry: "US" };
       if (p.latitude != null && p.longitude != null) ld.geo = { "@type": "GeoCoordinates", latitude: p.latitude, longitude: p.longitude };
       if (p.website) ld.sameAs = [p.website, ...Object.values((p.social_links ?? {}) as Record<string, string>)].filter(Boolean);
       else if (p.social_links) ld.sameAs = Object.values(p.social_links as Record<string, string>).filter(Boolean);
@@ -115,26 +117,22 @@ export const Route = createFileRoute("/_site/provider/$slug")({
       }
       scripts.push({ type: "application/ld+json", children: JSON.stringify(ld) });
 
-      // BreadcrumbList
       scripts.push({
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: "https://texas-beauty-glow.lovable.app/" },
-            { "@type": "ListItem", position: 2, name: `${city}, TX`, item: `https://texas-beauty-glow.lovable.app/tx/${p.city_slug}` },
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://interiorslist.lovable.app/" },
+            { "@type": "ListItem", position: 2, name: loc, item: `https://interiorslist.lovable.app/designers/${(p.state ?? "").toLowerCase()}/${p.city_slug}` },
             { "@type": "ListItem", position: 3, name: p.name, item: canonical },
           ],
         }),
       });
-
-      // FAQ structured data is emitted only from owner-supplied FAQs (rendered client-side),
-      // so no generic FAQPage block here.
-
     }
     return { meta, links: [{ rel: "canonical", href: canonical }], scripts };
   },
+
 
   loader: ({ params, context }) =>
     context.queryClient.ensureQueryData(
