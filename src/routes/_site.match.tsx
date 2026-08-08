@@ -416,9 +416,67 @@ function MatchPage() {
   }
 
 
+  /* --------------------------- location step --------------------------- */
+  if (!locationDone) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-12">
+        <div className="text-center">
+          <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
+            <Sparkles className="h-3 w-3" /> AI matching
+          </p>
+        </div>
+        <h1 className="mt-8 font-display text-3xl md:text-4xl">Where is your project?</h1>
+        <p className="mt-2 text-muted-foreground">Pick your state, then start typing your city — we'll autofill it.</p>
+
+        <div className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-5">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">State</Label>
+            <Select
+              value={stateCode || undefined}
+              onValueChange={(v) => { setStateCode(v); setCityQuery(""); setCitySlug("any"); }}
+            >
+              <SelectTrigger className="h-11"><SelectValue placeholder="Choose a state" /></SelectTrigger>
+              <SelectContent className="max-h-80">
+                {(statesData?.states ?? []).map((s) => (
+                  <SelectItem key={s.code} value={s.code}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">City</Label>
+            <Input
+              list="match-city-options"
+              value={cityQuery}
+              disabled={!stateCode || citiesLoading}
+              onChange={(e) => setCityQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); confirmLocation(false); } }}
+              placeholder={stateCode ? (citiesLoading ? "Loading cities…" : "Start typing your city…") : "Choose a state first"}
+              className="h-11"
+            />
+            <datalist id="match-city-options">
+              {cityOptions.map((c) => <option key={c.slug} value={c.name} />)}
+            </datalist>
+          </div>
+
+          <Button className="h-11 w-full rounded-full" onClick={() => confirmLocation(false)}>Continue</Button>
+          <button
+            type="button"
+            onClick={() => confirmLocation(true)}
+            className="w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-brand hover:underline"
+          >
+            My project is remote / anywhere
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   /* --------------------------- conversation --------------------------- */
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
+
       <div className="text-center">
         <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
           <Sparkles className="h-3 w-3" /> AI matching
