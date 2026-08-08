@@ -70,13 +70,17 @@ function MatchPage() {
   const fetchMatches = useServerFn(getMatches);
 
   const [citySlug, setCitySlug] = useState(initialCity ?? "any");
+  const [locationDone, setLocationDone] = useState(false);
+  const [stateCode, setStateCode] = useState<string>("");
+  const [cityQuery, setCityQuery] = useState("");
   const [transcript, setTranscript] = useState<Turn[]>([]);
   const [step, setStep] = useState<MatchQuestion | null>(null);
   const [progress, setProgress] = useState(0);
   const [picked, setPicked] = useState<string[]>([]);
   const [freeText, setFreeText] = useState("");
-  const [thinking, setThinking] = useState(true);
+  const [thinking, setThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
 
   const [criteria, setCriteria] = useState<MatchCriteria | null>(null);
   const [results, setResults] = useState<Awaited<ReturnType<typeof getMatches>>["matches"] | null>(null);
