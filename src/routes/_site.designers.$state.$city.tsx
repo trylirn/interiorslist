@@ -71,11 +71,20 @@ function CityPage() {
       <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
         <Link to="/" className="hover:text-brand">Home</Link> / {c.stateName} / <span className="text-foreground">{c.name}</span>
       </nav>
-      <div className="mb-8 mt-2">
-        <h1 className="font-display text-4xl md:text-5xl">Interior Designers in {c.name}, {c.state}</h1>
-        <p className="mt-2 text-muted-foreground">{data.providers.length} vetted studios • {c.tagline}</p>
-        <p className="mt-3 max-w-3xl text-foreground/85">{c.intro}</p>
+      <div className="relative mt-3 overflow-hidden rounded-3xl">
+        <img
+          src={cityImage(c.slug)}
+          alt={`Interior design project in ${c.name}, ${c.state}`}
+          className="h-56 w-full object-cover md:h-72"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+          <h1 className="font-display text-4xl text-white md:text-5xl">Interior Designers in {c.name}, {c.state}</h1>
+          <p className="mt-2 text-sm text-white/85">{data.providers.length} vetted studios • {c.tagline}</p>
+        </div>
       </div>
+      <p className="mb-8 mt-4 max-w-3xl text-foreground/85">{c.intro}</p>
+
 
       <div className="mb-8 flex flex-wrap gap-2">
         <Link to="/designers/$state/$city" params={{ state, city }} className={`rounded-full border px-3 py-1 text-sm ${!search.service ? "border-brand bg-brand text-brand-foreground" : "border-border"}`}>All services</Link>
