@@ -117,7 +117,7 @@ function MatchPage() {
           },
         });
         setResults(m.matches);
-        setSelected(m.matches[0] ? { placeId: m.matches[0].place_id, name: m.matches[0].name } : null);
+        setChosen(m.matches.map((x) => x.place_id));
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
