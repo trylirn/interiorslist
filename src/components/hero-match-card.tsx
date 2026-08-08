@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { serviceLabel, styleLabel } from "@/lib/cities";
+import { serviceName, styleLabel } from "@/lib/cities";
 import { MapPin } from "lucide-react";
 
 type Studio = {
@@ -48,7 +48,7 @@ export function HeroMatchCard({ stats, studios }: { stats: Stats; studios: Studi
   const current = studios[index % Math.max(1, studios.length)];
   const tags = [
     ...(current?.styles ?? []).slice(0, 2).map(styleLabel),
-    ...(current?.services ?? []).slice(0, 2).map(serviceLabel),
+    ...(current?.services ?? []).slice(0, 2).map(serviceName),
   ].slice(0, 2);
 
   return (
@@ -75,7 +75,7 @@ export function HeroMatchCard({ stats, studios }: { stats: Stats; studios: Studi
         >
           <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Recently listed</p>
           <Link
-            to="/studio/$slug"
+            to="/provider/$slug"
             params={{ slug: current.slug }}
             className={`mt-2 block transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}
           >
