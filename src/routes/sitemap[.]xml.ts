@@ -3,7 +3,7 @@ import type {} from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { CITIES, SERVICES, STYLES } from "@/lib/cities";
 
-const BASE_URL = "https://texas-beauty-glow.lovable.app";
+const BASE_URL = "https://interiorslist.lovable.app";
 
 interface SitemapEntry {
   path: string;
