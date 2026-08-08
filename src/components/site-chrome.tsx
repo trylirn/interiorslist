@@ -109,12 +109,19 @@ export function SiteFooter() {
         </FooterCol>
 
         <FooterCol title="States">
-          <li className="columns-2 gap-4 [&>*]:break-inside-avoid">
-            {(stateData?.states ?? []).map((st) => (
-              <div key={st.code}>
-                <Link to="/designers/$state" params={{ state: st.slug }} className="hover:text-brand">{st.name}</Link>
-              </div>
-            ))}
+          <li>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-2">
+              {(stateData?.states ?? []).map((st) => (
+                <Link
+                  key={st.code}
+                  to="/designers/$state"
+                  params={{ state: st.slug }}
+                  className="whitespace-nowrap hover:text-brand"
+                >
+                  {st.name}
+                </Link>
+              ))}
+            </div>
           </li>
         </FooterCol>
 
