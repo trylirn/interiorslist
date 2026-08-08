@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { X, Sparkles } from "lucide-react";
+import { X, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Non-intrusive prompt that nudges visitors toward the matching quiz.
@@ -95,7 +95,7 @@ export function QuizPrompt() {
         <X className="h-4 w-4" />
       </button>
       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand/10">
-        <Sparkles className="h-4 w-4 text-brand" />
+        <Wand2 className="h-4 w-4 text-brand" />
       </div>
       <h2 className="mt-3 font-display text-lg">{m.title}</h2>
       <p className="mt-1 text-sm text-muted-foreground">{m.body}</p>

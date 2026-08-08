@@ -7,7 +7,7 @@ import { ProviderCard } from "@/components/provider-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Search, ShieldCheck, MapPin, BadgeCheck, Sparkles, MessageSquare, ListChecks } from "lucide-react";
+import { Search, ShieldCheck, MapPin, BadgeCheck, Wand2, Scale, MessageSquare, ListChecks } from "lucide-react";
 import { LookingForHero } from "@/components/looking-for-hero";
 import { HeroMatchCard } from "@/components/hero-match-card";
 import { HERO_IMAGE, styleImage } from "@/lib/style-images";
@@ -141,7 +141,7 @@ function HomePage() {
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             <Step n="1" Icon={ListChecks} title="Describe your project" desc="Rooms, style, budget and timeline — it takes about two minutes." />
-            <Step n="2" Icon={Sparkles} title="Review your matches" desc="Compare studios on services, style, credentials and typical project size." />
+            <Step n="2" Icon={Wand2} title="Review your matches" desc="Compare studios on services, style, credentials and typical project size." />
             <Step n="3" Icon={MessageSquare} title="Request a consultation" desc="Send your brief straight to the studio. No commissions, no middlemen." />
           </div>
         </div>
@@ -261,7 +261,7 @@ function HomePage() {
               <TrustCard Icon={BadgeCheck} title="Vetted" body="Listings reviewed before publication." />
               <TrustCard Icon={ShieldCheck} title="Credentials shown" body="NCIDQ, ASID, IIDA and registration on every profile." />
               <TrustCard Icon={MapPin} title="Nationwide" body="Major metros across the country, plus virtual e-design." />
-              <TrustCard Icon={Sparkles} title="Independent" body="No paid placements or referral fees." />
+              <TrustCard Icon={Scale} title="Independent" body="No paid placements or referral fees." />
             </div>
           </div>
         </div>
