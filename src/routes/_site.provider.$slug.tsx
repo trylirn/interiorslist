@@ -218,15 +218,16 @@ function ProviderPage() {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-y-4 border-t border-border pt-6 md:grid-cols-4">
-              <Meta label="Based In" value={p.city ? `${p.city}, TX` : "—"} icon={<MapPin className="h-4 w-4" />} />
-              <Meta label="Serves" value="Texas" icon={<Globe className="h-4 w-4" />} />
+              <Meta label="Based In" value={loc || "—"} icon={<MapPin className="h-4 w-4" />} />
+              <Meta label="Serves" value={p.remote_services ? "Local + remote (e-design)" : `${p.city} & nearby`} icon={<Globe className="h-4 w-4" />} />
               {p.phone && <Meta label="Contact" value="Phone available" icon={<Mail className="h-4 w-4" />} />}
-              
+              {p.price_tier && <Meta label="Budget" value={String(p.price_tier).replace(/-/g, " ")} icon={<Building2 className="h-4 w-4" />} />}
             </div>
 
             {p.address && (
-              <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4" /> {p.address}, {p.city}, TX</p>
+              <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4" /> {p.address}</p>
             )}
+
 
             <div className="mt-6 flex flex-wrap gap-2">
               {p.phone && <Button asChild><a href={`tel:${p.phone}`} onClick={() => trackLeadAction(p.place_id, "phone", p.city_slug)}><Mail className="mr-2 h-4 w-4" />Call</a></Button>}
