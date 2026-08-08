@@ -294,7 +294,7 @@ function MatchPage() {
                     <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
-                    <Label className="text-xs text-muted-foreground">Phone (optional)</Label>
+                    <Label className="text-xs text-muted-foreground">Phone</Label>
                     <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
                 </div>
@@ -345,7 +345,7 @@ function MatchPage() {
                 {sending ? "Sending…" : `Send my brief to ${chosen.length} ${chosen.length === 1 ? "studio" : "studios"}`}
               </Button>
               <p className="mt-3 text-xs text-muted-foreground">
-                Your details go straight to the studios you pick. Intearior never charges a referral fee.
+                Your details go straight to the studios you pick.
               </p>
             </div>
           </section>
