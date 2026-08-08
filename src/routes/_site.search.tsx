@@ -97,16 +97,16 @@ function SearchPage() {
       >
         <div className="flex flex-1 items-center gap-2 rounded-full border border-border bg-card px-4">
           <Search className="h-4 w-4 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Studio, designer, city, or service…" className="h-12 border-0 bg-transparent shadow-none focus-visible:ring-0" />
+          <Input aria-label="Search studios" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Studio, designer, city, or service…" className="h-12 border-0 bg-transparent shadow-none focus-visible:ring-0" />
         </div>
         <Button type="submit" size="lg" className="rounded-full px-6">Search</Button>
       </form>
 
       <div className="mt-5 grid gap-3 md:grid-cols-5">
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">State</label>
+          <label htmlFor="filter-state" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">State</label>
           <Select value={stateVal} onValueChange={(v) => applyParam({ state: v === "any" ? undefined : v, city: undefined, page: undefined })}>
-            <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+            <SelectTrigger id="filter-state" aria-label="state" className="h-11"><SelectValue /></SelectTrigger>
             <SelectContent className="max-h-80">
               <SelectItem value="any">Any state</SelectItem>
               {(stateData?.states ?? []).map((st) => <SelectItem key={st.code} value={st.code}>{st.name} ({st.count})</SelectItem>)}
@@ -114,9 +114,9 @@ function SearchPage() {
           </Select>
         </div>
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">City</label>
+          <label htmlFor="filter-city" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">City</label>
           <Select value={cityVal} onValueChange={(v) => applyParam({ city: v === "any" ? undefined : v, page: undefined })}>
-            <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+            <SelectTrigger id="filter-city" aria-label="city" className="h-11"><SelectValue /></SelectTrigger>
             <SelectContent className="max-h-80">
               <SelectItem value="any">Any city</SelectItem>
               {cityOptions.map((c) => (
@@ -128,9 +128,9 @@ function SearchPage() {
           </Select>
         </div>
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Service</label>
+          <label htmlFor="filter-service" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Service</label>
           <Select value={serviceVal} onValueChange={(v) => applyParam({ service: v === "any" ? undefined : v, page: undefined })}>
-            <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+            <SelectTrigger id="filter-service" aria-label="service" className="h-11"><SelectValue /></SelectTrigger>
             <SelectContent className="max-h-80">
               <SelectItem value="any">Any service</SelectItem>
               {SERVICES.map((s) => <SelectItem key={s.slug} value={s.slug}>{s.name}</SelectItem>)}
@@ -138,9 +138,9 @@ function SearchPage() {
           </Select>
         </div>
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Style</label>
+          <label htmlFor="filter-style" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Style</label>
           <Select value={styleVal} onValueChange={(v) => applyParam({ style: v === "any" ? undefined : v, page: undefined })}>
-            <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+            <SelectTrigger id="filter-style" aria-label="style" className="h-11"><SelectValue /></SelectTrigger>
             <SelectContent className="max-h-80">
               <SelectItem value="any">Any style</SelectItem>
               {STYLES.map((s) => <SelectItem key={s.slug} value={s.slug}>{s.label}</SelectItem>)}
@@ -148,9 +148,9 @@ function SearchPage() {
           </Select>
         </div>
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Sort by</label>
+          <label htmlFor="filter-sort" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Sort by</label>
           <Select value={sortVal} onValueChange={(v) => applyParam({ sort: v as "verified" | "name" | "rating", page: undefined })}>
-            <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+            <SelectTrigger id="filter-sort" aria-label="sort" className="h-11"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="verified">Verified first</SelectItem>
               <SelectItem value="rating">Highest rated</SelectItem>
