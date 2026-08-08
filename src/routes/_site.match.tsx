@@ -155,9 +155,70 @@ function MatchPage() {
   function restart() {
     setResults(null);
     setCriteria(null);
-    setSelected(null);
+    setChosen([]);
+    setUnlocked(false);
+    setSentTo(null);
     setTranscript([]);
     void advance([]);
+  }
+
+  function buildBrief() {
+    return [
+      criteria?.summary && `Brief: ${criteria.summary}`,
+      criteria?.priority && `Focus: ${PRIORITY_SERVICE[criteria.priority] ? serviceName(PRIORITY_SERVICE[criteria.priority]!) : criteria.priority.replace(/-/g, " ")}`,
+      criteria?.projectType && `Project type: ${projectTypeLabel(criteria.projectType)}`,
+      criteria?.styles?.length && `Preferred styles: ${criteria.styles.map(styleLabel).join(", ")}`,
+      criteria?.budget && `Budget: ${BUDGET_BANDS.find((b) => b.slug === criteria.budget)?.label ?? criteria.budget}`,
+      criteria?.timing && `Timeline: ${criteria.timing.replace(/-/g, " ")}`,
+      citySlug !== "any" && `Location: ${CITIES.find((c) => c.slug === citySlug)?.name ?? citySlug}`,
+      "",
+      ...transcript.map((t) => `${t.question} — ${t.answer}`),
+      notes && `\nNotes:\n${notes}`,
+    ]
+      .filter(Boolean)
+      .join("\n")
+      .slice(0, 3900);
+  }
+
+  function unlock(e: React.FormEvent) {
+    e.preventDefault();
+    if (!firstName.trim() || !lastName.trim()) {
+      toast.error("Please add your first and last name.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+    setUnlocked(true);
+    toast.success("Your matches are unlocked.");
+  }
+
+  async function sendBrief() {
+    if (!results || chosen.length === 0) return;
+    setSending(true);
+    try {
+      const message = buildBrief() || "Consultation request";
+      const picks = results.filter((r) => chosen.includes(r.place_id));
+      for (const p of picks) {
+        await send({
+          data: {
+            placeId: p.place_id,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim(),
+            phone: phone.trim() || "not provided",
+            message,
+          },
+        });
+      }
+      setSentTo(picks.map((p) => p.name));
+      toast.success(`Brief sent to ${picks.length} ${picks.length === 1 ? "studio" : "studios"}.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send your brief.");
+    } finally {
+      setSending(false);
+    }
   }
 
   /* ----------------------------- results ----------------------------- */
@@ -184,42 +245,70 @@ function MatchPage() {
         <h1 className="mt-4 font-display text-4xl md:text-5xl">Your matches</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
           {criteria?.summary ? `${criteria.summary} ` : ""}
-          {results.length} {results.length === 1 ? "studio" : "studios"} in {cityName} fit your brief.
+          We found {results.length} {results.length === 1 ? "studio" : "studios"} in {cityName} that fit your brief.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {results.map((r) => (
-            <div key={r.place_id} className="flex flex-col">
-              <span className="mb-2 self-start rounded-full bg-brand px-2.5 py-0.5 text-xs font-semibold text-brand-foreground">
-                {r.matchPercent}% match
-              </span>
-              <ProviderCard
-                place_id={r.place_id}
-                slug={r.slug}
-                name={r.name}
-                city={r.city}
-                address={r.address}
-                services={r.services}
-                specialists={r.specialists}
-                branch_label={r.branch_label}
-                is_verified={r.is_verified}
-              />
-              <Button
-                variant={selected?.placeId === r.place_id ? "default" : "outline"}
-                className="mt-2 rounded-full"
-                onClick={() => {
-                  setSelected({ placeId: r.place_id, name: r.name });
-                  document.getElementById("send-brief")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-              >
-                {selected?.placeId === r.place_id ? "Selected" : "Send my brief"}
-              </Button>
+        <div className="relative mt-8">
+          <div className={unlocked ? "" : "pointer-events-none select-none blur-md"} aria-hidden={!unlocked}>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {results.map((r) => (
+                <MatchResultCard
+                  key={r.place_id}
+                  m={r}
+                  selectable={unlocked && !sentTo}
+                  selected={chosen.includes(r.place_id)}
+                  onToggle={() =>
+                    setChosen((c) => (c.includes(r.place_id) ? c.filter((x) => x !== r.place_id) : [...c, r.place_id]))
+                  }
+                />
+              ))}
             </div>
-          ))}
+          </div>
+
+          {!unlocked && (
+            <div className="absolute inset-0 flex items-start justify-center p-4">
+              <form
+                onSubmit={unlock}
+                className="sticky top-24 w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-xl"
+              >
+                <p className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
+                  <Lock className="h-3 w-3" /> Locked
+                </p>
+                <h2 className="mt-3 font-display text-2xl">
+                  Your {results.length} {results.length === 1 ? "match is" : "matches are"} ready
+                </h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Add your details to reveal the studios. You choose who — if anyone — receives your brief.
+                </p>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">First name</Label>
+                    <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Last name</Label>
+                    <Input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label className="text-xs text-muted-foreground">Email</Label>
+                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label className="text-xs text-muted-foreground">Phone (optional)</Label>
+                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  </div>
+                </div>
+                <Button type="submit" className="mt-5 w-full rounded-full">Request a consultation</Button>
+                <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+                  <BadgeCheck className="h-3.5 w-3.5 text-brand" /> We never sell your details.
+                </p>
+              </form>
+            </div>
+          )}
         </div>
 
-        {selected && (
-          <section id="send-brief" className="mt-12 grid gap-6 overflow-hidden rounded-3xl border border-border bg-card lg:grid-cols-[1fr_1.1fr]">
+        {unlocked && !sentTo && (
+          <section id="send-brief" className="mt-10 grid gap-6 overflow-hidden rounded-3xl border border-border bg-card lg:grid-cols-[1fr_1.2fr]">
             <img
               src={CONSULT_IMAGE}
               alt="Interior designer reviewing plans and samples with clients"
@@ -229,23 +318,53 @@ function MatchPage() {
               className="h-full min-h-64 w-full object-cover"
             />
             <div className="p-6 md:p-8">
-              <h2 className="font-display text-2xl">Send your project brief to {selected.name}</h2>
-              <p className="mt-2 text-sm text-muted-foreground">We've pre-filled your answers — add your details and we'll pass it straight to the studio.</p>
-              <div className="mt-6">
-                <ConsultationForm
-                  key={selected.placeId}
-                  placeId={selected.placeId}
-                  studioName={selected.name}
-                  compact
-                  defaults={{
-                    service: PRIORITY_SERVICE[criteria?.priority ?? ""] ?? "",
-                    projectType: criteria?.projectType ?? "",
-                    budget: criteria?.budget ?? "",
-                    style: criteria?.styles?.[0] ?? "",
-                  }}
-                />
+              <h2 className="font-display text-2xl">Send your brief</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Pick the studios you'd like to hear from — tick as many as you want, or send to all.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() => setChosen(results.map((r) => r.place_id))}
+                >
+                  Select all
+                </Button>
+                <Button type="button" size="sm" variant="ghost" className="rounded-full" onClick={() => setChosen([])}>
+                  Clear
+                </Button>
+                <span className="text-sm text-muted-foreground">{chosen.length} selected</span>
               </div>
+              <div className="mt-4 space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Anything else the studio should know?</Label>
+                <Textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Square footage, what you like, what isn't working." />
+              </div>
+              <Button className="mt-5 w-full rounded-full" disabled={sending || chosen.length === 0} onClick={() => void sendBrief()}>
+                {sending ? "Sending…" : `Send my brief to ${chosen.length} ${chosen.length === 1 ? "studio" : "studios"}`}
+              </Button>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Your details go straight to the studios you pick. Intearior never charges a referral fee.
+              </p>
             </div>
+          </section>
+        )}
+
+        {sentTo && (
+          <section className="mt-10 rounded-3xl border border-brand/30 bg-brand/5 p-6 md:p-8">
+            <h2 className="font-display text-2xl">Brief sent</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              We passed your project brief to {sentTo.length} {sentTo.length === 1 ? "studio" : "studios"}. They'll reply to {email}.
+            </p>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {sentTo.map((n) => (
+                <li key={n} className="rounded-full bg-card px-3 py-1 text-sm">
+                  <Check className="mr-1 inline h-3.5 w-3.5 text-brand" />
+                  {n}
+                </li>
+              ))}
+            </ul>
           </section>
         )}
 
@@ -256,6 +375,7 @@ function MatchPage() {
       </div>
     );
   }
+
 
   /* --------------------------- conversation --------------------------- */
   return (
