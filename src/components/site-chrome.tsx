@@ -90,7 +90,7 @@ export function SiteFooter() {
 
   return (
     <footer className="mt-24 border-t border-border/60 bg-secondary/30">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-7">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-8">
         <div className="lg:col-span-1">
           <BrandStacked width={168} className="-ml-2" />
           <p className="mt-4 text-sm text-muted-foreground">
