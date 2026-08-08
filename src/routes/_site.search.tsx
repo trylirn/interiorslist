@@ -1,14 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { searchProvidersPaged, listStates } from "@/lib/providers.functions";
+import { searchProvidersPaged, listStates, listCities } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { CITIES, SERVICES, STYLES } from "@/lib/cities";
+import { SERVICES, STYLES } from "@/lib/cities";
 import { Search, X } from "lucide-react";
 
 export const Route = createFileRoute("/_site/search")({
@@ -55,6 +55,12 @@ function SearchPage() {
     placeholderData: (prev) => prev,
   });
   const { data: stateData } = useQuery({ queryKey: ["footer-states"], queryFn: () => listStates(), staleTime: 30 * 60 * 1000 });
+  const { data: cityData } = useQuery({
+    queryKey: ["search-cities", state ?? "all"],
+    queryFn: () => listCities({ data: state ? { state } : {} }),
+    staleTime: 30 * 60 * 1000,
+  });
+  const cityOptions = cityData?.cities ?? [];
 
   useEffect(() => {
     if (qParam || city) {
@@ -99,7 +105,7 @@ function SearchPage() {
       <div className="mt-5 grid gap-3 md:grid-cols-5">
         <div className="space-y-1.5">
           <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">State</label>
-          <Select value={stateVal} onValueChange={(v) => applyParam({ state: v === "any" ? undefined : v, page: undefined })}>
+          <Select value={stateVal} onValueChange={(v) => applyParam({ state: v === "any" ? undefined : v, city: undefined, page: undefined })}>
             <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
             <SelectContent className="max-h-80">
               <SelectItem value="any">Any state</SelectItem>
@@ -113,7 +119,11 @@ function SearchPage() {
             <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
             <SelectContent className="max-h-80">
               <SelectItem value="any">Any city</SelectItem>
-              {CITIES.map((c) => <SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>)}
+              {cityOptions.map((c) => (
+                <SelectItem key={c.slug} value={c.slug}>
+                  {c.name}{state ? "" : `, ${c.state}`} ({c.count})
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
