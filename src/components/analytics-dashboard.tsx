@@ -400,7 +400,12 @@ function JourneyRow({ event, zebra }: { event: FeedEvent; zebra: boolean }) {
 }
 
 function prettifyCity(slug: string) {
-  return slug.split("-").map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(" ") + ", TX";
+  const parts = slug.split("-");
+  const last = parts[parts.length - 1] ?? "";
+  const hasState = parts.length > 1 && last.length === 2;
+  const cityParts = hasState ? parts.slice(0, -1) : parts;
+  const city = cityParts.map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
+  return hasState ? `${city}, ${last.toUpperCase()}` : city;
 }
 
 // ---------- Chart card + donut ----------

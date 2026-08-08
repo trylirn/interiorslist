@@ -40,7 +40,7 @@ export function ListingManager({ placeId, admin = false }: { placeId: string; ad
         </div>
       )}
       <h1 className="mt-3 font-display text-4xl">{(data.listing as Listing).name as string}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{(data.listing as Listing).city as string}, TX</p>
+      <p className="mt-1 text-sm text-muted-foreground">{[(data.listing as Listing).city, (data.listing as Listing).state].filter(Boolean).join(", ")}</p>
 
       <Tabs defaultValue="info" className="mt-8">
         <TabsList className="flex flex-wrap">
