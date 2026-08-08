@@ -4,7 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Menu, Search, X } from "lucide-react";
-import { CITIES, SERVICES, STYLES } from "@/lib/cities";
+import { SERVICES, STYLES } from "@/lib/cities";
+import { BrandLockup, BrandStacked } from "@/components/brand-logo";
+import { listStates, listTopCities } from "@/lib/providers.functions";
 import { getMyRoles } from "@/lib/role.functions";
 
 export function SiteHeader() {
@@ -29,9 +31,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4">
-        <Link to="/" className="font-display text-xl font-semibold uppercase tracking-[0.15em]">
-          Intearior
-        </Link>
+        <BrandLockup />
         <nav className="hidden items-center gap-8 lg:flex">
           <Link to="/search" className="text-sm font-medium hover:text-brand">Find a Designer</Link>
           <Link to="/match" className="text-sm font-medium hover:text-brand">Get Matched</Link>
@@ -77,26 +77,53 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   const services = SERVICES.slice(0, 12);
+  const { data: cityData } = useQuery({
+    queryKey: ["footer-cities"],
+    queryFn: () => listTopCities({ data: { limit: 18 } }),
+    staleTime: 30 * 60 * 1000,
+  });
+  const { data: stateData } = useQuery({
+    queryKey: ["footer-states"],
+    queryFn: () => listStates(),
+    staleTime: 30 * 60 * 1000,
+  });
 
   return (
     <footer className="mt-24 border-t border-border/60 bg-secondary/30">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-6">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-8">
         <div className="lg:col-span-1">
-          <p className="font-display text-lg font-semibold uppercase tracking-[0.15em]">Intearior</p>
+          <BrandStacked width={168} className="-ml-2" />
           <p className="mt-4 text-sm text-muted-foreground">
             The independent directory for finding vetted interior design studios across the country.
           </p>
         </div>
 
         <FooterCol title="Cities">
-          {CITIES.map((c) => (
+          {(cityData?.cities ?? []).map((c) => (
             <li key={c.slug}>
               <Link to="/designers/$state/$city" params={{ state: c.state.toLowerCase(), city: c.slug }} className="hover:text-brand">
-                {c.name}, {c.state}
+                {c.name}, {c.state} <span className="text-muted-foreground/60">({c.count})</span>
               </Link>
             </li>
           ))}
         </FooterCol>
+
+        <div className="lg:col-span-2">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-foreground/70">States</h4>
+          <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm text-muted-foreground">
+            {(stateData?.states ?? []).map((st) => (
+              <Link
+                key={st.code}
+                to="/designers/$state"
+                params={{ state: st.slug }}
+                className="whitespace-nowrap hover:text-brand"
+              >
+                {st.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+
 
         <FooterCol title="Services">
           {services.map((s) => (

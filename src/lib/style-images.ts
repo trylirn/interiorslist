@@ -79,5 +79,24 @@ export function fallbackPhoto(seed: string): string {
   return ROTATION[h % ROTATION.length]!;
 }
 
+
+
+/* ------------------------------------------------------------------ */
+/* Location photography — deliberately distinct from the style grid.   */
+/* ------------------------------------------------------------------ */
+import place1 from "@/assets/place-1.jpg.asset.json";
+import place2 from "@/assets/place-2.jpg.asset.json";
+import place3 from "@/assets/place-3.jpg.asset.json";
+import place4 from "@/assets/place-4.jpg.asset.json";
+
+const PLACE_ROTATION = [place1.url, place2.url, place3.url, place4.url, studio.url, consult.url];
+
+/** Deterministic editorial photo for a city or state page. */
+export function placeImage(seed: string): string {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 33 + seed.charCodeAt(i)) >>> 0;
+  return PLACE_ROTATION[h % PLACE_ROTATION.length]!;
+}
+
 /** Alias used by city/state pages. */
-export const cityImage = fallbackPhoto;
+export const cityImage = placeImage;

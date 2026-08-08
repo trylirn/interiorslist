@@ -5,4 +5,4 @@ Disallow: /dashboard
 Disallow: /favorites
 Disallow: /api/
 
-Sitemap: https://texas-beauty-glow.lovable.app/sitemap.xml
+Sitemap: https://interiorslist.lovable.app/sitemap.xml

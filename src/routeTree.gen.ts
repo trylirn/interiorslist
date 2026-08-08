@@ -40,6 +40,7 @@ import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as SiteAdminProviderPlaceIdRouteImport } from './routes/_site.admin.provider.$placeId'
 import { Route as SiteBestStateCityRouteImport } from './routes/_site.best.$state.$city'
 import { Route as SiteDashboardListingPlaceIdRouteImport } from './routes/_site.dashboard.listing.$placeId'
+import { Route as SiteDesignersStateIndexRouteImport } from './routes/_site.designers.$state.index'
 import { Route as SiteDesignersStateCityRouteImport } from './routes/_site.designers.$state.$city'
 
 const SiteRoute = SiteRouteImport.update({
@@ -198,6 +199,11 @@ const SiteDashboardListingPlaceIdRoute =
     path: '/listing/$placeId',
     getParentRoute: () => SiteDashboardRoute,
   } as any)
+const SiteDesignersStateIndexRoute = SiteDesignersStateIndexRouteImport.update({
+  id: '/designers/$state/',
+  path: '/designers/$state/',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteDesignersStateCityRoute = SiteDesignersStateCityRouteImport.update({
   id: '/designers/$state/$city',
   path: '/designers/$state/$city',
@@ -236,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/best/$state/$city': typeof SiteBestStateCityRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
+  '/designers/$state/': typeof SiteDesignersStateIndexRoute
 }
 export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/best/$state/$city': typeof SiteBestStateCityRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
+  '/designers/$state': typeof SiteDesignersStateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -304,6 +312,7 @@ export interface FileRoutesById {
   '/_site/best/$state/$city': typeof SiteBestStateCityRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/_site/designers/$state/$city': typeof SiteDesignersStateCityRoute
+  '/_site/designers/$state/': typeof SiteDesignersStateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -339,6 +348,7 @@ export interface FileRouteTypes {
     | '/best/$state/$city'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
+    | '/designers/$state/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sitemap.xml'
@@ -372,6 +382,7 @@ export interface FileRouteTypes {
     | '/best/$state/$city'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
+    | '/designers/$state'
   id:
     | '__root__'
     | '/_site'
@@ -406,6 +417,7 @@ export interface FileRouteTypes {
     | '/_site/best/$state/$city'
     | '/_site/dashboard/listing/$placeId'
     | '/_site/designers/$state/$city'
+    | '/_site/designers/$state/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -633,6 +645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteDashboardListingPlaceIdRouteImport
       parentRoute: typeof SiteDashboardRoute
     }
+    '/_site/designers/$state/': {
+      id: '/_site/designers/$state/'
+      path: '/designers/$state'
+      fullPath: '/designers/$state/'
+      preLoaderRoute: typeof SiteDesignersStateIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/designers/$state/$city': {
       id: '/_site/designers/$state/$city'
       path: '/designers/$state/$city'
@@ -696,6 +715,7 @@ interface SiteRouteChildren {
   SiteReviewIndexRoute: typeof SiteReviewIndexRoute
   SiteBestStateCityRoute: typeof SiteBestStateCityRoute
   SiteDesignersStateCityRoute: typeof SiteDesignersStateCityRoute
+  SiteDesignersStateIndexRoute: typeof SiteDesignersStateIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
@@ -725,6 +745,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteReviewIndexRoute: SiteReviewIndexRoute,
   SiteBestStateCityRoute: SiteBestStateCityRoute,
   SiteDesignersStateCityRoute: SiteDesignersStateCityRoute,
+  SiteDesignersStateIndexRoute: SiteDesignersStateIndexRoute,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
@@ -737,13 +758,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
