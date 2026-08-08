@@ -120,7 +120,7 @@ export function ConsultationForm({ placeId, studioName, defaults, compact }: Con
         {sending ? "Sending…" : "Request a consultation"}
       </Button>
       <p className="text-xs text-muted-foreground">
-        Your details go straight to the studio. Intearior never charges a referral fee.
+        Your details go straight to the studio.
       </p>
     </form>
   );
