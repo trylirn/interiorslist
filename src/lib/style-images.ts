@@ -40,6 +40,32 @@ export function styleImage(slug: string): string {
   return STYLE_IMAGES[slug] ?? modern.url;
 }
 
+/** Keyword aliases so free-text option labels resolve to a known style slug. */
+const STYLE_ALIASES: Array<[string, string[]]> = [
+  ["mid-century", ["mid century", "mid-century", "midcentury", "retro", "1950", "1960"]],
+  ["contemporary-luxury", ["luxur", "glam", "opulent", "high-end", "high end", "upscale", "elevated luxe"]],
+  ["farmhouse", ["farmhouse", "rustic", "country", "shiplap", "cottage"]],
+  ["scandinavian", ["scandi", "nordic", "hygge"]],
+  ["minimalist", ["minimal", "pared back", "pared-back", "spare", "zen"]],
+  ["maximalist", ["maximal", "bold pattern", "colorful", "colourful", "more is more"]],
+  ["industrial", ["industrial", "loft", "brick", "concrete", "warehouse"]],
+  ["coastal", ["coastal", "beach", "seaside", "nautical", "hamptons"]],
+  ["traditional", ["traditional", "classic", "formal", "antique", "heritage"]],
+  ["transitional", ["transitional", "in between", "in-between", "mix of classic and modern"]],
+  ["eclectic", ["eclectic", "boho", "bohemian", "collected", "global"]],
+  ["modern", ["modern", "contemporary", "clean lines", "sleek"]],
+];
+
+/** Best-effort mapping of a free-text style label to a known style slug. */
+export function matchStyleSlug(label: string): string | undefined {
+  const l = label.toLowerCase();
+  for (const [slug, keys] of STYLE_ALIASES) {
+    if (keys.some((k) => l.includes(k))) return slug;
+  }
+  return undefined;
+}
+
+
 /** Editorial photography per service slug, for page banners. */
 const SERVICE_IMAGES: Record<string, string> = {
   "full-home-design": modern.url,
