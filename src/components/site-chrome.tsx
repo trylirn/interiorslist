@@ -88,7 +88,7 @@ export function SiteFooter() {
     queryFn: () => listStates(),
     staleTime: 30 * 60 * 1000,
   });
-  const states = (stateData?.states ?? []).slice(0, 8);
+  const states = [...(stateData?.states ?? [])].sort((a, b) => b.count - a.count).slice(0, 8);
 
   return (
     <footer className="mt-24 border-t border-border/60 bg-secondary/30">
