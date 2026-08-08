@@ -67,7 +67,15 @@ function GuidePage() {
         </ul>
       </Section>
 
+      <img
+        src={STUDIO_IMAGE}
+        alt="Design studio workspace with fabric swatches, floor plans and finish samples"
+        loading="lazy"
+        className="mt-12 h-56 w-full rounded-3xl object-cover md:h-72"
+      />
+
       <Section title="Questions to ask before you hire">
+
         <ul className="list-disc space-y-1 pl-5">
           <li>Have you done projects at my budget and square footage?</li>
           <li>Who will actually run my project day to day?</li>
