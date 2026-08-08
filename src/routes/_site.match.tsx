@@ -66,6 +66,43 @@ function OptionRow({ selected, label, onClick, multi }: { selected: boolean; lab
   );
 }
 
+function StyleOption({ selected, label, slug, onClick }: { selected: boolean; label: string; slug: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group overflow-hidden rounded-2xl border text-left transition ${selected ? "border-brand ring-2 ring-brand/40" : "border-border hover:border-brand/60"}`}
+    >
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        <img
+          src={styleImage(slug)}
+          alt={`${label} interior design style`}
+          loading="lazy"
+          width={1024}
+          height={768}
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+        />
+        {selected && (
+          <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-brand-foreground">
+            <Check className="h-3.5 w-3.5" />
+          </span>
+        )}
+      </div>
+      <p className="px-3 py-2.5 text-sm font-medium">{label}</p>
+    </button>
+  );
+}
+
+/** True when most of the options name a recognizable design style. */
+function isStyleStep(question: string, options: string[]) {
+  const matched = options.filter((o) => matchStyleSlug(o)).length;
+  const q = question.toLowerCase();
+  const asksStyle = /style|look|aesthetic|vibe|drawn to/.test(q);
+  return options.length >= 3 && matched >= Math.ceil(options.length * 0.6) && asksStyle;
+}
+
+
+
 function MatchPage() {
   const { priority: initialPriority, city: initialCity, q: initialQ } = Route.useSearch();
   const ask = useServerFn(nextMatchStep);
