@@ -126,8 +126,9 @@ function MatchPage() {
     }
   }
 
-  // Kick off the conversation, seeding whatever the homepage hero already collected.
-  useEffect(() => {
+  // Kick off the conversation once the location step is done,
+  // seeding whatever the homepage hero already collected.
+  function beginConversation() {
     if (started.current) return;
     started.current = true;
     const seed: Turn[] = [];
@@ -135,8 +136,8 @@ function MatchPage() {
     else if (initialPriority) seed.push({ question: "What would you like designed?", answer: initialPriority.replace(/-/g, " ") });
     void advance(seed);
     setTranscript(seed);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
+
 
   function submitAnswer(answer: string) {
     if (!step || !answer.trim()) return;
