@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_site/search")({
   }),
   head: () => ({
     meta: [
-      { title: "Find a Studio — Nationwide Interior Designers | Interiors List" },
+      { title: "Find a Studio — Nationwide Interior Designers | Intearior" },
       { name: "description", content: "Browse and search verified interior design studios across every major U.S. city." },
       { property: "og:title", content: "Find a Studio — Nationwide Interior Designers" },
       { property: "og:url", content: "/search" },

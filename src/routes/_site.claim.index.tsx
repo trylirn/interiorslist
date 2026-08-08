@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_site/claim/")({
   head: () => ({
     meta: [
-      { title: "Claim Your Studio Profile | Interiors List" },
+      { title: "Claim Your Studio Profile | Intearior" },
       { name: "description", content: "Claim your design studio listing in under a minute. Paste your listing link or search by business name — no account required." },
-      { property: "og:title", content: "Claim Your Studio Profile | Interiors List" },
+      { property: "og:title", content: "Claim Your Studio Profile | Intearior" },
       { property: "og:description", content: "Take control of your listing: photos, services, FAQs and leads." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

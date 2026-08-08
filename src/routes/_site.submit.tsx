@@ -11,9 +11,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_site/submit")({
   head: () => ({
     meta: [
-      { title: "Submit a Studio | Interiors List" },
+      { title: "Submit a Studio | Intearior" },
       { name: "description", content: "Know a great interior design studio we're missing? Submit them to the directory." },
-      { property: "og:title", content: "Submit a Studio — Interiors List" },
+      { property: "og:title", content: "Submit a Studio — Intearior" },
       { property: "og:description", content: "Submit an interior design studio to the directory." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/submit" },

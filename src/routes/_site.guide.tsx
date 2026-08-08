@@ -4,7 +4,7 @@ import { ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/_site/guide")({
   head: () => ({
     meta: [
-      { title: "How to Hire an Interior Designer — Credentials, Fees & Contracts | Interiors List" },
+      { title: "How to Hire an Interior Designer — Credentials, Fees & Contracts | Intearior" },
       { name: "description", content: "What NCIDQ, ASID and IIDA actually mean, how designers charge, what belongs in the contract, and the questions to ask before you hire." },
       { property: "og:title", content: "How to Hire an Interior Designer" },
       { property: "og:description", content: "Credentials, fee models, contracts and the questions to ask before hiring." },
@@ -79,7 +79,7 @@ function GuidePage() {
       </Section>
 
       <p className="mt-12 rounded-xl border border-border bg-card p-5 text-sm text-foreground/80">
-        Interiors List is an independent directory. Nothing here is legal or financial advice — always review contracts yourself and confirm credentials directly with the issuing body.
+        Intearior is an independent directory. Nothing here is legal or financial advice — always review contracts yourself and confirm credentials directly with the issuing body.
       </p>
 
       <p className="mt-8"><Link to="/" className="text-brand underline">← Back home</Link></p>

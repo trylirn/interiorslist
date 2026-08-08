@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 
 export const Route = createFileRoute("/_site/admin")({
-  head: () => ({ meta: [{ title: "Admin | Interiors List" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Admin | Intearior" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: AdminLayout,
 });
 

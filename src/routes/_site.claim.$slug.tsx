@@ -14,7 +14,7 @@ import { ArrowLeft, CheckCircle2, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/_site/claim/$slug")({
   head: () => ({
     meta: [
-      { title: "Claim your listing | Interiors List" },
+      { title: "Claim your listing | Intearior" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

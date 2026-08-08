@@ -3,10 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/_site/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Interiors List — Partnership & Support" },
-      { name: "description", content: "Get in touch with Interiors List for corrections, partnership inquiries, or support." },
-      { property: "og:title", content: "Contact Interiors List" },
-      { property: "og:description", content: "Reach the Interiors List team for corrections, partnerships, and support." },
+      { title: "Contact Intearior — Partnership & Support" },
+      { name: "description", content: "Get in touch with Intearior for corrections, partnership inquiries, or support." },
+      { property: "og:title", content: "Contact Intearior" },
+      { property: "og:description", content: "Reach the Intearior team for corrections, partnerships, and support." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/contact" },
       { name: "twitter:card", content: "summary" },
