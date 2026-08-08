@@ -61,7 +61,7 @@ export const Route = createFileRoute("/_site/provider/$slug")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:url", content: canonical },
-      { property: "og:type", content: "business.business" },
+      { property: "og:type", content: "profile" },
       { property: "og:locale", content: "en_US" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: title },

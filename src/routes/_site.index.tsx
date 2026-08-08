@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_site/")({
   head: () => ({
     meta: [
       { title: "Intearior — Find an Interior Designer Near You" },
-      { name: "description", content: "Browse vetted interior design studios across New York, Los Angeles, Chicago, Austin, Miami and more. Compare styles, services and budgets, then request a consultation." },
+      { name: "description", content: "Browse vetted interior design studios across the US. Compare styles, services and budgets, then request a consultation." },
       { property: "og:title", content: "Intearior — Find an Interior Designer Near You" },
       { property: "og:description", content: "A nationwide directory of vetted interior design studios. Compare styles, services and budgets." },
       { property: "og:url", content: "/" },
@@ -118,7 +118,7 @@ function HomePage() {
             >
               <div className="flex flex-1 items-center gap-2 rounded-full border border-border bg-card px-4">
                 <Search className="h-4 w-4 text-muted-foreground" />
-                <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Studio, designer, city, or style…" className="h-11 border-0 bg-transparent shadow-none focus-visible:ring-0" />
+                <Input aria-label="Search studios" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Studio, designer, city, or style…" className="h-11 border-0 bg-transparent shadow-none focus-visible:ring-0" />
               </div>
               <Button type="submit" className="h-11 rounded-full px-6">Search</Button>
             </form>
