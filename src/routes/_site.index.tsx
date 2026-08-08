@@ -2,18 +2,20 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { CITIES, SERVICES, STYLES } from "@/lib/cities";
-import { getFeaturedProviders, getCityStats } from "@/lib/providers.functions";
+import { getFeaturedProviders, getCityStats, getDirectoryStats } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Search, ShieldCheck, MapPin, BadgeCheck, Sparkles, MessageSquare, ListChecks } from "lucide-react";
 import { LookingForHero } from "@/components/looking-for-hero";
+import { HeroMatchCard } from "@/components/hero-match-card";
 import { HERO_IMAGE, styleImage } from "@/lib/style-images";
 
 
 const featuredOpts = queryOptions({ queryKey: ["featured"], queryFn: () => getFeaturedProviders() });
 const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCityStats() });
+const dirStatsOpts = queryOptions({ queryKey: ["directory-stats"], queryFn: () => getDirectoryStats(), staleTime: 30 * 60 * 1000 });
 
 export const Route = createFileRoute("/_site/")({
   head: () => ({
@@ -67,6 +69,7 @@ export const Route = createFileRoute("/_site/")({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(featuredOpts);
     context.queryClient.ensureQueryData(statsOpts);
+    context.queryClient.ensureQueryData(dirStatsOpts);
   },
   component: HomePage,
 });
@@ -74,6 +77,7 @@ export const Route = createFileRoute("/_site/")({
 function HomePage() {
   const { data: featured } = useSuspenseQuery(featuredOpts);
   const { data: stats } = useSuspenseQuery(statsOpts);
+  const { data: dirStats } = useSuspenseQuery(dirStatsOpts);
 
   const navigate = useNavigate();
   const [q, setQ] = useState("");
@@ -121,16 +125,7 @@ function HomePage() {
           </div>
 
           <div className="relative">
-            <div className="rounded-3xl border border-border bg-card/95 p-8 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.25)] backdrop-blur">
-              <p className="font-display text-2xl">Not sure who's right for your project?</p>
-              <p className="mt-3 text-sm text-muted-foreground">Answer a few questions about your space, style and budget and we'll shortlist studios that fit.</p>
-              <Button asChild className="mt-6 w-full rounded-full"><Link to="/match">Get matched →</Link></Button>
-              <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-                <Stat label="Cities" value={String(CITIES.length)} />
-                <Stat label="Services" value={String(SERVICES.length)} />
-                <Stat label="Vetted" value="100%" />
-              </div>
-            </div>
+            <HeroMatchCard stats={dirStats} studios={featured.providers} />
           </div>
         </div>
       </section>
