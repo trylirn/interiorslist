@@ -412,27 +412,26 @@ function ProviderPage() {
           <section className="mt-8 rounded-2xl border border-border bg-secondary/40 p-6">
             <p className="flex items-center gap-2 text-sm text-foreground/80">
               <ShieldCheck className="h-4 w-4 text-brand" />
-              Always verify a provider's licensure with the Texas Medical Board or Texas Board of Nursing before treatment.
+              Before you sign: ask for a written scope, fee structure and proof of insurance. Our{" "}
+              <Link to="/guide" className="underline hover:text-brand">hiring guide</Link> walks through what to check.
             </p>
           </section>
 
           {!p.claimed_by && (
             <section className="mt-8 rounded-3xl border border-border bg-secondary/50 p-8 text-center">
-              <p className="font-display text-xl">Is this your business?</p>
-              <p className="mt-1 text-sm text-muted-foreground">Claim this listing to enable contact requests, update info, photos, and services.</p>
+              <p className="font-display text-xl">Is this your studio?</p>
+              <p className="mt-1 text-sm text-muted-foreground">Claim this listing to receive project enquiries and update your portfolio, services and styles.</p>
               <Button asChild className="mt-4 rounded-full"><Link to="/claim/$slug" params={{ slug }}>Claim this listing</Link></Button>
             </section>
           )}
         </div>
 
-        {/* Sticky contact rail */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          {p.claimed_by ? (
-            <ContactForm placeId={p.place_id} name={p.name} />
-          ) : (
-            <UnclaimedSidebar slug={slug} website={p.website} mapsHref={mapsHref} />
-          )}
+        {/* Sticky enquiry rail */}
+        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+          <ConsultationForm placeId={p.place_id} studioName={p.name} compact />
+          {!p.claimed_by && <UnclaimedSidebar slug={slug} website={p.website} mapsHref={mapsHref} />}
         </aside>
+
       </div>
 
       {Array.isArray((p as any).articles) && (p as any).articles.length > 0 && (
