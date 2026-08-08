@@ -11,7 +11,7 @@ const stateQuery = (state: string) =>
     staleTime: 10 * 60 * 1000,
   });
 
-export const Route = createFileRoute("/_site/designers/$state")({
+export const Route = createFileRoute("/_site/designers/$state/")({
   beforeLoad: ({ params }) => {
     if (!/^[a-zA-Z]{2}$/.test(params.state)) throw notFound();
   },
