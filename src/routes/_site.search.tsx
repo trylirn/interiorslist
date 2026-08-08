@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { searchProvidersPaged, listStates } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_site/search")({
     style: z.string().optional(),
     state: z.string().optional(),
     sort: z.enum(["verified", "name", "rating"]).optional(),
-    page: z.number().int().min(1).optional(),
+    page: z.coerce.number().int().min(1).optional(),
   }),
   head: () => ({
     meta: [
