@@ -187,13 +187,17 @@ function ProviderPage() {
   }
 
   const p = data.provider;
+  const stateSlug = (p.state ?? "").toLowerCase();
+  const stateCode = (p.state ?? "").toUpperCase();
+  const loc = stateCode ? `${p.city}, ${stateCode}` : p.city;
   const mapsHref = p.address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.name} ${p.address}`)}`
     : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <Link to="/tx/$city" params={{ city: p.city_slug }} className="text-sm text-muted-foreground hover:text-brand">← Back to {p.city}</Link>
+      <Link to="/designers/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="text-sm text-muted-foreground hover:text-brand">← Back to designers in {p.city}</Link>
+
 
       <div className="mt-4 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
         <div>
