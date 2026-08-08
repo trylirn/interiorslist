@@ -80,7 +80,16 @@ function MatchPage() {
 
   const [criteria, setCriteria] = useState<MatchCriteria | null>(null);
   const [results, setResults] = useState<Awaited<ReturnType<typeof getMatches>>["matches"] | null>(null);
-  const [selected, setSelected] = useState<{ placeId: string; name: string } | null>(null);
+  const [chosen, setChosen] = useState<string[]>([]);
+  const [unlocked, setUnlocked] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [notes, setNotes] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sentTo, setSentTo] = useState<string[] | null>(null);
+  const send = useServerFn(sendContactMessage);
   const started = useRef(false);
 
   async function advance(next: Turn[]) {
