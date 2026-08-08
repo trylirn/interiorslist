@@ -241,3 +241,146 @@ export const listCitiesForTreatment = createServerFn({ method: "GET" })
     }
     return { cities: Array.from(counts.values()).sort((a, b) => b.count - a.count) };
   });
+
+/* ------------------------------------------------------------------ */
+/* Geography — derived from the real data, not a hand-written list.    */
+/* ------------------------------------------------------------------ */
+
+export const STATE_NAMES: Record<string, string> = {
+  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado",
+  CT: "Connecticut", DE: "Delaware", DC: "District of Columbia", FL: "Florida", GA: "Georgia",
+  HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky",
+  LA: "Louisiana", ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota",
+  MS: "Mississippi", MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire",
+  NJ: "New Jersey", NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota",
+  OH: "Ohio", OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina",
+  SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia",
+  WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
+};
+
+export const listStates = createServerFn({ method: "GET" }).handler(async () => {
+  const { data, error } = await supabaseAdmin.from("providers").select("state").eq("published", true);
+  if (error) throw new Error(error.message);
+  const counts = new Map<string, number>();
+  for (const r of data ?? []) {
+    const s = (r.state ?? "").toUpperCase();
+    if (!s) continue;
+    counts.set(s, (counts.get(s) ?? 0) + 1);
+  }
+  const states = Array.from(counts.entries())
+    .map(([code, count]) => ({ code, name: STATE_NAMES[code] ?? code, slug: code.toLowerCase(), count }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  return { states };
+});
+
+export const getStateSummary = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ state: z.string().min(2).max(2) }).parse(d))
+  .handler(async ({ data }) => {
+    const code = data.state.toUpperCase();
+    const { data: rows, error } = await supabaseAdmin
+      .from("providers")
+      .select("city, city_slug")
+      .eq("state", code)
+      .eq("published", true);
+    if (error) throw new Error(error.message);
+    const cities = new Map<string, { slug: string; name: string; count: number }>();
+    for (const r of rows ?? []) {
+      if (!r.city_slug) continue;
+      const cur = cities.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, count: 0 };
+      cur.count += 1;
+      cities.set(r.city_slug, cur);
+    }
+    const { data: top } = await supabaseAdmin
+      .from("providers")
+      .select(PROVIDER_COLS)
+      .eq("state", code)
+      .eq("published", true)
+      .order("is_verified", { ascending: false })
+      .order("rating", { ascending: false, nullsFirst: false })
+      .order("name")
+      .limit(12);
+    return {
+      code,
+      name: STATE_NAMES[code] ?? code,
+      total: rows?.length ?? 0,
+      cities: Array.from(cities.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
+      providers: top ?? [],
+    };
+  });
+
+/** Top cities by real studio count — used by the footer and home page. */
+export const listTopCities = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ limit: z.number().int().min(1).max(60).optional() }).parse(d ?? {}))
+  .handler(async ({ data }) => {
+    const { data: rows, error } = await supabaseAdmin
+      .from("providers")
+      .select("city, city_slug, state")
+      .eq("published", true);
+    if (error) throw new Error(error.message);
+    const map = new Map<string, { slug: string; name: string; state: string; count: number }>();
+    for (const r of rows ?? []) {
+      if (!r.city_slug) continue;
+      const cur = map.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, state: (r.state ?? "").toUpperCase(), count: 0 };
+      cur.count += 1;
+      map.set(r.city_slug, cur);
+    }
+    return {
+      cities: Array.from(map.values())
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+        .slice(0, data?.limit ?? 24),
+    };
+  });
+
+/** Resolve a city slug against real data (falls back to nothing when empty). */
+export const getCitySummary = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ citySlug: z.string().min(1).max(120) }).parse(d))
+  .handler(async ({ data }) => {
+    const { data: rows, error } = await supabaseAdmin
+      .from("providers")
+      .select("city, state")
+      .eq("city_slug", data.citySlug)
+      .eq("published", true)
+      .limit(1);
+    if (error) throw new Error(error.message);
+    const row = rows?.[0];
+    if (!row) return { city: null };
+    const code = (row.state ?? "").toUpperCase();
+    return { city: { slug: data.citySlug, name: row.city ?? data.citySlug, state: code, stateName: STATE_NAMES[code] ?? code } };
+  });
+
+/** Paginated search used by /search. */
+export const searchProvidersPaged = createServerFn({ method: "GET" })
+  .inputValidator((d) =>
+    z.object({
+      q: z.string().max(120).optional(),
+      city: z.string().max(120).optional(),
+      state: z.string().max(2).optional(),
+      service: z.string().max(80).optional(),
+      style: z.string().max(80).optional(),
+      sort: z.enum(["verified", "name", "rating"]).optional(),
+      page: z.number().int().min(1).max(500).optional(),
+      pageSize: z.number().int().min(6).max(48).optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const pageSize = data.pageSize ?? 24;
+    const page = data.page ?? 1;
+    const from = (page - 1) * pageSize;
+
+    let q = supabaseAdmin.from("providers").select(PROVIDER_COLS, { count: "exact" }).eq("published", true);
+    const term = (data.q ?? "").replace(/[,()*%\\]/g, " ").trim();
+    if (term) q = q.or(`name.ilike.%${term}%,specialists.ilike.%${term}%,city.ilike.%${term}%,about_description.ilike.%${term}%`);
+    if (data.city) q = q.eq("city_slug", data.city);
+    if (data.state) q = q.eq("state", data.state.toUpperCase());
+    if (data.service) q = q.contains("services", [data.service]);
+    if (data.style) q = q.contains("styles", [data.style]);
+    const sort = data.sort ?? "verified";
+    if (sort === "rating") q = q.order("rating", { ascending: false, nullsFirst: false }).order("name");
+    else if (sort === "name") q = q.order("name");
+    else q = q.order("is_verified", { ascending: false }).order("rating", { ascending: false, nullsFirst: false }).order("name");
+
+    const { data: rows, error, count } = await q.range(from, from + pageSize - 1);
+    if (error) throw new Error(error.message);
+    const total = count ?? 0;
+    return { providers: rows ?? [], total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
+  });
