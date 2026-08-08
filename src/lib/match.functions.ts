@@ -121,21 +121,40 @@ export const getMatches = createServerFn({ method: "POST" })
         if (prefs.has("manages-build") && services.includes("renovation-management")) score += 10;
         if (prefs.has("certified") && `${p.specialists ?? ""} ${p.notes ?? ""}`.match(/NCIDQ|ASID|IIDA/i)) score += 8;
 
-        return { ...p, score } as Record<string, unknown> & { score: number };
+        const matchedServices = services.filter((s) => wantedServices.has(s));
+        const matchedStyles = styles.filter((s) => wantedStyles.has(s));
+        const matchedProjectType =
+          data.projectType && projectTypes.includes(data.projectType) ? data.projectType : null;
+        const budgetFit =
+          budgetTier && budgetTier !== "flexible" && String(p.price_tier ?? "").toLowerCase() === budgetTier;
+
+        return {
+          ...p,
+          score,
+          matchedServices,
+          matchedStyles,
+          matchedProjectType,
+          budgetFit: !!budgetFit,
+        } as Record<string, unknown> & { score: number };
       })
       .filter((p) => !(prefs.has("verified-only") && !p.is_verified))
       .filter((p) => !(prefs.has("remote-ok") && data.citySlug === "any") || !!p.remote_services)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 9);
+      .slice(0, 5);
 
     const max = scored[0]?.score || 1;
     const matches = scored.map((m) => ({
       ...(m as unknown as {
         place_id: string; slug: string; name: string; city: string; address: string | null;
-        services: string[] | null; specialists: string | null; branch_label: string | null; is_verified: boolean;
+        services: string[] | null; specialists: string | null; notes: string | null; branch_label: string | null;
+        is_verified: boolean; rating: number | null; review_count: number | null;
+        styles: string[] | null; project_types: string[] | null; price_tier: string | null;
+        remote_services: boolean | null;
+        matchedServices: string[]; matchedStyles: string[]; matchedProjectType: string | null; budgetFit: boolean;
       }),
       matchPercent: Math.min(99, Math.max(55, Math.round((m.score / max) * 95) + 5)),
     }));
 
     return { matches };
   });
+
