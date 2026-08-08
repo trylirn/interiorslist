@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MatchResultCard } from "@/components/match-result-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CITIES, serviceName, styleLabel, projectTypeLabel, BUDGET_BANDS } from "@/lib/cities";
-import { CONSULT_IMAGE } from "@/lib/style-images";
+import { CONSULT_IMAGE, matchStyleSlug, styleImage } from "@/lib/style-images";
 import { getMatches } from "@/lib/match.functions";
 import { listStates, listCities } from "@/lib/providers.functions";
 import { sendContactMessage } from "@/lib/contact.functions";
@@ -65,6 +65,43 @@ function OptionRow({ selected, label, onClick, multi }: { selected: boolean; lab
     </button>
   );
 }
+
+function StyleOption({ selected, label, slug, onClick }: { selected: boolean; label: string; slug: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group overflow-hidden rounded-2xl border text-left transition ${selected ? "border-brand ring-2 ring-brand/40" : "border-border hover:border-brand/60"}`}
+    >
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        <img
+          src={styleImage(slug)}
+          alt={`${label} interior design style`}
+          loading="lazy"
+          width={1024}
+          height={768}
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+        />
+        {selected && (
+          <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-brand-foreground">
+            <Check className="h-3.5 w-3.5" />
+          </span>
+        )}
+      </div>
+      <p className="px-3 py-2.5 text-sm font-medium">{label}</p>
+    </button>
+  );
+}
+
+/** True when most of the options name a recognizable design style. */
+function isStyleStep(question: string, options: string[]) {
+  const matched = options.filter((o) => matchStyleSlug(o)).length;
+  const q = question.toLowerCase();
+  const asksStyle = /style|look|aesthetic|vibe|drawn to/.test(q);
+  return options.length >= 3 && matched >= Math.ceil(options.length * 0.6) && asksStyle;
+}
+
+
 
 function MatchPage() {
   const { priority: initialPriority, city: initialCity, q: initialQ } = Route.useSearch();
@@ -511,20 +548,40 @@ function MatchPage() {
           <h1 className="font-display text-3xl md:text-4xl">{step.question}</h1>
           {step.helper && <p className="mt-2 text-muted-foreground">{step.helper}</p>}
 
-          <div className="mt-6 space-y-3">
-            {step.options.map((opt) => (
-              <OptionRow
-                key={opt}
-                multi={step.multi}
-                selected={picked.includes(opt)}
-                label={opt}
-                onClick={() => {
+          {isStyleStep(step.question, step.options) ? (
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {step.options.map((opt) => {
+                const slug = matchStyleSlug(opt);
+                const toggle = () => {
                   if (step.multi) setPicked((p) => (p.includes(opt) ? p.filter((x) => x !== opt) : [...p, opt]));
                   else submitAnswer(opt);
-                }}
-              />
-            ))}
-          </div>
+                };
+                return slug ? (
+                  <StyleOption key={opt} slug={slug} label={opt} selected={picked.includes(opt)} onClick={toggle} />
+                ) : (
+                  <div key={opt} className="col-span-2 sm:col-span-3">
+                    <OptionRow multi={step.multi} selected={picked.includes(opt)} label={opt} onClick={toggle} />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-6 space-y-3">
+              {step.options.map((opt) => (
+                <OptionRow
+                  key={opt}
+                  multi={step.multi}
+                  selected={picked.includes(opt)}
+                  label={opt}
+                  onClick={() => {
+                    if (step.multi) setPicked((p) => (p.includes(opt) ? p.filter((x) => x !== opt) : [...p, opt]));
+                    else submitAnswer(opt);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
 
           {step.allowFreeText && (
             <div className="mt-4 flex gap-2">
