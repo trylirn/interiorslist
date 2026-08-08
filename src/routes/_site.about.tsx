@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { STUDIO_IMAGE, CONSULT_IMAGE } from "@/lib/style-images";
+
 
 export const Route = createFileRoute("/_site/about")({
   head: () => ({
