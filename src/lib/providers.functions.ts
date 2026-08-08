@@ -150,7 +150,7 @@ export const getRelatedProviders = createServerFn({ method: "GET" })
         .order("rating", { ascending: false, nullsFirst: false })
         .limit(8);
       const have = new Set(related.map((r) => r.place_id));
-      for (const r of rows) {
+      for (const r of rows ?? []) {
         if (related.length >= 4) break;
         if (!have.has(r.place_id)) related.push(r);
       }
@@ -233,7 +233,7 @@ export const listCitiesForTreatment = createServerFn({ method: "GET" })
       .contains("services", [data.service])
       .eq("published", true);
     const counts = new Map<string, { slug: string; name: string; count: number }>();
-    for (const r of rows) {
+    for (const r of rows ?? []) {
       if (!r.city_slug) continue;
       const cur = counts.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, count: 0 };
       cur.count += 1;
