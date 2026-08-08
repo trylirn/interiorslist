@@ -4,6 +4,8 @@ import { SERVICES, CITIES, cityFromSlug } from "@/lib/cities";
 import { listByTreatment, listCitiesForTreatment } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { getServiceContent } from "@/lib/service-content";
+import { serviceImage } from "@/lib/style-images";
+
 import { z } from "zod";
 
 const searchSchema = z.object({ city: z.string().optional() });
