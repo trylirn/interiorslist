@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BadgeCheck, Eye, MessageSquare, BarChart3, ShieldCheck, Building2 } from "lucide-react";
+import { STUDIO_IMAGE } from "@/lib/style-images";
+
 
 export const Route = createFileRoute("/_site/for-business")({
   head: () => ({
