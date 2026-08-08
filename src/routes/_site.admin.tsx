@@ -341,7 +341,11 @@ function TeamTab() {
             <tbody>
               {data.members.map((m) => (
                 <tr key={m.id} className="border-t border-border">
-                  <td className="p-2">{m.email ?? m.userId}{m.isMe && <span className="ml-2 text-xs text-muted-foreground">(you)</span>}</td>
+                  <td className="p-2">
+                    <span className="font-medium">{m.name ?? m.email ?? "Unknown user"}</span>
+                    {m.name && m.email && <span className="ml-2 text-xs text-muted-foreground">{m.email}</span>}
+                    {m.isMe && <span className="ml-2 text-xs text-muted-foreground">(you)</span>}
+                  </td>
                   <td>{m.role === "super_admin" ? "Super admin" : "Admin"}</td>
                   <td>{new Date(m.grantedAt).toLocaleDateString()}</td>
                   <td className="text-right">

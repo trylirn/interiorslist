@@ -47,7 +47,28 @@ export const listAdmins = createServerFn({ method: "GET" })
     const { data: profiles } = ids.length
       ? await supabaseAdmin.from("profiles").select("id, email, display_name").in("id", ids)
       : { data: [] as { id: string; email: string | null; display_name: string | null }[] };
-    const map = new Map((profiles ?? []).map((p) => [p.id, p]));
+    const map = new Map(
+      (profiles ?? []).map((p) => [p.id, p as { id: string; email: string | null; display_name: string | null }]),
+    );
+
+    // Fall back to the auth record for accounts without a profile row
+    const missing = ids.filter((id) => !map.get(id)?.email);
+    for (const id of missing) {
+      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(id);
+      const email = authUser?.user?.email ?? null;
+      if (!email) continue;
+      const existing = map.get(id);
+      map.set(id, {
+        id,
+        email,
+        display_name:
+          existing?.display_name ??
+          (authUser?.user?.user_metadata?.["display_name"] as string | undefined) ??
+          email.split("@")[0] ??
+          null,
+      });
+    }
+
 
     const { data: invites } = await supabaseAdmin
       .from("admin_invites")
