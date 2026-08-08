@@ -15,7 +15,7 @@ export function ProviderMap({ lat, lng, name, address, city }: Props) {
   const [err, setErr] = useState<string | null>(null);
 
   const hasCoords = typeof lat === "number" && typeof lng === "number";
-  const query = address ? `${name} ${address}${city ? `, ${city}, TX` : ""}` : name;
+  const query = address ? `${name} ${address}` : city ? `${name} ${city}` : name;
   const directionsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export function ProviderMap({ lat, lng, name, address, city }: Props) {
       </h2>
       {address && (
         <p className="mt-2 text-sm text-muted-foreground">
-          {address}{city ? `, ${city}, TX` : ""}
+          {address}
         </p>
       )}
       {hasCoords && !err ? (

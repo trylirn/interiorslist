@@ -45,7 +45,7 @@ export async function ensureProviderCoords(placeId: string): Promise<{ lat: numb
     return { lat: row.latitude as number, lng: row.longitude as number };
   }
   if (!row.address) return null;
-  const loc = await geocodeAddress(`${row.address}${row.city ? `, ${row.city}, TX` : ""}`);
+  const loc = await geocodeAddress(row.address as string);
   if (!loc) return null;
   await supabaseAdmin
     .from("providers")
@@ -85,7 +85,7 @@ export const geocodeAllMissing = createServerFn({ method: "POST" })
     let failed = 0;
     let consecutiveErrors = 0;
     for (const row of rows ?? []) {
-      const loc = await geocodeAddress(`${row.address}${row.city ? `, ${row.city}, TX` : ""}`);
+      const loc = await geocodeAddress(row.address as string);
       if (loc) {
         await supabaseAdmin
           .from("providers")
