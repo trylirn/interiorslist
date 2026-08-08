@@ -108,22 +108,22 @@ export function SiteFooter() {
           ))}
         </FooterCol>
 
-        <FooterCol title="States">
-          <li>
-            <div className="grid grid-cols-2 gap-x-5 gap-y-2">
-              {(stateData?.states ?? []).map((st) => (
-                <Link
-                  key={st.code}
-                  to="/designers/$state"
-                  params={{ state: st.slug }}
-                  className="whitespace-nowrap hover:text-brand"
-                >
-                  {st.name}
-                </Link>
-              ))}
-            </div>
-          </li>
-        </FooterCol>
+        <div className="lg:col-span-2">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-foreground/70">States</h4>
+          <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm text-muted-foreground">
+            {(stateData?.states ?? []).map((st) => (
+              <Link
+                key={st.code}
+                to="/designers/$state"
+                params={{ state: st.slug }}
+                className="whitespace-nowrap hover:text-brand"
+              >
+                {st.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+
 
         <FooterCol title="Services">
           {services.map((s) => (
