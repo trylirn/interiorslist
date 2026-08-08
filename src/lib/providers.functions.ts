@@ -384,3 +384,21 @@ export const searchProvidersPaged = createServerFn({ method: "GET" })
     const total = count ?? 0;
     return { providers: rows ?? [], total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
   });
+
+/** Cities that actually have published studios, optionally scoped to a state. */
+export const listCities = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ state: z.string().max(2).optional() }).parse(d ?? {}))
+  .handler(async ({ data }) => {
+    let q = supabaseAdmin.from("providers").select("city, city_slug, state").eq("published", true);
+    if (data?.state) q = q.eq("state", data.state.toUpperCase());
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    const map = new Map<string, { slug: string; name: string; state: string; count: number }>();
+    for (const r of rows ?? []) {
+      if (!r.city_slug) continue;
+      const cur = map.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, state: (r.state ?? "").toUpperCase(), count: 0 };
+      cur.count += 1;
+      map.set(r.city_slug, cur);
+    }
+    return { cities: Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name)) };
+  });

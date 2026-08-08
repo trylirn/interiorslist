@@ -9,8 +9,8 @@ export const LOGO_FULL_URL = full.url;
 export function BrandLockup({ className = "" }: { className?: string }) {
   return (
     <Link to="/" aria-label="Intearior — home" className={`flex items-center gap-3 ${className}`}>
-      <img src={mark.url} alt="" aria-hidden className="h-14 w-14 object-contain md:h-16 md:w-16" />
-      <span className="font-display text-2xl font-semibold uppercase tracking-[0.16em] md:text-[26px]">Intearior</span>
+      <img src={mark.url} alt="" aria-hidden className="h-16 w-16 object-contain md:h-[88px] md:w-[88px]" />
+      <span className="font-display text-[26px] font-semibold uppercase tracking-[0.16em] md:text-[36px]">Intearior</span>
     </Link>
 
   );
