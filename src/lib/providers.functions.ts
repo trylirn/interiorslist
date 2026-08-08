@@ -75,8 +75,10 @@ export const getFeaturedProviders = createServerFn({ method: "GET" }).handler(as
   const { data, error } = await supabaseAdmin
     .from("providers")
     .select(PROVIDER_COLS)
-    .eq("is_verified", true)
     .eq("published", true)
+    .order("is_verified", { ascending: false })
+    .order("rating", { ascending: false, nullsFirst: false })
+    .order("review_count", { ascending: false, nullsFirst: false })
     .order("name")
     .limit(8);
   if (error) throw new Error(error.message);
