@@ -2,16 +2,20 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ProviderCard } from "@/components/provider-card";
-import { ConsultationForm } from "@/components/consultation-form";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { MatchResultCard } from "@/components/match-result-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CITIES } from "@/lib/cities";
+import { CITIES, serviceName, styleLabel, projectTypeLabel, BUDGET_BANDS } from "@/lib/cities";
 import { CONSULT_IMAGE } from "@/lib/style-images";
 import { getMatches } from "@/lib/match.functions";
+import { sendContactMessage } from "@/lib/contact.functions";
 import { nextMatchStep, type MatchCriteria, type MatchQuestion } from "@/lib/match-ai.functions";
-import { BadgeCheck, Check, ChevronLeft, Loader2, Sparkles } from "lucide-react";
+import { BadgeCheck, Check, ChevronLeft, Loader2, Lock, Sparkles } from "lucide-react";
+
 
 const PRIORITY_SERVICE: Record<string, string> = {
   "full-home": "full-home-design",
