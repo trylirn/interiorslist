@@ -13,6 +13,7 @@ import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, 
 import { RelatedProviders } from "@/components/related-providers";
 import { NearbyProviders } from "@/components/nearby-providers";
 import { ProviderMap } from "@/components/provider-map";
+import { ConsultationForm } from "@/components/consultation-form";
 
 import { CITY_NEIGHBORS } from "@/lib/cities";
 
@@ -466,7 +467,7 @@ function UnclaimedSidebar({ slug, website, mapsHref }: { slug: string; website: 
         <h3 className="font-display text-lg">Listing not yet claimed</h3>
       </div>
       <p className="mt-3 text-sm text-muted-foreground">
-        This business hasn't claimed their Discover Medspa listing yet, so we can't deliver messages on their behalf. You can still reach them directly:
+        This studio hasn't claimed their Intearior listing yet. We'll still pass your brief along — or you can reach them directly:
       </p>
       <div className="mt-4 flex flex-col gap-2">
         {website && <Button asChild variant="outline" className="w-full rounded-full"><a href={website} target="_blank" rel="noopener noreferrer"><Globe className="mr-2 h-4 w-4" />Visit website</a></Button>}
@@ -564,59 +565,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
       <summary className="cursor-pointer font-medium">{q}</summary>
       <p className="mt-2 text-sm text-foreground/80">{a}</p>
     </details>
-  );
-}
-
-function ContactForm({ placeId, name }: { placeId: string; name: string }) {
-  const send = useServerFn(sendContactMessage);
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", message: "" });
-  const [sent, setSent] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  const valid =
-    form.firstName &&
-    form.lastName &&
-    /.+@.+\..+/.test(form.email) &&
-    form.phone.replace(/\D/g, "").length >= 7 &&
-    form.message.length > 5;
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!valid) return;
-    setBusy(true);
-    try {
-      await send({ data: { placeId, ...form } });
-      setSent(true);
-      toast.success("Message sent");
-    } catch {
-      toast.error("Couldn't send message");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  if (sent) {
-    return (
-      <div className="rounded-3xl border border-border bg-card p-6 text-center">
-        <Send className="mx-auto h-8 w-8 text-brand" />
-        <h3 className="mt-3 font-display text-xl">Message sent</h3>
-        <p className="mt-2 text-sm text-muted-foreground">{name} will be in touch shortly.</p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={submit} className="rounded-3xl border border-border bg-card p-6">
-      <h3 className="flex items-center gap-2 font-display text-lg"><Mail className="h-4 w-4 text-brand" /> Contact {name}</h3>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <label className="text-xs"><span className="font-medium">First Name</span><Input className="mt-1" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required maxLength={80} /></label>
-        <label className="text-xs"><span className="font-medium">Last Name</span><Input className="mt-1" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required maxLength={80} /></label>
-      </div>
-      <label className="mt-3 block text-xs"><span className="font-medium">Email</span><Input type="email" className="mt-1" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required maxLength={255} /></label>
-      <label className="mt-3 block text-xs"><span className="font-medium">Phone *</span><Input type="tel" className="mt-1" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required maxLength={40} placeholder="(555) 555-5555" /></label>
-      <label className="mt-3 block text-xs"><span className="font-medium">Message</span><Textarea className="mt-1 min-h-28" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Tell them about your situation, goals, or questions..." required maxLength={4000} /></label>
-      <Button type="submit" disabled={!valid || busy} className="mt-4 w-full rounded-full">{busy ? "Sending…" : "Send message →"}</Button>
-    </form>
   );
 }
 
