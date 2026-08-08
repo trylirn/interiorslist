@@ -96,7 +96,7 @@ function HomePage() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/90 to-background/30" />
         <div className="mx-auto grid max-w-7xl gap-12 px-4 pt-20 pb-24 md:grid-cols-[1.05fr_0.95fr] md:gap-16 md:pt-28 md:pb-32">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Nationwide interior design directory</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">INTERIOR DESIGN DIRECTORY</p>
             <h1 className="mt-4 font-display text-5xl leading-[1.02] md:text-7xl">Find Your<br />Interior Designer</h1>
             <p className="mt-6 max-w-lg text-lg text-muted-foreground">
               Vetted design studios across the country — see their services, styles, typical project budgets and portfolios, then request a consultation in one step.
