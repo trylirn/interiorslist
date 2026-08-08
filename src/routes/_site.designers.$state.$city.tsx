@@ -48,6 +48,30 @@ export const Route = createFileRoute("/_site/designers/$state/$city")({
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: path }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: title,
+            description,
+            url: `https://interiorslist.lovable.app${path}`,
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://interiorslist.lovable.app/" },
+              { "@type": "ListItem", position: 2, name: st, item: `https://interiorslist.lovable.app/designers/${params.state}` },
+              { "@type": "ListItem", position: 3, name: `${name}, ${st}`, item: `https://interiorslist.lovable.app${path}` },
+            ],
+          }),
+        },
+      ],
     };
   },
   loader: async ({ params, deps, context }) => {
