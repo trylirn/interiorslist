@@ -63,8 +63,7 @@ function ClaimPage() {
         </div>
         <h1 className="mt-6 font-display text-3xl">Claim received</h1>
         <p className="mt-4 text-muted-foreground">
-          Someone from our team will reach out to you within a few minutes. If you decide you want to be listed,
-          the cost is <span className="font-semibold text-foreground">$50 per month</span>.
+          Someone from our team will reach out to you shortly to verify your connection to this business.
         </p>
         <div className="mt-8 flex justify-center gap-2">
           <Button asChild variant="outline"><Link to="/provider/$slug" params={{ slug: provider.slug }}>Back to listing</Link></Button>
@@ -144,8 +143,7 @@ function ClaimPage() {
           <p className="flex items-start gap-2">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
             <span>
-              Someone from our team will reach out to you within a few minutes. If you decide you want to be listed,
-              the cost is <span className="font-semibold">$50 per month</span>.
+              Someone from our team will reach out to you shortly to verify your connection to this business.
             </span>
           </p>
         </div>
