@@ -16,7 +16,7 @@ import { getMatches } from "@/lib/match.functions";
 import { listStates, listCities } from "@/lib/providers.functions";
 import { sendContactMessage } from "@/lib/contact.functions";
 import { nextMatchStep, type MatchCriteria, type MatchQuestion } from "@/lib/match-ai.functions";
-import { BadgeCheck, Check, ChevronLeft, Loader2, Lock, Sparkles } from "lucide-react";
+import { BadgeCheck, Check, ChevronLeft, Loader2, Lock } from "lucide-react";
 
 
 const PRIORITY_SERVICE: Record<string, string> = {
@@ -458,7 +458,7 @@ function MatchPage() {
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="text-center">
           <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
-            <Sparkles className="h-3 w-3" /> AI matching
+            AI matching
           </p>
         </div>
         <h1 className="mt-8 font-display text-3xl md:text-4xl">Where is your project?</h1>
@@ -515,7 +515,7 @@ function MatchPage() {
 
       <div className="text-center">
         <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
-          <Sparkles className="h-3 w-3" /> AI matching
+          AI matching
         </p>
         <div className="mx-auto mt-4 h-1.5 max-w-md overflow-hidden rounded-full bg-border">
           <div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: `${Math.max(8, progress)}%` }} />

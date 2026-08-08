@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CITIES } from "@/lib/cities";
-import { Sparkles } from "lucide-react";
 
 const SUGGESTIONS = [
   "Designing our whole home",
@@ -32,7 +31,7 @@ export function LookingForHero() {
     <section className="border-y border-border/60 bg-gradient-to-br from-brand/5 via-background to-background">
       <div className="mx-auto max-w-5xl px-4 py-16 md:py-20">
         <div className="text-center">
-          <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand"><Sparkles className="h-3 w-3" /> AI matching</p>
+          <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">AI matching</p>
           <h2 className="mt-3 font-display text-4xl md:text-5xl">I am looking for help with…</h2>
           <p className="mx-auto mt-3 max-w-xl text-muted-foreground">Describe your project in your own words. Our assistant asks a few follow-up questions, then shortlists studios that fit.</p>
         </div>
