@@ -490,20 +490,10 @@ function MatchPage() {
             </Button>
           )}
 
-          <div className="mt-8 space-y-3 rounded-2xl border border-border bg-card p-4">
-            <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Where is your project?</label>
-            <Select value={citySlug} onValueChange={setCitySlug}>
-              <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
-              <SelectContent className="max-h-80">
-                <SelectItem value="any">Anywhere / virtual</SelectItem>
-                {CITIES.map((c) => <SelectItem key={c.slug} value={c.slug}>{c.name}, {c.state}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
           <p className="mt-6 flex items-center gap-1 text-xs text-muted-foreground">
-            <BadgeCheck className="h-3.5 w-3.5 text-brand" /> We never sell your details. You choose who to contact.
+            <BadgeCheck className="h-3.5 w-3.5 text-brand" /> Your information stays private. You choose who to contact.
           </p>
+
         </div>
       )}
     </div>
