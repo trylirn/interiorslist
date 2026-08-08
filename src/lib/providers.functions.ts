@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
+import { fetchAllPublished } from "./providers.server";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 // Public detail projection — excludes private fields (email, email_forward_to, document_urls).
@@ -83,10 +84,9 @@ export const getFeaturedProviders = createServerFn({ method: "GET" }).handler(as
 });
 
 export const getCityStats = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await supabaseAdmin.from("providers").select("city_slug").eq("published", true);
-  if (error) throw new Error(error.message);
+  const data = await fetchAllPublished<{ city_slug: string }>("city_slug");
   const counts: Record<string, number> = {};
-  for (const row of data ?? []) counts[row.city_slug] = (counts[row.city_slug] ?? 0) + 1;
+  for (const row of data) counts[row.city_slug] = (counts[row.city_slug] ?? 0) + 1;
   return { counts };
 });
 
@@ -259,10 +259,9 @@ export const STATE_NAMES: Record<string, string> = {
 };
 
 export const listStates = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await supabaseAdmin.from("providers").select("state").eq("published", true);
-  if (error) throw new Error(error.message);
+  const data = await fetchAllPublished<{ state: string | null }>("state");
   const counts = new Map<string, number>();
-  for (const r of data ?? []) {
+  for (const r of data) {
     const s = (r.state ?? "").toUpperCase();
     if (!s) continue;
     counts.set(s, (counts.get(s) ?? 0) + 1);
@@ -284,7 +283,7 @@ export const getStateSummary = createServerFn({ method: "GET" })
       .eq("published", true);
     if (error) throw new Error(error.message);
     const cities = new Map<string, { slug: string; name: string; count: number }>();
-    for (const r of rows ?? []) {
+    for (const r of rows) {
       if (!r.city_slug) continue;
       const cur = cities.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, count: 0 };
       cur.count += 1;
@@ -312,13 +311,9 @@ export const getStateSummary = createServerFn({ method: "GET" })
 export const listTopCities = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ limit: z.number().int().min(1).max(60).optional() }).parse(d ?? {}))
   .handler(async ({ data }) => {
-    const { data: rows, error } = await supabaseAdmin
-      .from("providers")
-      .select("city, city_slug, state")
-      .eq("published", true);
-    if (error) throw new Error(error.message);
+    const rows = await fetchAllPublished<{ city: string | null; city_slug: string | null; state: string | null }>("city, city_slug, state");
     const map = new Map<string, { slug: string; name: string; state: string; count: number }>();
-    for (const r of rows ?? []) {
+    for (const r of rows) {
       if (!r.city_slug) continue;
       const cur = map.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, state: (r.state ?? "").toUpperCase(), count: 0 };
       cur.count += 1;
@@ -389,12 +384,12 @@ export const searchProvidersPaged = createServerFn({ method: "GET" })
 export const listCities = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ state: z.string().max(2).optional() }).parse(d ?? {}))
   .handler(async ({ data }) => {
-    let q = supabaseAdmin.from("providers").select("city, city_slug, state").eq("published", true);
-    if (data?.state) q = q.eq("state", data.state.toUpperCase());
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    const rows = await fetchAllPublished<{ city: string | null; city_slug: string | null; state: string | null }>(
+      "city, city_slug, state",
+      data?.state ? (q: any) => q.eq("state", data.state!.toUpperCase()) : undefined,
+    );
     const map = new Map<string, { slug: string; name: string; state: string; count: number }>();
-    for (const r of rows ?? []) {
+    for (const r of rows) {
       if (!r.city_slug) continue;
       const cur = map.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, state: (r.state ?? "").toUpperCase(), count: 0 };
       cur.count += 1;
