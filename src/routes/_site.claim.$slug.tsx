@@ -158,9 +158,10 @@ function ClaimPage() {
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div className="space-y-1.5">
-      <Label>{label}{required && <span className="text-brand"> *</span>}</Label>
+    <label className="block space-y-1.5">
+      <span className="block text-sm font-medium">{label}{required && <span className="text-brand"> *</span>}</span>
       {children}
-    </div>
+    </label>
   );
 }
+
