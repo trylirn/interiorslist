@@ -395,16 +395,6 @@ function MatchPage() {
         </button>
       )}
 
-      {transcript.length > 0 && (
-        <div className="mt-6 space-y-2">
-          {transcript.map((t, i) => (
-            <div key={i} className="rounded-xl border border-border/70 bg-secondary/30 px-4 py-2 text-sm">
-              <span className="text-muted-foreground">{t.question}</span>
-              <span className="ml-2 font-medium">{t.answer}</span>
-            </div>
-          ))}
-        </div>
-      )}
 
       {error && (
         <div className="mt-8 rounded-2xl border border-destructive/40 bg-destructive/5 p-5 text-sm">
