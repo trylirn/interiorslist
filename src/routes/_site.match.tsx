@@ -294,7 +294,7 @@ function MatchPage() {
                     <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
-                    <Label className="text-xs text-muted-foreground">Phone (optional)</Label>
+                    <Label className="text-xs text-muted-foreground">Phone</Label>
                     <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
                 </div>
