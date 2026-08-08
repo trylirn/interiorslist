@@ -4,6 +4,8 @@ import { cityFromSlug, CITIES } from "@/lib/cities";
 import { listProvidersByCity } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Trophy } from "lucide-react";
+import { cityImage } from "@/lib/style-images";
+
 
 export const Route = createFileRoute("/_site/best/$state/$city")({
   beforeLoad: ({ params }) => {
