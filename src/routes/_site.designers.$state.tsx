@@ -91,7 +91,9 @@ function StatePage() {
       <section className="mt-12">
         <h2 className="font-display text-2xl">Featured studios in {data.name}</h2>
         <div className="mt-5 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {data.providers.map((p) => <ProviderCard key={(p as { place_id: string }).place_id} {...(p as never)} />)}
+          {(data.providers as Array<Record<string, unknown>>).map((p) => (
+            <ProviderCard key={String(p.place_id)} {...(p as unknown as React.ComponentProps<typeof ProviderCard>)} />
+          ))}
         </div>
         <div className="mt-8">
           <Link to="/search" search={{ state: data.code } as never} className="rounded-full bg-brand px-6 py-3 text-sm text-brand-foreground">
