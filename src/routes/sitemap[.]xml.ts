@@ -31,13 +31,36 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/compare", changefreq: "monthly", priority: "0.4" },
         ];
 
+        try {
+          const { data: geo } = await supabaseAdmin
+            .from("providers")
+            .select("city_slug, state")
+            .eq("published", true)
+            .limit(5000);
+          const seenCity = new Set<string>();
+          const seenState = new Set<string>();
+          for (const g of geo ?? []) {
+            const st = (g.state ?? "").toLowerCase();
+            if (st && !seenState.has(st)) {
+              seenState.add(st);
+              entries.push({ path: `/designers/${st}`, changefreq: "weekly", priority: "0.7" });
+            }
+            if (g.city_slug && st && !seenCity.has(g.city_slug)) {
+              seenCity.add(g.city_slug);
+              entries.push({ path: `/designers/${st}/${g.city_slug}`, changefreq: "weekly", priority: "0.8" });
+            }
+          }
+        } catch {
+          // fall back to the curated city list below
+        }
+
         for (const c of CITIES) {
           const st = c.state.toLowerCase();
-          entries.push({ path: `/designers/${st}/${c.slug}`, changefreq: "weekly", priority: "0.8" });
           entries.push({ path: `/best/${st}/${c.slug}`, changefreq: "weekly", priority: "0.7" });
         }
         for (const s of SERVICES) entries.push({ path: `/service/${s.slug}`, changefreq: "weekly", priority: "0.7" });
         for (const k of STYLES) entries.push({ path: `/style/${k.slug}`, changefreq: "weekly", priority: "0.6" });
+
 
         const topServices = SERVICES.slice(0, 8);
         for (const c of CITIES) {
