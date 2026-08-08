@@ -23,12 +23,18 @@ export const Route = createFileRoute("/_site/service/$slug")({
     const city = cityParam ? cityFromSlug(cityParam) : undefined;
     const path = cityParam ? `/service/${params.slug}?city=${cityParam}` : `/service/${params.slug}`;
     const content = getServiceContent(params.slug, name);
-    const title = city
-      ? `${name} in ${city.name}, ${city.state} — Cost, Process & Top Studios`
-      : `${name} — What It Involves, Cost & Top Design Studios`;
-    const description = city
-      ? `${name} in ${city.name}, ${city.state}: what it involves, what it costs, and vetted interior design studios offering it.`
-      : `${name}: what it involves, what it costs, how the process works, and vetted interior design studios offering it nationwide.`;
+    const clamp = (s: string, max: number) =>
+      s.length <= max ? s : `${s.slice(0, max - 1).replace(/[\s,–—-]+$/, "")}…`;
+    const rawTitle = city
+      ? `${name} in ${city.name}, ${city.state} — Cost & Studios`
+      : `${name} — Cost, Process & Top Studios`;
+    const title = clamp(rawTitle, 60);
+    const description = clamp(
+      city
+        ? `${name} in ${city.name}, ${city.state}: what it involves, what it costs, and vetted interior design studios.`
+        : `${name}: what it involves, what it costs, and vetted interior design studios offering it nationwide.`,
+      160,
+    );
     return {
       meta: [
         { title },
