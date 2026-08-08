@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -209,7 +209,7 @@ function MatchPage() {
       criteria?.styles?.length && `Preferred styles: ${criteria.styles.map(styleLabel).join(", ")}`,
       criteria?.budget && `Budget: ${BUDGET_BANDS.find((b) => b.slug === criteria.budget)?.label ?? criteria.budget}`,
       criteria?.timing && `Timeline: ${criteria.timing.replace(/-/g, " ")}`,
-      citySlug !== "any" && `Location: ${CITIES.find((c) => c.slug === citySlug)?.name ?? citySlug}`,
+      citySlug !== "any" && `Location: ${cityLabel || citySlug}`,
       "",
       ...transcript.map((t) => `${t.question} — ${t.answer}`),
       notes && `\nNotes:\n${notes}`,
@@ -275,7 +275,7 @@ function MatchPage() {
       );
     }
 
-    const cityName = citySlug === "any" ? "your area" : (CITIES.find((c) => c.slug === citySlug)?.name ?? "your area");
+    const cityName = citySlug === "any" ? "your area" : (cityLabel || "your area");
     return (
       <div className="mx-auto max-w-6xl px-4 py-12">
         <button onClick={restart} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-brand">
@@ -338,8 +338,8 @@ function MatchPage() {
                   </div>
                 </div>
                 <Button type="submit" className="mt-5 w-full rounded-full">Request a consultation</Button>
-                <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
-                  <BadgeCheck className="h-3.5 w-3.5 text-brand" /> We never sell your details.
+                <p className="mt-3 flex items-start gap-1.5 text-xs text-muted-foreground">
+                  <BadgeCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" /> Your information stays private. We only share your details with the professionals you select, and never without your consent.
                 </p>
               </form>
             </div>
