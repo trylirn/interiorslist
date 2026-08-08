@@ -3,6 +3,8 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { cityFromSlug, SERVICES } from "@/lib/cities";
 import { listProvidersByCity } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
+import { cityImage } from "@/lib/style-images";
+
 import { z } from "zod";
 
 const searchSchema = z.object({
