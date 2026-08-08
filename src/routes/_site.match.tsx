@@ -155,7 +155,7 @@ function MatchPage() {
           },
         });
         setResults(m.matches);
-        setChosen(m.matches.map((x) => x.place_id));
+        setChosen([]);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
@@ -283,7 +283,6 @@ function MatchPage() {
         </button>
         <h1 className="mt-4 font-display text-4xl md:text-5xl">Your matches</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          {criteria?.summary ? `${criteria.summary} ` : ""}
           We found {results.length} {results.length === 1 ? "studio" : "studios"} in {cityName} that fit your brief.
         </p>
 
