@@ -1,8 +1,8 @@
-# Interiors List
+# Intearior
 
 > Nationwide directory of interior design studios — full-home design, kitchen & bath, renovation management, staging, and e-design, ranked by real client reviews.
 
-Interiors List helps homeowners find verified, currently-operating interior design studios across the United States. Listings are continuously refreshed and no studio pays for placement.
+Intearior helps homeowners find verified, currently-operating interior design studios across the United States. Listings are continuously refreshed and no studio pays for placement.
 
 ## Pages
 
@@ -12,7 +12,7 @@ Interiors List helps homeowners find verified, currently-operating interior desi
 - [Guide](/guide): Editorial guides on services and design styles.
 - [Submit a business](/submit): Suggest an interior design studio for the directory.
 - [For Business](/for-business): Claim or submit your studio listing.
-- [About](/about): What Interiors List is and how listings are vetted.
+- [About](/about): What Intearior is and how listings are vetted.
 - [Contact](/contact): Reach the team for corrections, partnerships, or support.
 - [Privacy](/privacy): How we handle your data and third-party sources.
 - [Terms](/terms): Terms of use and directory disclaimers.
