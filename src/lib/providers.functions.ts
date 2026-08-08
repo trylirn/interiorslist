@@ -397,3 +397,16 @@ export const listCities = createServerFn({ method: "GET" })
     }
     return { cities: Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name)) };
   });
+
+/** Live directory totals for the homepage hero card. */
+export const getDirectoryStats = createServerFn({ method: "GET" }).handler(async () => {
+  const rows = await fetchAllPublished<{ city_slug: string | null; state: string | null }>("city_slug, state");
+  const cities = new Set<string>();
+  const states = new Set<string>();
+  for (const r of rows) {
+    if (r.city_slug) cities.add(r.city_slug);
+    const s = (r.state ?? "").toUpperCase().trim();
+    if (s) states.add(s);
+  }
+  return { studios: rows.length, cities: cities.size, states: states.size };
+});
