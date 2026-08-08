@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
+import { CONSULT_IMAGE, STUDIO_IMAGE } from "@/lib/style-images";
+
 
 export const Route = createFileRoute("/_site/guide")({
   head: () => ({
