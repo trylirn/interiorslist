@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_site/designers/$state/$city")({
     const name = c?.name ?? params.city;
     const st = c?.state ?? params.state.toUpperCase();
     const path = `/designers/${params.state}/${params.city}`;
-    const title = `Interior Designers in ${name}, ${st} | Interiors List`;
+    const title = `Interior Designers in ${name}, ${st} | Intearior`;
     const description = `Vetted interior design studios in ${name}, ${st}. Compare services, styles, typical project budgets and reviews, then request a consultation.`;
     return {
       meta: [

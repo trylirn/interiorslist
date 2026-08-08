@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_site/review/$slug")({
   head: () => ({
     meta: [
-      { title: "Write a review | Interiors List" },
+      { title: "Write a review | Intearior" },
       { name: "description", content: "Share your studio experience — project results, communication and value." },
-      { property: "og:title", content: "Write a review | Interiors List" },
+      { property: "og:title", content: "Write a review | Intearior" },
       { property: "og:description", content: "Help others choose with confidence." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

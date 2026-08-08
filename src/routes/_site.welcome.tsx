@@ -4,10 +4,10 @@ import { Heart, Building2 } from "lucide-react";
 export const Route = createFileRoute("/_site/welcome")({
   head: () => ({
     meta: [
-      { title: "Welcome | Interiors List" },
-      { name: "description", content: "Tell us what brings you to Interiors List — finding a design studio or listing your own." },
-      { property: "og:title", content: "Welcome | Interiors List" },
-      { property: "og:description", content: "Find a design studio or list your own on Interiors List." },
+      { title: "Welcome | Intearior" },
+      { name: "description", content: "Tell us what brings you to Intearior — finding a design studio or listing your own." },
+      { property: "og:title", content: "Welcome | Intearior" },
+      { property: "og:description", content: "Find a design studio or list your own on Intearior." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_site/welcome")({
 function Welcome() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-      <h1 className="font-display text-5xl md:text-6xl">Welcome to Interiors List</h1>
+      <h1 className="font-display text-5xl md:text-6xl">Welcome to Intearior</h1>
       <p className="mt-4 text-lg text-muted-foreground">What brings you here today?</p>
 
       <div className="mt-12 grid gap-6 md:grid-cols-2">

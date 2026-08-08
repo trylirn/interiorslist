@@ -47,7 +47,7 @@ export const Route = createFileRoute("/_site/service/$slug")({
             name,
             serviceType: name,
             description: content.what,
-            provider: { "@type": "Organization", name: "Interiors List" },
+            provider: { "@type": "Organization", name: "Intearior" },
             ...(city ? { areaServed: { "@type": "City", name: city.name } } : { areaServed: { "@type": "Country", name: "United States" } }),
           }),
         },

@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/login")({
-  head: () => ({ meta: [{ title: "Sign in | Interiors List" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Sign in | Intearior" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: LoginPage,
 });
 
@@ -19,7 +19,7 @@ function LoginPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <div className="text-center">
-        <h1 className="font-display text-4xl">Welcome to Interiors List</h1>
+        <h1 className="font-display text-4xl">Welcome to Intearior</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Browsing is free — no account needed. Accounts are for design studios: register your business, claim your listing, and manage your profile.
         </p>
@@ -192,7 +192,7 @@ function BusinessSignupWizard() {
       {step === 2 && (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Interiors List features professional design studios. You can add credentials now or later from your dashboard — none of this is required to create your account.
+            Intearior features professional design studios. You can add credentials now or later from your dashboard — none of this is required to create your account.
           </p>
           <div className="space-y-1.5">
             <Label>Credential type</Label>

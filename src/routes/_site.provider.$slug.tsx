@@ -13,6 +13,7 @@ import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, 
 import { RelatedProviders } from "@/components/related-providers";
 import { NearbyProviders } from "@/components/nearby-providers";
 import { ProviderMap } from "@/components/provider-map";
+import { ConsultationForm } from "@/components/consultation-form";
 
 import { CITY_NEIGHBORS } from "@/lib/cities";
 
@@ -24,49 +25,51 @@ import { trackLeadAction } from "@/lib/analytics";
 export const Route = createFileRoute("/_site/provider/$slug")({
   head: ({ params, loaderData }) => {
     const path = `/provider/${params.slug}`;
-    const canonical = `https://texas-beauty-glow.lovable.app${path}`;
+    const canonical = `https://interiorslist.lovable.app${path}`;
     const p = (loaderData as { provider?: any; reviews?: any[] } | undefined)?.provider;
     const reviews = (loaderData as { reviews?: any[] } | undefined)?.reviews ?? [];
     const displayName = p?.name ?? params.slug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
-    const city = p?.city ?? "Texas";
+    const city = p?.city ?? "the US";
+    const stateCode = (p?.state ?? "").toUpperCase();
+    const loc = stateCode ? `${city}, ${stateCode}` : city;
     const topServices: string[] = Array.isArray(p?.services)
       ? p!.services.slice(0, 3).map((s: string) => s.replace(/-/g, " "))
       : [];
-    const serviceBlurb = topServices.length ? topServices.join(", ") : "Botox, filler & medspa treatments";
+    const serviceBlurb = topServices.length ? topServices.join(", ") : "full-home design, kitchens & renovations";
     const title = p
-      ? `${displayName} — ${topServices[0] ? topServices[0].replace(/\b\w/g, (m: string) => m.toUpperCase()) + " & Medspa" : "Medspa & Injector"} in ${city}, TX`
-      : `${displayName} — Discover Medspa`;
+      ? `${displayName} — Interior Designer in ${loc}`
+      : `${displayName} — Intearior`;
     const description = p
-      ? `${p.name} in ${city}, TX. ${serviceBlurb}. Read patient reviews, view services, and book a consultation with this verified Texas aesthetic injector near you.`
-      : `Verified Texas aesthetic injector. Services, contact, and reviews.`;
+      ? `${p.name} in ${loc}. ${serviceBlurb}. See portfolio details, services, reviews and request a consultation with this interior design studio.`
+      : `Interior design studio profile on Intearior. Services, contact and reviews.`;
     const keywords = p
       ? [
-          `${city} medspa`,
-          `medspa in ${city} TX`,
-          `${city} aesthetic injector`,
-          `botox ${city}`,
-          `filler ${city} TX`,
-          `medspa near me ${city}`,
+          `${city} interior designer`,
+          `interior design ${loc}`,
+          `${city} design studio`,
+          `interior decorator ${city}`,
           `${displayName} ${city}`,
           ...topServices.map((s) => `${s} ${city}`),
         ].join(", ")
-      : "Texas medspa, aesthetic injector Texas";
+      : "interior designers, interior design studios";
 
     const meta: Array<Record<string, string>> = [
       { title },
       { name: "description", content: description },
       { name: "keywords", content: keywords },
-      { name: "geo.region", content: "US-TX" },
-      { name: "geo.placename", content: `${city}, Texas` },
+      { name: "geo.placename", content: loc },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:url", content: canonical },
       { property: "og:type", content: "business.business" },
       { property: "og:locale", content: "en_US" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
       { property: "business:contact_data:locality", content: city },
-      { property: "business:contact_data:region", content: "TX" },
       { property: "business:contact_data:country_name", content: "United States" },
     ];
+    if (stateCode) meta.push({ property: "business:contact_data:region", content: stateCode });
     if (p?.address) meta.push({ property: "business:contact_data:street_address", content: p.address });
     if (p?.latitude != null && p?.longitude != null) {
       meta.push({ property: "place:location:latitude", content: String(p.latitude) });
@@ -79,18 +82,18 @@ export const Route = createFileRoute("/_site/provider/$slug")({
     if (p) {
       const ld: Record<string, unknown> = {
         "@context": "https://schema.org",
-        "@type": ["MedicalBusiness", "HealthAndBeautyBusiness", "LocalBusiness"],
+        "@type": ["HomeAndConstructionBusiness", "ProfessionalService", "LocalBusiness"],
         "@id": canonical,
         name: p.name,
         url: canonical,
         description,
         priceRange: "$$",
         areaServed: [
-          { "@type": "City", name: city, containedInPlace: { "@type": "State", name: "Texas" } },
+          { "@type": "City", name: city, containedInPlace: { "@type": "State", name: stateCode || "United States" } },
         ],
       };
       if (p.hero_photo_url) ld.image = p.hero_photo_url;
-      if (p.address) ld.address = { "@type": "PostalAddress", streetAddress: p.address, addressLocality: p.city, addressRegion: "TX", addressCountry: "US" };
+      if (p.address) ld.address = { "@type": "PostalAddress", streetAddress: p.address, addressLocality: p.city, addressRegion: stateCode, addressCountry: "US" };
       if (p.latitude != null && p.longitude != null) ld.geo = { "@type": "GeoCoordinates", latitude: p.latitude, longitude: p.longitude };
       if (p.website) ld.sameAs = [p.website, ...Object.values((p.social_links ?? {}) as Record<string, string>)].filter(Boolean);
       else if (p.social_links) ld.sameAs = Object.values(p.social_links as Record<string, string>).filter(Boolean);
@@ -115,26 +118,22 @@ export const Route = createFileRoute("/_site/provider/$slug")({
       }
       scripts.push({ type: "application/ld+json", children: JSON.stringify(ld) });
 
-      // BreadcrumbList
       scripts.push({
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: "https://texas-beauty-glow.lovable.app/" },
-            { "@type": "ListItem", position: 2, name: `${city}, TX`, item: `https://texas-beauty-glow.lovable.app/tx/${p.city_slug}` },
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://interiorslist.lovable.app/" },
+            { "@type": "ListItem", position: 2, name: loc, item: `https://interiorslist.lovable.app/designers/${(p.state ?? "").toLowerCase()}/${p.city_slug}` },
             { "@type": "ListItem", position: 3, name: p.name, item: canonical },
           ],
         }),
       });
-
-      // FAQ structured data is emitted only from owner-supplied FAQs (rendered client-side),
-      // so no generic FAQPage block here.
-
     }
     return { meta, links: [{ rel: "canonical", href: canonical }], scripts };
   },
+
 
   loader: ({ params, context }) =>
     context.queryClient.ensureQueryData(
@@ -189,13 +188,17 @@ function ProviderPage() {
   }
 
   const p = data.provider;
+  const stateSlug = (p.state ?? "").toLowerCase();
+  const stateCode = (p.state ?? "").toUpperCase();
+  const loc = stateCode ? `${p.city}, ${stateCode}` : p.city;
   const mapsHref = p.address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.name} ${p.address}`)}`
     : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <Link to="/tx/$city" params={{ city: p.city_slug }} className="text-sm text-muted-foreground hover:text-brand">← Back to {p.city}</Link>
+      <Link to="/designers/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="text-sm text-muted-foreground hover:text-brand">← Back to designers in {p.city}</Link>
+
 
       <div className="mt-4 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
         <div>
@@ -216,15 +219,16 @@ function ProviderPage() {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-y-4 border-t border-border pt-6 md:grid-cols-4">
-              <Meta label="Based In" value={p.city ? `${p.city}, TX` : "—"} icon={<MapPin className="h-4 w-4" />} />
-              <Meta label="Serves" value="Texas" icon={<Globe className="h-4 w-4" />} />
+              <Meta label="Based In" value={loc || "—"} icon={<MapPin className="h-4 w-4" />} />
+              <Meta label="Serves" value={p.remote_services ? "Local + remote (e-design)" : `${p.city} & nearby`} icon={<Globe className="h-4 w-4" />} />
               {p.phone && <Meta label="Contact" value="Phone available" icon={<Mail className="h-4 w-4" />} />}
-              
+              {p.price_tier && <Meta label="Budget" value={String(p.price_tier).replace(/-/g, " ")} icon={<Building2 className="h-4 w-4" />} />}
             </div>
 
             {p.address && (
-              <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4" /> {p.address}, {p.city}, TX</p>
+              <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4" /> {p.address}</p>
             )}
+
 
             <div className="mt-6 flex flex-wrap gap-2">
               {p.phone && <Button asChild><a href={`tel:${p.phone}`} onClick={() => trackLeadAction(p.place_id, "phone", p.city_slug)}><Mail className="mr-2 h-4 w-4" />Call</a></Button>}
@@ -239,7 +243,7 @@ function ProviderPage() {
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {p.gallery_urls.map((url: string) => (
                   <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square overflow-hidden rounded-xl border border-border bg-secondary/30">
-                    <img src={url} alt={`${p.name} treatment room and clinic interior in ${p.city ?? "Texas"}`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+                    <img src={url} alt={`Interior design project by ${p.name} in ${p.city ?? "the US"}`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
                   </a>
                 ))}
               </div>
@@ -252,7 +256,7 @@ function ProviderPage() {
               {p.about_description && <p className="mt-3 text-foreground/85 leading-relaxed whitespace-pre-line">{p.about_description}</p>}
               {p.specialists && (
                 <div className="mt-4">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Practitioners</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Designers on the team</p>
                   <p className="mt-1 text-foreground/85 leading-relaxed whitespace-pre-line">{p.specialists}</p>
                 </div>
               )}
@@ -288,13 +292,14 @@ function ProviderPage() {
             <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
               <h2 className="font-display text-2xl">Serving {p.city} and nearby areas</h2>
               <p className="mt-3 text-foreground/85 leading-relaxed">
-                {p.name} welcomes patients from {p.city} and the surrounding communities of{" "}
-                {CITY_NEIGHBORS[p.city_slug].slice(0, 5).join(", ")}. Search for other {p.city}, TX injectors
-                nearby or explore related treatments below.
+                {p.name} takes on projects in {p.city} and the surrounding communities of{" "}
+                {CITY_NEIGHBORS[p.city_slug].slice(0, 5).join(", ")}. Browse other {loc} interior designers
+                nearby or explore related services below.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Link to="/tx/$city" params={{ city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">More in {p.city}</Link>
-                <Link to="/best/$city" params={{ city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">Best of {p.city}</Link>
+                <Link to="/designers/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">More in {p.city}</Link>
+                <Link to="/best/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">Best of {p.city}</Link>
+
               </div>
             </section>
           )}
@@ -338,7 +343,7 @@ function ProviderPage() {
               <h2 className="font-display text-2xl">Services Offered</h2>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {p.services.map((s: string) => (
-                  <Link key={s} to="/treatment/$slug" params={{ slug: s }} className="flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm capitalize hover:border-brand">
+                  <Link key={s} to="/service/$slug" params={{ slug: s }} className="flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm capitalize hover:border-brand">
                     <BadgeCheck className="h-4 w-4 text-brand" />
                     {s.replace(/-/g, " ")}
                   </Link>
@@ -408,27 +413,26 @@ function ProviderPage() {
           <section className="mt-8 rounded-2xl border border-border bg-secondary/40 p-6">
             <p className="flex items-center gap-2 text-sm text-foreground/80">
               <ShieldCheck className="h-4 w-4 text-brand" />
-              Always verify a provider's licensure with the Texas Medical Board or Texas Board of Nursing before treatment.
+              Before you sign: ask for a written scope, fee structure and proof of insurance. Our{" "}
+              <Link to="/guide" className="underline hover:text-brand">hiring guide</Link> walks through what to check.
             </p>
           </section>
 
           {!p.claimed_by && (
             <section className="mt-8 rounded-3xl border border-border bg-secondary/50 p-8 text-center">
-              <p className="font-display text-xl">Is this your business?</p>
-              <p className="mt-1 text-sm text-muted-foreground">Claim this listing to enable contact requests, update info, photos, and services.</p>
+              <p className="font-display text-xl">Is this your studio?</p>
+              <p className="mt-1 text-sm text-muted-foreground">Claim this listing to receive project enquiries and update your portfolio, services and styles.</p>
               <Button asChild className="mt-4 rounded-full"><Link to="/claim/$slug" params={{ slug }}>Claim this listing</Link></Button>
             </section>
           )}
         </div>
 
-        {/* Sticky contact rail */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          {p.claimed_by ? (
-            <ContactForm placeId={p.place_id} name={p.name} />
-          ) : (
-            <UnclaimedSidebar slug={slug} website={p.website} mapsHref={mapsHref} />
-          )}
+        {/* Sticky enquiry rail */}
+        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+          <ConsultationForm placeId={p.place_id} studioName={p.name} compact />
+          {!p.claimed_by && <UnclaimedSidebar slug={slug} website={p.website} mapsHref={mapsHref} />}
         </aside>
+
       </div>
 
       {Array.isArray((p as any).articles) && (p as any).articles.length > 0 && (
@@ -463,7 +467,7 @@ function UnclaimedSidebar({ slug, website, mapsHref }: { slug: string; website: 
         <h3 className="font-display text-lg">Listing not yet claimed</h3>
       </div>
       <p className="mt-3 text-sm text-muted-foreground">
-        This business hasn't claimed their Discover Medspa listing yet, so we can't deliver messages on their behalf. You can still reach them directly:
+        This studio hasn't claimed their Intearior listing yet. We'll still pass your brief along — or you can reach them directly:
       </p>
       <div className="mt-4 flex flex-col gap-2">
         {website && <Button asChild variant="outline" className="w-full rounded-full"><a href={website} target="_blank" rel="noopener noreferrer"><Globe className="mr-2 h-4 w-4" />Visit website</a></Button>}
@@ -561,59 +565,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
       <summary className="cursor-pointer font-medium">{q}</summary>
       <p className="mt-2 text-sm text-foreground/80">{a}</p>
     </details>
-  );
-}
-
-function ContactForm({ placeId, name }: { placeId: string; name: string }) {
-  const send = useServerFn(sendContactMessage);
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", message: "" });
-  const [sent, setSent] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  const valid =
-    form.firstName &&
-    form.lastName &&
-    /.+@.+\..+/.test(form.email) &&
-    form.phone.replace(/\D/g, "").length >= 7 &&
-    form.message.length > 5;
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!valid) return;
-    setBusy(true);
-    try {
-      await send({ data: { placeId, ...form } });
-      setSent(true);
-      toast.success("Message sent");
-    } catch {
-      toast.error("Couldn't send message");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  if (sent) {
-    return (
-      <div className="rounded-3xl border border-border bg-card p-6 text-center">
-        <Send className="mx-auto h-8 w-8 text-brand" />
-        <h3 className="mt-3 font-display text-xl">Message sent</h3>
-        <p className="mt-2 text-sm text-muted-foreground">{name} will be in touch shortly.</p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={submit} className="rounded-3xl border border-border bg-card p-6">
-      <h3 className="flex items-center gap-2 font-display text-lg"><Mail className="h-4 w-4 text-brand" /> Contact {name}</h3>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <label className="text-xs"><span className="font-medium">First Name</span><Input className="mt-1" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required maxLength={80} /></label>
-        <label className="text-xs"><span className="font-medium">Last Name</span><Input className="mt-1" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required maxLength={80} /></label>
-      </div>
-      <label className="mt-3 block text-xs"><span className="font-medium">Email</span><Input type="email" className="mt-1" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required maxLength={255} /></label>
-      <label className="mt-3 block text-xs"><span className="font-medium">Phone *</span><Input type="tel" className="mt-1" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required maxLength={40} placeholder="(555) 555-5555" /></label>
-      <label className="mt-3 block text-xs"><span className="font-medium">Message</span><Textarea className="mt-1 min-h-28" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Tell them about your situation, goals, or questions..." required maxLength={4000} /></label>
-      <Button type="submit" disabled={!valid || busy} className="mt-4 w-full rounded-full">{busy ? "Sending…" : "Send message →"}</Button>
-    </form>
   );
 }
 

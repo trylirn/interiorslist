@@ -3,11 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/_site/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy | Interiors List" },
-      { name: "description", content: "How Interiors List collects, uses, shares, and protects your information — including CCPA and GDPR rights." },
+      { title: "Privacy Policy | Intearior" },
+      { name: "description", content: "How Intearior collects, uses, shares, and protects your information — including CCPA and GDPR rights." },
       { name: "robots", content: "index, follow" },
-      { property: "og:title", content: "Privacy Policy — Interiors List" },
-      { property: "og:description", content: "How Interiors List handles your data." },
+      { property: "og:title", content: "Privacy Policy — Intearior" },
+      { property: "og:description", content: "How Intearior handles your data." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/privacy" },
       { name: "twitter:card", content: "summary" },
@@ -31,7 +31,7 @@ function PrivacyPage() {
       </p>
 
       <Section title="1. Overview">
-        Interiors List ("we", "us", or "our") operates a consumer-facing directory of interior design studios across the United States (the "Site"). This Privacy Policy explains what information we collect, how we use it, who we share it with, and the choices and rights you have. It applies to visitors, account holders, business owners who claim or submit listings, and reviewers.
+        Intearior ("we", "us", or "our") operates a consumer-facing directory of interior design studios across the United States (the "Site"). This Privacy Policy explains what information we collect, how we use it, who we share it with, and the choices and rights you have. It applies to visitors, account holders, business owners who claim or submit listings, and reviewers.
       </Section>
 
       <Section title="2. Information we collect">
@@ -86,7 +86,7 @@ function PrivacyPage() {
           <li><strong>Studios you contact.</strong> When you use a studio contact form, we deliver your message and contact details to that specific studio. Once delivered, the studio is an independent controller of that information.</li>
           <li><strong>Service providers (subprocessors).</strong> Hosting, database, authentication, email delivery, error monitoring, analytics, maps and geocoding, and content ingestion vendors, bound by confidentiality and data-processing obligations.</li>
           <li><strong>Business owners.</strong> Aggregate view counts and lead counts related to their own listing.</li>
-          <li><strong>Legal and safety.</strong> To comply with a lawful subpoena, court order, or government request; to enforce our Terms; to protect the rights, safety, or property of Interiors List, users, or the public; or in connection with fraud investigations.</li>
+          <li><strong>Legal and safety.</strong> To comply with a lawful subpoena, court order, or government request; to enforce our Terms; to protect the rights, safety, or property of Intearior, users, or the public; or in connection with fraud investigations.</li>
           <li><strong>Corporate transactions.</strong> If we're involved in a merger, acquisition, financing, or sale of assets, information may transfer as part of that transaction, subject to reasonable confidentiality protections.</li>
         </ul>
         We do not sell or rent your personal information to third parties for their independent marketing.

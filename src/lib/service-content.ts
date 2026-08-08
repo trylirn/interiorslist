@@ -28,7 +28,7 @@ function defaultContent(name: string): ServiceContent {
     candidate: `Anyone who wants a considered result and would rather not manage sourcing, trades and logistics alone. Even a single consultation can save money on a project you plan to run yourself.`,
     faqs: [
       { q: `How long does ${name.toLowerCase()} take?`, a: `Timelines depend on scope. A single room typically runs 8–16 weeks including procurement; whole-home and renovation work often runs 6–18 months.` },
-      { q: `What does ${name.toLowerCase()} cost?`, a: `Studios quote flat fees, hourly rates or a percentage of the furnishings budget. Every listing on Interiors List shows a typical project budget so you can shortlist studios at your scale.` },
+      { q: `What does ${name.toLowerCase()} cost?`, a: `Studios quote flat fees, hourly rates or a percentage of the furnishings budget. Every listing on Intearior shows a typical project budget so you can shortlist studios at your scale.` },
       { q: `Do I need to have a budget ready?`, a: `A rough range is enough to start. Designers use it to steer sourcing, so an honest number leads to a better fit.` },
     ],
   };

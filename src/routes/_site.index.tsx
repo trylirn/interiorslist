@@ -18,9 +18,9 @@ const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCit
 export const Route = createFileRoute("/_site/")({
   head: () => ({
     meta: [
-      { title: "Interiors List — Find an Interior Designer Near You" },
+      { title: "Intearior — Find an Interior Designer Near You" },
       { name: "description", content: "Browse vetted interior design studios across New York, Los Angeles, Chicago, Austin, Miami and more. Compare styles, services and budgets, then request a consultation." },
-      { property: "og:title", content: "Interiors List — Find an Interior Designer Near You" },
+      { property: "og:title", content: "Intearior — Find an Interior Designer Near You" },
       { property: "og:description", content: "A nationwide directory of vetted interior design studios. Compare styles, services and budgets." },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_site/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "Interiors List",
+          name: "Intearior",
           potentialAction: {
             "@type": "SearchAction",
             target: "/search?q={search_term_string}",
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_site/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "Interiors List",
+          name: "Intearior",
           description: "A nationwide directory of vetted interior design studios.",
         }),
       },
@@ -337,7 +337,7 @@ function TrustCard({ Icon, title, body }: { Icon: React.ComponentType<{ classNam
 }
 
 const FAQ = [
-  { q: "Is Interiors List free to use?", a: "Yes — searching, comparing and contacting design studios is always free for homeowners and businesses." },
+  { q: "Is Intearior free to use?", a: "Yes — searching, comparing and contacting design studios is always free for homeowners and businesses." },
   { q: "How are studios vetted?", a: "We review every listing for a real business address, an active portfolio or website, and any credentials the studio claims before it is published." },
   { q: "Do you accept paid placements?", a: "No. There are no paid placements and no commission on projects. Featured studios are chosen on verification status and review quality." },
   { q: "How much does an interior designer cost?", a: "Fees are usually charged as a flat project fee, an hourly rate, a cost-plus percentage on furnishings, or a mix. Every listing shows a typical project budget so you can shortlist studios that work at your scale." },

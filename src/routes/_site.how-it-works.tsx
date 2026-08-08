@@ -5,9 +5,9 @@ import { Search, ListChecks, MessageSquare, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/_site/how-it-works")({
   head: () => ({
     meta: [
-      { title: "How It Works | Interiors List" },
-      { name: "description", content: "How Interiors List verifies design studios and helps you find a trusted interior designer." },
-      { property: "og:title", content: "How It Works | Interiors List" },
+      { title: "How It Works | Intearior" },
+      { name: "description", content: "How Intearior verifies design studios and helps you find a trusted interior designer." },
+      { property: "og:title", content: "How It Works | Intearior" },
       { property: "og:description", content: "How we verify design studios and help you find a trusted designer." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -23,7 +23,7 @@ function HowItWorks() {
       <p className="text-xs font-semibold uppercase tracking-widest text-brand">How It Works</p>
       <h1 className="mt-3 font-display text-5xl md:text-6xl">A simple, transparent process.</h1>
       <p className="mt-6 text-lg text-muted-foreground">
-        Interiors List is an independent directory. We verify every listing, surface credentials, and let you contact studios directly — no middlemen.
+        Intearior is an independent directory. We verify every listing, surface credentials, and let you contact studios directly — no middlemen.
       </p>
 
       <div className="mt-14 space-y-10">

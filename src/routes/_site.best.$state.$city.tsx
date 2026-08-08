@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_site/best/$state/$city")({
     const name = c?.name ?? params.city;
     const st = c?.state ?? params.state.toUpperCase();
     const path = `/best/${params.state}/${params.city}`;
-    const title = `Best Interior Designers in ${name}, ${st} (${new Date().getFullYear()}) | Interiors List`;
+    const title = `Best Interior Designers in ${name}, ${st} (${new Date().getFullYear()}) | Intearior`;
     const description = `The top vetted interior design studios in ${name}, ${st} — curated, reviewed and ranked.`;
     return {
       meta: [

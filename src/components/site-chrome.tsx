@@ -30,7 +30,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4">
         <Link to="/" className="font-display text-xl font-semibold uppercase tracking-[0.15em]">
-          Interiors List
+          Intearior
         </Link>
         <nav className="hidden items-center gap-8 lg:flex">
           <Link to="/search" className="text-sm font-medium hover:text-brand">Find a Designer</Link>
@@ -82,7 +82,7 @@ export function SiteFooter() {
     <footer className="mt-24 border-t border-border/60 bg-secondary/30">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-6">
         <div className="lg:col-span-1">
-          <p className="font-display text-lg font-semibold uppercase tracking-[0.15em]">Interiors List</p>
+          <p className="font-display text-lg font-semibold uppercase tracking-[0.15em]">Intearior</p>
           <p className="mt-4 text-sm text-muted-foreground">
             The independent directory for finding vetted interior design studios across the country.
           </p>
@@ -127,7 +127,7 @@ export function SiteFooter() {
       <div className="border-t border-border/60">
         <div className="mx-auto max-w-7xl px-4 py-6 text-xs text-muted-foreground">
           <p>
-            © {new Date().getFullYear()} Interiors List. An independent directory — we don't sell placement.
+            © {new Date().getFullYear()} Intearior. An independent directory — we don't sell placement.
             Always confirm a studio's credentials, insurance and contract terms before hiring.
           </p>
         </div>

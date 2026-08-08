@@ -21,8 +21,8 @@ const styleProvidersOpts = (slug: string) =>
 export const Route = createFileRoute("/_site/style/$slug")({
   head: ({ params }) => {
     const c = styleFromSlug(params.slug);
-    if (!c) return { meta: [{ title: "Style not found | Interiors List" }] };
-    const title = `${c.label} Interior Designers | Interiors List`;
+    if (!c) return { meta: [{ title: "Style not found | Intearior" }] };
+    const title = `${c.label} Interior Designers | Intearior`;
     return {
       meta: [
         { title },

@@ -14,7 +14,7 @@ import { Star, Mail, Phone, ExternalLink, Building2, Shield, Clock } from "lucid
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard | Interiors List" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Dashboard | Intearior" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: Dashboard,
 });
 

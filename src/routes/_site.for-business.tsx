@@ -6,9 +6,9 @@ import { BadgeCheck, Eye, MessageSquare, BarChart3, ShieldCheck, Building2 } fro
 export const Route = createFileRoute("/_site/for-business")({
   head: () => ({
     meta: [
-      { title: "For Business — Claim Your Studio Listing | Interiors List" },
+      { title: "For Business — Claim Your Studio Listing | Intearior" },
       { name: "description", content: "Claim or submit your interior design studio listing free. Manage your profile, respond to inquiries, and reach high-intent clients nationwide." },
-      { property: "og:title", content: "For Business | Interiors List" },
+      { property: "og:title", content: "For Business | Intearior" },
       { property: "og:description", content: "Claim or submit your interior design studio listing free." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
