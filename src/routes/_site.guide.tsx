@@ -22,6 +22,12 @@ function GuidePage() {
     <article className="mx-auto max-w-3xl px-4 py-20">
       <p className="text-xs font-semibold uppercase tracking-widest text-brand">Hiring Guide</p>
       <h1 className="mt-2 flex items-center gap-3 font-display text-5xl"><ShieldCheck className="h-9 w-9 text-brand" /> Hiring a designer</h1>
+      <img
+        src={CONSULT_IMAGE}
+        alt="Interior designer reviewing plans and material samples with clients"
+        className="mt-8 h-64 w-full rounded-3xl object-cover md:h-80"
+      />
+
 
       <Section title="Designer, decorator or architect?">
         <ul className="list-disc space-y-1 pl-5">
