@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CITIES, serviceName, styleLabel, projectTypeLabel, BUDGET_BANDS } from "@/lib/cities";
 import { CONSULT_IMAGE } from "@/lib/style-images";
 import { getMatches } from "@/lib/match.functions";
+import { listStates, listCities } from "@/lib/providers.functions";
 import { sendContactMessage } from "@/lib/contact.functions";
 import { nextMatchStep, type MatchCriteria, type MatchQuestion } from "@/lib/match-ai.functions";
 import { BadgeCheck, Check, ChevronLeft, Loader2, Lock, Sparkles } from "lucide-react";
@@ -70,13 +72,17 @@ function MatchPage() {
   const fetchMatches = useServerFn(getMatches);
 
   const [citySlug, setCitySlug] = useState(initialCity ?? "any");
+  const [locationDone, setLocationDone] = useState(false);
+  const [stateCode, setStateCode] = useState<string>("");
+  const [cityQuery, setCityQuery] = useState("");
   const [transcript, setTranscript] = useState<Turn[]>([]);
   const [step, setStep] = useState<MatchQuestion | null>(null);
   const [progress, setProgress] = useState(0);
   const [picked, setPicked] = useState<string[]>([]);
   const [freeText, setFreeText] = useState("");
-  const [thinking, setThinking] = useState(true);
+  const [thinking, setThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
 
   const [criteria, setCriteria] = useState<MatchCriteria | null>(null);
   const [results, setResults] = useState<Awaited<ReturnType<typeof getMatches>>["matches"] | null>(null);
@@ -91,6 +97,38 @@ function MatchPage() {
   const [sentTo, setSentTo] = useState<string[] | null>(null);
   const send = useServerFn(sendContactMessage);
   const started = useRef(false);
+
+  const { data: statesData } = useQuery({ queryKey: ["match-states"], queryFn: () => listStates() });
+  const { data: citiesData, isFetching: citiesLoading } = useQuery({
+    queryKey: ["match-cities", stateCode],
+    queryFn: () => listCities({ data: { state: stateCode } }),
+    enabled: !!stateCode,
+  });
+  const cityOptions = citiesData?.cities ?? [];
+  const cityLabel =
+    cityOptions.find((c) => c.slug === citySlug)?.name ??
+    CITIES.find((c) => c.slug === citySlug)?.name ??
+    "";
+
+  function confirmLocation(anywhere: boolean) {
+    if (!anywhere) {
+      const match = cityOptions.find((c) => c.name.toLowerCase() === cityQuery.trim().toLowerCase());
+      if (!stateCode) {
+        toast.error("Please pick a state.");
+        return;
+      }
+      if (!match) {
+        toast.error("Please pick a city from the list.");
+        return;
+      }
+      setCitySlug(match.slug);
+    } else {
+      setCitySlug("any");
+    }
+    setLocationDone(true);
+    beginConversation();
+  }
+
 
   async function advance(next: Turn[]) {
     setThinking(true);
@@ -126,8 +164,9 @@ function MatchPage() {
     }
   }
 
-  // Kick off the conversation, seeding whatever the homepage hero already collected.
-  useEffect(() => {
+  // Kick off the conversation once the location step is done,
+  // seeding whatever the homepage hero already collected.
+  function beginConversation() {
     if (started.current) return;
     started.current = true;
     const seed: Turn[] = [];
@@ -135,8 +174,8 @@ function MatchPage() {
     else if (initialPriority) seed.push({ question: "What would you like designed?", answer: initialPriority.replace(/-/g, " ") });
     void advance(seed);
     setTranscript(seed);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
+
 
   function submitAnswer(answer: string) {
     if (!step || !answer.trim()) return;
@@ -170,7 +209,7 @@ function MatchPage() {
       criteria?.styles?.length && `Preferred styles: ${criteria.styles.map(styleLabel).join(", ")}`,
       criteria?.budget && `Budget: ${BUDGET_BANDS.find((b) => b.slug === criteria.budget)?.label ?? criteria.budget}`,
       criteria?.timing && `Timeline: ${criteria.timing.replace(/-/g, " ")}`,
-      citySlug !== "any" && `Location: ${CITIES.find((c) => c.slug === citySlug)?.name ?? citySlug}`,
+      citySlug !== "any" && `Location: ${cityLabel || citySlug}`,
       "",
       ...transcript.map((t) => `${t.question} — ${t.answer}`),
       notes && `\nNotes:\n${notes}`,
@@ -236,7 +275,7 @@ function MatchPage() {
       );
     }
 
-    const cityName = citySlug === "any" ? "your area" : (CITIES.find((c) => c.slug === citySlug)?.name ?? "your area");
+    const cityName = citySlug === "any" ? "your area" : (cityLabel || "your area");
     return (
       <div className="mx-auto max-w-6xl px-4 py-12">
         <button onClick={restart} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-brand">
@@ -299,8 +338,8 @@ function MatchPage() {
                   </div>
                 </div>
                 <Button type="submit" className="mt-5 w-full rounded-full">Request a consultation</Button>
-                <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
-                  <BadgeCheck className="h-3.5 w-3.5 text-brand" /> We never sell your details.
+                <p className="mt-3 flex items-start gap-1.5 text-xs text-muted-foreground">
+                  <BadgeCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" /> Your information stays private. We only share your details with the professionals you select, and never without your consent.
                 </p>
               </form>
             </div>
@@ -377,9 +416,67 @@ function MatchPage() {
   }
 
 
+  /* --------------------------- location step --------------------------- */
+  if (!locationDone) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-12">
+        <div className="text-center">
+          <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
+            <Sparkles className="h-3 w-3" /> AI matching
+          </p>
+        </div>
+        <h1 className="mt-8 font-display text-3xl md:text-4xl">Where is your project?</h1>
+        <p className="mt-2 text-muted-foreground">Pick your state, then start typing your city — we'll autofill it.</p>
+
+        <div className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-5">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">State</Label>
+            <Select
+              value={stateCode || undefined}
+              onValueChange={(v) => { setStateCode(v); setCityQuery(""); setCitySlug("any"); }}
+            >
+              <SelectTrigger className="h-11"><SelectValue placeholder="Choose a state" /></SelectTrigger>
+              <SelectContent className="max-h-80">
+                {(statesData?.states ?? []).map((s) => (
+                  <SelectItem key={s.code} value={s.code}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">City</Label>
+            <Input
+              list="match-city-options"
+              value={cityQuery}
+              disabled={!stateCode || citiesLoading}
+              onChange={(e) => setCityQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); confirmLocation(false); } }}
+              placeholder={stateCode ? (citiesLoading ? "Loading cities…" : "Start typing your city…") : "Choose a state first"}
+              className="h-11"
+            />
+            <datalist id="match-city-options">
+              {cityOptions.map((c) => <option key={c.slug} value={c.name} />)}
+            </datalist>
+          </div>
+
+          <Button className="h-11 w-full rounded-full" onClick={() => confirmLocation(false)}>Continue</Button>
+          <button
+            type="button"
+            onClick={() => confirmLocation(true)}
+            className="w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-brand hover:underline"
+          >
+            My project is remote / anywhere
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   /* --------------------------- conversation --------------------------- */
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
+
       <div className="text-center">
         <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
           <Sparkles className="h-3 w-3" /> AI matching
@@ -451,20 +548,10 @@ function MatchPage() {
             </Button>
           )}
 
-          <div className="mt-8 space-y-3 rounded-2xl border border-border bg-card p-4">
-            <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Where is your project?</label>
-            <Select value={citySlug} onValueChange={setCitySlug}>
-              <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
-              <SelectContent className="max-h-80">
-                <SelectItem value="any">Anywhere / virtual</SelectItem>
-                {CITIES.map((c) => <SelectItem key={c.slug} value={c.slug}>{c.name}, {c.state}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
           <p className="mt-6 flex items-center gap-1 text-xs text-muted-foreground">
-            <BadgeCheck className="h-3.5 w-3.5 text-brand" /> We never sell your details. You choose who to contact.
+            <BadgeCheck className="h-3.5 w-3.5 text-brand" /> Your information stays private. You choose who to contact.
           </p>
+
         </div>
       )}
     </div>
