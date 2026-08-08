@@ -96,6 +96,38 @@ function MatchPage() {
   const send = useServerFn(sendContactMessage);
   const started = useRef(false);
 
+  const { data: statesData } = useQuery({ queryKey: ["match-states"], queryFn: () => listStates() });
+  const { data: citiesData, isFetching: citiesLoading } = useQuery({
+    queryKey: ["match-cities", stateCode],
+    queryFn: () => listCities({ data: { state: stateCode } }),
+    enabled: !!stateCode,
+  });
+  const cityOptions = citiesData?.cities ?? [];
+  const cityLabel =
+    cityOptions.find((c) => c.slug === citySlug)?.name ??
+    CITIES.find((c) => c.slug === citySlug)?.name ??
+    "";
+
+  function confirmLocation(anywhere: boolean) {
+    if (!anywhere) {
+      const match = cityOptions.find((c) => c.name.toLowerCase() === cityQuery.trim().toLowerCase());
+      if (!stateCode) {
+        toast.error("Please pick a state.");
+        return;
+      }
+      if (!match) {
+        toast.error("Please pick a city from the list.");
+        return;
+      }
+      setCitySlug(match.slug);
+    } else {
+      setCitySlug("any");
+    }
+    setLocationDone(true);
+    beginConversation();
+  }
+
+
   async function advance(next: Turn[]) {
     setThinking(true);
     setError(null);
