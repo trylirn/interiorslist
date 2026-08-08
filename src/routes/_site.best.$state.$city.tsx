@@ -4,6 +4,8 @@ import { cityFromSlug, CITIES } from "@/lib/cities";
 import { listProvidersByCity } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Trophy } from "lucide-react";
+import { cityImage } from "@/lib/style-images";
+
 
 export const Route = createFileRoute("/_site/best/$state/$city")({
   beforeLoad: ({ params }) => {
@@ -53,10 +55,15 @@ function BestCity() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
       <p className="text-sm text-muted-foreground"><Link to="/" className="hover:underline">Home</Link> / Best in {c.name}</p>
-      <div className="mt-2 flex items-center gap-3">
-        <Trophy className="h-8 w-8 text-brand" />
-        <h1 className="font-display text-4xl md:text-5xl">Best Interior Designers in {c.name}, {c.state}</h1>
+      <div className="relative mt-3 overflow-hidden rounded-3xl">
+        <img src={cityImage(`best-${c.slug}`)} alt={`Interior design work in ${c.name}, ${c.state}`} className="h-56 w-full object-cover md:h-72" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 p-6 md:p-8">
+          <Trophy className="h-8 w-8 text-white" />
+          <h1 className="font-display text-4xl text-white md:text-5xl">Best Interior Designers in {c.name}, {c.state}</h1>
+        </div>
       </div>
+
       <p className="mt-3 max-w-2xl text-muted-foreground">
         The top {Math.min(10, data.providers.length)} vetted design studios in {c.name}, curated for {new Date().getFullYear()}. {c.tagline}.
       </p>

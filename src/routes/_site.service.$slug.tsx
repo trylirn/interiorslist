@@ -4,6 +4,8 @@ import { SERVICES, CITIES, cityFromSlug } from "@/lib/cities";
 import { listByTreatment, listCitiesForTreatment } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { getServiceContent } from "@/lib/service-content";
+import { serviceImage } from "@/lib/style-images";
+
 import { z } from "zod";
 
 const searchSchema = z.object({ city: z.string().optional() });
@@ -120,10 +122,15 @@ function ServicePage() {
         <Link to="/" className="hover:text-brand">Home</Link> / Services / <span className="text-foreground">{svc.name}{city ? ` in ${city.name}` : ""}</span>
       </nav>
 
-      <h1 className="mt-2 font-display text-4xl md:text-5xl">
-        {svc.name} {city ? `in ${city.name}, ${city.state}` : ""}
-      </h1>
-      <p className="mt-3 max-w-3xl text-lg text-foreground/85 leading-relaxed">{content.what}</p>
+      <div className="relative mt-3 overflow-hidden rounded-3xl">
+        <img src={serviceImage(slug)} alt={`${svc.name} interior design work`} className="h-52 w-full object-cover md:h-64" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+        <h1 className="absolute inset-x-0 bottom-0 p-6 font-display text-4xl text-white md:p-8 md:text-5xl">
+          {svc.name} {city ? `in ${city.name}, ${city.state}` : ""}
+        </h1>
+      </div>
+      <p className="mt-4 max-w-3xl text-lg text-foreground/85 leading-relaxed">{content.what}</p>
+
 
       <section className="mt-10 grid gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6">

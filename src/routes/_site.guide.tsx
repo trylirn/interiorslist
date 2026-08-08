@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
+import { CONSULT_IMAGE, STUDIO_IMAGE } from "@/lib/style-images";
+
 
 export const Route = createFileRoute("/_site/guide")({
   head: () => ({
@@ -22,6 +24,12 @@ function GuidePage() {
     <article className="mx-auto max-w-3xl px-4 py-20">
       <p className="text-xs font-semibold uppercase tracking-widest text-brand">Hiring Guide</p>
       <h1 className="mt-2 flex items-center gap-3 font-display text-5xl"><ShieldCheck className="h-9 w-9 text-brand" /> Hiring a designer</h1>
+      <img
+        src={CONSULT_IMAGE}
+        alt="Interior designer reviewing plans and material samples with clients"
+        className="mt-8 h-64 w-full rounded-3xl object-cover md:h-80"
+      />
+
 
       <Section title="Designer, decorator or architect?">
         <ul className="list-disc space-y-1 pl-5">
@@ -59,7 +67,15 @@ function GuidePage() {
         </ul>
       </Section>
 
+      <img
+        src={STUDIO_IMAGE}
+        alt="Design studio workspace with fabric swatches, floor plans and finish samples"
+        loading="lazy"
+        className="mt-12 h-56 w-full rounded-3xl object-cover md:h-72"
+      />
+
       <Section title="Questions to ask before you hire">
+
         <ul className="list-disc space-y-1 pl-5">
           <li>Have you done projects at my budget and square footage?</li>
           <li>Who will actually run my project day to day?</li>
