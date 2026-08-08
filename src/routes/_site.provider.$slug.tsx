@@ -242,7 +242,7 @@ function ProviderPage() {
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {p.gallery_urls.map((url: string) => (
                   <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square overflow-hidden rounded-xl border border-border bg-secondary/30">
-                    <img src={url} alt={`${p.name} treatment room and clinic interior in ${p.city ?? "Texas"}`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+                    <img src={url} alt={`Interior design project by ${p.name} in ${p.city ?? "the US"}`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
                   </a>
                 ))}
               </div>
@@ -255,7 +255,7 @@ function ProviderPage() {
               {p.about_description && <p className="mt-3 text-foreground/85 leading-relaxed whitespace-pre-line">{p.about_description}</p>}
               {p.specialists && (
                 <div className="mt-4">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Practitioners</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Designers on the team</p>
                   <p className="mt-1 text-foreground/85 leading-relaxed whitespace-pre-line">{p.specialists}</p>
                 </div>
               )}
@@ -291,13 +291,14 @@ function ProviderPage() {
             <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
               <h2 className="font-display text-2xl">Serving {p.city} and nearby areas</h2>
               <p className="mt-3 text-foreground/85 leading-relaxed">
-                {p.name} welcomes patients from {p.city} and the surrounding communities of{" "}
-                {CITY_NEIGHBORS[p.city_slug].slice(0, 5).join(", ")}. Search for other {p.city}, TX injectors
-                nearby or explore related treatments below.
+                {p.name} takes on projects in {p.city} and the surrounding communities of{" "}
+                {CITY_NEIGHBORS[p.city_slug].slice(0, 5).join(", ")}. Browse other {loc} interior designers
+                nearby or explore related services below.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Link to="/tx/$city" params={{ city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">More in {p.city}</Link>
-                <Link to="/best/$city" params={{ city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">Best of {p.city}</Link>
+                <Link to="/designers/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">More in {p.city}</Link>
+                <Link to="/best/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-sm hover:border-brand">Best of {p.city}</Link>
+
               </div>
             </section>
           )}
@@ -341,7 +342,7 @@ function ProviderPage() {
               <h2 className="font-display text-2xl">Services Offered</h2>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {p.services.map((s: string) => (
-                  <Link key={s} to="/treatment/$slug" params={{ slug: s }} className="flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm capitalize hover:border-brand">
+                  <Link key={s} to="/service/$slug" params={{ slug: s }} className="flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm capitalize hover:border-brand">
                     <BadgeCheck className="h-4 w-4 text-brand" />
                     {s.replace(/-/g, " ")}
                   </Link>
