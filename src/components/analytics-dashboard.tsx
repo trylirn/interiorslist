@@ -314,43 +314,49 @@ function OverviewPanel({ range }: { range: Range }) {
   );
 }
 
-// ---------- Journey row ----------
+// ---------- Session row (one row per visitor, not per event) ----------
 
-type FeedEvent = {
-  id: number | string;
-  created_at: string;
-  event_type: string;
-  lead_type: string | null;
+type FeedSession = {
+  session_id: string;
+  last_at: string;
+  entry: "search" | "browse" | "direct";
   query: string | null;
   city_slug: string | null;
-  visitor_id?: string;
+  path: string | null;
+  views: number;
+  clicks: number;
+  leads: number;
+  steps: number;
+  last_action: { type: "lead" | "click" | "view"; lead_type: string | null } | null;
   provider: { name: string; slug: string; city: string } | null;
 };
 
-function entryChipFor(e: FeedEvent): { label: string; className: string } {
-  if (e.event_type === "search" || e.query) return { label: "SEARCH", className: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300" };
-  if (e.event_type === "impression" || e.event_type === "listing_click") return { label: "BROWSE", className: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300" };
-  return { label: "DIRECT", className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300" };
-}
+const ENTRY_CHIP: Record<FeedSession["entry"], { label: string; className: string }> = {
+  search: { label: "SEARCH", className: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300" },
+  browse: { label: "BROWSE", className: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300" },
+  direct: { label: "DIRECT", className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300" },
+};
 
-function actionChipFor(e: FeedEvent): { label: string; icon: React.ReactNode; className: string } | null {
-  if (e.event_type === "lead_action") {
-    if (e.lead_type === "directions") return { label: "DIRECTIONS", icon: <MapPin className="h-3 w-3" />, className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300" };
-    if (e.lead_type === "website") return { label: "WEBSITE", icon: <Globe className="h-3 w-3" />, className: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300" };
-    if (e.lead_type === "phone") return { label: "PHONE", icon: <Phone className="h-3 w-3" />, className: "bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300" };
+function actionChipFor(s: FeedSession): { label: string; icon: React.ReactNode; className: string } | null {
+  const a = s.last_action;
+  if (!a) return null;
+  if (a.type === "lead") {
+    if (a.lead_type === "directions") return { label: "DIRECTIONS", icon: <MapPin className="h-3 w-3" />, className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300" };
+    if (a.lead_type === "website") return { label: "WEBSITE", icon: <Globe className="h-3 w-3" />, className: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300" };
+    if (a.lead_type === "phone") return { label: "PHONE", icon: <Phone className="h-3 w-3" />, className: "bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300" };
+    return { label: "LEAD", icon: <MousePointerClick className="h-3 w-3" />, className: "bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300" };
   }
-  if (e.event_type === "listing_click") return { label: "CLICK", icon: <MousePointerClick className="h-3 w-3" />, className: "bg-secondary text-secondary-foreground" };
-  if (e.event_type === "impression") return { label: "VIEW", icon: <Eye className="h-3 w-3" />, className: "bg-secondary text-secondary-foreground" };
-  return null;
+  if (a.type === "click") return { label: "CLICK", icon: <MousePointerClick className="h-3 w-3" />, className: "bg-secondary text-secondary-foreground" };
+  return { label: "VIEW", icon: <Eye className="h-3 w-3" />, className: "bg-secondary text-secondary-foreground" };
 }
 
 function Arrow() {
   return <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" aria-hidden />;
 }
 
-function JourneyRow({ event, zebra }: { event: FeedEvent; zebra: boolean }) {
-  const entry = entryChipFor(event);
-  const action = actionChipFor(event);
+function SessionRow({ session, zebra }: { session: FeedSession; zebra: boolean }) {
+  const entry = ENTRY_CHIP[session.entry];
+  const action = actionChipFor(session);
   const segments: React.ReactNode[] = [];
 
   segments.push(
@@ -359,27 +365,36 @@ function JourneyRow({ event, zebra }: { event: FeedEvent; zebra: boolean }) {
     </span>,
   );
 
-  if (event.query) {
+  if (session.query) {
     segments.push(<Arrow key="a1" />);
-    segments.push(<span key="q" className="truncate text-sm font-medium">"{event.query}"</span>);
+    segments.push(<span key="q" className="truncate text-sm font-medium">"{session.query}"</span>);
   }
 
-  if (event.city_slug) {
+  if (session.city_slug) {
     segments.push(<Arrow key="a2" />);
-    segments.push(<span key="city" className="truncate text-sm font-semibold text-foreground">{prettifyCity(event.city_slug)}</span>);
+    segments.push(<span key="city" className="truncate text-sm font-semibold text-foreground">{prettifyCity(session.city_slug)}</span>);
   }
 
-  if (event.provider) {
+  if (session.views > 0) {
     segments.push(<Arrow key="a3" />);
     segments.push(
-      <Link key="prov" to="/provider/$slug" params={{ slug: event.provider.slug }} className="truncate text-sm text-muted-foreground hover:text-brand hover:underline">
-        {event.provider.name}
+      <span key="views" className="whitespace-nowrap text-sm text-muted-foreground">
+        viewed {session.views} stud{session.views === 1 ? "y" : "ios"}
+      </span>,
+    );
+  }
+
+  if (session.provider) {
+    segments.push(<Arrow key="a4" />);
+    segments.push(
+      <Link key="prov" to="/provider/$slug" params={{ slug: session.provider.slug }} className="truncate text-sm text-muted-foreground hover:text-brand hover:underline">
+        {session.provider.name}
       </Link>,
     );
   }
 
   if (action) {
-    segments.push(<Arrow key="a4" />);
+    segments.push(<Arrow key="a5" />);
     segments.push(
       <span key="act" className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${action.className}`}>
         {action.icon}
@@ -388,16 +403,27 @@ function JourneyRow({ event, zebra }: { event: FeedEvent; zebra: boolean }) {
     );
   }
 
+  if (segments.length === 1) {
+    segments.push(<Arrow key="a6" />);
+    segments.push(
+      <span key="landed" className="truncate text-sm text-muted-foreground">landed on {session.path ?? "/"}</span>,
+    );
+  }
+
   return (
     <li className={`flex items-center gap-3 px-5 py-3 ${zebra ? "bg-secondary/20" : ""}`}>
       <span className="w-20 shrink-0 text-xs text-muted-foreground">
-        {formatDistanceToNow(new Date(event.created_at), { addSuffix: false })} ago
+        {formatDistanceToNow(new Date(session.last_at), { addSuffix: false })} ago
       </span>
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
         {segments}
       </div>
+      <span className="hidden shrink-0 text-[11px] text-muted-foreground sm:block">
+        1 visitor · {session.steps} action{session.steps === 1 ? "" : "s"}
+      </span>
     </li>
   );
+
 }
 
 function prettifyCity(slug: string) {
