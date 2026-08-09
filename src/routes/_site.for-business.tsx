@@ -33,7 +33,7 @@ function ForBusiness() {
             Get discovered by clients actively searching for full-home design, kitchen & bath, and renovation help in your city — free.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" className="rounded-full"><Link to="/login">Submit your business</Link></Button>
+            <Button asChild size="lg" className="rounded-full"><Link to="/submit">Submit your business</Link></Button>
             <Button asChild size="lg" variant="outline" className="rounded-full border-white/50 bg-transparent text-white hover:bg-white/10 hover:text-white"><Link to="/claim">Claim existing listing</Link></Button>
           </div>
         </div>
@@ -84,7 +84,7 @@ function ForBusiness() {
         <div className="mt-12 rounded-3xl bg-brand p-10 text-center text-brand-foreground">
           <h3 className="font-display text-3xl">Ready to start?</h3>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/login">Submit your business</Link></Button>
+            <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/submit">Submit your business</Link></Button>
             <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/claim">Claim existing listing</Link></Button>
           </div>
         </div>
