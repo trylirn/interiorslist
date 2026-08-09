@@ -82,6 +82,10 @@ function TermsPage() {
         Business listings — names, addresses, websites, contact details, service descriptions, articles, and hours — are compiled from publicly available information about interior design studios, from information provided by owners who claim their listing, and from third-party sources such as public web content ingested via automated tools. Information may be incomplete, outdated, or contain errors. If you are a business owner or authorized representative, you may claim or update your listing via our <Link to="/claim/$slug" params={{ slug: "your-listing" }} className="text-brand underline">claim flow</Link>, our <Link to="/submit" className="text-brand underline">submission form</Link>, or by contacting us. We may approve, reject, edit, delist, or remove any listing or claim at our sole discretion.
       </Section>
 
+      <Section title="9a. Consultation and match requests">
+        Our Get Matched flow and studio consultation forms let you send your project brief and contact details to studios you choose. We pass those details on as a courtesy introduction only: we do not vet the request, we are not paid for individual introductions, and we do not guarantee that any studio will reply, quote, or take on your project. You are responsible for the accuracy of what you submit, and for not using these forms to send unsolicited marketing or bulk enquiries.
+      </Section>
+
       <Section title="10. Third-party sites, off-platform engagements, and studio communications">
         The Site links to third-party websites and services, and enables you to contact studios directly. Once you leave the Site or communicate with a studio (whether through our contact form or a link to the studio's website, phone, or booking system), any subsequent interaction — including consultations, proposals, contracts, payments, project work, and disputes — is solely between you and that studio. We are not a party to that relationship. We are not responsible for studio availability, pricing, workmanship, safety, refund policies, or the content and privacy practices of any third-party site.
       </Section>
