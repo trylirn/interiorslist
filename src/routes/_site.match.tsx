@@ -391,7 +391,7 @@ function MatchPage() {
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
                     <Label className="text-xs text-muted-foreground">Phone</Label>
-                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
                   </div>
                 </div>
                 <Button type="submit" className="mt-5 w-full rounded-full">Request a consultation</Button>
