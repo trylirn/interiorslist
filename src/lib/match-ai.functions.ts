@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { SERVICES, STYLES, PROJECT_TYPES, BUDGET_BANDS } from "@/lib/cities";
+import { toClientVoice } from "@/lib/match-voice";
 
 const turn = z.object({ question: z.string().max(300), answer: z.string().max(400) });
 
@@ -57,7 +58,7 @@ OUTPUT: strict JSON only.
 While interviewing:
 {"done":false,"question":"...","helper":"optional one-line clarifier","options":["...","..."],"multi":false,"allowFreeText":true}
 When finished (after enough signal, max 6 questions):
-{"done":true,"criteria":{"priority":"<one of: ${PRIORITIES.join(", ")}>","concerns":["<subset of: ${ROOMS.join(", ")}>"],"styles":["<subset of: ${STYLES.map((s) => s.slug).join(", ")}>"],"projectType":"<one of: ${PROJECT_TYPES.map((p) => p.slug).join(", ")}>","budget":"<one of: ${BUDGET_BANDS.map((b) => b.slug).join(", ")}>","timing":"<one of: asap, 1-3-months, 3-6-months, planning>","summary":"one warm sentence describing their project"}}
+{"done":true,"criteria":{"priority":"<one of: ${PRIORITIES.join(", ")}>","concerns":["<subset of: ${ROOMS.join(", ")}>"],"styles":["<subset of: ${STYLES.map((s) => s.slug).join(", ")}>"],"projectType":"<one of: ${PROJECT_TYPES.map((p) => p.slug).join(", ")}>","budget":"<one of: ${BUDGET_BANDS.map((b) => b.slug).join(", ")}>","timing":"<one of: asap, 1-3-months, 3-6-months, planning>","summary":"one sentence written in the client's own voice, addressed to the studio, that MUST begin with \\"We're looking for\\" (never address the client as 'you', never say 'It sounds like')"}}
 
 Available studio services for reference: ${SERVICES.map((s) => s.slug).join(", ")}.`;
 }
@@ -134,7 +135,7 @@ export const nextMatchStep = createServerFn({ method: "POST" })
         projectType: PROJECT_TYPES.some((p) => p.slug === c.projectType) ? String(c.projectType) : undefined,
         budget: BUDGET_BANDS.some((b) => b.slug === c.budget) ? String(c.budget) : undefined,
         timing: ["asap", "1-3-months", "3-6-months", "planning"].includes(String(c.timing)) ? String(c.timing) : undefined,
-        summary: typeof c.summary === "string" ? c.summary.slice(0, 240) : "Your project",
+        summary: toClientVoice(typeof c.summary === "string" ? c.summary : ""),
       };
       return { kind: "done", criteria, progress: 100 };
     }

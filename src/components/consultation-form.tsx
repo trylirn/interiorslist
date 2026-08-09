@@ -43,10 +43,12 @@ export function ConsultationForm({ placeId, studioName, defaults, compact }: Con
       toast.error("Please add your name, email and phone number.");
       return;
     }
-    // Structured details go into their own columns; the message keeps only the
-    // free-text notes (plus the chosen service, which has no column).
+    // Structured details go into their own columns; the message keeps the
+    // client-voice brief plus the chosen service, which has no column.
+    const serviceLabel = service ? (SERVICES.find((s) => s.slug === service)?.name ?? service) : "";
+    const opening = `We're looking for ${serviceLabel ? serviceLabel.toLowerCase() : "an interior designer"}${zip ? ` in ${zip}` : ""}.`;
     const message =
-      [service && `Service: ${SERVICES.find((s) => s.slug === service)?.name ?? service}`, notes]
+      [`From: ${firstName} ${lastName} · ${email} · ${phone}`, opening, notes]
         .filter(Boolean)
         .join("\n\n") || "Consultation request";
 

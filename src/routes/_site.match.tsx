@@ -240,8 +240,18 @@ function MatchPage() {
   }
 
   function buildBrief() {
+    const who = [`${firstName.trim()} ${lastName.trim()}`.trim(), email.trim(), phone.trim()].filter(Boolean).join(" · ");
+    const summary = criteria?.summary?.trim();
+    const opening = summary
+      ? /^we['’]re looking for/i.test(summary)
+        ? summary
+        : `We're looking for ${summary.charAt(0).toLowerCase()}${summary.slice(1)}`
+      : "We're looking for an interior designer for our project.";
     return [
-      criteria?.summary && `Brief: ${criteria.summary}`,
+      who && `From: ${who}`,
+      "",
+      opening,
+      "",
       criteria?.priority && `Focus: ${PRIORITY_SERVICE[criteria.priority] ? serviceName(PRIORITY_SERVICE[criteria.priority]!) : criteria.priority.replace(/-/g, " ")}`,
       criteria?.projectType && `Project type: ${projectTypeLabel(criteria.projectType)}`,
       criteria?.styles?.length && `Preferred styles: ${criteria.styles.map(styleLabel).join(", ")}`,
@@ -267,6 +277,10 @@ function MatchPage() {
       toast.error("Please enter a valid email address.");
       return;
     }
+    if (phone.trim().length < 7) {
+      toast.error("Please add a phone number so studios can reach you.");
+      return;
+    }
     setUnlocked(true);
     toast.success("Your matches are unlocked.");
   }
@@ -284,7 +298,7 @@ function MatchPage() {
             firstName: firstName.trim(),
             lastName: lastName.trim(),
             email: email.trim(),
-            phone: phone.trim() || "not provided",
+            phone: phone.trim(),
             message,
             location: citySlug !== "any" ? (cityLabel || citySlug) : "Open to remote studios",
             projectType: criteria?.projectType ? projectTypeLabel(criteria.projectType) : "",
@@ -377,7 +391,7 @@ function MatchPage() {
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
                     <Label className="text-xs text-muted-foreground">Phone</Label>
-                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
                   </div>
                 </div>
                 <Button type="submit" className="mt-5 w-full rounded-full">Request a consultation</Button>
