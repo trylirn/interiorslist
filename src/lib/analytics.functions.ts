@@ -62,6 +62,8 @@ async function fetchEvents(from: string, to: string, extra?: (q: any) => any) {
 }
 
 async function fetchSessions(from: string, to: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const db = supabaseAdmin as unknown as { from: (t: string) => any };
   const { data } = await db
     .from("analytics_sessions")
     .select("*")
@@ -179,6 +181,8 @@ export const getLiveFeed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = supabaseAdmin as unknown as { from: (t: string) => any };
     const { data } = await db
       .from("analytics_events")
       .select("*")
