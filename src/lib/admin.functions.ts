@@ -177,21 +177,45 @@ export const reviewSubmission = createServerFn({ method: "POST" })
 
 export const listAllProviders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ q: z.string().max(120).optional() }).parse(d ?? {}))
+  .inputValidator((d) =>
+    z
+      .object({
+        q: z.string().max(120).optional(),
+        status: z.enum(["all", "published", "unpublished"]).optional(),
+      })
+      .parse(d ?? {}),
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    let q = supabaseAdmin
-      .from("providers")
-      .select("place_id, slug, name, city, claimed_by, is_verified, published, featured, rating, review_count")
-      .order("name")
-      .limit(500);
-    if (data.q) {
-      const term = data.q.replace(/[,()*%\\]/g, " ").trim();
-      if (term) q = q.ilike("name", `%${term}%`);
+    const status = data.status ?? "all";
+    const build = () => {
+      let q = supabaseAdmin
+        .from("providers")
+        .select("place_id, slug, name, city, claimed_by, is_verified, published, featured, rating, review_count", {
+          count: "exact",
+        })
+        .order("name");
+      if (status === "published") q = q.eq("published", true);
+      if (status === "unpublished") q = q.eq("published", false);
+      if (data.q) {
+        const term = data.q.replace(/[,()*%\\]/g, " ").trim();
+        if (term) q = q.ilike("name", `%${term}%`);
+      }
+      return q;
+    };
+
+    // Page past PostgREST's 1000-row cap so nothing is silently cut off.
+    type Row = Awaited<ReturnType<typeof build>>["data"] extends (infer R)[] | null ? R : never;
+    const rows: Row[] = [];
+    let total = 0;
+    for (let from = 0; from < 5000; from += 1000) {
+      const { data: page, error, count } = await build().range(from, from + 999);
+      if (error) throw new Error(error.message);
+      if (typeof count === "number") total = count;
+      rows.push(...((page ?? []) as Row[]));
+      if (!page || page.length < 1000) break;
     }
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
-    return { providers: rows ?? [] };
+    return { providers: rows, total };
   });
 
 export const toggleProviderFlag = createServerFn({ method: "POST" })
