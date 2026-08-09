@@ -134,7 +134,7 @@ export const nextMatchStep = createServerFn({ method: "POST" })
         projectType: PROJECT_TYPES.some((p) => p.slug === c.projectType) ? String(c.projectType) : undefined,
         budget: BUDGET_BANDS.some((b) => b.slug === c.budget) ? String(c.budget) : undefined,
         timing: ["asap", "1-3-months", "3-6-months", "planning"].includes(String(c.timing)) ? String(c.timing) : undefined,
-        summary: typeof c.summary === "string" ? c.summary.slice(0, 240) : "Your project",
+        summary: toClientVoice(typeof c.summary === "string" ? c.summary : ""),
       };
       return { kind: "done", criteria, progress: 100 };
     }
