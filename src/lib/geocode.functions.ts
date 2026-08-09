@@ -57,7 +57,19 @@ export async function ensureProviderCoords(placeId: string): Promise<{ lat: numb
 export const geocodeProviderIfNeeded = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    // Billed Google call: restrict to admins or the studio's owner.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!isAdmin) {
+      const { data: owned } = await supabaseAdmin
+        .from("providers")
+        .select("place_id")
+        .eq("place_id", data.placeId)
+        .eq("claimed_by", context.userId)
+        .maybeSingle();
+      if (!owned) throw new Error("Forbidden");
+    }
     const loc = await ensureProviderCoords(data.placeId);
     if (!loc) return { ok: false as const };
     return { ok: true as const, lat: loc.lat, lng: loc.lng };
