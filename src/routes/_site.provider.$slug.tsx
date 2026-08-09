@@ -415,8 +415,7 @@ function ProviderPage() {
           <section className="mt-8 rounded-2xl border border-border bg-secondary/40 p-6">
             <p className="flex items-center gap-2 text-sm text-foreground/80">
               <ShieldCheck className="h-4 w-4 text-brand" />
-              Before you sign: ask for a written scope, fee structure and proof of insurance. Our{" "}
-              <Link to="/guide" className="underline hover:text-brand">hiring guide</Link> walks through what to check.
+              Before you sign: ask for a written scope, fee structure and proof of insurance.
             </p>
           </section>
 

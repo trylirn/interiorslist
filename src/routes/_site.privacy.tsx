@@ -84,6 +84,7 @@ function PrivacyPage() {
         We share information only as needed:
         <ul className="mt-2 list-disc pl-5 space-y-1">
           <li><strong>Studios you contact.</strong> When you use a studio contact form, we deliver your message and contact details to that specific studio. Once delivered, the studio is an independent controller of that information.</li>
+          <li><strong>Studios you select in Get Matched.</strong> Match results are private until you ask to be introduced. When you request a consultation, we send your name, email, phone and project brief only to the studios you tick — never to the whole shortlist, and never to studios you did not choose.</li>
           <li><strong>Service providers (subprocessors).</strong> Hosting, database, authentication, email delivery, error monitoring, analytics, maps and geocoding, and content ingestion vendors, bound by confidentiality and data-processing obligations.</li>
           <li><strong>Business owners.</strong> Aggregate view counts and lead counts related to their own listing.</li>
           <li><strong>Legal and safety.</strong> To comply with a lawful subpoena, court order, or government request; to enforce our Terms; to protect the rights, safety, or property of Intearior, users, or the public; or in connection with fraud investigations.</li>

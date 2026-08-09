@@ -35,7 +35,6 @@ export function SiteHeader() {
         <nav className="hidden items-center gap-8 lg:flex">
           <Link to="/search" className="text-sm font-medium hover:text-brand">Find a Designer</Link>
           <Link to="/match" className="text-sm font-medium hover:text-brand">Get Matched</Link>
-          <Link to="/guide" className="text-sm font-medium hover:text-brand">Hiring Guide</Link>
           <Link to="/for-business" className="text-sm font-medium hover:text-brand">For Studios</Link>
         </nav>
 
@@ -60,7 +59,6 @@ export function SiteHeader() {
           <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 text-sm">
             <Link to="/search" onClick={() => setOpen(false)}>Find a Designer</Link>
             <Link to="/match" onClick={() => setOpen(false)}>Get Matched</Link>
-            <Link to="/guide" onClick={() => setOpen(false)}>Hiring Guide</Link>
             <Link to="/for-business" onClick={() => setOpen(false)}>For Studios</Link>
             <Link to="/favorites" onClick={() => setOpen(false)}>Favorites</Link>
             <Link to="/review" onClick={() => setOpen(false)}>Write a Review</Link>
@@ -146,7 +144,7 @@ export function SiteFooter() {
           </FooterCol>
 
           <FooterCol title="Trust">
-            <li><Link to="/guide" className="hover:text-brand">Hiring guide</Link></li>
+            <li><Link to="/how-it-works" className="hover:text-brand">How it works</Link></li>
             <li><Link to="/privacy" className="hover:text-brand">Privacy</Link></li>
             <li><Link to="/terms" className="hover:text-brand">Terms</Link></li>
           </FooterCol>
