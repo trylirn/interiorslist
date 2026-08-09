@@ -43,18 +43,12 @@ export function ConsultationForm({ placeId, studioName, defaults, compact }: Con
       toast.error("Please add your name, email and phone number.");
       return;
     }
-    const brief = [
-      service && `Service: ${SERVICES.find((s) => s.slug === service)?.name ?? service}`,
-      projectType && `Project type: ${PROJECT_TYPES.find((p) => p.slug === projectType)?.label ?? projectType}`,
-      rooms && `Rooms / scope: ${rooms}`,
-      style && `Preferred style: ${STYLES.find((s) => s.slug === style)?.label ?? style}`,
-      budget && `Budget: ${BUDGET_BANDS.find((b) => b.slug === budget)?.label ?? budget}`,
-      timeline && `Timeline: ${timeline}`,
-      zip && `Location / ZIP: ${zip}`,
-      notes && `\nNotes:\n${notes}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
+    // Structured details go into their own columns; the message keeps only the
+    // free-text notes (plus the chosen service, which has no column).
+    const message =
+      [service && `Service: ${SERVICES.find((s) => s.slug === service)?.name ?? service}`, notes]
+        .filter(Boolean)
+        .join("\n\n") || "Consultation request";
 
     setSending(true);
     try {
@@ -65,7 +59,7 @@ export function ConsultationForm({ placeId, studioName, defaults, compact }: Con
           lastName,
           email,
           phone,
-          message: brief || "Consultation request",
+          message,
           location: zip,
           projectType: projectType ? (PROJECT_TYPES.find((p) => p.slug === projectType)?.label ?? projectType) : "",
           budget: budget ? (BUDGET_BANDS.find((b) => b.slug === budget)?.label ?? budget) : "",
