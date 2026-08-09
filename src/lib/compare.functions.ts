@@ -9,6 +9,7 @@ export const getProvidersByIds = createServerFn({ method: "POST" })
     z.object({ ids: z.array(z.string().min(1).max(200)).min(1).max(3) }).parse(d),
   )
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
       .from("providers")
       .select(COLS)

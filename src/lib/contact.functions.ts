@@ -22,6 +22,7 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("contact_messages").insert({
       provider_place_id: data.placeId,
       first_name: data.firstName,

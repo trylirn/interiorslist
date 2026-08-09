@@ -32,6 +32,7 @@ export const respondToReview = createServerFn({ method: "POST" })
     z.object({ reviewId: z.string().uuid(), body: z.string().min(2).max(2000) }).parse(d),
   )
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: review } = await supabaseAdmin
       .from("reviews")
       .select("id, provider_place_id")
@@ -51,6 +52,7 @@ export const respondToReview = createServerFn({ method: "POST" })
 export const listReviewResponses = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ reviewIds: z.array(z.string().uuid()).max(200) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (!data.reviewIds.length) return { responses: [] };
     const { data: rows } = await supabaseAdmin
       .from("review_responses")
@@ -63,6 +65,7 @@ export const listReviewResponses = createServerFn({ method: "GET" })
 export const listProviderFaqs = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows } = await supabaseAdmin
       .from("provider_faqs")
       .select("id, question, answer, sort_order")
@@ -83,6 +86,7 @@ export const upsertProviderFaq = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (!(await ownsProvider(context.userId, data.placeId))) throw new Error("Forbidden");
     const row = {
       provider_place_id: data.placeId,
@@ -104,6 +108,7 @@ export const deleteProviderFaq = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid(), placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (!(await ownsProvider(context.userId, data.placeId))) throw new Error("Forbidden");
     const { error } = await supabaseAdmin.from("provider_faqs").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -115,6 +120,7 @@ export const getListingMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (!(await ownsProvider(context.userId, data.placeId))) throw new Error("Forbidden");
     const since30 = new Date(Date.now() - 30 * 86400_000).toISOString();
     const [views30, leads30, reviewsCount, provider] = await Promise.all([
@@ -137,6 +143,7 @@ export const getListingMetrics = createServerFn({ method: "GET" })
 export const recordProviderView = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("provider_views").insert({ provider_place_id: data.placeId });
     return { ok: true };
   });

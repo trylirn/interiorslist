@@ -34,6 +34,7 @@ async function geocodeAddress(address: string): Promise<{ lat: number; lng: numb
  * paths where the caller does not want to await success.
  */
 export async function ensureProviderCoords(placeId: string): Promise<{ lat: number; lng: number } | null> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: row } = await supabaseAdmin
     .from("providers")
     .select("place_id, address, city, latitude, longitude")
@@ -70,6 +71,7 @@ export const geocodeAllMissing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ limit: z.number().int().min(1).max(500).optional() }).parse(d))
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: role } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
     if (!role) throw new Error("Forbidden");
 
@@ -106,6 +108,7 @@ export const geocodeAllMissing = createServerFn({ method: "POST" })
 export const countMissingCoords = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: role } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
     if (!role) throw new Error("Forbidden");
     const { count } = await supabaseAdmin

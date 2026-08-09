@@ -16,6 +16,7 @@ async function assertAdmin(userId: string) {
 export const adminMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const since7 = new Date(Date.now() - 7 * 86400_000).toISOString();
     const since30 = new Date(Date.now() - 30 * 86400_000).toISOString();
@@ -60,6 +61,7 @@ export const adminMetrics = createServerFn({ method: "GET" })
 export const listPendingClaims = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const { data: claims } = await supabaseAdmin
       .from("claims")
@@ -88,6 +90,7 @@ export const reviewClaim = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const { data: claim, error } = await supabaseAdmin
       .from("claims")
@@ -154,6 +157,7 @@ export const reviewClaim = createServerFn({ method: "POST" })
 export const listPendingSubmissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const { data } = await supabaseAdmin
       .from("submissions")
@@ -169,6 +173,7 @@ export const reviewSubmission = createServerFn({ method: "POST" })
     z.object({ id: z.string().uuid(), action: z.enum(["approve", "reject"]), notes: z.string().max(2000).optional() }).parse(d),
   )
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const { data: sub, error } = await supabaseAdmin
       .from("submissions")
@@ -222,6 +227,7 @@ export const listAllProviders = createServerFn({ method: "GET" })
       .parse(d ?? {}),
   )
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const status = data.status ?? "all";
     const build = () => {
@@ -264,6 +270,7 @@ export const toggleProviderFlag = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const patch: Record<string, boolean> = { [data.field]: data.value };
     const { error } = await (supabaseAdmin
@@ -278,6 +285,7 @@ export const getLicenseDocSignedUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ path: z.string().min(1).max(500) }).parse(d))
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const { data: signed, error } = await supabaseAdmin.storage
       .from("business-docs")
@@ -290,6 +298,7 @@ export const purgeAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ confirm: z.literal("PURGE") }).parse(d))
   .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const events = await supabaseAdmin.from("analytics_events").delete().gt("id", 0);
     if (events.error) throw new Error(events.error.message);
@@ -306,6 +315,7 @@ export const getClaimThreadAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ claimId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const { data: messages } = await supabaseAdmin
       .from("claim_messages")
