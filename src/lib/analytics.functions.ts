@@ -459,7 +459,7 @@ export const getUserJourneys = createServerFn({ method: "POST" })
       if (winner) winnerIds.push(winner);
       s._winner = winner;
       s._winnerLead = lead?.lead_type ?? (click ? "click" : null);
-      s._steps = evs.length;
+      s._steps = evs.filter((e) => e.event_type !== "impression").length;
       s._durationMs = evs.length > 0 ? new Date(evs[evs.length - 1].created_at).getTime() - new Date(s.started_at).getTime() : 0;
     }
     const names = await providerNameMap(winnerIds);

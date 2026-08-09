@@ -293,7 +293,7 @@ function OverviewPanel({ range }: { range: Range }) {
             <Zap className="h-5 w-5 text-amber-500" />
             <div>
               <h3 className="font-display text-lg">Live Activity Feed</h3>
-              <p className="text-xs text-muted-foreground">Real-time user journeys · refreshes every 10s</p>
+              <p className="text-xs text-muted-foreground">One row per visitor session · refreshes every 10s</p>
             </div>
           </div>
           <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-emerald-600">
