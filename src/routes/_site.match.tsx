@@ -298,7 +298,7 @@ function MatchPage() {
             firstName: firstName.trim(),
             lastName: lastName.trim(),
             email: email.trim(),
-            phone: phone.trim() || "not provided",
+            phone: phone.trim(),
             message,
             location: citySlug !== "any" ? (cityLabel || citySlug) : "Open to remote studios",
             projectType: criteria?.projectType ? projectTypeLabel(criteria.projectType) : "",
