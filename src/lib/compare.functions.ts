@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const COLS =
   "place_id, slug, name, city, city_slug, address, website, phone, specialists, credentials, services, services_raw, branch_label, is_verified, claimed_by, rating, review_count, hero_photo_url, skin_types, recovery_tags, price_ranges, hours, social_links";

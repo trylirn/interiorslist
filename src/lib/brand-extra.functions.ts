@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 async function isAdminUser(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
     .from("user_roles")
     .select("role")
@@ -14,6 +14,7 @@ async function isAdminUser(userId: string) {
 }
 
 async function ownsProvider(userId: string, placeId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   if (await isAdminUser(userId)) return true;
   const { data } = await supabaseAdmin
     .from("providers")

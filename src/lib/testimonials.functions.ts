@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export const listFeaturedTestimonials = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await supabaseAdmin

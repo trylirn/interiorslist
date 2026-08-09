@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 async function assertAdmin(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
     .from("user_roles")
     .select("role")
@@ -14,9 +14,6 @@ async function assertAdmin(userId: string) {
 }
 
 // Loose typed handle for our new tables (types are regenerated later).
-const db = supabaseAdmin as unknown as {
-  from: (t: string) => any;
-};
 
 const RangeSchema = z.object({
   range: z.enum(["today", "yesterday", "7d", "30d", "this_month", "last_month", "custom"]).default("7d"),
@@ -56,6 +53,8 @@ function resolveRange(r: RangeInput): { from: string; to: string } {
 }
 
 async function fetchEvents(from: string, to: string, extra?: (q: any) => any) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const db = supabaseAdmin as unknown as { from: (t: string) => any };
   let q = db.from("analytics_events").select("*").gte("created_at", from).lte("created_at", to);
   if (extra) q = extra(q);
   const { data } = await q.limit(20000);
