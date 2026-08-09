@@ -301,13 +301,14 @@ function OverviewPanel({ range }: { range: Range }) {
           </span>
         </div>
         <ul className="divide-y divide-border">
-          {(feed?.events ?? []).slice(0, 30).map((e, i) => (
-            <JourneyRow key={e.id} event={e} zebra={i % 2 === 1} />
+          {(feed?.sessions ?? []).slice(0, 20).map((s, i) => (
+            <SessionRow key={s.session_id} session={s} zebra={i % 2 === 1} />
           ))}
-          {(!feed || feed.events.length === 0) && (
+          {(!feed || feed.sessions.length === 0) && (
             <li className="p-10 text-center text-sm text-muted-foreground">Waiting for events…</li>
           )}
         </ul>
+
       </div>
     </div>
   );
