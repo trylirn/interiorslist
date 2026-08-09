@@ -43,22 +43,31 @@ export function ConsultationForm({ placeId, studioName, defaults, compact }: Con
       toast.error("Please add your name, email and phone number.");
       return;
     }
-    const brief = [
-      service && `Service: ${SERVICES.find((s) => s.slug === service)?.name ?? service}`,
-      projectType && `Project type: ${PROJECT_TYPES.find((p) => p.slug === projectType)?.label ?? projectType}`,
-      rooms && `Rooms / scope: ${rooms}`,
-      style && `Preferred style: ${STYLES.find((s) => s.slug === style)?.label ?? style}`,
-      budget && `Budget: ${BUDGET_BANDS.find((b) => b.slug === budget)?.label ?? budget}`,
-      timeline && `Timeline: ${timeline}`,
-      zip && `Location / ZIP: ${zip}`,
-      notes && `\nNotes:\n${notes}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
+    // Structured details go into their own columns; the message keeps only the
+    // free-text notes (plus the chosen service, which has no column).
+    const message =
+      [service && `Service: ${SERVICES.find((s) => s.slug === service)?.name ?? service}`, notes]
+        .filter(Boolean)
+        .join("\n\n") || "Consultation request";
 
     setSending(true);
     try {
-      await send({ data: { placeId, firstName, lastName, email, phone, message: brief || "Consultation request" } });
+      await send({
+        data: {
+          placeId,
+          firstName,
+          lastName,
+          email,
+          phone,
+          message,
+          location: zip,
+          projectType: projectType ? (PROJECT_TYPES.find((p) => p.slug === projectType)?.label ?? projectType) : "",
+          budget: budget ? (BUDGET_BANDS.find((b) => b.slug === budget)?.label ?? budget) : "",
+          style: style ? (STYLES.find((s) => s.slug === style)?.label ?? style) : "",
+          timeline,
+          rooms,
+        },
+      });
       setDone(true);
       toast.success("Request sent — the studio will be in touch.");
     } catch (err) {
@@ -88,29 +97,30 @@ export function ConsultationForm({ placeId, studioName, defaults, compact }: Con
         <Field label="Phone"><Input value={phone} onChange={(e) => setPhone(e.target.value)} required /></Field>
       </div>
 
-      {!compact && (
-        <div className="grid gap-4 sm:grid-cols-2">
+      <div className={compact ? "grid gap-4" : "grid gap-4 sm:grid-cols-2"}>
+        {!compact && (
           <Field label="What do you need?">
             <Picker value={service} onChange={setService} placeholder="Select a service" options={SERVICES.map((s) => ({ value: s.slug, label: s.name }))} />
           </Field>
-          <Field label="Project type">
-            <Picker value={projectType} onChange={setProjectType} placeholder="Select a project type" options={PROJECT_TYPES.map((p) => ({ value: p.slug, label: p.label }))} />
-          </Field>
-          <Field label="Preferred style">
-            <Picker value={style} onChange={setStyle} placeholder="Select a style" options={STYLES.map((s) => ({ value: s.slug, label: s.label }))} />
-          </Field>
-          <Field label="Budget">
-            <Picker value={budget} onChange={setBudget} placeholder="Select a budget" options={BUDGET_BANDS.map((b) => ({ value: b.slug, label: b.label }))} />
-          </Field>
-          <Field label="Timeline">
-            <Picker value={timeline} onChange={setTimeline} placeholder="When do you want to start?" options={TIMELINES.map((t) => ({ value: t, label: t }))} />
-          </Field>
-          <Field label="ZIP / area"><Input value={zip} onChange={(e) => setZip(e.target.value)} placeholder="e.g. 78701" /></Field>
-          <div className="sm:col-span-2">
-            <Field label="Rooms or scope"><Input value={rooms} onChange={(e) => setRooms(e.target.value)} placeholder="e.g. kitchen, primary bath and living room" /></Field>
-          </div>
+        )}
+        <Field label="Project type">
+          <Picker value={projectType} onChange={setProjectType} placeholder="Select a project type" options={PROJECT_TYPES.map((p) => ({ value: p.slug, label: p.label }))} />
+        </Field>
+        <Field label="Preferred style">
+          <Picker value={style} onChange={setStyle} placeholder="Select a style" options={STYLES.map((s) => ({ value: s.slug, label: s.label }))} />
+        </Field>
+        <Field label="Budget">
+          <Picker value={budget} onChange={setBudget} placeholder="Select a budget" options={BUDGET_BANDS.map((b) => ({ value: b.slug, label: b.label }))} />
+        </Field>
+        <Field label="Timeline">
+          <Picker value={timeline} onChange={setTimeline} placeholder="When do you want to start?" options={TIMELINES.map((t) => ({ value: t, label: t }))} />
+        </Field>
+        <Field label={compact ? "City / ZIP" : "ZIP / area"}><Input value={zip} onChange={(e) => setZip(e.target.value)} placeholder="e.g. Miami, FL" /></Field>
+        <div className={compact ? "" : "sm:col-span-2"}>
+          <Field label="Rooms or scope"><Input value={rooms} onChange={(e) => setRooms(e.target.value)} placeholder="e.g. kitchen, primary bath and living room" /></Field>
         </div>
-      )}
+      </div>
+
 
       <Field label="Tell the studio about your project">
         <Textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Square footage, what you like, what isn't working, anything else useful." />

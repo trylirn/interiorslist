@@ -286,6 +286,12 @@ function MatchPage() {
             email: email.trim(),
             phone: phone.trim() || "not provided",
             message,
+            location: citySlug !== "any" ? (cityLabel || citySlug) : "Open to remote studios",
+            projectType: criteria?.projectType ? projectTypeLabel(criteria.projectType) : "",
+            budget: criteria?.budget ? (BUDGET_BANDS.find((b) => b.slug === criteria.budget)?.label ?? criteria.budget) : "",
+            style: criteria?.styles?.length ? criteria.styles.map(styleLabel).join(", ") : "",
+            timeline: criteria?.timing ? criteria.timing.replace(/-/g, " ") : "",
+            rooms: criteria?.priority ? (PRIORITY_SERVICE[criteria.priority] ? serviceName(PRIORITY_SERVICE[criteria.priority]!) : criteria.priority.replace(/-/g, " ")) : "",
           },
         });
       }

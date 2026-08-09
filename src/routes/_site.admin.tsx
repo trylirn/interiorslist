@@ -13,10 +13,12 @@ import {
   listAllProviders,
   toggleProviderFlag,
   getLicenseDocSignedUrl,
+  getClaimThreadAdmin,
 } from "@/lib/admin.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
@@ -154,40 +156,125 @@ function OverviewTab() {
   );
 }
 
+const CLAIM_STATUSES = ["pending", "needs_info", "approved", "rejected"] as const;
+const CLAIM_LABEL: Record<string, string> = {
+  pending: "Pending",
+  needs_info: "More info requested",
+  approved: "Approved",
+  rejected: "Rejected",
+};
+
 function ClaimsTab() {
-  const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["admin-claims"], queryFn: () => listPendingClaims() });
-  const review = useServerFn(reviewClaim);
+  const [filter, setFilter] = useState<string>("open");
   if (isLoading || !data) return <p className="text-muted-foreground">Loading…</p>;
-  if (!data.claims.length) return <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No claims to review.</p>;
-  async function decide(id: string, action: "approve" | "reject") {
-    try { await review({ data: { id, action } }); toast.success(action === "approve" ? "Claim approved" : "Claim rejected"); qc.invalidateQueries({ queryKey: ["admin-claims"] }); }
-    catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
-  }
+
+  const claims = data.claims.filter((c) =>
+    filter === "all" ? true : filter === "open" ? c.status === "pending" || c.status === "needs_info" : c.status === filter,
+  );
+
   return (
-    <div className="space-y-3">
-      {data.claims.map((c) => (
-        <div key={c.id} className="rounded-2xl border border-border bg-card p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="font-display text-lg">{c.provider?.name ?? c.provider_place_id}</p>
-              <p className="text-xs text-muted-foreground">{c.provider?.city ?? ""} · {c.status} · {new Date(c.submitted_at).toLocaleDateString()}</p>
-              <p className="mt-2 text-sm">Contact: <span className="font-medium">{c.contact_email}</span>{c.contact_phone && <> · {c.contact_phone}</>}</p>
-              {c.business_role && <p className="text-sm">Role: {c.business_role}</p>}
-              {c.proof_notes && <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{c.proof_notes}</p>}
-            </div>
-            {c.status === "pending" && (
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => decide(c.id, "approve")}>Approve</Button>
-                <Button size="sm" variant="outline" onClick={() => decide(c.id, "reject")}>Reject</Button>
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
+    <div className="space-y-4">
+      <Select value={filter} onValueChange={setFilter}>
+        <SelectTrigger className="h-9 w-56" aria-label="Filter claims by status"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="open">Open (pending + info needed)</SelectItem>
+          <SelectItem value="all">All claims</SelectItem>
+          {CLAIM_STATUSES.map((s) => <SelectItem key={s} value={s}>{CLAIM_LABEL[s]}</SelectItem>)}
+        </SelectContent>
+      </Select>
+
+      {!claims.length ? (
+        <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No claims to review.</p>
+      ) : (
+        <div className="space-y-3">{claims.map((c) => <ClaimCard key={c.id} claim={c} />)}</div>
+      )}
     </div>
   );
 }
+
+type AdminClaim = Awaited<ReturnType<typeof listPendingClaims>>["claims"][number];
+
+function ClaimCard({ claim: c }: { claim: AdminClaim }) {
+  const qc = useQueryClient();
+  const review = useServerFn(reviewClaim);
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const { data: thread } = useQuery({
+    queryKey: ["admin-claim-thread", c.id],
+    queryFn: () => getClaimThreadAdmin({ data: { claimId: c.id } }),
+    enabled: open,
+  });
+
+  async function decide(action: "approve" | "reject" | "request_info" | "pending") {
+    setBusy(true);
+    try {
+      await review({ data: { id: c.id, action, note: note.trim() } });
+      setNote("");
+      toast.success(
+        action === "approve" ? "Claim approved"
+        : action === "reject" ? "Claim rejected"
+        : action === "request_info" ? "More info requested" : "Moved back to pending",
+      );
+      qc.invalidateQueries({ queryKey: ["admin-claims"] });
+      qc.invalidateQueries({ queryKey: ["admin-claim-thread", c.id] });
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+    finally { setBusy(false); }
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-display text-lg">{c.provider?.name ?? c.provider_place_id}</p>
+          <p className="text-xs text-muted-foreground">
+            {c.provider?.city ?? ""} · {CLAIM_LABEL[c.status] ?? c.status} · {new Date(c.submitted_at).toLocaleDateString()}
+          </p>
+          <p className="mt-2 text-sm">
+            {c.contact_name && <span className="font-medium">{c.contact_name} · </span>}
+            <span className="font-medium">{c.contact_email}</span>{c.contact_phone && <> · {c.contact_phone}</>}
+          </p>
+          {c.business_role && <p className="text-sm">Role: {c.business_role}</p>}
+          {c.proof_notes && <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{c.proof_notes}</p>}
+          {c.decision_reason && <p className="mt-2 text-sm"><span className="text-muted-foreground">Last note:</span> {c.decision_reason}</p>}
+        </div>
+        <Button size="sm" variant="ghost" onClick={() => setOpen((v) => !v)}>{open ? "Hide" : "Review"}</Button>
+      </div>
+
+      {open && (
+        <div className="mt-4 space-y-3 border-t border-border pt-4">
+          {(thread?.messages ?? []).map((m) => (
+            <div key={m.id} className={`rounded-xl border p-3 ${m.author_role === "admin" ? "border-brand/30 bg-brand/5" : "border-border"}`}>
+              <p className="text-xs text-muted-foreground">{m.author_name ?? m.author_role} · {new Date(m.created_at).toLocaleString()}</p>
+              <p className="mt-1 whitespace-pre-line text-sm">{m.body}</p>
+              {m.attachmentUrl && (
+                <a href={m.attachmentUrl} target="_blank" rel="noreferrer" className="mt-1 inline-block text-sm text-brand underline">View attachment</a>
+              )}
+            </div>
+          ))}
+          <Textarea
+            rows={3}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Note to the claimant — e.g. please send a business licence or a photo of your signage."
+            aria-label="Note to the claimant"
+          />
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" disabled={busy} onClick={() => decide("approve")}>Approve</Button>
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => decide("request_info")}>Request more info</Button>
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => decide("reject")}>Reject with reason</Button>
+            {c.status !== "pending" && (
+              <Button size="sm" variant="ghost" disabled={busy} onClick={() => decide("pending")}>Move to pending</Button>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">A note is required when requesting info or rejecting.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 function SubmissionsTab() {
   const qc = useQueryClient();

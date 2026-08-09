@@ -93,7 +93,7 @@ export const listMyLeads = createServerFn({ method: "GET" })
     const { supabase } = context;
     let q = supabase
       .from("contact_messages")
-      .select("id, provider_place_id, first_name, last_name, email, phone, message, status, created_at");
+      .select("id, provider_place_id, first_name, last_name, email, phone, message, status, created_at, location, project_type, budget, style, timeline, rooms");
     if (input?.placeId) q = q.eq("provider_place_id", input.placeId);
     const { data, error } = await q
       .order("created_at", { ascending: false })
@@ -152,6 +152,29 @@ export const listMyReviews = createServerFn({ method: "GET" })
       .limit(200);
     if (error) throw new Error(error.message);
     return { reviews: (data ?? []).map((r) => ({ ...r, providerName: nameMap.get(r.provider_place_id) ?? "" })) };
+  });
+
+/** Claims filed by the signed-in account, with their private thread links. */
+export const listMyClaims = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: profile } = await supabase.from("profiles").select("email").eq("id", userId).maybeSingle();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let q = supabaseAdmin
+      .from("claims")
+      .select("id, provider_place_id, status, decision_reason, submitted_at, last_message_at, access_token, contact_email, user_id");
+    q = profile?.email
+      ? q.or(`user_id.eq.${userId},contact_email.eq.${profile.email.toLowerCase()}`)
+      : q.eq("user_id", userId);
+    const { data: claims, error } = await q.order("submitted_at", { ascending: false }).limit(50);
+    if (error) throw new Error(error.message);
+    const ids = Array.from(new Set((claims ?? []).map((c) => c.provider_place_id)));
+    const { data: providers } = ids.length
+      ? await supabaseAdmin.from("providers").select("place_id, name, city, state").in("place_id", ids)
+      : { data: [] };
+    const pmap = new Map((providers ?? []).map((p) => [p.place_id, p]));
+    return { claims: (claims ?? []).map((c) => ({ ...c, provider: pmap.get(c.provider_place_id) ?? null })) };
   });
 
 export const submitClaim = createServerFn({ method: "POST" })

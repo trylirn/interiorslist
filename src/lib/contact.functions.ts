@@ -13,6 +13,12 @@ export const sendContactMessage = createServerFn({ method: "POST" })
         email: z.string().email().max(255),
         phone: z.string().min(7).max(40),
         message: z.string().min(1).max(4000),
+        location: z.string().max(160).optional().or(z.literal("")),
+        projectType: z.string().max(160).optional().or(z.literal("")),
+        budget: z.string().max(120).optional().or(z.literal("")),
+        style: z.string().max(200).optional().or(z.literal("")),
+        timeline: z.string().max(120).optional().or(z.literal("")),
+        rooms: z.string().max(300).optional().or(z.literal("")),
       })
       .parse(d),
   )
@@ -24,6 +30,12 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       email: data.email,
       phone: data.phone || null,
       message: data.message,
+      location: data.location || null,
+      project_type: data.projectType || null,
+      budget: data.budget || null,
+      style: data.style || null,
+      timeline: data.timeline || null,
+      rooms: data.rooms || null,
     });
     if (error) throw new Error(error.message);
     return { ok: true };

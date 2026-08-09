@@ -39,6 +39,7 @@ import { Route as SiteStyleSlugRouteImport } from './routes/_site.style.$slug'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as SiteAdminProviderPlaceIdRouteImport } from './routes/_site.admin.provider.$placeId'
 import { Route as SiteBestStateCityRouteImport } from './routes/_site.best.$state.$city'
+import { Route as SiteClaimStatusIdRouteImport } from './routes/_site.claim.status.$id'
 import { Route as SiteDashboardListingPlaceIdRouteImport } from './routes/_site.dashboard.listing.$placeId'
 import { Route as SiteDesignersStateIndexRouteImport } from './routes/_site.designers.$state.index'
 import { Route as SiteDesignersStateCityRouteImport } from './routes/_site.designers.$state.$city'
@@ -193,6 +194,11 @@ const SiteBestStateCityRoute = SiteBestStateCityRouteImport.update({
   path: '/best/$state/$city',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteClaimStatusIdRoute = SiteClaimStatusIdRouteImport.update({
+  id: '/claim/status/$id',
+  path: '/claim/status/$id',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteDashboardListingPlaceIdRoute =
   SiteDashboardListingPlaceIdRouteImport.update({
     id: '/listing/$placeId',
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/review/': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/best/$state/$city': typeof SiteBestStateCityRoute
+  '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
   '/designers/$state/': typeof SiteDesignersStateIndexRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/review': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/best/$state/$city': typeof SiteBestStateCityRoute
+  '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
   '/designers/$state': typeof SiteDesignersStateIndexRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/_site/review/': typeof SiteReviewIndexRoute
   '/_site/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/_site/best/$state/$city': typeof SiteBestStateCityRoute
+  '/_site/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/_site/designers/$state/$city': typeof SiteDesignersStateCityRoute
   '/_site/designers/$state/': typeof SiteDesignersStateIndexRoute
@@ -346,6 +355,7 @@ export interface FileRouteTypes {
     | '/review/'
     | '/admin/provider/$placeId'
     | '/best/$state/$city'
+    | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
     | '/designers/$state/'
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/admin/provider/$placeId'
     | '/best/$state/$city'
+    | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
     | '/designers/$state'
@@ -415,6 +426,7 @@ export interface FileRouteTypes {
     | '/_site/review/'
     | '/_site/admin/provider/$placeId'
     | '/_site/best/$state/$city'
+    | '/_site/claim/status/$id'
     | '/_site/dashboard/listing/$placeId'
     | '/_site/designers/$state/$city'
     | '/_site/designers/$state/'
@@ -638,6 +650,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteBestStateCityRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/claim/status/$id': {
+      id: '/_site/claim/status/$id'
+      path: '/claim/status/$id'
+      fullPath: '/claim/status/$id'
+      preLoaderRoute: typeof SiteClaimStatusIdRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/dashboard/listing/$placeId': {
       id: '/_site/dashboard/listing/$placeId'
       path: '/listing/$placeId'
@@ -714,6 +733,7 @@ interface SiteRouteChildren {
   SiteClaimIndexRoute: typeof SiteClaimIndexRoute
   SiteReviewIndexRoute: typeof SiteReviewIndexRoute
   SiteBestStateCityRoute: typeof SiteBestStateCityRoute
+  SiteClaimStatusIdRoute: typeof SiteClaimStatusIdRoute
   SiteDesignersStateCityRoute: typeof SiteDesignersStateCityRoute
   SiteDesignersStateIndexRoute: typeof SiteDesignersStateIndexRoute
 }
@@ -744,6 +764,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteClaimIndexRoute: SiteClaimIndexRoute,
   SiteReviewIndexRoute: SiteReviewIndexRoute,
   SiteBestStateCityRoute: SiteBestStateCityRoute,
+  SiteClaimStatusIdRoute: SiteClaimStatusIdRoute,
   SiteDesignersStateCityRoute: SiteDesignersStateCityRoute,
   SiteDesignersStateIndexRoute: SiteDesignersStateIndexRoute,
 }

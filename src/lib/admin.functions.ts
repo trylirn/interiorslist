@@ -63,7 +63,7 @@ export const listPendingClaims = createServerFn({ method: "GET" })
     await assertAdmin(context.userId);
     const { data: claims } = await supabaseAdmin
       .from("claims")
-      .select("id, provider_place_id, user_id, contact_email, contact_phone, business_role, proof_notes, status, submitted_at")
+      .select("id, provider_place_id, user_id, contact_name, contact_email, contact_phone, business_role, proof_notes, status, decision_reason, last_message_at, submitted_at")
       .order("submitted_at", { ascending: false })
       .limit(200);
     const ids = Array.from(new Set((claims ?? []).map((c) => c.provider_place_id)));
@@ -79,7 +79,13 @@ export const listPendingClaims = createServerFn({ method: "GET" })
 export const reviewClaim = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
-    z.object({ id: z.string().uuid(), action: z.enum(["approve", "reject"]) }).parse(d),
+    z
+      .object({
+        id: z.string().uuid(),
+        action: z.enum(["approve", "reject", "request_info", "pending"]),
+        note: z.string().trim().max(2000).optional().or(z.literal("")),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
@@ -89,12 +95,41 @@ export const reviewClaim = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .maybeSingle();
     if (error || !claim) throw new Error("Claim not found");
-    const status = data.action === "approve" ? "approved" : "rejected";
+
+    if ((data.action === "reject" || data.action === "request_info") && !data.note?.trim()) {
+      throw new Error("Please add a note explaining what you need.");
+    }
+
+    const status =
+      data.action === "approve" ? "approved"
+      : data.action === "reject" ? "rejected"
+      : data.action === "request_info" ? "needs_info"
+      : "pending";
+
+    const now = new Date().toISOString();
     const { error: upErr } = await supabaseAdmin
       .from("claims")
-      .update({ status, reviewed_at: new Date().toISOString(), reviewed_by: context.userId })
+      .update({
+        status,
+        decision_reason: data.note?.trim() || null,
+        reviewed_at: data.action === "pending" ? null : now,
+        reviewed_by: context.userId,
+        ...(data.note?.trim() ? { last_message_at: now } : {}),
+      })
       .eq("id", data.id);
     if (upErr) throw new Error(upErr.message);
+
+    if (data.note?.trim()) {
+      const { data: me } = await supabaseAdmin.from("profiles").select("display_name, email").eq("id", context.userId).maybeSingle();
+      await supabaseAdmin.from("claim_messages").insert({
+        claim_id: data.id,
+        author_role: "admin",
+        author_id: context.userId,
+        author_name: me?.display_name ?? me?.email ?? "Intearior team",
+        body: data.note.trim(),
+      });
+    }
+
     if (data.action === "approve") {
       // Public claims can arrive without an account. If an account already
       // exists for the contact email, attach the listing to it.
@@ -114,6 +149,7 @@ export const reviewClaim = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
 
 export const listPendingSubmissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -264,3 +300,29 @@ export const purgeAnalytics = createServerFn({ method: "POST" })
     if (sessions.error) throw new Error(sessions.error.message);
     return { ok: true };
   });
+
+/** Full message thread for one claim, for the admin console. */
+export const getClaimThreadAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ claimId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { data: messages } = await supabaseAdmin
+      .from("claim_messages")
+      .select("id, author_role, author_name, body, attachment_path, created_at")
+      .eq("claim_id", data.claimId)
+      .order("created_at", { ascending: true })
+      .limit(100);
+    const withUrls = await Promise.all(
+      (messages ?? []).map(async (m) => {
+        let attachmentUrl: string | null = null;
+        if (m.attachment_path) {
+          const { data: signed } = await supabaseAdmin.storage.from("business-docs").createSignedUrl(m.attachment_path, 600);
+          attachmentUrl = signed?.signedUrl ?? null;
+        }
+        return { ...m, attachmentUrl };
+      }),
+    );
+    return { messages: withUrls };
+  });
+
