@@ -253,7 +253,7 @@ function HomePage() {
                 Every listing is reviewed before it goes live. We show credentials such as NCIDQ certification, ASID or IIDA membership and state registration, and link straight to each studio's own portfolio so you can check the work yourself.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild variant="outline" className="rounded-full"><Link to="/guide">Read the hiring guide</Link></Button>
+                <Button asChild variant="outline" className="rounded-full"><Link to="/how-it-works">How it works</Link></Button>
                 <Button asChild variant="outline" className="rounded-full"><Link to="/search">Browse all studios</Link></Button>
               </div>
             </div>

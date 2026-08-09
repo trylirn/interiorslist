@@ -9,7 +9,6 @@ Intearior helps homeowners find verified, currently-operating interior design st
 - [Home](/): Search and browse trusted interior design studios nationwide.
 - [Search](/search): Search studios by name, city, service, or style.
 - [Match](/match): Take a quick quiz to get matched with studios suited to your project.
-- [Guide](/guide): Editorial guides on services and design styles.
 - [Submit a business](/submit): Suggest an interior design studio for the directory.
 - [For Business](/for-business): Claim or submit your studio listing.
 - [About](/about): What Intearior is and how listings are vetted.
