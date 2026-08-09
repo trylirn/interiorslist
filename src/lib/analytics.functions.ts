@@ -169,6 +169,11 @@ export const getOverview = createServerFn({ method: "POST" })
     };
   });
 
+/**
+ * Live feed, summarised per visitor session.
+ * One row per session — impressions collapse into a "viewed N studios" count
+ * so a single visitor browsing a results page no longer floods the feed.
+ */
 export const getLiveFeed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -177,23 +182,100 @@ export const getLiveFeed = createServerFn({ method: "POST" })
       .from("analytics_events")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(60);
+      .limit(600);
     const events = (data ?? []) as any[];
-    const ids = events.map((e) => e.provider_place_id).filter(Boolean) as string[];
-    const names = await providerNameMap(ids);
+
+    type Row = {
+      session_id: string;
+      last_at: string;
+      first_at: string;
+      entry: "search" | "browse" | "direct";
+      query: string | null;
+      city_slug: string | null;
+      path: string | null;
+      views: number;
+      clicks: number;
+      leads: number;
+      steps: number;
+      last_provider_id: string | null;
+      last_action: { type: "lead" | "click" | "view"; lead_type: string | null } | null;
+    };
+
+    const bySession = new Map<string, Row>();
+    // events arrive newest-first
+    for (const e of events) {
+      const sid = e.session_id as string;
+      let r = bySession.get(sid);
+      if (!r) {
+        if (bySession.size >= 25) continue;
+        r = {
+          session_id: sid,
+          last_at: e.created_at,
+          first_at: e.created_at,
+          entry: "direct",
+          query: null,
+          city_slug: null,
+          path: e.path ?? null,
+          views: 0,
+          clicks: 0,
+          leads: 0,
+          steps: 0,
+          last_provider_id: null,
+          last_action: null,
+        };
+        bySession.set(sid, r);
+      }
+      r.first_at = e.created_at;
+      if (e.city_slug && !r.city_slug) r.city_slug = e.city_slug;
+      if (e.query && !r.query) r.query = e.query;
+
+      if (e.event_type === "impression") {
+        r.views += 1;
+      } else if (e.event_type === "listing_click") {
+        r.clicks += 1;
+        r.steps += 1;
+      } else if (e.event_type === "lead_action") {
+        r.leads += 1;
+        r.steps += 1;
+      } else if (e.event_type === "search") {
+        r.steps += 1;
+      }
+
+      // strongest / most recent action wins (we iterate newest-first)
+      if (!r.last_action) {
+        if (e.event_type === "lead_action") r.last_action = { type: "lead", lead_type: e.lead_type ?? null };
+        else if (e.event_type === "listing_click") r.last_action = { type: "click", lead_type: null };
+        else if (e.event_type === "impression") r.last_action = { type: "view", lead_type: null };
+      }
+      if (!r.last_provider_id && e.provider_place_id) r.last_provider_id = e.provider_place_id;
+    }
+
+    const rows = Array.from(bySession.values());
+    for (const r of rows) {
+      r.entry = r.query ? "search" : r.views > 0 || r.clicks > 0 || r.leads > 0 ? "browse" : "direct";
+    }
+    const names = await providerNameMap(rows.map((r) => r.last_provider_id).filter(Boolean) as string[]);
+
     return {
-      events: events.map((e) => ({
-        id: e.id,
-        created_at: e.created_at,
-        event_type: e.event_type,
-        lead_type: e.lead_type,
-        query: e.query,
-        city_slug: e.city_slug,
-        visitor_id: e.visitor_id,
-        provider: e.provider_place_id ? names.get(e.provider_place_id) ?? null : null,
-      })),
+      sessions: rows
+        .sort((a, b) => b.last_at.localeCompare(a.last_at))
+        .map((r) => ({
+          session_id: r.session_id,
+          last_at: r.last_at,
+          entry: r.entry,
+          query: r.query,
+          city_slug: r.city_slug,
+          path: r.path,
+          views: r.views,
+          clicks: r.clicks,
+          leads: r.leads,
+          steps: r.steps,
+          last_action: r.last_action,
+          provider: r.last_provider_id ? names.get(r.last_provider_id) ?? null : null,
+        })),
     };
   });
+
 
 export const getCityAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
