@@ -36,22 +36,27 @@ export const submitPublicClaim = createServerFn({ method: "POST" })
 
     const { data: dupe } = await supabaseAdmin
       .from("claims")
-      .select("id")
+      .select("id, access_token")
       .eq("contact_email", email)
       .eq("provider_place_id", data.placeId)
-      .eq("status", "pending")
+      .in("status", ["pending", "needs_info"])
       .maybeSingle();
-    if (dupe) return { ok: true, duplicate: true };
+    if (dupe) return { ok: true, duplicate: true, claimId: dupe.id, token: dupe.access_token as string };
 
-    const { error } = await supabaseAdmin.from("claims").insert({
-      provider_place_id: data.placeId,
-      user_id: data.userId ?? null,
-      contact_name: `${data.firstName} ${data.lastName}`.trim(),
-      contact_email: email,
-      contact_phone: data.contactPhone || null,
-      business_role: data.businessRole || null,
-      proof_notes: data.proofNotes || null,
-    });
+    const { data: created, error } = await supabaseAdmin
+      .from("claims")
+      .insert({
+        provider_place_id: data.placeId,
+        user_id: data.userId ?? null,
+        contact_name: `${data.firstName} ${data.lastName}`.trim(),
+        contact_email: email,
+        contact_phone: data.contactPhone || null,
+        business_role: data.businessRole || null,
+        proof_notes: data.proofNotes || null,
+      })
+      .select("id, access_token")
+      .maybeSingle();
     if (error) throw new Error(error.message);
-    return { ok: true, duplicate: false };
+    return { ok: true, duplicate: false, claimId: created?.id ?? null, token: (created?.access_token as string | undefined) ?? null };
   });
+

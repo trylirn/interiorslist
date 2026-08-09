@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { listMyListings, listMyLeads, listMyReviews, updateLeadStatus, getMyOnboardingStatus } from "@/lib/owner.functions";
+import { listMyListings, listMyLeads, listMyReviews, updateLeadStatus, getMyOnboardingStatus, listMyClaims } from "@/lib/owner.functions";
 import { respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { getMyRoles } from "@/lib/role.functions";
 import { Star, Mail, Phone, ExternalLink, Building2, Shield, Clock } from "lucide-react";
@@ -65,10 +65,12 @@ function Dashboard() {
             <TabsTrigger value="listings">My Listings</TabsTrigger>
             <TabsTrigger value="leads">Leads</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <TabsTrigger value="claims">Claims</TabsTrigger>
           </TabsList>
           <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
           <TabsContent value="leads" className="mt-6"><LeadsTab /></TabsContent>
           <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
+          <TabsContent value="claims" className="mt-6"><ClaimsTab /></TabsContent>
         </Tabs>
       ) : (
         <div className="mt-10 rounded-3xl border border-dashed border-border bg-card p-10 text-center">
@@ -93,6 +95,55 @@ function Dashboard() {
           </div>
         </div>
       )}
+
+      {!ownsListings && !listingsLoading && (
+        <div className="mt-8">
+          <h2 className="font-display text-2xl">Your claims</h2>
+          <div className="mt-4"><ClaimsTab /></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ClaimsTab() {
+  const { data, isLoading } = useQuery({ queryKey: ["my-claims"], queryFn: () => listMyClaims() });
+  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
+  const claims = data?.claims ?? [];
+  if (!claims.length) {
+    return (
+      <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+        No claims yet. Find your studio in the directory and claim it to manage the listing.
+      </p>
+    );
+  }
+  const label: Record<string, string> = {
+    pending: "Pending review",
+    needs_info: "More info needed",
+    approved: "Approved",
+    rejected: "Not approved",
+  };
+  return (
+    <div className="space-y-3">
+      {claims.map((c) => (
+        <div key={c.id} className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="font-medium">{c.provider?.name ?? c.provider_place_id}</p>
+              <p className="text-xs text-muted-foreground">
+                {c.provider ? `${c.provider.city}, ${c.provider.state} · ` : ""}
+                {label[c.status] ?? c.status} · {new Date(c.submitted_at).toLocaleDateString()}
+              </p>
+              {c.decision_reason && <p className="mt-2 whitespace-pre-line text-sm">{c.decision_reason}</p>}
+            </div>
+            <Button asChild size="sm" variant={c.status === "needs_info" ? "default" : "outline"}>
+              <Link to="/claim/status/$id" params={{ id: c.id }} search={{ token: c.access_token as string }}>
+                {c.status === "needs_info" ? "Send proof" : "View claim"}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -208,12 +259,50 @@ function LeadsTab() {
               </SelectContent>
             </Select>
           </div>
-          <p className="mt-3 whitespace-pre-line text-sm">{l.message}</p>
+          <LeadBrief lead={l} />
         </div>
       ))}
     </div>
   );
 }
+
+type Lead = Awaited<ReturnType<typeof listMyLeads>>["leads"][number];
+
+/** Shows the enquiry as a labelled brief, falling back to the raw message for older leads. */
+function LeadBrief({ lead }: { lead: Lead }) {
+  const rows: [string, string | null | undefined][] = [
+    ["Location", lead.location],
+    ["Project", lead.project_type],
+    ["Rooms / focus", lead.rooms],
+    ["Budget", lead.budget],
+    ["Style", lead.style],
+    ["Timeline", lead.timeline],
+  ];
+  const filled = rows.filter(([, v]) => !!v && String(v).trim());
+
+  return (
+    <div className="mt-3 space-y-3">
+      {filled.length > 0 && (
+        <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
+          {filled.map(([k, v]) => (
+            <div key={k} className="flex gap-2 text-sm">
+              <dt className="min-w-24 text-muted-foreground">{k}:</dt>
+              <dd className="font-medium">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {lead.message && (
+        <div>
+          {filled.length > 0 && <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Client message</p>}
+          <p className="mt-1 whitespace-pre-line text-sm">{lead.message}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 
 function ReviewsTab() {
   const qc = useQueryClient();

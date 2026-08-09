@@ -161,13 +161,57 @@ export type Database = {
         }
         Relationships: []
       }
+      claim_messages: {
+        Row: {
+          attachment_path: string | null
+          author_id: string | null
+          author_name: string | null
+          author_role: string
+          body: string
+          claim_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          attachment_path?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          author_role: string
+          body: string
+          claim_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          attachment_path?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          author_role?: string
+          body?: string
+          claim_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_messages_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claims: {
         Row: {
+          access_token: string
           business_role: string | null
           contact_email: string
           contact_name: string | null
           contact_phone: string | null
+          decision_reason: string | null
           id: string
+          last_message_at: string | null
           proof_notes: string | null
           provider_place_id: string
           reviewed_at: string | null
@@ -177,11 +221,14 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          access_token?: string
           business_role?: string | null
           contact_email: string
           contact_name?: string | null
           contact_phone?: string | null
+          decision_reason?: string | null
           id?: string
+          last_message_at?: string | null
           proof_notes?: string | null
           provider_place_id: string
           reviewed_at?: string | null
@@ -191,11 +238,14 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          access_token?: string
           business_role?: string | null
           contact_email?: string
           contact_name?: string | null
           contact_phone?: string | null
+          decision_reason?: string | null
           id?: string
+          last_message_at?: string | null
           proof_notes?: string | null
           provider_place_id?: string
           reviewed_at?: string | null
@@ -216,41 +266,59 @@ export type Database = {
       }
       contact_messages: {
         Row: {
+          budget: string | null
           created_at: string
           email: string
           first_name: string
           id: string
           last_name: string
+          location: string | null
           message: string
           phone: string | null
+          project_type: string | null
           provider_place_id: string
+          rooms: string | null
           status: string
+          style: string | null
+          timeline: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          budget?: string | null
           created_at?: string
           email: string
           first_name: string
           id?: string
           last_name: string
+          location?: string | null
           message: string
           phone?: string | null
+          project_type?: string | null
           provider_place_id: string
+          rooms?: string | null
           status?: string
+          style?: string | null
+          timeline?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          budget?: string | null
           created_at?: string
           email?: string
           first_name?: string
           id?: string
           last_name?: string
+          location?: string | null
           message?: string
           phone?: string | null
+          project_type?: string | null
           provider_place_id?: string
+          rooms?: string | null
           status?: string
+          style?: string | null
+          timeline?: string | null
           updated_at?: string
           user_id?: string | null
         }

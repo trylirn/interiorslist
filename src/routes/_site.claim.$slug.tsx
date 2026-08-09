@@ -34,7 +34,7 @@ function ClaimPage() {
     proofNotes: "",
   });
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState<{ claimId: string | null; token: string | null } | null>(null);
   const submit = useServerFn(submitPublicClaim);
 
   useEffect(() => {
@@ -63,11 +63,19 @@ function ClaimPage() {
         </div>
         <h1 className="mt-6 font-display text-3xl">Claim received</h1>
         <p className="mt-4 text-muted-foreground">
-          Someone from our team will reach out to you shortly to verify your connection to this business.
+          Someone from our team will review it shortly. If we need extra proof of ownership we'll leave a note on your
+          claim page — bookmark the link below to check the status and reply.
         </p>
-        <div className="mt-8 flex justify-center gap-2">
+        <div className="mt-8 flex flex-wrap justify-center gap-2">
+          {submitted.claimId && submitted.token && (
+            <Button asChild>
+              <Link to="/claim/status/$id" params={{ id: submitted.claimId }} search={{ token: submitted.token }}>
+                Track your claim
+              </Link>
+            </Button>
+          )}
           <Button asChild variant="outline"><Link to="/provider/$slug" params={{ slug: provider.slug }}>Back to listing</Link></Button>
-          <Button asChild><Link to="/">Home</Link></Button>
+          <Button asChild variant="ghost"><Link to="/">Home</Link></Button>
         </div>
       </div>
     );
@@ -84,7 +92,7 @@ function ClaimPage() {
     if (!valid || !provider) return;
     setLoading(true);
     try {
-      await submit({
+      const res = await submit({
         data: {
           placeId: provider.place_id,
           firstName: form.firstName.trim(),
@@ -96,7 +104,7 @@ function ClaimPage() {
           userId,
         },
       });
-      setSubmitted(true);
+      setSubmitted({ claimId: res.claimId ?? null, token: res.token ?? null });
       toast.success("Claim submitted");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to submit claim");
