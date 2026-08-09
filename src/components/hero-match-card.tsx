@@ -95,7 +95,7 @@ export function HeroMatchCard({ stats, studios }: { stats: Stats; studios: Studi
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-secondary/50 p-3">
-      <p className="font-display text-2xl">{value}</p>
+      <p className="font-display text-2xl" suppressHydrationWarning>{value}</p>
       <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>
     </div>
   );

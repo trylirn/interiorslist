@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { submitBusiness } from "@/lib/user-actions.functions";
+import { submitPublicBusiness } from "@/lib/submissions.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_site/submit")({
   head: () => ({
@@ -25,7 +27,7 @@ export const Route = createFileRoute("/_site/submit")({
 });
 
 function SubmitPage() {
-  const submit = useServerFn(submitBusiness);
+  const submit = useServerFn(submitPublicBusiness);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -33,21 +35,30 @@ function SubmitPage() {
     e.preventDefault();
     setLoading(true);
     const fd = new FormData(e.currentTarget);
+    const website = String(fd.get("website") ?? "").trim();
+    if (website && !/^https?:\/\/\S+\.\S+/.test(website)) {
+      setLoading(false);
+      toast.error("Website must start with http:// or https://");
+      return;
+    }
     try {
+      const { data: sess } = await supabase.auth.getSession();
       await submit({ data: {
-        businessName: String(fd.get("businessName")),
-        city: String(fd.get("city")),
-        address: String(fd.get("address") ?? ""),
-        website: String(fd.get("website") ?? ""),
-        contactEmail: String(fd.get("contactEmail")),
-        contactPhone: String(fd.get("contactPhone") ?? ""),
-        notes: String(fd.get("notes") ?? ""),
+        businessName: String(fd.get("businessName") ?? "").trim(),
+        city: String(fd.get("city") ?? "").trim(),
+        address: String(fd.get("address") ?? "").trim(),
+        website,
+        contactEmail: String(fd.get("contactEmail") ?? "").trim(),
+        contactPhone: String(fd.get("contactPhone") ?? "").trim(),
+        notes: String(fd.get("notes") ?? "").trim(),
+        ...(sess.session?.user.id ? { userId: sess.session.user.id } : {}),
       }});
       setDone(true);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Submission failed");
+      toast.error(err instanceof Error ? err.message : "Submission failed. Please check your details and try again.");
     } finally { setLoading(false); }
   }
+
 
   if (done) return (
     <div className="mx-auto max-w-md py-24 text-center px-4">
