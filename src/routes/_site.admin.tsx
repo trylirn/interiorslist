@@ -235,7 +235,11 @@ function SubmissionsTab() {
 function ListingsTab() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
-  const { data, isLoading } = useQuery({ queryKey: ["admin-listings", q], queryFn: () => listAllProviders({ data: { q } }) });
+  const [status, setStatus] = useState<"all" | "published" | "unpublished">("all");
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-listings", q, status],
+    queryFn: () => listAllProviders({ data: { q, status } }),
+  });
   const toggle = useServerFn(toggleProviderFlag);
   async function flip(placeId: string, field: "published" | "featured" | "is_verified", value: boolean) {
     try { await toggle({ data: { placeId, field, value } }); qc.invalidateQueries({ queryKey: ["admin-listings"] }); }
@@ -243,7 +247,21 @@ function ListingsTab() {
   }
   return (
     <div>
-      <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name…" className="max-w-sm" />
+      <div className="flex flex-wrap items-center gap-2">
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name…" className="max-w-sm" aria-label="Search studios" />
+        <div className="flex rounded-md border border-border p-0.5">
+          {(["all", "published", "unpublished"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatus(s)}
+              className={`rounded px-3 py-1 text-xs capitalize ${status === s ? "bg-secondary font-medium" : "text-muted-foreground"}`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        {data && <span className="text-xs text-muted-foreground">{data.providers.length} shown</span>}
+      </div>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -251,9 +269,15 @@ function ListingsTab() {
           </thead>
           <tbody>
             {isLoading && <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
+            {!isLoading && data?.providers.length === 0 && (
+              <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">No studios match.</td></tr>
+            )}
             {data?.providers.map((p) => (
               <tr key={p.place_id} className="border-t border-border">
-                <td className="p-2"><Link to="/provider/$slug" params={{ slug: p.slug }} className="hover:text-brand">{p.name}</Link></td>
+                <td className="p-2">
+                  <Link to="/admin/provider/$placeId" params={{ placeId: p.place_id }} className="hover:text-brand">{p.name}</Link>
+                  {!p.published && <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">Unpublished</span>}
+                </td>
                 <td>{p.city}</td>
                 <td>{p.claimed_by ? "✓" : "—"}</td>
                 <td><Switch checked={p.is_verified} onCheckedChange={(v) => flip(p.place_id, "is_verified", v)} /></td>
