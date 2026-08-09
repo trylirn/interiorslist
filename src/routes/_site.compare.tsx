@@ -45,7 +45,7 @@ function ComparePage() {
     { label: "Branch", render: (p) => p.branch_label ?? "—" },
     { label: "Rating", render: (p) => p.rating ? <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-rating text-rating" />{p.rating} <span className="text-xs text-muted-foreground">({p.review_count ?? 0})</span></span> : "—" },
     { label: "Verified", render: (p) => p.is_verified ? <BadgeCheck className="h-4 w-4 text-brand" /> : "—" },
-    { label: "Claimed", render: (p) => p.claimed_by ? "Yes" : "No" },
+    { label: "Claimed", render: (p) => p.is_claimed ? "Yes" : "No" },
     { label: "Designers", render: (p) => <span className="text-sm">{p.specialists ?? "—"}</span> },
     { label: "Credentials", render: (p) => <span className="text-sm">{p.credentials ?? "—"}</span> },
     { label: "Services", render: (p) => p.services?.length ? (

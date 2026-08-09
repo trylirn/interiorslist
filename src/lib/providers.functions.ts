@@ -43,6 +43,7 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
       .from("providers")
       .select(PROVIDER_DETAIL_COLS)
       .eq("slug", data.slug)
+      .eq("published", true)
       .maybeSingle<ProviderDetail>();
     if (error) throw new Error(error.message);
     if (!provider) return { provider: null, reviews: [] };
@@ -68,7 +69,9 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
       .order("published_at", { ascending: false })
       .limit(20);
 
-    return { provider, reviews: reviews ?? [] };
+    // Never expose the owner's user id publicly — only whether it is claimed.
+    const { claimed_by, ...safe } = provider as ProviderDetail & { claimed_by?: string | null };
+    return { provider: { ...safe, is_claimed: !!claimed_by }, reviews: reviews ?? [] };
   });
 
 

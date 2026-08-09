@@ -69,7 +69,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         }
 
         try {
-          const { data: providers } = await supabaseAdmin.from("providers").select("slug, updated_at").limit(5000);
+          const { data: providers } = await supabaseAdmin.from("providers").select("slug, updated_at").eq("published", true).limit(5000);
           for (const p of providers ?? []) {
             if (!p.slug) continue;
             entries.push({
