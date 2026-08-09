@@ -16,9 +16,9 @@ export const getProvidersByIds = createServerFn({ method: "POST" })
       .in("place_id", data.ids)
       .eq("published", true);
     if (error) throw new Error(error.message);
-    const safe = (rows ?? []).map((r) => {
-      const { claimed_by_internal, ...rest } = r as Record<string, unknown>;
-      return { ...rest, is_claimed: !!claimed_by_internal };
-    });
+    const safe = (rows ?? []).map(({ claimed_by_internal, ...rest }) => ({
+      ...rest,
+      is_claimed: !!claimed_by_internal,
+    }));
     return { providers: safe };
   });
