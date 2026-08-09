@@ -112,16 +112,38 @@ export const grantRole = createServerFn({ method: "POST" })
       .ilike("email", email)
       .maybeSingle();
 
-    if (profile) {
+    // Some accounts (e.g. Google sign-in) may not have a profile row yet, so
+    // fall back to the auth records before treating this as an invite.
+    let targetId: string | null = profile?.id ?? null;
+    if (!targetId) {
+      const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      const match = (list?.users ?? []).find((u) => (u.email ?? "").toLowerCase() === email);
+      if (match) {
+        targetId = match.id;
+        await supabaseAdmin.from("profiles").upsert(
+          {
+            id: match.id,
+            email: match.email ?? email,
+            display_name:
+              (match.user_metadata?.["display_name"] as string | undefined) ??
+              (match.user_metadata?.["full_name"] as string | undefined) ??
+              email.split("@")[0],
+          },
+          { onConflict: "id" },
+        );
+      }
+    }
+
+    if (targetId) {
       const { error } = await supabaseAdmin
         .from("user_roles")
-        .upsert({ user_id: profile.id, role: data.role }, { onConflict: "user_id,role" });
+        .upsert({ user_id: targetId, role: data.role }, { onConflict: "user_id,role" });
       if (error) throw new Error(error.message);
       // super admins also carry the everyday admin role
       if (data.role === "super_admin") {
         await supabaseAdmin
           .from("user_roles")
-          .upsert({ user_id: profile.id, role: "admin" }, { onConflict: "user_id,role" });
+          .upsert({ user_id: targetId, role: "admin" }, { onConflict: "user_id,role" });
       }
       return { ok: true, invited: false };
     }
