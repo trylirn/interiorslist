@@ -240,8 +240,18 @@ function MatchPage() {
   }
 
   function buildBrief() {
+    const who = [`${firstName.trim()} ${lastName.trim()}`.trim(), email.trim(), phone.trim()].filter(Boolean).join(" · ");
+    const summary = criteria?.summary?.trim();
+    const opening = summary
+      ? /^we['’]re looking for/i.test(summary)
+        ? summary
+        : `We're looking for ${summary.charAt(0).toLowerCase()}${summary.slice(1)}`
+      : "We're looking for an interior designer for our project.";
     return [
-      criteria?.summary && `Brief: ${criteria.summary}`,
+      who && `From: ${who}`,
+      "",
+      opening,
+      "",
       criteria?.priority && `Focus: ${PRIORITY_SERVICE[criteria.priority] ? serviceName(PRIORITY_SERVICE[criteria.priority]!) : criteria.priority.replace(/-/g, " ")}`,
       criteria?.projectType && `Project type: ${projectTypeLabel(criteria.projectType)}`,
       criteria?.styles?.length && `Preferred styles: ${criteria.styles.map(styleLabel).join(", ")}`,
@@ -265,6 +275,10 @@ function MatchPage() {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       toast.error("Please enter a valid email address.");
+      return;
+    }
+    if (phone.trim().length < 7) {
+      toast.error("Please add a phone number so studios can reach you.");
       return;
     }
     setUnlocked(true);
