@@ -57,7 +57,7 @@ OUTPUT: strict JSON only.
 While interviewing:
 {"done":false,"question":"...","helper":"optional one-line clarifier","options":["...","..."],"multi":false,"allowFreeText":true}
 When finished (after enough signal, max 6 questions):
-{"done":true,"criteria":{"priority":"<one of: ${PRIORITIES.join(", ")}>","concerns":["<subset of: ${ROOMS.join(", ")}>"],"styles":["<subset of: ${STYLES.map((s) => s.slug).join(", ")}>"],"projectType":"<one of: ${PROJECT_TYPES.map((p) => p.slug).join(", ")}>","budget":"<one of: ${BUDGET_BANDS.map((b) => b.slug).join(", ")}>","timing":"<one of: asap, 1-3-months, 3-6-months, planning>","summary":"one warm sentence describing their project"}}
+{"done":true,"criteria":{"priority":"<one of: ${PRIORITIES.join(", ")}>","concerns":["<subset of: ${ROOMS.join(", ")}>"],"styles":["<subset of: ${STYLES.map((s) => s.slug).join(", ")}>"],"projectType":"<one of: ${PROJECT_TYPES.map((p) => p.slug).join(", ")}>","budget":"<one of: ${BUDGET_BANDS.map((b) => b.slug).join(", ")}>","timing":"<one of: asap, 1-3-months, 3-6-months, planning>","summary":"one sentence written in the client's own voice, addressed to the studio, that MUST begin with \\"We're looking for\\" (never address the client as 'you', never say 'It sounds like')"}}
 
 Available studio services for reference: ${SERVICES.map((s) => s.slug).join(", ")}.`;
 }
