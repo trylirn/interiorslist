@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
@@ -35,6 +34,7 @@ async function geocodeAddress(address: string): Promise<{ lat: number; lng: numb
  * paths where the caller does not want to await success.
  */
 export async function ensureProviderCoords(placeId: string): Promise<{ lat: number; lng: number } | null> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: row } = await supabaseAdmin
     .from("providers")
     .select("place_id, address, city, latitude, longitude")
@@ -57,7 +57,19 @@ export async function ensureProviderCoords(placeId: string): Promise<{ lat: numb
 export const geocodeProviderIfNeeded = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    // Billed Google call: restrict to admins or the studio's owner.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!isAdmin) {
+      const { data: owned } = await supabaseAdmin
+        .from("providers")
+        .select("place_id")
+        .eq("place_id", data.placeId)
+        .eq("claimed_by", context.userId)
+        .maybeSingle();
+      if (!owned) throw new Error("Forbidden");
+    }
     const loc = await ensureProviderCoords(data.placeId);
     if (!loc) return { ok: false as const };
     return { ok: true as const, lat: loc.lat, lng: loc.lng };
@@ -71,6 +83,7 @@ export const geocodeAllMissing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ limit: z.number().int().min(1).max(500).optional() }).parse(d))
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: role } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
     if (!role) throw new Error("Forbidden");
 
@@ -107,6 +120,7 @@ export const geocodeAllMissing = createServerFn({ method: "POST" })
 export const countMissingCoords = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: role } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
     if (!role) throw new Error("Forbidden");
     const { count } = await supabaseAdmin

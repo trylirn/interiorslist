@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { CITIES, SERVICES, STYLES } from "@/lib/cities";
 
 const BASE_URL = "https://interiorslist.lovable.app";
@@ -16,6 +15,7 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/search", changefreq: "weekly", priority: "0.7" },
@@ -69,7 +69,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         }
 
         try {
-          const { data: providers } = await supabaseAdmin.from("providers").select("slug, updated_at").limit(5000);
+          const { data: providers } = await supabaseAdmin.from("providers").select("slug, updated_at").eq("published", true).limit(5000);
           for (const p of providers ?? []) {
             if (!p.slug) continue;
             entries.push({

@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 async function assertAdmin(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
     .from("user_roles")
     .select("role")
@@ -14,9 +14,6 @@ async function assertAdmin(userId: string) {
 }
 
 // Loose typed handle for our new tables (types are regenerated later).
-const db = supabaseAdmin as unknown as {
-  from: (t: string) => any;
-};
 
 const RangeSchema = z.object({
   range: z.enum(["today", "yesterday", "7d", "30d", "this_month", "last_month", "custom"]).default("7d"),
@@ -56,6 +53,8 @@ function resolveRange(r: RangeInput): { from: string; to: string } {
 }
 
 async function fetchEvents(from: string, to: string, extra?: (q: any) => any) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const db = supabaseAdmin as unknown as { from: (t: string) => any };
   let q = db.from("analytics_events").select("*").gte("created_at", from).lte("created_at", to);
   if (extra) q = extra(q);
   const { data } = await q.limit(20000);
@@ -63,6 +62,8 @@ async function fetchEvents(from: string, to: string, extra?: (q: any) => any) {
 }
 
 async function fetchSessions(from: string, to: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const db = supabaseAdmin as unknown as { from: (t: string) => any };
   const { data } = await db
     .from("analytics_sessions")
     .select("*")
@@ -73,6 +74,7 @@ async function fetchSessions(from: string, to: string) {
 }
 
 async function providerNameMap(ids: string[]): Promise<Map<string, { name: string; city: string; slug: string }>> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const uniq = Array.from(new Set(ids.filter(Boolean)));
   if (uniq.length === 0) return new Map();
   const { data } = await supabaseAdmin
@@ -86,6 +88,7 @@ export const getOverview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => RangeSchema.parse(d ?? {}))
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const { from, to } = resolveRange(data);
     const [events, sessions] = await Promise.all([fetchEvents(from, to), fetchSessions(from, to)]);
@@ -178,6 +181,8 @@ export const getLiveFeed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = supabaseAdmin as unknown as { from: (t: string) => any };
     const { data } = await db
       .from("analytics_events")
       .select("*")
@@ -281,6 +286,7 @@ export const getCityAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => RangeSchema.parse(d ?? {}))
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
     const { from, to } = resolveRange(data);
     const events = await fetchEvents(from, to);
@@ -428,6 +434,8 @@ export const getUserJourneys = createServerFn({ method: "POST" })
     }).parse(d ?? {}),
   )
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = supabaseAdmin as unknown as { from: (t: string) => any };
     await assertAdmin(context.userId);
     const { from, to } = resolveRange(data);
     let sq = db
@@ -490,6 +498,8 @@ export const getJourneyDetail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ sessionId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = supabaseAdmin as unknown as { from: (t: string) => any };
     await assertAdmin(context.userId);
     const { data: session } = await db.from("analytics_sessions").select("*").eq("id", data.sessionId).maybeSingle();
     const { data: events } = await db.from("analytics_events").select("*").eq("session_id", data.sessionId).order("created_at", { ascending: true });

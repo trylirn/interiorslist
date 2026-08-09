@@ -419,7 +419,7 @@ function ProviderPage() {
             </p>
           </section>
 
-          {!p.claimed_by && (
+          {!p.is_claimed && (
             <section className="mt-8 rounded-3xl border border-border bg-secondary/50 p-8 text-center">
               <p className="font-display text-xl">Is this your studio?</p>
               <p className="mt-1 text-sm text-muted-foreground">Claim this listing to receive project enquiries and update your portfolio, services and styles.</p>
@@ -431,7 +431,7 @@ function ProviderPage() {
         {/* Sticky enquiry rail */}
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
           <ConsultationForm placeId={p.place_id} studioName={p.name} compact />
-          {!p.claimed_by && <UnclaimedSidebar slug={slug} website={p.website} mapsHref={mapsHref} />}
+          {!p.is_claimed && <UnclaimedSidebar slug={slug} website={p.website} mapsHref={mapsHref} />}
         </aside>
 
       </div>

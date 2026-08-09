@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const matchInput = z.object({
   priority: z.string().min(1).max(60),
@@ -68,6 +67,7 @@ const PRIORITY_SERVICES: Record<string, string[]> = {
 export const getMatches = createServerFn({ method: "POST" })
   .inputValidator((d) => matchInput.parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const wantedServices = new Set<string>([
       ...(PRIORITY_SERVICES[data.priority] ?? []),
       ...(data.concerns ?? []).flatMap((c) => ROOM_SERVICES[c] ?? []),

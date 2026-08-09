@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
 import { fetchAllPublished } from "./providers.server";
 
@@ -27,6 +26,7 @@ const cityArg = z.object({
 export const listProvidersByCity = createServerFn({ method: "GET" })
   .inputValidator((d) => cityArg.parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin.from("providers").select(PROVIDER_COLS).eq("city_slug", data.citySlug).eq("published", true);
     if (data.service) q = q.contains("services", [data.service]);
     q = q.order("is_verified", { ascending: false }).order("name").limit(data.limit ?? 100);
@@ -38,10 +38,12 @@ export const listProvidersByCity = createServerFn({ method: "GET" })
 export const getProviderBySlug = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ slug: z.string().min(1).max(160) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: provider, error } = await supabaseAdmin
       .from("providers")
       .select(PROVIDER_DETAIL_COLS)
       .eq("slug", data.slug)
+      .eq("published", true)
       .maybeSingle<ProviderDetail>();
     if (error) throw new Error(error.message);
     if (!provider) return { provider: null, reviews: [] };
@@ -67,11 +69,14 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
       .order("published_at", { ascending: false })
       .limit(20);
 
-    return { provider, reviews: reviews ?? [] };
+    // Never expose the owner's user id publicly — only whether it is claimed.
+    const { claimed_by, ...safe } = provider as ProviderDetail & { claimed_by?: string | null };
+    return { provider: { ...safe, is_claimed: !!claimed_by }, reviews: reviews ?? [] };
   });
 
 
 export const getFeaturedProviders = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("providers")
     .select(PROVIDER_COLS)
@@ -103,6 +108,7 @@ export const searchProviders = createServerFn({ method: "GET" })
     }).parse(d),
   )
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin.from("providers").select(PROVIDER_COLS).eq("published", true);
     const term = (data.q ?? "").replace(/[,()*%\\]/g, " ").trim();
     if (term) q = q.or(`name.ilike.%${term}%,specialists.ilike.%${term}%,city.ilike.%${term}%,about_description.ilike.%${term}%`);
@@ -121,6 +127,7 @@ export const searchProviders = createServerFn({ method: "GET" })
 export const getRelatedProviders = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: me } = await supabaseAdmin
       .from("providers")
       .select("place_id, city_slug, services")
@@ -172,6 +179,7 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
 export const getNearbyProviders = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: me } = await supabaseAdmin
       .from("providers")
       .select("place_id, city_slug, latitude, longitude")
@@ -217,6 +225,7 @@ export const listByTreatment = createServerFn({ method: "GET" })
     z.object({ service: z.string().min(1).max(80), city: z.string().max(80).optional() }).parse(d),
   )
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin.from("providers").select(PROVIDER_COLS).contains("services", [data.service]).eq("published", true);
     if (data.city) q = q.eq("city_slug", data.city);
     q = q.order("is_verified", { ascending: false }).order("rating", { ascending: false, nullsFirst: false }).order("name").limit(100);
@@ -229,6 +238,7 @@ export const listByTreatment = createServerFn({ method: "GET" })
 export const listCitiesForTreatment = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ service: z.string().min(1).max(80) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows } = await supabaseAdmin
       .from("providers")
       .select("city_slug, city")
@@ -277,6 +287,7 @@ export const listStates = createServerFn({ method: "GET" }).handler(async () => 
 export const getStateSummary = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ state: z.string().min(2).max(2) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const code = data.state.toUpperCase();
     const { data: rows, error } = await supabaseAdmin
       .from("providers")
@@ -332,6 +343,7 @@ export const listTopCities = createServerFn({ method: "GET" })
 export const getCitySummary = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ citySlug: z.string().min(1).max(120) }).parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
       .from("providers")
       .select("city, state")
@@ -360,6 +372,7 @@ export const searchProvidersPaged = createServerFn({ method: "GET" })
     }).parse(d),
   )
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const pageSize = data.pageSize ?? 24;
     const page = data.page ?? 1;
     const from = (page - 1) * pageSize;
