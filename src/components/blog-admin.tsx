@@ -169,9 +169,11 @@ export function BlogAdmin() {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Body (markdown)</Label>
-          <Textarea rows={18} className="font-mono text-sm" value={form.body_md} onChange={(e) => setForm({ ...form, body_md: e.target.value })} placeholder={"## A heading\n\nA paragraph with **bold**, *italic* and [links](https://example.com).\n\n- bullet one\n- bullet two"} />
+          <Label>Body</Label>
+          <p className="text-[11px] text-muted-foreground">Write in plain English — use the toolbar for bold, headings, lists, alignment and links.</p>
+          <RichTextEditor value={form.body_md} onChange={(html) => setForm({ ...form, body_md: html })} />
         </div>
+
 
         <div className="flex items-center justify-between rounded-2xl border border-border p-4">
           <div>
