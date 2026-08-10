@@ -40,16 +40,24 @@ export function ProviderCard(p: ProviderCardProps) {
         onClick={() => trackListingClick(p.place_id, p.city_slug ?? undefined)}
         className="group flex h-full flex-col gap-3 rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-lg"
       >
-        <div className="flex items-start gap-3 pr-20">
-          {p.logo_url && (
+        <div className="flex items-start gap-3 pr-12">
+          {p.logo_url ? (
             <img
               src={p.logo_url}
               alt={`${p.name} logo`}
               loading="lazy"
               className="h-10 w-10 shrink-0 rounded-lg border border-border bg-background object-contain"
             />
+          ) : (
+            <span
+              aria-hidden
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-secondary font-display text-sm text-foreground/70"
+            >
+              {p.name.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase() || "IN"}
+            </span>
           )}
           <div>
+
             <h3 className="font-display text-lg leading-tight">{p.name}</h3>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               {p.branch_label && (
