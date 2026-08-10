@@ -207,7 +207,16 @@ function ProviderPage() {
           {/* Hero card */}
           <div className="rounded-3xl border border-border bg-card p-6 md:p-8">
             <div className="flex flex-wrap items-start gap-4">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-brand/10 font-display text-3xl text-brand">{p.name.charAt(0)}</div>
+              {(p as Record<string, unknown>).logo_url ? (
+                <img
+                  src={(p as Record<string, unknown>).logo_url as string}
+                  alt={`${p.name} logo`}
+                  className="h-20 w-20 shrink-0 rounded-2xl border border-border object-cover"
+                />
+              ) : (
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-brand/10 font-display text-3xl text-brand">{p.name.charAt(0)}</div>
+              )}
+
               <div className="flex-1">
                 {p.services?.[0] && <span className="inline-block rounded-full bg-brand/10 px-3 py-0.5 text-xs font-semibold uppercase tracking-wide text-brand">{p.services[0].replace(/-/g, " ")}</span>}
                 <h1 className="mt-2 font-display text-4xl md:text-5xl leading-tight">{p.name}</h1>
