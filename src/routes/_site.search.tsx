@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { SERVICES, STYLES } from "@/lib/cities";
 import { Search, X } from "lucide-react";
+import { BrowseByLocation } from "@/components/browse-by-location";
 
 export const Route = createFileRoute("/_site/search")({
   validateSearch: z.object({
@@ -212,6 +213,8 @@ function SearchPage() {
           <p className="mt-3 text-center text-sm text-muted-foreground">Page {page} of {pageCount}</p>
         )}
       </div>
+
+      <BrowseByLocation />
     </div>
   );
 }
