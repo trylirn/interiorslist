@@ -88,7 +88,7 @@ function SearchPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12">
+    <div className="mx-auto max-w-7xl px-4 pb-2 pt-12">
       <h1 className="font-display text-4xl md:text-5xl">Find a Studio</h1>
       <p className="mt-2 text-muted-foreground">Browse every verified design studio, or filter to find the perfect match.</p>
 

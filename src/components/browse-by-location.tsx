@@ -30,12 +30,12 @@ export function BrowseByLocation() {
   if (states.length === 0 && cities.length === 0) return null;
 
   return (
-    <section className="mt-16 border-t border-border pt-10">
+    <section className="mt-12 border-t border-border pt-8">
       <h2 className="font-serif text-2xl tracking-tight">Browse interior designers by location</h2>
       <p className="mt-1 text-sm text-muted-foreground">Find interior designers in your state or city.</p>
 
       {states.length > 0 && (
-        <div className="mt-7">
+        <div className="mt-6">
           <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/70">By state</h3>
           <LinkColumns>
             {states.map((s) => (
@@ -53,7 +53,7 @@ export function BrowseByLocation() {
       )}
 
       {cities.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-6">
           <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/70">By city</h3>
           <LinkColumns>
             {cities.map((c) => (

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/rich-text-editor";
 import { Switch } from "@/components/ui/switch";
 import { Upload, Trash2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -169,9 +170,11 @@ export function BlogAdmin() {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Body (markdown)</Label>
-          <Textarea rows={18} className="font-mono text-sm" value={form.body_md} onChange={(e) => setForm({ ...form, body_md: e.target.value })} placeholder={"## A heading\n\nA paragraph with **bold**, *italic* and [links](https://example.com).\n\n- bullet one\n- bullet two"} />
+          <Label>Body</Label>
+          <p className="text-[11px] text-muted-foreground">Write in plain English — use the toolbar for bold, headings, lists, alignment and links.</p>
+          <RichTextEditor value={form.body_md} onChange={(html: string) => setForm({ ...form, body_md: html })} />
         </div>
+
 
         <div className="flex items-center justify-between rounded-2xl border border-border p-4">
           <div>

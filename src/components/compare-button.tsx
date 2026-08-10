@@ -19,7 +19,7 @@ export function CompareButton(props: CompareItem) {
         toast.success(active ? "Removed from compare" : "Added to compare");
       }}
       aria-label={active ? "Remove from compare" : "Add to compare"}
-      className={`absolute right-14 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full shadow-sm ring-1 ring-border transition hover:scale-105 ${active ? "bg-brand text-brand-foreground" : "bg-card/95 text-foreground hover:text-brand"}`}
+      className={`absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-sm ring-1 ring-border transition hover:scale-105 ${active ? "bg-brand text-brand-foreground" : "bg-card/95 text-foreground hover:text-brand"}`}
     >
       <Scale className="h-4 w-4" />
     </button>
