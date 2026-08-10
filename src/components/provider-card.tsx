@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { MapPin, BadgeCheck, Building2 } from "lucide-react";
-import { FavoriteButton } from "@/components/favorite-button";
 import { CompareButton } from "@/components/compare-button";
 import { trackImpressions, trackListingClick } from "@/lib/analytics";
 
@@ -16,6 +15,7 @@ export type ProviderCardProps = {
   specialists?: string | null;
   branch_label?: string | null;
   brand_id?: string | null;
+  logo_url?: string | null;
   is_verified?: boolean | null;
 };
 
@@ -25,7 +25,6 @@ export function ProviderCard(p: ProviderCardProps) {
   }, [p.place_id, p.city_slug]);
   return (
     <div className="relative">
-      <FavoriteButton placeId={p.place_id} />
       <CompareButton
         place_id={p.place_id}
         slug={p.slug}
@@ -41,19 +40,29 @@ export function ProviderCard(p: ProviderCardProps) {
         onClick={() => trackListingClick(p.place_id, p.city_slug ?? undefined)}
         className="group flex h-full flex-col gap-3 rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-lg"
       >
-        <div className="pr-20">
-          <h3 className="font-display text-lg leading-tight">{p.name}</h3>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            {p.branch_label && (
-              <span className="flex items-center gap-1 text-xs text-brand">
-                <Building2 className="h-3 w-3" /> {p.branch_label}
-              </span>
-            )}
-            {p.is_verified && (
-              <span className="flex shrink-0 items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand">
-                <BadgeCheck className="h-3 w-3" /> Verified
-              </span>
-            )}
+        <div className="flex items-start gap-3 pr-20">
+          {p.logo_url && (
+            <img
+              src={p.logo_url}
+              alt={`${p.name} logo`}
+              loading="lazy"
+              className="h-10 w-10 shrink-0 rounded-lg border border-border bg-background object-contain"
+            />
+          )}
+          <div>
+            <h3 className="font-display text-lg leading-tight">{p.name}</h3>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              {p.branch_label && (
+                <span className="flex items-center gap-1 text-xs text-brand">
+                  <Building2 className="h-3 w-3" /> {p.branch_label}
+                </span>
+              )}
+              {p.is_verified && (
+                <span className="flex shrink-0 items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand">
+                  <BadgeCheck className="h-3 w-3" /> Verified
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

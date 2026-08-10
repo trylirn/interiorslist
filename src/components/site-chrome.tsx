@@ -60,7 +60,7 @@ export function SiteHeader() {
             <Link to="/search" onClick={() => setOpen(false)}>Find a Designer</Link>
             <Link to="/match" onClick={() => setOpen(false)}>Get Matched</Link>
             <Link to="/for-business" onClick={() => setOpen(false)}>For Studios</Link>
-            <Link to="/favorites" onClick={() => setOpen(false)}>Favorites</Link>
+            
             <Link to="/review" onClick={() => setOpen(false)}>Write a Review</Link>
             {roles?.isAdmin && <Link to="/admin" onClick={() => setOpen(false)}>Admin</Link>}
             {userEmail

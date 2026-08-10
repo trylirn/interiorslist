@@ -17,7 +17,6 @@ import { Route as SiteAdminRouteImport } from './routes/_site.admin'
 import { Route as SiteCompareRouteImport } from './routes/_site.compare'
 import { Route as SiteContactRouteImport } from './routes/_site.contact'
 import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
-import { Route as SiteFavoritesRouteImport } from './routes/_site.favorites'
 import { Route as SiteForBusinessRouteImport } from './routes/_site.for-business'
 import { Route as SiteGuideRouteImport } from './routes/_site.guide'
 import { Route as SiteHowItWorksRouteImport } from './routes/_site.how-it-works'
@@ -83,11 +82,6 @@ const SiteContactRoute = SiteContactRouteImport.update({
 const SiteDashboardRoute = SiteDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => SiteRoute,
-} as any)
-const SiteFavoritesRoute = SiteFavoritesRouteImport.update({
-  id: '/favorites',
-  path: '/favorites',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteForBusinessRoute = SiteForBusinessRouteImport.update({
@@ -236,7 +230,6 @@ export interface FileRoutesByFullPath {
   '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRouteWithChildren
-  '/favorites': typeof SiteFavoritesRoute
   '/for-business': typeof SiteForBusinessRoute
   '/guide': typeof SiteGuideRoute
   '/how-it-works': typeof SiteHowItWorksRoute
@@ -272,7 +265,6 @@ export interface FileRoutesByTo {
   '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRouteWithChildren
-  '/favorites': typeof SiteFavoritesRoute
   '/for-business': typeof SiteForBusinessRoute
   '/guide': typeof SiteGuideRoute
   '/how-it-works': typeof SiteHowItWorksRoute
@@ -311,7 +303,6 @@ export interface FileRoutesById {
   '/_site/compare': typeof SiteCompareRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/dashboard': typeof SiteDashboardRouteWithChildren
-  '/_site/favorites': typeof SiteFavoritesRoute
   '/_site/for-business': typeof SiteForBusinessRoute
   '/_site/guide': typeof SiteGuideRoute
   '/_site/how-it-works': typeof SiteHowItWorksRoute
@@ -351,7 +342,6 @@ export interface FileRouteTypes {
     | '/compare'
     | '/contact'
     | '/dashboard'
-    | '/favorites'
     | '/for-business'
     | '/guide'
     | '/how-it-works'
@@ -387,7 +377,6 @@ export interface FileRouteTypes {
     | '/compare'
     | '/contact'
     | '/dashboard'
-    | '/favorites'
     | '/for-business'
     | '/guide'
     | '/how-it-works'
@@ -425,7 +414,6 @@ export interface FileRouteTypes {
     | '/_site/compare'
     | '/_site/contact'
     | '/_site/dashboard'
-    | '/_site/favorites'
     | '/_site/for-business'
     | '/_site/guide'
     | '/_site/how-it-works'
@@ -518,13 +506,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof SiteDashboardRouteImport
-      parentRoute: typeof SiteRoute
-    }
-    '/_site/favorites': {
-      id: '/_site/favorites'
-      path: '/favorites'
-      fullPath: '/favorites'
-      preLoaderRoute: typeof SiteFavoritesRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/for-business': {
@@ -751,7 +732,6 @@ interface SiteRouteChildren {
   SiteCompareRoute: typeof SiteCompareRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteDashboardRoute: typeof SiteDashboardRouteWithChildren
-  SiteFavoritesRoute: typeof SiteFavoritesRoute
   SiteForBusinessRoute: typeof SiteForBusinessRoute
   SiteGuideRoute: typeof SiteGuideRoute
   SiteHowItWorksRoute: typeof SiteHowItWorksRoute
@@ -784,7 +764,6 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteCompareRoute: SiteCompareRoute,
   SiteContactRoute: SiteContactRoute,
   SiteDashboardRoute: SiteDashboardRouteWithChildren,
-  SiteFavoritesRoute: SiteFavoritesRoute,
   SiteForBusinessRoute: SiteForBusinessRoute,
   SiteGuideRoute: SiteGuideRoute,
   SiteHowItWorksRoute: SiteHowItWorksRoute,
@@ -821,13 +800,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

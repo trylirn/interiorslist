@@ -48,7 +48,7 @@ function Dashboard() {
         </div>
         <div className="flex gap-2">
           {roles?.isAdmin && <Button asChild size="sm"><Link to="/admin"><Shield className="mr-2 h-4 w-4" />Admin</Link></Button>}
-          <Button asChild variant="outline" size="sm"><Link to="/favorites">Favorites</Link></Button>
+          
           <Button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/"; }} variant="outline" size="sm">Sign out</Button>
         </div>
       </div>

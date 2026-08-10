@@ -41,7 +41,7 @@ function PrivacyPage() {
           <li><strong>Business submissions and claims</strong>: business name, address, website, contact email, contact phone, professional credentials (such as ASID or NCIDQ membership), uploaded credential documents, and any notes you provide.</li>
           <li><strong>Enquiry and consultation forms</strong>: your name, email, phone, project details, budget range, and messages you send through a studio contact form.</li>
           <li><strong>Reviews and messages</strong>: your display name, email, star rating, and review text.</li>
-          <li><strong>Preferences</strong>: favorites, saved comparisons, and quiz answers such as service category and city.</li>
+          <li><strong>Preferences</strong>: saved comparisons and quiz answers such as service category and city.</li>
         </ul>
 
         <p className="mt-4 font-medium">Information collected automatically:</p>
@@ -65,7 +65,7 @@ function PrivacyPage() {
       <Section title="4. How we use information">
         We use information to:
         <ul className="mt-2 list-disc pl-5 space-y-1">
-          <li>operate the directory: search, studio profiles, favorites, comparisons, reviews, articles, and maps;</li>
+          <li>operate the directory: search, studio profiles, comparisons, reviews, articles, and maps;</li>
           <li>authenticate users and secure accounts;</li>
           <li>process listing submissions and ownership claims, including verification;</li>
           <li>deliver enquiries you send to studios through the contact form;</li>

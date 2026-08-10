@@ -2,7 +2,7 @@
 
 ## 1. Browse-by-location block (Find a Designer)
 
-- Drop the repeated "Interior designers in" prefix — links show just the place name ("Alabama", "New York City").
+- Drop the repeated "Interior" prefix — links show just the name ("Designers in Alabama", "Designers in New York City").
 - Smaller text (xs), tighter row and column gaps, more columns on wide screens so the whole index reads as one compact block.
 - Headings and section labels scale down to match.
 
