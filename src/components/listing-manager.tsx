@@ -313,7 +313,9 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
   const [videos, setVideos] = useState<string[]>((listing.video_urls as string[]) ?? []);
   const [newVideo, setNewVideo] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
 
   // Studio photos live in a private bucket, so we store long-lived signed links.
   async function uploadImage(file: File): Promise<string | null> {
