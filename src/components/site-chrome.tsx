@@ -137,11 +137,13 @@ export function SiteFooter() {
         <div className="space-y-8">
           <FooterCol title="Company">
             <li><Link to="/about" className="hover:text-brand">About</Link></li>
+            <li><Link to="/blog" className="hover:text-brand">Blog</Link></li>
             <li><Link to="/how-it-works" className="hover:text-brand">How it works</Link></li>
             <li><Link to="/submit" className="hover:text-brand">Submit a studio</Link></li>
             <li><Link to="/for-business" className="hover:text-brand">For studios</Link></li>
             <li><Link to="/contact" className="hover:text-brand">Contact</Link></li>
           </FooterCol>
+
 
           <FooterCol title="Trust">
             <li><Link to="/how-it-works" className="hover:text-brand">How it works</Link></li>
