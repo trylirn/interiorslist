@@ -89,6 +89,7 @@ function AdminPage() {
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
+          <TabsTrigger value="blog">Blog</TabsTrigger>
           <TabsTrigger value="mine">My dashboard</TabsTrigger>
         </TabsList>
         <TabsContent value="analytics" className="mt-6"><AnalyticsDashboard /></TabsContent>
@@ -97,6 +98,8 @@ function AdminPage() {
         <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
         <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
         <TabsContent value="team" className="mt-6"><TeamTab /></TabsContent>
+        <TabsContent value="blog" className="mt-6"><BlogAdmin /></TabsContent>
+
         <TabsContent value="mine" className="mt-6">
           <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
             <p className="font-medium">Your own provider dashboard (sandbox)</p>
