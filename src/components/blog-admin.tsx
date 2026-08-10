@@ -5,8 +5,8 @@ import { listAllBlogPosts, upsertBlogPost, deleteBlogPost } from "@/lib/blog.fun
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/rich-text-editor";
 import { Switch } from "@/components/ui/switch";
 import { Upload, Trash2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -171,7 +171,7 @@ export function BlogAdmin() {
         <div className="space-y-1.5">
           <Label>Body</Label>
           <p className="text-[11px] text-muted-foreground">Write in plain English — use the toolbar for bold, headings, lists, alignment and links.</p>
-          <RichTextEditor value={form.body_md} onChange={(html) => setForm({ ...form, body_md: html })} />
+          <RichTextEditor value={form.body_md} onChange={(html: string) => setForm({ ...form, body_md: html })} />
         </div>
 
 

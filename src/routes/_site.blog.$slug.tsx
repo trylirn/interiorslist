@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getBlogPost } from "@/lib/blog.functions";
 import { Markdown, readingTime } from "@/components/markdown";
+import { RichText, isHtmlBody } from "@/components/rich-text";
 
 const postQuery = (slug: string) =>
   queryOptions({
@@ -107,7 +108,7 @@ function BlogPost() {
       )}
 
       <div className="mt-4">
-        <Markdown source={post.body_md ?? ""} />
+        {isHtmlBody(post.body_md ?? "") ? <RichText html={post.body_md ?? ""} /> : <Markdown source={post.body_md ?? ""} />}
       </div>
 
       {Array.isArray(post.tags) && post.tags.length > 0 && (
