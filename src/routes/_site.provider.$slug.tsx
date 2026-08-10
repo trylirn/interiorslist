@@ -463,6 +463,8 @@ function ProviderPage() {
 
       <NearbyProviders placeId={p.place_id} />
       <RelatedProviders placeId={p.place_id} />
+      <RelatedPosts tags={[...(p.styles ?? []), ...(p.services ?? [])] as string[]} />
+
     </div>
   );
 }
