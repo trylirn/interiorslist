@@ -89,7 +89,7 @@ export function SiteFooter() {
   const states = [...(stateData?.states ?? [])].sort((a, b) => b.count - a.count).slice(0, 8);
 
   return (
-    <footer className="mt-24 border-t border-border/60 bg-secondary/30">
+    <footer className="mt-16 border-t border-border/60 bg-secondary/30">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-6">
         <div>
           <BrandStacked width={168} className="-ml-2" />
