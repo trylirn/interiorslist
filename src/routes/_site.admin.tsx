@@ -23,6 +23,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
+import { BlogAdmin } from "@/components/blog-admin";
+
 
 export const Route = createFileRoute("/_site/admin")({
   head: () => ({ meta: [{ title: "Admin | Intearior" }, { name: "description", content: "Internal Intearior admin console for managing studio listings, claims and leads." }, { name: "robots", content: "noindex, nofollow" }] }),
