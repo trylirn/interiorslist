@@ -29,6 +29,7 @@ import { Route as SiteSubmitRouteImport } from './routes/_site.submit'
 import { Route as SiteTermsRouteImport } from './routes/_site.terms'
 import { Route as SiteWelcomeRouteImport } from './routes/_site.welcome'
 import { Route as SiteAdminArticlesRouteImport } from './routes/_site.admin.articles'
+import { Route as SiteBlogIndexRouteImport } from './routes/_site.blog.index'
 import { Route as SiteClaimIndexRouteImport } from './routes/_site.claim.index'
 import { Route as SiteClaimSlugRouteImport } from './routes/_site.claim.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
@@ -143,6 +144,11 @@ const SiteAdminArticlesRoute = SiteAdminArticlesRouteImport.update({
   path: '/articles',
   getParentRoute: () => SiteAdminRoute,
 } as any)
+const SiteBlogIndexRoute = SiteBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteClaimIndexRoute = SiteClaimIndexRouteImport.update({
   id: '/claim/',
   path: '/claim/',
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/blog/': typeof SiteBlogIndexRoute
   '/claim/': typeof SiteClaimIndexRoute
   '/review/': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/blog': typeof SiteBlogIndexRoute
   '/claim': typeof SiteClaimIndexRoute
   '/review': typeof SiteReviewIndexRoute
   '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/_site/service/$slug': typeof SiteServiceSlugRoute
   '/_site/style/$slug': typeof SiteStyleSlugRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/_site/blog/': typeof SiteBlogIndexRoute
   '/_site/claim/': typeof SiteClaimIndexRoute
   '/_site/review/': typeof SiteReviewIndexRoute
   '/_site/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
@@ -351,6 +360,7 @@ export interface FileRouteTypes {
     | '/service/$slug'
     | '/style/$slug'
     | '/api/public/track'
+    | '/blog/'
     | '/claim/'
     | '/review/'
     | '/admin/provider/$placeId'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
     | '/service/$slug'
     | '/style/$slug'
     | '/api/public/track'
+    | '/blog'
     | '/claim'
     | '/review'
     | '/admin/provider/$placeId'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/_site/service/$slug'
     | '/_site/style/$slug'
     | '/api/public/track'
+    | '/_site/blog/'
     | '/_site/claim/'
     | '/_site/review/'
     | '/_site/admin/provider/$placeId'
@@ -580,6 +592,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteAdminArticlesRouteImport
       parentRoute: typeof SiteAdminRoute
     }
+    '/_site/blog/': {
+      id: '/_site/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof SiteBlogIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/claim/': {
       id: '/_site/claim/'
       path: '/claim'
@@ -730,6 +749,7 @@ interface SiteRouteChildren {
   SiteReviewSlugRoute: typeof SiteReviewSlugRoute
   SiteServiceSlugRoute: typeof SiteServiceSlugRoute
   SiteStyleSlugRoute: typeof SiteStyleSlugRoute
+  SiteBlogIndexRoute: typeof SiteBlogIndexRoute
   SiteClaimIndexRoute: typeof SiteClaimIndexRoute
   SiteReviewIndexRoute: typeof SiteReviewIndexRoute
   SiteBestStateCityRoute: typeof SiteBestStateCityRoute
@@ -761,6 +781,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteReviewSlugRoute: SiteReviewSlugRoute,
   SiteServiceSlugRoute: SiteServiceSlugRoute,
   SiteStyleSlugRoute: SiteStyleSlugRoute,
+  SiteBlogIndexRoute: SiteBlogIndexRoute,
   SiteClaimIndexRoute: SiteClaimIndexRoute,
   SiteReviewIndexRoute: SiteReviewIndexRoute,
   SiteBestStateCityRoute: SiteBestStateCityRoute,
@@ -779,13 +800,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
