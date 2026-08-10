@@ -369,18 +369,39 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
     finally { setSaving(false); }
   }
 
+  // Shared drag-and-drop wiring so every uploader accepts dropped image files.
+  function dropZone(target: "logo" | "hero" | "gallery") {
+    return {
+      onDragOver: (e: React.DragEvent) => { e.preventDefault(); setDragOver(target); },
+      onDragLeave: () => setDragOver(null),
+      onDrop: (e: React.DragEvent) => {
+        e.preventDefault();
+        setDragOver(null);
+        const files = e.dataTransfer.files;
+        if (!files?.length) return;
+        if (target === "gallery") void uploadPhotos(files);
+        else if (target === "hero") void uploadHero(files);
+        else void uploadLogo(files);
+      },
+      "data-active": dragOver === target ? "true" : undefined,
+    };
+  }
+
+  const zoneClass = (target: string) =>
+    `cursor-pointer rounded-xl border border-dashed transition ${dragOver === target ? "border-brand bg-brand/5" : "border-border hover:border-brand"}`;
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <Label>Studio logo</Label>
-        <p className="text-[11px] text-muted-foreground">Square image works best (PNG or JPG, max 2 MB). Shown on your public profile.</p>
+        <p className="text-[11px] text-muted-foreground">Square image works best (PNG or JPG, max 2 MB). Shown next to your studio name on your public profile.</p>
         <div className="flex items-center gap-4">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-secondary/40">
             {logo ? <img src={logo} alt="Studio logo" className="h-full w-full object-cover" /> : <Building2 className="h-6 w-6 text-muted-foreground" />}
           </div>
           <div className="flex flex-wrap gap-2">
-            <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-border px-4 py-2.5 text-sm hover:border-brand">
-              <Upload className="h-4 w-4" /><span>{uploading ? "Uploading…" : logo ? "Replace logo" : "Upload logo"}</span>
+            <label {...dropZone("logo")} className={`flex items-center gap-2 px-4 py-2.5 text-sm ${zoneClass("logo")}`}>
+              <Upload className="h-4 w-4" /><span>{uploading ? "Uploading…" : logo ? "Replace logo" : "Upload or drop logo"}</span>
               <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadLogo(e.target.files)} />
             </label>
             {logo && (
@@ -390,11 +411,30 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
         </div>
       </div>
 
-      <div className="space-y-1.5"><Label>Hero photo URL</Label><Input value={hero} onChange={(e) => setHero(e.target.value)} placeholder="https://…" /></div>
-
+      <div className="space-y-2">
+        <Label>Cover photo</Label>
+        <p className="text-[11px] text-muted-foreground">
+          The wide banner image at the top of your public profile and on your listing cards. Landscape works best (about 1600×900, max 5 MB).
+        </p>
+        {hero && (
+          <div className="group relative overflow-hidden rounded-xl border border-border">
+            <img src={hero} alt="Cover photo" className="h-40 w-full object-cover" />
+            <button type="button" onClick={() => setHero("")} className="absolute right-2 top-2 rounded-full bg-background/90 p-1.5" aria-label="Remove cover photo"><X className="h-4 w-4" /></button>
+          </div>
+        )}
+        <label {...dropZone("hero")} className={`flex items-center justify-center gap-2 bg-secondary/40 px-4 py-6 text-sm ${zoneClass("hero")}`}>
+          <Upload className="h-4 w-4" /><span>{uploading ? "Uploading…" : hero ? "Replace cover photo" : "Click to upload or drag an image here"}</span>
+          <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadHero(e.target.files)} />
+        </label>
+        <details className="text-[11px] text-muted-foreground">
+          <summary className="cursor-pointer">Or paste an image link</summary>
+          <Input className="mt-2" value={hero} onChange={(e) => setHero(e.target.value)} placeholder="https://…" aria-label="Cover photo URL" />
+        </details>
+      </div>
 
       <div className="space-y-2">
         <Label>Photo gallery</Label>
+        <p className="text-[11px] text-muted-foreground">Project photos shown in the gallery on your profile.</p>
         {photos.length > 0 && (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {photos.map((url) => (
@@ -405,11 +445,12 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
             ))}
           </div>
         )}
-        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-secondary/40 px-4 py-6 text-sm hover:border-brand">
-          <Upload className="h-4 w-4" /><span>{uploading ? "Uploading…" : "Upload photos (up to 20, max 5 MB)"}</span>
+        <label {...dropZone("gallery")} className={`flex items-center justify-center gap-2 bg-secondary/40 px-4 py-6 text-sm ${zoneClass("gallery")}`}>
+          <Upload className="h-4 w-4" /><span>{uploading ? "Uploading…" : "Click to upload or drag photos here (up to 20, max 5 MB)"}</span>
           <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => uploadPhotos(e.target.files)} />
         </label>
       </div>
+
 
       <div className="space-y-2">
         <Label className="flex items-center gap-1.5"><Video className="h-4 w-4" /> Videos</Label>
