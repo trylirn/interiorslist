@@ -28,7 +28,29 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/privacy", changefreq: "yearly", priority: "0.2" },
           { path: "/terms", changefreq: "yearly", priority: "0.2" },
           { path: "/compare", changefreq: "monthly", priority: "0.4" },
+          { path: "/blog", changefreq: "weekly", priority: "0.7" },
+          { path: "/review", changefreq: "monthly", priority: "0.4" },
         ];
+
+        try {
+          const { data: posts } = await supabaseAdmin
+            .from("blog_posts")
+            .select("slug, updated_at")
+            .eq("published", true)
+            .limit(500);
+          for (const b of posts ?? []) {
+            if (!b.slug) continue;
+            entries.push({
+              path: `/blog/${b.slug}`,
+              lastmod: b.updated_at ? new Date(b.updated_at).toISOString().slice(0, 10) : undefined,
+              changefreq: "monthly",
+              priority: "0.6",
+            });
+          }
+        } catch {
+          // sitemap still serves the rest if the blog fetch fails
+        }
+
 
         try {
           const { data: geo } = await supabaseAdmin

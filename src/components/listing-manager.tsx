@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import { Eye, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Mail, Phone } from "lucide-react";
+import { Eye, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Mail, Phone, Building2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function ListingManager({ placeId, admin = false }: { placeId: string; admin?: boolean }) {
@@ -309,10 +309,32 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
   const update = useServerFn(updateMyListing);
   const [photos, setPhotos] = useState<string[]>((listing.gallery_urls as string[]) ?? []);
   const [hero, setHero] = useState((listing.hero_photo_url as string) ?? "");
+  const [logo, setLogo] = useState(((listing as Record<string, unknown>).logo_url as string) ?? "");
   const [videos, setVideos] = useState<string[]>((listing.video_urls as string[]) ?? []);
   const [newVideo, setNewVideo] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Studio photos live in a private bucket, so we store long-lived signed links.
+  async function uploadImage(file: File): Promise<string | null> {
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const path = `${placeId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("provider-photos").upload(path, file);
+    if (error) { toast.error(error.message); return null; }
+    const { data: signed } = await supabase.storage.from("provider-photos").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+    return signed?.signedUrl ?? null;
+  }
+
+  async function uploadLogo(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return toast.error("Logo must be an image");
+    if (file.size > 2 * 1024 * 1024) return toast.error("Logo must be under 2 MB");
+    setUploading(true);
+    const url = await uploadImage(file);
+    if (url) setLogo(url);
+    setUploading(false);
+  }
 
   async function uploadPhotos(files: FileList | null) {
     if (!files || !files.length) return;
@@ -322,12 +344,8 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
     for (const file of Array.from(files)) {
       if (!file.type.startsWith("image/")) { toast.error(`${file.name} not an image`); continue; }
       if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name} over 5MB`); continue; }
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${placeId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("provider-photos").upload(path, file);
-      if (error) { toast.error(error.message); continue; }
-      const { data: pub } = supabase.storage.from("provider-photos").getPublicUrl(path);
-      newUrls.push(pub.publicUrl);
+      const url = await uploadImage(file);
+      if (url) newUrls.push(url);
     }
     if (newUrls.length) setPhotos((p) => [...p, ...newUrls]);
     setUploading(false);
@@ -344,7 +362,7 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
   async function save() {
     setSaving(true);
     try {
-      await update({ data: { placeId, gallery_urls: photos, video_urls: videos, hero_photo_url: hero } });
+      await update({ data: { placeId, gallery_urls: photos, video_urls: videos, hero_photo_url: hero, logo_url: logo } });
       toast.success("Media saved");
       qc.invalidateQueries({ queryKey: ["my-listing", placeId] });
     } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
@@ -353,7 +371,27 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
 
   return (
     <div className="space-y-6">
+      <div className="space-y-2">
+        <Label>Studio logo</Label>
+        <p className="text-[11px] text-muted-foreground">Square image works best (PNG or JPG, max 2 MB). Shown on your public profile.</p>
+        <div className="flex items-center gap-4">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-secondary/40">
+            {logo ? <img src={logo} alt="Studio logo" className="h-full w-full object-cover" /> : <Building2 className="h-6 w-6 text-muted-foreground" />}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-border px-4 py-2.5 text-sm hover:border-brand">
+              <Upload className="h-4 w-4" /><span>{uploading ? "Uploading…" : logo ? "Replace logo" : "Upload logo"}</span>
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadLogo(e.target.files)} />
+            </label>
+            {logo && (
+              <Button type="button" variant="ghost" onClick={() => setLogo("")} className="gap-1.5"><X className="h-4 w-4" /> Remove</Button>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-1.5"><Label>Hero photo URL</Label><Input value={hero} onChange={(e) => setHero(e.target.value)} placeholder="https://…" /></div>
+
 
       <div className="space-y-2">
         <Label>Photo gallery</Label>

@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video, Newspaper } from "lucide-react";
 import { RelatedProviders } from "@/components/related-providers";
+import { RelatedPosts } from "@/components/related-posts";
+
 import { NearbyProviders } from "@/components/nearby-providers";
 import { ProviderMap } from "@/components/provider-map";
 import { ConsultationForm } from "@/components/consultation-form";
@@ -207,7 +209,16 @@ function ProviderPage() {
           {/* Hero card */}
           <div className="rounded-3xl border border-border bg-card p-6 md:p-8">
             <div className="flex flex-wrap items-start gap-4">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-brand/10 font-display text-3xl text-brand">{p.name.charAt(0)}</div>
+              {(p as Record<string, unknown>).logo_url ? (
+                <img
+                  src={(p as Record<string, unknown>).logo_url as string}
+                  alt={`${p.name} logo`}
+                  className="h-20 w-20 shrink-0 rounded-2xl border border-border object-cover"
+                />
+              ) : (
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-brand/10 font-display text-3xl text-brand">{p.name.charAt(0)}</div>
+              )}
+
               <div className="flex-1">
                 {p.services?.[0] && <span className="inline-block rounded-full bg-brand/10 px-3 py-0.5 text-xs font-semibold uppercase tracking-wide text-brand">{p.services[0].replace(/-/g, " ")}</span>}
                 <h1 className="mt-2 font-display text-4xl md:text-5xl leading-tight">{p.name}</h1>
@@ -454,6 +465,8 @@ function ProviderPage() {
 
       <NearbyProviders placeId={p.place_id} />
       <RelatedProviders placeId={p.place_id} />
+      <RelatedPosts tags={[...(p.styles ?? []), ...(p.services ?? [])] as string[]} />
+
     </div>
   );
 }

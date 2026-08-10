@@ -23,6 +23,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
+import { BlogAdmin } from "@/components/blog-admin";
+
 
 export const Route = createFileRoute("/_site/admin")({
   head: () => ({ meta: [{ title: "Admin | Intearior" }, { name: "description", content: "Internal Intearior admin console for managing studio listings, claims and leads." }, { name: "robots", content: "noindex, nofollow" }] }),
@@ -89,6 +91,7 @@ function AdminPage() {
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
+          <TabsTrigger value="blog">Blog</TabsTrigger>
           <TabsTrigger value="mine">My dashboard</TabsTrigger>
         </TabsList>
         <TabsContent value="analytics" className="mt-6"><AnalyticsDashboard /></TabsContent>
@@ -97,6 +100,8 @@ function AdminPage() {
         <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
         <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
         <TabsContent value="team" className="mt-6"><TeamTab /></TabsContent>
+        <TabsContent value="blog" className="mt-6"><BlogAdmin /></TabsContent>
+
         <TabsContent value="mine" className="mt-6">
           <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
             <p className="font-medium">Your own provider dashboard (sandbox)</p>
