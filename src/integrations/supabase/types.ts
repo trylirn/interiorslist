@@ -125,6 +125,57 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          body_md: string
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published: boolean
+          published_at: string | null
+          slug: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          body_md?: string
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          published_at?: string | null
+          slug: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          body_md?: string
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          published_at?: string | null
+          slug?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           created_at: string
@@ -529,6 +580,7 @@ export type Database = {
           lat: number | null
           latitude: number | null
           lng: number | null
+          logo_url: string | null
           longitude: number | null
           name: string
           not_a_fit: string | null
@@ -597,6 +649,7 @@ export type Database = {
           lat?: number | null
           latitude?: number | null
           lng?: number | null
+          logo_url?: string | null
           longitude?: number | null
           name: string
           not_a_fit?: string | null
@@ -665,6 +718,7 @@ export type Database = {
           lat?: number | null
           latitude?: number | null
           lng?: number | null
+          logo_url?: string | null
           longitude?: number | null
           name?: string
           not_a_fit?: string | null
