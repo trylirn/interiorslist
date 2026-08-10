@@ -2,55 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export const listFavorites = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = context;
-    const { data: favs, error } = await supabaseAdmin
-      .from("favorites")
-      .select("provider_place_id, created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    const ids = (favs ?? []).map((f) => f.provider_place_id);
-    if (ids.length === 0) return { providers: [] };
-    const { data: providers } = await supabaseAdmin
-      .from("providers")
-      .select(
-        "place_id, slug, name, city, city_slug, rating, review_count, services, hero_photo_url, address"
-      )
-      .in("place_id", ids);
-    return { providers: providers ?? [] };
-  });
-
-export const toggleFavorite = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ placeId: z.string().min(1).max(160) }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = context;
-    const { data: existing } = await supabaseAdmin
-      .from("favorites")
-      .select("user_id")
-      .eq("user_id", userId)
-      .eq("provider_place_id", data.placeId)
-      .maybeSingle();
-    if (existing) {
-      const { error } = await supabaseAdmin
-        .from("favorites")
-        .delete()
-        .eq("user_id", userId)
-        .eq("provider_place_id", data.placeId);
-      if (error) throw new Error(error.message);
-      return { favorited: false };
-    }
-    const { error } = await supabaseAdmin
-      .from("favorites")
-      .insert({ user_id: userId, provider_place_id: data.placeId });
-    if (error) throw new Error(error.message);
-    return { favorited: true };
-  });
 
 export const submitClaim = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
