@@ -404,15 +404,8 @@ function MatchPage() {
         </div>
 
         {unlocked && !sentTo && (
-          <section id="send-brief" className="mt-10 grid gap-6 overflow-hidden rounded-3xl border border-border bg-card lg:grid-cols-[1fr_1.2fr]">
-            <img
-              src={CONSULT_IMAGE}
-              alt="Interior designer reviewing plans and samples with clients"
-              loading="lazy"
-              width={1440}
-              height={720}
-              className="h-full min-h-64 w-full object-cover"
-            />
+          <section id="send-brief" className="mt-10 overflow-hidden rounded-3xl border border-border bg-card">
+
             <div className="p-6 md:p-8">
               <h2 className="font-display text-2xl">Send your brief</h2>
               <p className="mt-2 text-sm text-muted-foreground">
