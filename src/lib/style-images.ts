@@ -34,6 +34,25 @@ export const STYLE_IMAGES: Record<string, string> = {
   scandinavian: scandinavian.url,
   eclectic: eclectic.url,
   "contemporary-luxury": luxury.url,
+  contemporary: modern.url,
+  bohemian: eclectic.url,
+  "art-deco": luxury.url,
+  rustic: farmhouse.url,
+  mediterranean: coastal.url,
+  "french-country": traditional.url,
+  japandi: minimalist.url,
+  shaker: traditional.url,
+  "hollywood-regency": maximalist.url,
+  southwestern: eclectic.url,
+  "english-country": traditional.url,
+  "organic-modern": scandinavian.url,
+  victorian: traditional.url,
+  tropical: coastal.url,
+  grandmillennial: maximalist.url,
+  biophilic: scandinavian.url,
+  "warm-minimalism": minimalist.url,
+  "urban-loft": industrial.url,
+
 };
 
 export function styleImage(slug: string): string {
