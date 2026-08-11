@@ -479,7 +479,7 @@ function MatchPage() {
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="text-center">
           <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
-            AI matching
+            MATCHING
           </p>
         </div>
         <h1 className="mt-8 font-display text-3xl md:text-4xl">Where is your project?</h1>
