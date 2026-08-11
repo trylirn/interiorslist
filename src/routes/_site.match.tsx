@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_site/match")({
   head: () => ({
     meta: [
       { title: "Get Matched with an Interior Designer | Intearior" },
-      { name: "description", content: "Answer a few AI-guided questions about your space, style, budget and timeline and we'll shortlist interior design studios that fit your project." },
+      { name: "description", content: "Answer a few guided questions about your space, style, budget and timeline and we'll shortlist interior design studios that fit your project." },
       { property: "og:title", content: "Get Matched with an Interior Designer" },
       { property: "og:description", content: "Tell us about your project and our assistant will shortlist design studios that fit." },
       { property: "og:url", content: "/match" },
@@ -495,7 +495,7 @@ function MatchPage() {
 
       <div className="text-center">
         <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
-          AI matching
+          MATCHING
         </p>
         <div className="mx-auto mt-4 h-1.5 max-w-md overflow-hidden rounded-full bg-border">
           <div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: `${Math.max(8, progress)}%` }} />

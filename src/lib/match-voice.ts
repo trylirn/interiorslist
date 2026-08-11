@@ -1,4 +1,4 @@
-/** Rewrites an AI-written brief summary into the client's own voice. */
+/** Rewrites the generated brief summary into the client's own voice. */
 export function toClientVoice(raw: string): string {
   let s = (raw ?? "").trim();
   if (!s) return "We're looking for an interior designer for our project.";
