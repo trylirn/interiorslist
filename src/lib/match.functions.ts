@@ -35,7 +35,26 @@ export const STYLE_SERVICES: Record<string, string[]> = {
   scandinavian: ["full-home-design", "bedroom-design", "lighting-design", "space-planning"],
   eclectic: ["living-dining", "furniture-sourcing", "color-consultation", "home-office"],
   "contemporary-luxury": ["full-home-design", "custom-millwork", "renovation-management", "lighting-design"],
+  contemporary: ["full-home-design", "space-planning", "furniture-sourcing", "lighting-design"],
+  bohemian: ["living-dining", "furniture-sourcing", "color-consultation", "textiles-soft-furnishing"],
+  "art-deco": ["living-dining", "custom-millwork", "lighting-design", "wallpaper-wall-treatments"],
+  rustic: ["full-home-design", "custom-millwork", "flooring-tile", "renovation-management"],
+  mediterranean: ["full-home-design", "outdoor-patio", "flooring-tile", "kitchen-design"],
+  "french-country": ["full-home-design", "custom-millwork", "window-treatments", "color-consultation"],
+  japandi: ["space-planning", "custom-millwork", "full-home-design", "closet-storage"],
+  shaker: ["kitchen-design", "cabinetry-joinery", "custom-millwork", "full-home-design"],
+  "hollywood-regency": ["living-dining", "wallpaper-wall-treatments", "lighting-design", "furniture-sourcing"],
+  southwestern: ["living-dining", "color-consultation", "textiles-soft-furnishing", "outdoor-patio"],
+  "english-country": ["living-dining", "window-treatments", "wallpaper-wall-treatments", "furniture-sourcing"],
+  "organic-modern": ["full-home-design", "space-planning", "flooring-tile", "furniture-sourcing"],
+  victorian: ["custom-millwork", "renovation-management", "wallpaper-wall-treatments", "full-home-design"],
+  tropical: ["outdoor-patio", "living-dining", "furniture-sourcing", "color-consultation"],
+  grandmillennial: ["window-treatments", "wallpaper-wall-treatments", "living-dining", "furniture-sourcing"],
+  biophilic: ["space-planning", "sustainable-design", "lighting-design", "full-home-design"],
+  "warm-minimalism": ["space-planning", "custom-millwork", "full-home-design", "closet-storage"],
+  "urban-loft": ["space-planning", "lighting-design", "living-dining", "renovation-management"],
 };
+
 
 // Which services satisfy a given room / need
 export const ROOM_SERVICES: Record<string, string[]> = {
@@ -47,11 +66,22 @@ export const ROOM_SERVICES: Record<string, string[]> = {
   "home-office": ["home-office", "space-planning", "custom-millwork"],
   outdoor: ["outdoor-patio", "furniture-sourcing"],
   "whole-home": ["full-home-design", "space-planning", "renovation-management"],
-  storage: ["custom-millwork", "space-planning"],
+  storage: ["custom-millwork", "space-planning", "closet-storage"],
   lighting: ["lighting-design"],
   "window-treatments": ["window-treatments"],
   "paint-color": ["color-consultation"],
+  nursery: ["kids-nursery", "bedroom-design"],
+  "primary-suite": ["primary-suite", "bedroom-design", "bathroom-design"],
+  basement: ["basement-finishing", "renovation-management", "media-theatre"],
+  "media-room": ["media-theatre", "lighting-design", "living-dining"],
+  flooring: ["flooring-tile"],
+  wallpaper: ["wallpaper-wall-treatments", "color-consultation"],
+  art: ["art-curation", "furniture-sourcing"],
+  accessibility: ["accessible-design", "space-planning"],
+  sustainability: ["sustainable-design"],
+  rendering: ["3d-rendering", "space-planning"],
 };
+
 
 const PRIORITY_SERVICES: Record<string, string[]> = {
   "full-home": ["full-home-design", "space-planning", "renovation-management", "furniture-sourcing"],
@@ -140,7 +170,7 @@ export const getMatches = createServerFn({ method: "POST" })
       .filter((p) => !(prefs.has("verified-only") && !p.is_verified))
       .filter((p) => !(prefs.has("remote-ok") && data.citySlug === "any") || !!p.remote_services)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
+      .slice(0, 3);
 
     const max = scored[0]?.score || 1;
     const matches = scored.map((m) => ({
