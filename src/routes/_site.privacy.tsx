@@ -73,7 +73,7 @@ function PrivacyPage() {
           <li>measure usage, debug, prevent abuse, and improve the Site;</li>
           <li>comply with law and enforce our Terms.</li>
         </ul>
-        We do <strong>not</strong> sell personal information for money. We do not use your information to train third-party AI models.
+        We do <strong>not</strong> sell personal information for money. We do not use your information to train third-party automated models.
       </Section>
 
       <Section title="5. Legal bases (EEA / UK visitors)">
