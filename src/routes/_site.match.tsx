@@ -66,41 +66,8 @@ function OptionRow({ selected, label, onClick, multi }: { selected: boolean; lab
   );
 }
 
-function StyleOption({ selected, label, slug, onClick }: { selected: boolean; label: string; slug: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`group w-full overflow-hidden rounded-xl border text-left transition sm:rounded-2xl ${selected ? "border-brand ring-2 ring-brand/40" : "border-border hover:border-brand/60"}`}
-    >
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        <img
-          src={styleImage(slug)}
-          alt={`${label} interior design style`}
-          loading="lazy"
-          width={1024}
-          height={768}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-        />
-        {selected && (
-          <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-brand-foreground sm:right-2 sm:top-2 sm:h-6 sm:w-6">
-            <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-          </span>
-        )}
-      </div>
-      <p className="px-2 py-2 text-xs font-medium leading-snug sm:px-3 sm:py-2.5 sm:text-sm">{label}</p>
 
-    </button>
-  );
-}
 
-/** True when most of the options name a recognizable design style. */
-function isStyleStep(question: string, options: string[]) {
-  const matched = options.filter((o) => matchStyleSlug(o)).length;
-  const q = question.toLowerCase();
-  const asksStyle = /style|look|aesthetic|vibe|drawn to/.test(q);
-  return options.length >= 3 && matched >= Math.ceil(options.length * 0.6) && asksStyle;
-}
 
 
 
