@@ -140,7 +140,7 @@ export const getMatches = createServerFn({ method: "POST" })
       .filter((p) => !(prefs.has("verified-only") && !p.is_verified))
       .filter((p) => !(prefs.has("remote-ok") && data.citySlug === "any") || !!p.remote_services)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
+      .slice(0, 3);
 
     const max = scored[0]?.score || 1;
     const matches = scored.map((m) => ({
