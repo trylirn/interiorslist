@@ -66,11 +66,22 @@ export const ROOM_SERVICES: Record<string, string[]> = {
   "home-office": ["home-office", "space-planning", "custom-millwork"],
   outdoor: ["outdoor-patio", "furniture-sourcing"],
   "whole-home": ["full-home-design", "space-planning", "renovation-management"],
-  storage: ["custom-millwork", "space-planning"],
+  storage: ["custom-millwork", "space-planning", "closet-storage"],
   lighting: ["lighting-design"],
   "window-treatments": ["window-treatments"],
   "paint-color": ["color-consultation"],
+  nursery: ["kids-nursery", "bedroom-design"],
+  "primary-suite": ["primary-suite", "bedroom-design", "bathroom-design"],
+  basement: ["basement-finishing", "renovation-management", "media-theatre"],
+  "media-room": ["media-theatre", "lighting-design", "living-dining"],
+  flooring: ["flooring-tile"],
+  wallpaper: ["wallpaper-wall-treatments", "color-consultation"],
+  art: ["art-curation", "furniture-sourcing"],
+  accessibility: ["accessible-design", "space-planning"],
+  sustainability: ["sustainable-design"],
+  rendering: ["3d-rendering", "space-planning"],
 };
+
 
 const PRIORITY_SERVICES: Record<string, string[]> = {
   "full-home": ["full-home-design", "space-planning", "renovation-management", "furniture-sourcing"],
