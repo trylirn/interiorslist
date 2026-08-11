@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { MatchResultCard } from "@/components/match-result-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CITIES, serviceName, styleLabel, projectTypeLabel, BUDGET_BANDS } from "@/lib/cities";
-import { CONSULT_IMAGE, matchStyleSlug, styleImage } from "@/lib/style-images";
 import { getMatches } from "@/lib/match.functions";
 import { listStates, listCities } from "@/lib/providers.functions";
 import { sendContactMessage } from "@/lib/contact.functions";
