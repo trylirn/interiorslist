@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Search, ShieldCheck, MapPin, BadgeCheck, Wand2, Scale, MessageSquare, ListChecks } from "lucide-react";
-import { LookingForHero } from "@/components/looking-for-hero";
 import { HeroMatchCard } from "@/components/hero-match-card";
 import { HERO_IMAGE, styleImage } from "@/lib/style-images";
 
@@ -130,7 +129,6 @@ function HomePage() {
         </div>
       </section>
 
-      <LookingForHero />
 
       {/* HOW IT WORKS */}
       <section className="border-b border-border/60 bg-secondary/30">
