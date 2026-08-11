@@ -65,7 +65,7 @@ Available studio services for reference: ${SERVICES.map((s) => s.slug).join(", "
 
 async function callAI(messages: Array<{ role: string; content: string }>) {
   const key = process.env["LOVABLE_API_KEY"];
-  if (!key) throw new Error("AI is not configured");
+  if (!key) throw new Error("Matching is not configured");
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "fetch" },

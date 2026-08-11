@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { MatchResultCard } from "@/components/match-result-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CITIES, serviceName, styleLabel, projectTypeLabel, BUDGET_BANDS } from "@/lib/cities";
-import { CONSULT_IMAGE, matchStyleSlug, styleImage } from "@/lib/style-images";
 import { getMatches } from "@/lib/match.functions";
 import { listStates, listCities } from "@/lib/providers.functions";
 import { sendContactMessage } from "@/lib/contact.functions";
@@ -35,7 +34,7 @@ export const Route = createFileRoute("/_site/match")({
   head: () => ({
     meta: [
       { title: "Get Matched with an Interior Designer | Intearior" },
-      { name: "description", content: "Answer a few AI-guided questions about your space, style, budget and timeline and we'll shortlist interior design studios that fit your project." },
+      { name: "description", content: "Answer a few guided questions about your space, style, budget and timeline and we'll shortlist interior design studios that fit your project." },
       { property: "og:title", content: "Get Matched with an Interior Designer" },
       { property: "og:description", content: "Tell us about your project and our assistant will shortlist design studios that fit." },
       { property: "og:url", content: "/match" },
@@ -66,41 +65,8 @@ function OptionRow({ selected, label, onClick, multi }: { selected: boolean; lab
   );
 }
 
-function StyleOption({ selected, label, slug, onClick }: { selected: boolean; label: string; slug: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`group w-full overflow-hidden rounded-xl border text-left transition sm:rounded-2xl ${selected ? "border-brand ring-2 ring-brand/40" : "border-border hover:border-brand/60"}`}
-    >
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        <img
-          src={styleImage(slug)}
-          alt={`${label} interior design style`}
-          loading="lazy"
-          width={1024}
-          height={768}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-        />
-        {selected && (
-          <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-brand-foreground sm:right-2 sm:top-2 sm:h-6 sm:w-6">
-            <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-          </span>
-        )}
-      </div>
-      <p className="px-2 py-2 text-xs font-medium leading-snug sm:px-3 sm:py-2.5 sm:text-sm">{label}</p>
 
-    </button>
-  );
-}
 
-/** True when most of the options name a recognizable design style. */
-function isStyleStep(question: string, options: string[]) {
-  const matched = options.filter((o) => matchStyleSlug(o)).length;
-  const q = question.toLowerCase();
-  const asksStyle = /style|look|aesthetic|vibe|drawn to/.test(q);
-  return options.length >= 3 && matched >= Math.ceil(options.length * 0.6) && asksStyle;
-}
 
 
 
@@ -404,15 +370,8 @@ function MatchPage() {
         </div>
 
         {unlocked && !sentTo && (
-          <section id="send-brief" className="mt-10 grid gap-6 overflow-hidden rounded-3xl border border-border bg-card lg:grid-cols-[1fr_1.2fr]">
-            <img
-              src={CONSULT_IMAGE}
-              alt="Interior designer reviewing plans and samples with clients"
-              loading="lazy"
-              width={1440}
-              height={720}
-              className="h-full min-h-64 w-full object-cover"
-            />
+          <section id="send-brief" className="mt-10 overflow-hidden rounded-3xl border border-border bg-card">
+
             <div className="p-6 md:p-8">
               <h2 className="font-display text-2xl">Send your brief</h2>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -536,7 +495,7 @@ function MatchPage() {
 
       <div className="text-center">
         <p className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
-          AI matching
+          MATCHING
         </p>
         <div className="mx-auto mt-4 h-1.5 max-w-md overflow-hidden rounded-full bg-border">
           <div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: `${Math.max(8, progress)}%` }} />
@@ -569,39 +528,21 @@ function MatchPage() {
           <h1 className="font-display text-3xl md:text-4xl">{step.question}</h1>
           {step.helper && <p className="mt-2 text-muted-foreground">{step.helper}</p>}
 
-          {isStyleStep(step.question, step.options) ? (
-            <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
-              {step.options.map((opt) => {
-                const slug = matchStyleSlug(opt);
-                const toggle = () => {
+          <div className="mt-6 space-y-3">
+            {step.options.map((opt) => (
+              <OptionRow
+                key={opt}
+                multi={step.multi}
+                selected={picked.includes(opt)}
+                label={opt}
+                onClick={() => {
                   if (step.multi) setPicked((p) => (p.includes(opt) ? p.filter((x) => x !== opt) : [...p, opt]));
                   else submitAnswer(opt);
-                };
-                return slug ? (
-                  <StyleOption key={opt} slug={slug} label={opt} selected={picked.includes(opt)} onClick={toggle} />
-                ) : (
-                  <div key={opt} className="col-span-2 sm:col-span-3">
-                    <OptionRow multi={step.multi} selected={picked.includes(opt)} label={opt} onClick={toggle} />
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="mt-6 space-y-3">
-              {step.options.map((opt) => (
-                <OptionRow
-                  key={opt}
-                  multi={step.multi}
-                  selected={picked.includes(opt)}
-                  label={opt}
-                  onClick={() => {
-                    if (step.multi) setPicked((p) => (p.includes(opt) ? p.filter((x) => x !== opt) : [...p, opt]));
-                    else submitAnswer(opt);
-                  }}
-                />
-              ))}
-            </div>
-          )}
+                }}
+              />
+            ))}
+          </div>
+
 
 
           {step.allowFreeText && (
