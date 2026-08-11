@@ -569,39 +569,21 @@ function MatchPage() {
           <h1 className="font-display text-3xl md:text-4xl">{step.question}</h1>
           {step.helper && <p className="mt-2 text-muted-foreground">{step.helper}</p>}
 
-          {isStyleStep(step.question, step.options) ? (
-            <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
-              {step.options.map((opt) => {
-                const slug = matchStyleSlug(opt);
-                const toggle = () => {
+          <div className="mt-6 space-y-3">
+            {step.options.map((opt) => (
+              <OptionRow
+                key={opt}
+                multi={step.multi}
+                selected={picked.includes(opt)}
+                label={opt}
+                onClick={() => {
                   if (step.multi) setPicked((p) => (p.includes(opt) ? p.filter((x) => x !== opt) : [...p, opt]));
                   else submitAnswer(opt);
-                };
-                return slug ? (
-                  <StyleOption key={opt} slug={slug} label={opt} selected={picked.includes(opt)} onClick={toggle} />
-                ) : (
-                  <div key={opt} className="col-span-2 sm:col-span-3">
-                    <OptionRow multi={step.multi} selected={picked.includes(opt)} label={opt} onClick={toggle} />
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="mt-6 space-y-3">
-              {step.options.map((opt) => (
-                <OptionRow
-                  key={opt}
-                  multi={step.multi}
-                  selected={picked.includes(opt)}
-                  label={opt}
-                  onClick={() => {
-                    if (step.multi) setPicked((p) => (p.includes(opt) ? p.filter((x) => x !== opt) : [...p, opt]));
-                    else submitAnswer(opt);
-                  }}
-                />
-              ))}
-            </div>
-          )}
+                }}
+              />
+            ))}
+          </div>
+
 
 
           {step.allowFreeText && (
