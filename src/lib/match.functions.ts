@@ -35,7 +35,26 @@ export const STYLE_SERVICES: Record<string, string[]> = {
   scandinavian: ["full-home-design", "bedroom-design", "lighting-design", "space-planning"],
   eclectic: ["living-dining", "furniture-sourcing", "color-consultation", "home-office"],
   "contemporary-luxury": ["full-home-design", "custom-millwork", "renovation-management", "lighting-design"],
+  contemporary: ["full-home-design", "space-planning", "furniture-sourcing", "lighting-design"],
+  bohemian: ["living-dining", "furniture-sourcing", "color-consultation", "textiles-soft-furnishing"],
+  "art-deco": ["living-dining", "custom-millwork", "lighting-design", "wallpaper-wall-treatments"],
+  rustic: ["full-home-design", "custom-millwork", "flooring-tile", "renovation-management"],
+  mediterranean: ["full-home-design", "outdoor-patio", "flooring-tile", "kitchen-design"],
+  "french-country": ["full-home-design", "custom-millwork", "window-treatments", "color-consultation"],
+  japandi: ["space-planning", "custom-millwork", "full-home-design", "closet-storage"],
+  shaker: ["kitchen-design", "cabinetry-joinery", "custom-millwork", "full-home-design"],
+  "hollywood-regency": ["living-dining", "wallpaper-wall-treatments", "lighting-design", "furniture-sourcing"],
+  southwestern: ["living-dining", "color-consultation", "textiles-soft-furnishing", "outdoor-patio"],
+  "english-country": ["living-dining", "window-treatments", "wallpaper-wall-treatments", "furniture-sourcing"],
+  "organic-modern": ["full-home-design", "space-planning", "flooring-tile", "furniture-sourcing"],
+  victorian: ["custom-millwork", "renovation-management", "wallpaper-wall-treatments", "full-home-design"],
+  tropical: ["outdoor-patio", "living-dining", "furniture-sourcing", "color-consultation"],
+  grandmillennial: ["window-treatments", "wallpaper-wall-treatments", "living-dining", "furniture-sourcing"],
+  biophilic: ["space-planning", "sustainable-design", "lighting-design", "full-home-design"],
+  "warm-minimalism": ["space-planning", "custom-millwork", "full-home-design", "closet-storage"],
+  "urban-loft": ["space-planning", "lighting-design", "living-dining", "renovation-management"],
 };
+
 
 // Which services satisfy a given room / need
 export const ROOM_SERVICES: Record<string, string[]> = {
