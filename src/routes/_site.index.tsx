@@ -12,6 +12,16 @@ import { HeroMatchCard } from "@/components/hero-match-card";
 import { HERO_IMAGE, styleImage } from "@/lib/style-images";
 
 
+const HOME_STYLE_SLUGS = ["modern", "mid-century", "traditional", "farmhouse", "coastal", "minimalist"];
+const HOME_STYLES = HOME_STYLE_SLUGS.map((slug) => STYLES.find((s) => s.slug === slug)!).filter(Boolean);
+
+const HOME_SERVICE_SLUGS = [
+  "full-home-design", "kitchen-design", "bathroom-design", "living-dining",
+  "bedroom-design", "home-office", "outdoor-patio", "commercial-office",
+  "home-staging", "e-design", "space-planning", "renovation-management",
+];
+const HOME_SERVICES = HOME_SERVICE_SLUGS.map((slug) => SERVICES.find((s) => s.slug === slug)!).filter(Boolean);
+
 const featuredOpts = queryOptions({ queryKey: ["featured"], queryFn: () => getFeaturedProviders() });
 const statsOpts = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCityStats() });
 const dirStatsOpts = queryOptions({ queryKey: ["directory-stats"], queryFn: () => getDirectoryStats(), staleTime: 30 * 60 * 1000 });
@@ -178,7 +188,7 @@ function HomePage() {
             </Link>
           ))}
         </div>
-        <p className="mt-8 text-center"><Link to="/style/$slug" params={{ slug: STYLES[0]!.slug }} className="text-sm font-medium text-brand hover:underline">See all {STYLES.length} design styles →</Link></p>
+        <p className="mt-8 text-center"><Link to="/search" className="text-sm font-medium text-brand hover:underline">See all {STYLES.length} design styles →</Link></p>
       </section>
 
 
@@ -217,7 +227,7 @@ function HomePage() {
           <h2 className="mt-2 font-display text-4xl md:text-5xl">What do you need designed?</h2>
         </div>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
-          {SERVICES.map((s) => (
+          {HOME_SERVICES.map((s) => (
             <Link key={s.slug} to="/service/$slug" params={{ slug: s.slug }} className="rounded-xl border border-border bg-card px-4 py-4 text-center text-sm font-medium transition hover:border-brand hover:text-brand">
               {s.name}
             </Link>
