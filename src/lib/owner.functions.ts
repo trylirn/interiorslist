@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { callerIsAdmin, callerIsSuperAdmin } from "@/lib/caller-role";
+import { callerIsSuperAdmin } from "@/lib/caller-role";
 
 
 
