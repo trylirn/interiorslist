@@ -178,7 +178,9 @@ function HomePage() {
             </Link>
           ))}
         </div>
+        <p className="mt-8 text-center"><Link to="/style/$slug" params={{ slug: STYLES[0]!.slug }} className="text-sm font-medium text-brand hover:underline">See all {STYLES.length} design styles →</Link></p>
       </section>
+
 
       {/* CITIES */}
       <section className="border-y border-border/60 bg-secondary/30">
