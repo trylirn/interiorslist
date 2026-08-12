@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { callerIsAdmin } from "@/lib/caller-role";
+import { callerIsSuperAdmin } from "@/lib/caller-role";
 
 
 
@@ -23,12 +23,13 @@ export const getMyListing = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const admin = await callerIsAdmin(supabase as never, userId);
+    // Only super admins may open a studio they do not own (manual onboarding).
+    const superAdmin = await callerIsSuperAdmin(supabase as never, userId);
     let query = supabase.from("providers").select("*").eq("place_id", data.placeId);
-    if (!admin) query = query.eq("claimed_by", userId);
+    if (!superAdmin) query = query.eq("claimed_by", userId);
     const { data: row, error } = await query.maybeSingle();
     if (error) throw new Error(error.message);
-    return { listing: row, asAdmin: admin };
+    return { listing: row, asAdmin: superAdmin, asSuperAdmin: superAdmin };
   });
 
 export const updateMyListing = createServerFn({ method: "POST" })
@@ -79,9 +80,9 @@ export const updateMyListing = createServerFn({ method: "POST" })
       ...rest,
       ...(email_forward_to !== undefined ? { email_forward_to: email_forward_to === "" ? null : email_forward_to } : {}),
     };
-    const admin = await callerIsAdmin(supabase as never, userId);
+    const superAdmin = await callerIsSuperAdmin(supabase as never, userId);
     let query = supabase.from("providers").update(patch).eq("place_id", placeId);
-    if (!admin) query = query.eq("claimed_by", userId);
+    if (!superAdmin) query = query.eq("claimed_by", userId);
     const { error } = await query;
     if (error) throw new Error(error.message);
     return { ok: true };

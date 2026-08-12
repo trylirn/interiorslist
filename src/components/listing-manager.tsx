@@ -36,7 +36,7 @@ export function ListingManager({ placeId, admin = false }: { placeId: string; ad
       {admin && (
         <div className="mt-3 flex items-center gap-2 rounded-xl border border-brand/40 bg-brand/5 px-4 py-2.5 text-sm">
           <Shield className="h-4 w-4 text-brand" />
-          <span>Viewing as admin — changes save to the provider's live listing.</span>
+          <span>Super admin onboarding mode — you are editing this studio on their behalf. Changes save to their live listing.</span>
         </div>
       )}
       <h1 className="mt-3 font-display text-4xl">{(data.listing as Listing).name as string}</h1>

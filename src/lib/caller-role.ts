@@ -6,3 +6,9 @@ export async function callerIsAdmin(supabase: RpcClient, userId: string): Promis
   const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
   return data === true;
 }
+
+/** Super-admin only escape hatch (manual studio onboarding back door). */
+export async function callerIsSuperAdmin(supabase: RpcClient, userId: string): Promise<boolean> {
+  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "super_admin" });
+  return data === true;
+}
