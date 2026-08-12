@@ -155,7 +155,7 @@ function HomePage() {
           <Link to="/search" className="text-sm font-medium text-brand hover:underline">Browse every studio →</Link>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {STYLES.map((c, i) => (
+          {HOME_STYLES.map((c, i) => (
             <Link
               key={c.slug}
               to="/style/$slug"
