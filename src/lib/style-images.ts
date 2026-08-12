@@ -13,6 +13,24 @@ import scandinavian from "@/assets/scandinavian.jpg.asset.json";
 import eclectic from "@/assets/eclectic.jpg.asset.json";
 import studio from "@/assets/studio.jpg.asset.json";
 import consult from "@/assets/consult.jpg.asset.json";
+import contemporary from "@/assets/contemporary.jpg.asset.json";
+import bohemian from "@/assets/bohemian.jpg.asset.json";
+import artDeco from "@/assets/art-deco.jpg.asset.json";
+import rustic from "@/assets/rustic.jpg.asset.json";
+import mediterranean from "@/assets/mediterranean.jpg.asset.json";
+import frenchCountry from "@/assets/french-country.jpg.asset.json";
+import japandi from "@/assets/japandi.jpg.asset.json";
+import shaker from "@/assets/shaker.jpg.asset.json";
+import hollywoodRegency from "@/assets/hollywood-regency.jpg.asset.json";
+import southwestern from "@/assets/southwestern.jpg.asset.json";
+import englishCountry from "@/assets/english-country.jpg.asset.json";
+import organicModern from "@/assets/organic-modern.jpg.asset.json";
+import victorian from "@/assets/victorian.jpg.asset.json";
+import tropical from "@/assets/tropical.jpg.asset.json";
+import grandmillennial from "@/assets/grandmillennial.jpg.asset.json";
+import biophilic from "@/assets/biophilic.jpg.asset.json";
+import warmMinimalism from "@/assets/warm-minimalism.jpg.asset.json";
+import urbanLoft from "@/assets/urban-loft.jpg.asset.json";
 
 export const HERO_IMAGE = hero.url;
 /** Designers at work — material boards, plans, samples. */
