@@ -21,10 +21,10 @@ function AdminProviderDashboard() {
   const { data: roles, isLoading } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles(), enabled: authed });
 
   if (!ready || (authed && isLoading)) return <div className="mx-auto max-w-3xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
-  if (!authed || !roles?.isAdmin) {
+  if (!authed || !roles?.isSuperAdmin) {
     return (
       <div className="mx-auto max-w-md py-24 text-center px-4">
-        <h1 className="font-display text-3xl">Admin only</h1>
+        <h1 className="font-display text-3xl">Super admins only</h1>
         <Button asChild className="mt-6"><Link to="/login">Sign in</Link></Button>
       </div>
     );
