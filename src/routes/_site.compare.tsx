@@ -57,7 +57,6 @@ function ComparePage() {
     { label: "Notes", render: (p) => p.recovery_tags?.length ? p.recovery_tags.join(", ") : "—" },
     { label: "Address", render: (p) => <span className="text-sm">{p.address ?? "—"}</span> },
     { label: "Website", render: (p) => p.website ? <a className="text-brand inline-flex items-center gap-1" href={p.website} target="_blank" rel="noopener noreferrer">Visit <ExternalLink className="h-3 w-3" /></a> : "—" },
-    { label: "Phone", render: (p) => p.phone ?? "—" },
   ];
 
   return (

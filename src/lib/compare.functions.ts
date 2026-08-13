@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 const COLS =
-  "place_id, slug, name, city, city_slug, address, website, phone, specialists, credentials, services, services_raw, branch_label, is_verified, claimed_by_internal:claimed_by, rating, review_count, hero_photo_url, skin_types, recovery_tags, price_ranges, hours, social_links";
+  "place_id, slug, name, city, city_slug, address, website, specialists, credentials, services, services_raw, branch_label, is_verified, claimed_by_internal:claimed_by, rating, review_count, hero_photo_url, skin_types, recovery_tags, price_ranges, hours, social_links";
 
 export const getProvidersByIds = createServerFn({ method: "POST" })
   .inputValidator((d) =>
