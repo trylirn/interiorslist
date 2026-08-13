@@ -76,7 +76,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
     specialists: (listing.specialists as string) ?? "",
     notes: (listing.notes as string) ?? "",
     website: (listing.website as string) ?? "",
-    phone: (listing.phone as string) ?? "",
+    
     branch_label: (listing.branch_label as string) ?? "",
     email_forward_to: (listing.email_forward_to as string) ?? "",
     services: ((listing.services as string[]) ?? []),
@@ -159,7 +159,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
         <p className="text-[11px] text-muted-foreground">Shown publicly on your profile under "About".</p>
       </div>
       <div className="space-y-1.5"><Label>Website</Label><Input value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} /></div>
-      <div className="space-y-1.5"><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+      
       <div className="space-y-1.5">
         <Label>Forward new leads to this email</Label>
         <Input type="email" value={form.email_forward_to} onChange={(e) => setForm({ ...form, email_forward_to: e.target.value })} placeholder="leads@yourstudio.com" />
