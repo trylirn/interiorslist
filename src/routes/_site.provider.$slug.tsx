@@ -242,8 +242,8 @@ function ProviderPage() {
             <div className="mt-6 grid grid-cols-2 gap-y-4 border-t border-border pt-6 md:grid-cols-4">
               <Meta label="Based In" value={loc || "—"} icon={<MapPin className="h-4 w-4" />} />
               <Meta label="Serves" value={p.remote_services ? "Local + remote (e-design)" : `${p.city} & nearby`} icon={<Globe className="h-4 w-4" />} />
-              {p.phone && <Meta label="Contact" value="Phone available" icon={<Mail className="h-4 w-4" />} />}
-              {p.price_tier && <Meta label="Budget" value={String(p.price_tier).replace(/-/g, " ")} icon={<Building2 className="h-4 w-4" />} />}
+              {p.price_tier && <Meta label="Pricing tier" value={priceTierLabel(p.price_tier)} icon={<Building2 className="h-4 w-4" />} />}
+              {p.typical_project_budget && <Meta label="Typical project" value={budgetLabel(p.typical_project_budget)} icon={<Building2 className="h-4 w-4" />} />}
             </div>
 
             {p.address && (
