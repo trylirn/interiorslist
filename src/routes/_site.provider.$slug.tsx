@@ -102,7 +102,7 @@ export const Route = createFileRoute("/_site/provider/$slug")({
       if (p.website) ld.sameAs = [p.website, ...Object.values((p.social_links ?? {}) as Record<string, string>)].filter(Boolean);
       else if (p.social_links) ld.sameAs = Object.values(p.social_links as Record<string, string>).filter(Boolean);
       if (p.email) ld.email = p.email;
-      if (p.phone) ld.telephone = p.phone;
+      
       if (Array.isArray(p.services) && p.services.length) {
         ld.hasOfferCatalog = {
           "@type": "OfferCatalog",
