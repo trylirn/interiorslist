@@ -17,7 +17,18 @@ import { NearbyProviders } from "@/components/nearby-providers";
 import { ProviderMap } from "@/components/provider-map";
 import { ConsultationForm } from "@/components/consultation-form";
 
-import { CITY_NEIGHBORS } from "@/lib/cities";
+import { CITY_NEIGHBORS, BUDGET_BANDS } from "@/lib/cities";
+
+const PRICE_TIER_LABEL: Record<string, string> = {
+  budget: "Budget-friendly",
+  moderate: "Mid-range",
+  premium: "Premium",
+  luxury: "Luxury",
+  flexible: "Flexible",
+};
+
+const priceTierLabel = (t: string) => PRICE_TIER_LABEL[t] ?? t.replace(/-/g, " ");
+const budgetLabel = (b: string) => BUDGET_BANDS.find((x) => x.slug === b)?.label ?? b.replace(/-/g, " ");
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
