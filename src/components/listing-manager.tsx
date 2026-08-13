@@ -198,7 +198,10 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
 
       <div className="space-y-3 rounded-2xl border border-border p-4">
         <div className="flex items-center justify-between">
-          <p className="font-display text-lg">Pricing &amp; packages</p>
+          <div>
+            <p className="font-display text-lg">Packages &amp; typical prices</p>
+            <p className="text-[11px] text-muted-foreground">Optional. Listed on your public profile so clients can see what you offer.</p>
+          </div>
           <Button type="button" size="sm" variant="outline" onClick={() => setPackages((ps) => (ps.length >= 20 ? ps : [...ps, { name: "", price: "", note: "" }]))}>Add package</Button>
         </div>
         {packages.length === 0 && <p className="text-sm text-muted-foreground">No packages yet.</p>}
@@ -269,16 +272,18 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label>Price tier</Label>
+          <Label>Pricing tier (used for matching)</Label>
           <Select value={form.price_tier || undefined} onValueChange={(v) => setForm({ ...form, price_tier: v })}>
-            <SelectTrigger><SelectValue placeholder="Select price tier" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Select pricing tier" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="budget">Budget</SelectItem>
-              <SelectItem value="moderate">Moderate</SelectItem>
+              <SelectItem value="budget">Budget-friendly</SelectItem>
+              <SelectItem value="moderate">Mid-range</SelectItem>
               <SelectItem value="premium">Premium</SelectItem>
+              <SelectItem value="luxury">Luxury</SelectItem>
               <SelectItem value="flexible">Flexible</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-[11px] text-muted-foreground">Shown on your public profile and used to match you with clients' budgets.</p>
         </div>
         <div className="space-y-1.5">
           <Label>Typical project budget</Label>
