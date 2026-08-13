@@ -11,7 +11,7 @@ export const listMyListings = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("providers")
-      .select("place_id, slug, name, city, city_slug, address, website, phone, specialists, services, branch_label, hero_photo_url, notes, is_verified")
+      .select("place_id, slug, name, city, city_slug, address, website, specialists, services, branch_label, hero_photo_url, notes, is_verified")
       .eq("claimed_by", userId)
       .order("name");
     if (error) throw new Error(error.message);
@@ -41,7 +41,7 @@ export const updateMyListing = createServerFn({ method: "POST" })
       notes: z.string().max(4000).optional(),
       about_description: z.string().max(4000).optional(),
       website: z.string().max(500).optional(),
-      phone: z.string().max(40).optional(),
+      
       hero_photo_url: z.string().max(500).optional(),
       logo_url: z.string().max(1000).optional(),
 

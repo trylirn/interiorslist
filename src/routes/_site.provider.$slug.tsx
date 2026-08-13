@@ -17,7 +17,18 @@ import { NearbyProviders } from "@/components/nearby-providers";
 import { ProviderMap } from "@/components/provider-map";
 import { ConsultationForm } from "@/components/consultation-form";
 
-import { CITY_NEIGHBORS } from "@/lib/cities";
+import { CITY_NEIGHBORS, BUDGET_BANDS } from "@/lib/cities";
+
+const PRICE_TIER_LABEL: Record<string, string> = {
+  budget: "Budget-friendly",
+  moderate: "Mid-range",
+  premium: "Premium",
+  luxury: "Luxury",
+  flexible: "Flexible",
+};
+
+const priceTierLabel = (t: string) => PRICE_TIER_LABEL[t] ?? t.replace(/-/g, " ");
+const budgetLabel = (b: string) => BUDGET_BANDS.find((x) => x.slug === b)?.label ?? b.replace(/-/g, " ");
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -102,7 +113,7 @@ export const Route = createFileRoute("/_site/provider/$slug")({
       if (p.website) ld.sameAs = [p.website, ...Object.values((p.social_links ?? {}) as Record<string, string>)].filter(Boolean);
       else if (p.social_links) ld.sameAs = Object.values(p.social_links as Record<string, string>).filter(Boolean);
       if (p.email) ld.email = p.email;
-      if (p.phone) ld.telephone = p.phone;
+      
       if (Array.isArray(p.services) && p.services.length) {
         ld.hasOfferCatalog = {
           "@type": "OfferCatalog",
@@ -203,6 +214,14 @@ function ProviderPage() {
     <div className="mx-auto max-w-6xl px-4 py-12">
       <Link to="/designers/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="text-sm text-muted-foreground hover:text-brand">← Back to designers in {p.city}</Link>
 
+      {p.hero_photo_url && (
+        <img
+          src={p.hero_photo_url}
+          alt={`${p.name} interior design work`}
+          loading="lazy"
+          className="mt-4 aspect-[3/1] w-full rounded-3xl border border-border object-cover"
+        />
+      )}
 
       <div className="mt-4 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
         <div>
@@ -234,8 +253,8 @@ function ProviderPage() {
             <div className="mt-6 grid grid-cols-2 gap-y-4 border-t border-border pt-6 md:grid-cols-4">
               <Meta label="Based In" value={loc || "—"} icon={<MapPin className="h-4 w-4" />} />
               <Meta label="Serves" value={p.remote_services ? "Local + remote (e-design)" : `${p.city} & nearby`} icon={<Globe className="h-4 w-4" />} />
-              {p.phone && <Meta label="Contact" value="Phone available" icon={<Mail className="h-4 w-4" />} />}
-              {p.price_tier && <Meta label="Budget" value={String(p.price_tier).replace(/-/g, " ")} icon={<Building2 className="h-4 w-4" />} />}
+              {p.price_tier && <Meta label="Pricing tier" value={priceTierLabel(p.price_tier)} icon={<Building2 className="h-4 w-4" />} />}
+              {p.typical_project_budget && <Meta label="Typical project" value={budgetLabel(p.typical_project_budget)} icon={<Building2 className="h-4 w-4" />} />}
             </div>
 
             {p.address && (
@@ -244,7 +263,7 @@ function ProviderPage() {
 
 
             <div className="mt-6 flex flex-wrap gap-2">
-              {p.phone && <Button asChild><a href={`tel:${p.phone}`} onClick={() => trackLeadAction(p.place_id, "phone", p.city_slug)}><Mail className="mr-2 h-4 w-4" />Call</a></Button>}
+              
               {p.website && <Button asChild variant="outline"><a href={p.website} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "website", p.city_slug)}><Globe className="mr-2 h-4 w-4" />Website</a></Button>}
               {mapsHref && <Button asChild variant="outline"><a href={mapsHref} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "directions", p.city_slug)}><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
             </div>
