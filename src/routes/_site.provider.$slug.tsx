@@ -203,6 +203,14 @@ function ProviderPage() {
     <div className="mx-auto max-w-6xl px-4 py-12">
       <Link to="/designers/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="text-sm text-muted-foreground hover:text-brand">← Back to designers in {p.city}</Link>
 
+      {p.hero_photo_url && (
+        <img
+          src={p.hero_photo_url}
+          alt={`${p.name} interior design work`}
+          loading="lazy"
+          className="mt-4 aspect-[3/1] w-full rounded-3xl border border-border object-cover"
+        />
+      )}
 
       <div className="mt-4 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
         <div>
