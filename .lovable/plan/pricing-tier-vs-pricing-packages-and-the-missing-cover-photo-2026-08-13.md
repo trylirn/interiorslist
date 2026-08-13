@@ -19,7 +19,9 @@ You said the tier is the one to keep visible. Right now the studio page tries to
 
 Cause: the cover photo is uploaded and saved correctly, but the public studio page never renders it anywhere — it is only used inside the page's hidden search-engine data. So it can never appear no matter what a studio uploads.
 
-Fix: render the cover photo as a wide banner image at the top of the studio page, above the header card, with rounded corners matching the site style. If a studio has no cover photo, the page looks exactly as it does now. Also add the same short helper text in the dashboard explaining where the cover photo appears.
+Fix: render the cover photo as a wide banner image at the top of the studio page, above the header card, with rounded corners matching the site style. If a studio has no cover photo, the page looks exactly as it does now. Also add the same short helper text in the dashboard explaining where the cover photo appears.  
+  
+Also remove the Phone number features. Studios should not be able to provide their phone numbers and it should not display
 
 ## Technical notes
 
