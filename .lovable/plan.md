@@ -52,7 +52,7 @@ Gallery · Videos · Map · Nearby · Related reading
 
 ## 4. Phone clean-up
 
-- Lead cards in the dashboard keep the enquirer's phone number (that's the client's own contact detail, requested for follow-up) — confirm if you'd rather it go.
+- Lead cards and the contact form keep the enquirer's phone number (that's the client's own contact detail, requested for follow-up) — left exactly as-is.
 - Analytics stops offering the legacy "phone" lead type in its charts and labels, so no stale category shows.
 - Stored studio phone numbers are cleared from the database in a migration so nothing lingers.
 
