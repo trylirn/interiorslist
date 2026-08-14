@@ -206,63 +206,106 @@ function ProviderPage() {
     <div className="mx-auto max-w-6xl px-4 py-12">
       <Link to="/designers/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="text-sm text-muted-foreground hover:text-brand">← Back to designers in {p.city}</Link>
 
-      {p.hero_photo_url && (
-        <img
-          src={p.hero_photo_url}
-          alt={`${p.name} interior design work`}
-          loading="lazy"
-          className="mt-4 aspect-[3/1] w-full rounded-3xl border border-border object-cover"
-        />
-      )}
-
       <div className="mt-4 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
         <div>
-          {/* Hero card */}
+          {/* Everything-at-a-glance card */}
           <div className="rounded-3xl border border-border bg-card p-6 md:p-8">
-            <div className="flex flex-wrap items-start gap-4">
+            <div className="flex items-start gap-4">
               {(p as Record<string, unknown>).logo_url ? (
                 <img
                   src={(p as Record<string, unknown>).logo_url as string}
                   alt={`${p.name} logo`}
-                  className="h-20 w-20 shrink-0 rounded-2xl border border-border object-cover"
+                  className="h-16 w-16 shrink-0 rounded-2xl border border-border object-cover"
                 />
               ) : (
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-brand/10 font-display text-3xl text-brand">{p.name.charAt(0)}</div>
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-brand/10 font-display text-2xl text-brand">{p.name.charAt(0)}</div>
               )}
 
-              <div className="flex-1">
-                {p.services?.[0] && <span className="inline-block rounded-full bg-brand/10 px-3 py-0.5 text-xs font-semibold uppercase tracking-wide text-brand">{p.services[0].replace(/-/g, " ")}</span>}
-                <h1 className="mt-2 font-display text-4xl md:text-5xl leading-tight">{p.name}</h1>
-                {p.branch_label && <p className="mt-1 flex items-center gap-1 text-sm text-brand"><Building2 className="h-4 w-4" /> {p.branch_label}</p>}
+              <div className="min-w-0 flex-1">
+                {p.services && p.services.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.services.slice(0, 3).map((s: string) => (
+                      <span key={s} className="rounded-full bg-brand/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand">{s.replace(/-/g, " ")}</span>
+                    ))}
+                  </div>
+                )}
+                <h1 className="mt-1.5 font-display text-3xl leading-tight md:text-4xl">{p.name}</h1>
+                {p.branch_label && <p className="mt-0.5 flex items-center gap-1 text-xs text-brand"><Building2 className="h-3.5 w-3.5" /> {p.branch_label}</p>}
               </div>
               {p.is_verified && (
-                <span className="flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-sm font-medium text-brand">
-                  <BadgeCheck className="h-4 w-4" /> Verified
+                <span className="flex shrink-0 items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 text-xs font-medium text-brand">
+                  <BadgeCheck className="h-3.5 w-3.5" /> Verified
                 </span>
               )}
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-y-4 border-t border-border pt-6 md:grid-cols-4">
-              <Meta label="Based In" value={loc || "—"} icon={<MapPin className="h-4 w-4" />} />
-              <Meta label="Serves" value={p.remote_services ? "Local + remote (e-design)" : `${p.city} & nearby`} icon={<Globe className="h-4 w-4" />} />
-              {p.price_tier && <Meta label="Pricing tier" value={priceTierLabel(p.price_tier)} icon={<Building2 className="h-4 w-4" />} />}
-              {p.typical_project_budget && <Meta label="Typical project" value={budgetLabel(p.typical_project_budget)} icon={<Building2 className="h-4 w-4" />} />}
-            </div>
-
-            {p.address && (
-              <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4" /> {p.address}</p>
+            {p.about_description && (
+              <p className="mt-4 text-base leading-relaxed text-foreground/85">{p.about_description.split("\n")[0]}</p>
             )}
 
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              
-              {p.website && <Button asChild variant="outline"><a href={p.website} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "website", p.city_slug)}><Globe className="mr-2 h-4 w-4" />Website</a></Button>}
-              {mapsHref && <Button asChild variant="outline"><a href={mapsHref} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "directions", p.city_slug)}><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
+            <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-5 sm:grid-cols-3 md:grid-cols-4">
+              <Meta label="Based in" value={loc || "—"} icon={<MapPin className="h-3.5 w-3.5" />} />
+              {p.years_in_business != null && <Meta label="In business" value={`${p.years_in_business} years`} icon={<Building2 className="h-3.5 w-3.5" />} />}
+              {p.founded_year != null && <Meta label="Founded" value={String(p.founded_year)} icon={<Building2 className="h-3.5 w-3.5" />} />}
+              <Meta label="Serves" value={p.remote_services ? "Local + remote (e-design)" : `${p.city} & nearby`} icon={<Globe className="h-3.5 w-3.5" />} />
+              {p.team_size && <Meta label="Team size" value={String(p.team_size)} icon={<Building2 className="h-3.5 w-3.5" />} />}
+              {p.typical_project_budget && <Meta label="Typical job cost" value={jobCostLabel(p.typical_project_budget)} icon={<Building2 className="h-3.5 w-3.5" />} />}
             </div>
+
+            {p.styles && p.styles.length > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                <span className="font-semibold uppercase tracking-wider">Styles</span>
+                <span className="capitalize text-foreground/80">{p.styles.slice(0, 6).map((s: string) => s.replace(/-/g, " ")).join(" · ")}</span>
+              </div>
+            )}
+
+            {(p.specialists || p.credentials || p.address) && (
+              <div className="mt-5 space-y-2 border-t border-border pt-5 text-sm">
+                {p.specialists && (
+                  <p><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Team </span><span className="text-foreground/85">{p.specialists}</span></p>
+                )}
+                {p.credentials && (
+                  <p><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Credentials </span><span className="text-foreground/85">{p.credentials}</span></p>
+                )}
+                {p.address && (
+                  <p className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-3.5 w-3.5" /> {p.address}</p>
+                )}
+              </div>
+            )}
+
+            {p.about_description && p.about_description.split("\n").length > 1 && (
+              <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-foreground/85">{p.about_description.split("\n").slice(1).join("\n").trim()}</p>
+            )}
+
+            <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-5">
+              {p.website && <Button asChild size="sm" variant="outline" className="rounded-full"><a href={p.website} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "website", p.city_slug)}><Globe className="mr-2 h-4 w-4" />Website</a></Button>}
+              {mapsHref && <Button asChild size="sm" variant="outline" className="rounded-full"><a href={mapsHref} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "directions", p.city_slug)}><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
+              {p.social_links && Object.entries(p.social_links as Record<string, string>).filter(([k]) => k !== "website2").map(([key, url]) => (
+                <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium capitalize hover:border-brand hover:text-brand">
+                  {key === "instagram" && <Instagram className="h-3.5 w-3.5" />}
+                  {key === "facebook" && <Facebook className="h-3.5 w-3.5" />}
+                  {key === "youtube" && <Youtube className="h-3.5 w-3.5" />}
+                  {!["instagram", "facebook", "youtube"].includes(key) && <Globe className="h-3.5 w-3.5" />}
+                  {key}
+                </a>
+              ))}
+            </div>
+
+            {data.reviews.length > 0 && (
+              <div className="mt-5 border-t border-border pt-5">
+                <p className="text-sm text-muted-foreground">{data.reviews.length} verified review{data.reviews.length === 1 ? "" : "s"}</p>
+                {data.reviews[0].text && (
+                  <blockquote className="mt-2 rounded-xl border border-border bg-secondary/20 p-4 text-sm italic leading-relaxed">
+                    "{data.reviews[0].text}"
+                    <footer className="mt-2 not-italic text-xs text-muted-foreground">— {data.reviews[0].author_name}</footer>
+                  </blockquote>
+                )}
+              </div>
+            )}
           </div>
 
           {p.gallery_urls && p.gallery_urls.length > 0 && (
-            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
+            <section className="mt-6 rounded-3xl border border-border bg-card p-6 md:p-8">
               <h2 className="font-display text-2xl">Photo gallery</h2>
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {p.gallery_urls.map((url: string) => (
@@ -274,37 +317,6 @@ function ProviderPage() {
             </section>
           )}
 
-          {(p.about_description || p.specialists) && (
-            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
-              <h2 className="font-display text-2xl">About</h2>
-              {p.about_description && <p className="mt-3 text-foreground/85 leading-relaxed whitespace-pre-line">{p.about_description}</p>}
-              {p.specialists && (
-                <div className="mt-4">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Designers on the team</p>
-                  <p className="mt-1 text-foreground/85 leading-relaxed whitespace-pre-line">{p.specialists}</p>
-                </div>
-              )}
-              {p.credentials && (
-                <div className="mt-4">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Credentials</p>
-                  <p className="mt-1 text-foreground/85 leading-relaxed">{p.credentials}</p>
-                </div>
-              )}
-              {p.social_links && Object.keys(p.social_links).length > 0 && (
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {Object.entries(p.social_links as Record<string, string>).filter(([k]) => k !== "website2").map(([key, url]) => (
-                    <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium capitalize hover:border-brand hover:text-brand">
-                      {key === "instagram" && <Instagram className="h-3.5 w-3.5" />}
-                      {key === "facebook" && <Facebook className="h-3.5 w-3.5" />}
-                      {key === "youtube" && <Youtube className="h-3.5 w-3.5" />}
-                      {!["instagram","facebook","youtube"].includes(key) && <Globe className="h-3.5 w-3.5" />}
-                      {key}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
 
           {/* Reviews */}
           <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
