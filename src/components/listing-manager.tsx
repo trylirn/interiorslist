@@ -82,7 +82,6 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
     services: ((listing.services as string[]) ?? []),
     styles: ((listing.styles as string[]) ?? []),
     project_types: ((listing.project_types as string[]) ?? []),
-    price_tier: (listing.price_tier as string) ?? "",
     typical_project_budget: (listing.typical_project_budget as string) ?? "",
     remote_services: Boolean(listing.remote_services),
     credentials: (listing.credentials as string) ?? "",
@@ -270,30 +269,28 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label>Pricing tier (used for matching)</Label>
-          <Select value={form.price_tier || undefined} onValueChange={(v) => setForm({ ...form, price_tier: v })}>
-            <SelectTrigger><SelectValue placeholder="Select pricing tier" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="budget">Budget-friendly</SelectItem>
-              <SelectItem value="moderate">Mid-range</SelectItem>
-              <SelectItem value="premium">Premium</SelectItem>
-              <SelectItem value="luxury">Luxury</SelectItem>
-              <SelectItem value="flexible">Flexible</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-[11px] text-muted-foreground">Shown on your public profile and used to match you with clients' budgets.</p>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Typical project budget</Label>
-          <Select value={form.typical_project_budget || undefined} onValueChange={(v) => setForm({ ...form, typical_project_budget: v })}>
-            <SelectTrigger><SelectValue placeholder="Select a range" /></SelectTrigger>
-            <SelectContent>
-              {BUDGET_BANDS.map((b) => <SelectItem key={b.slug} value={b.slug}>{b.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-1.5">
+        <Label>Typical job cost</Label>
+        <Select
+          value={isCustomCost ? "custom" : form.typical_project_budget || undefined}
+          onValueChange={(v) => setForm({ ...form, typical_project_budget: v === "custom" ? "Custom" : v })}
+        >
+          <SelectTrigger><SelectValue placeholder="Select a range" /></SelectTrigger>
+          <SelectContent>
+            {BUDGET_BANDS.map((b) => <SelectItem key={b.slug} value={b.slug}>{b.label}</SelectItem>)}
+            <SelectItem value="custom">Custom…</SelectItem>
+          </SelectContent>
+        </Select>
+        {isCustomCost && (
+          <Input
+            value={form.typical_project_budget}
+            onChange={(e) => setForm({ ...form, typical_project_budget: e.target.value })}
+            placeholder="e.g. From $8k per room"
+            maxLength={40}
+            aria-label="Custom typical job cost"
+          />
+        )}
+        <p className="text-[11px] text-muted-foreground">Shown on your public profile and used to match you with clients' budgets.</p>
       </div>
 
       <div className="flex items-center justify-between rounded-2xl border border-border p-4">
