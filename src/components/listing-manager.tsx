@@ -313,7 +313,7 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
   const qc = useQueryClient();
   const update = useServerFn(updateMyListing);
   const [photos, setPhotos] = useState<string[]>((listing.gallery_urls as string[]) ?? []);
-  const [hero, setHero] = useState((listing.hero_photo_url as string) ?? "");
+  
   const [logo, setLogo] = useState(((listing as Record<string, unknown>).logo_url as string) ?? "");
   const [videos, setVideos] = useState<string[]>((listing.video_urls as string[]) ?? []);
   const [newVideo, setNewVideo] = useState("");
