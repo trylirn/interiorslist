@@ -343,16 +343,6 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
     setUploading(false);
   }
 
-  async function uploadHero(files: FileList | null) {
-    const file = files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return toast.error("Cover photo must be an image");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Cover photo must be under 5 MB");
-    setUploading(true);
-    const url = await uploadImage(file);
-    if (url) setHero(url);
-    setUploading(false);
-  }
 
 
 
