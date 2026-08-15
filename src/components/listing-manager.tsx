@@ -105,6 +105,9 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
       : [],
   );
   const [saving, setSaving] = useState(false);
+  // Anything that isn't one of the preset bands is treated as a custom cost line.
+  const isCustomCost =
+    !!form.typical_project_budget && !BUDGET_BANDS.some((b) => b.slug === form.typical_project_budget);
 
   function toggleService(slug: string) {
     setForm((f) => ({ ...f, services: f.services.includes(slug) ? f.services.filter((s) => s !== slug) : [...f.services, slug] }));
