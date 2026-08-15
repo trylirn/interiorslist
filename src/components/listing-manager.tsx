@@ -82,7 +82,6 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
     services: ((listing.services as string[]) ?? []),
     styles: ((listing.styles as string[]) ?? []),
     project_types: ((listing.project_types as string[]) ?? []),
-    price_tier: (listing.price_tier as string) ?? "",
     typical_project_budget: (listing.typical_project_budget as string) ?? "",
     remote_services: Boolean(listing.remote_services),
     credentials: (listing.credentials as string) ?? "",
@@ -106,6 +105,9 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
       : [],
   );
   const [saving, setSaving] = useState(false);
+  // Anything that isn't one of the preset bands is treated as a custom cost line.
+  const isCustomCost =
+    !!form.typical_project_budget && !BUDGET_BANDS.some((b) => b.slug === form.typical_project_budget);
 
   function toggleService(slug: string) {
     setForm((f) => ({ ...f, services: f.services.includes(slug) ? f.services.filter((s) => s !== slug) : [...f.services, slug] }));
@@ -270,30 +272,28 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label>Pricing tier (used for matching)</Label>
-          <Select value={form.price_tier || undefined} onValueChange={(v) => setForm({ ...form, price_tier: v })}>
-            <SelectTrigger><SelectValue placeholder="Select pricing tier" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="budget">Budget-friendly</SelectItem>
-              <SelectItem value="moderate">Mid-range</SelectItem>
-              <SelectItem value="premium">Premium</SelectItem>
-              <SelectItem value="luxury">Luxury</SelectItem>
-              <SelectItem value="flexible">Flexible</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-[11px] text-muted-foreground">Shown on your public profile and used to match you with clients' budgets.</p>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Typical project budget</Label>
-          <Select value={form.typical_project_budget || undefined} onValueChange={(v) => setForm({ ...form, typical_project_budget: v })}>
-            <SelectTrigger><SelectValue placeholder="Select a range" /></SelectTrigger>
-            <SelectContent>
-              {BUDGET_BANDS.map((b) => <SelectItem key={b.slug} value={b.slug}>{b.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-1.5">
+        <Label>Typical job cost</Label>
+        <Select
+          value={isCustomCost ? "custom" : form.typical_project_budget || undefined}
+          onValueChange={(v) => setForm({ ...form, typical_project_budget: v === "custom" ? "Custom" : v })}
+        >
+          <SelectTrigger><SelectValue placeholder="Select a range" /></SelectTrigger>
+          <SelectContent>
+            {BUDGET_BANDS.map((b) => <SelectItem key={b.slug} value={b.slug}>{b.label}</SelectItem>)}
+            <SelectItem value="custom">Custom…</SelectItem>
+          </SelectContent>
+        </Select>
+        {isCustomCost && (
+          <Input
+            value={form.typical_project_budget}
+            onChange={(e) => setForm({ ...form, typical_project_budget: e.target.value })}
+            placeholder="e.g. From $8k per room"
+            maxLength={40}
+            aria-label="Custom typical job cost"
+          />
+        )}
+        <p className="text-[11px] text-muted-foreground">Shown on your public profile and used to match you with clients' budgets.</p>
       </div>
 
       <div className="flex items-center justify-between rounded-2xl border border-border p-4">
@@ -313,7 +313,7 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
   const qc = useQueryClient();
   const update = useServerFn(updateMyListing);
   const [photos, setPhotos] = useState<string[]>((listing.gallery_urls as string[]) ?? []);
-  const [hero, setHero] = useState((listing.hero_photo_url as string) ?? "");
+  
   const [logo, setLogo] = useState(((listing as Record<string, unknown>).logo_url as string) ?? "");
   const [videos, setVideos] = useState<string[]>((listing.video_urls as string[]) ?? []);
   const [newVideo, setNewVideo] = useState("");
@@ -343,16 +343,6 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
     setUploading(false);
   }
 
-  async function uploadHero(files: FileList | null) {
-    const file = files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return toast.error("Cover photo must be an image");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Cover photo must be under 5 MB");
-    setUploading(true);
-    const url = await uploadImage(file);
-    if (url) setHero(url);
-    setUploading(false);
-  }
 
 
 
@@ -382,7 +372,7 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
   async function save() {
     setSaving(true);
     try {
-      await update({ data: { placeId, gallery_urls: photos, video_urls: videos, hero_photo_url: hero, logo_url: logo } });
+      await update({ data: { placeId, gallery_urls: photos, video_urls: videos, logo_url: logo } });
       toast.success("Media saved");
       qc.invalidateQueries({ queryKey: ["my-listing", placeId] });
     } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
@@ -390,7 +380,7 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
   }
 
   // Shared drag-and-drop wiring so every uploader accepts dropped image files.
-  function dropZone(target: "logo" | "hero" | "gallery") {
+  function dropZone(target: "logo" | "gallery") {
     return {
       onDragOver: (e: React.DragEvent) => { e.preventDefault(); setDragOver(target); },
       onDragLeave: () => setDragOver(null),
@@ -400,7 +390,6 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
         const files = e.dataTransfer.files;
         if (!files?.length) return;
         if (target === "gallery") void uploadPhotos(files);
-        else if (target === "hero") void uploadHero(files);
         else void uploadLogo(files);
       },
       "data-active": dragOver === target ? "true" : undefined,
@@ -431,26 +420,6 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Cover photo</Label>
-        <p className="text-[11px] text-muted-foreground">
-          The wide banner image at the top of your public profile and on your listing cards. Landscape works best (about 1600×900, max 5 MB).
-        </p>
-        {hero && (
-          <div className="group relative overflow-hidden rounded-xl border border-border">
-            <img src={hero} alt="Cover photo" className="h-40 w-full object-cover" />
-            <button type="button" onClick={() => setHero("")} className="absolute right-2 top-2 rounded-full bg-background/90 p-1.5" aria-label="Remove cover photo"><X className="h-4 w-4" /></button>
-          </div>
-        )}
-        <label {...dropZone("hero")} className={`flex items-center justify-center gap-2 bg-secondary/40 px-4 py-6 text-sm ${zoneClass("hero")}`}>
-          <Upload className="h-4 w-4" /><span>{uploading ? "Uploading…" : hero ? "Replace cover photo" : "Click to upload or drag an image here"}</span>
-          <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadHero(e.target.files)} />
-        </label>
-        <details className="text-[11px] text-muted-foreground">
-          <summary className="cursor-pointer">Or paste an image link</summary>
-          <Input className="mt-2" value={hero} onChange={(e) => setHero(e.target.value)} placeholder="https://…" aria-label="Cover photo URL" />
-        </details>
-      </div>
 
       <div className="space-y-2">
         <Label>Photo gallery</Label>

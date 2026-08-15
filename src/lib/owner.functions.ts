@@ -41,15 +41,12 @@ export const updateMyListing = createServerFn({ method: "POST" })
       notes: z.string().max(4000).optional(),
       about_description: z.string().max(4000).optional(),
       website: z.string().max(500).optional(),
-      
-      hero_photo_url: z.string().max(500).optional(),
       logo_url: z.string().max(1000).optional(),
 
       branch_label: z.string().max(120).optional(),
       services: z.array(z.string().min(1).max(80)).max(40).optional(),
       styles: z.array(z.string().min(1).max(80)).max(20).optional(),
       project_types: z.array(z.string().min(1).max(80)).max(20).optional(),
-      price_tier: z.string().max(40).optional(),
       typical_project_budget: z.string().max(40).optional(),
       remote_services: z.boolean().optional(),
       gallery_urls: z.array(z.string().max(500)).max(20).optional(),
