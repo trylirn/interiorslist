@@ -420,26 +420,6 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Cover photo</Label>
-        <p className="text-[11px] text-muted-foreground">
-          The wide banner image at the top of your public profile and on your listing cards. Landscape works best (about 1600×900, max 5 MB).
-        </p>
-        {hero && (
-          <div className="group relative overflow-hidden rounded-xl border border-border">
-            <img src={hero} alt="Cover photo" className="h-40 w-full object-cover" />
-            <button type="button" onClick={() => setHero("")} className="absolute right-2 top-2 rounded-full bg-background/90 p-1.5" aria-label="Remove cover photo"><X className="h-4 w-4" /></button>
-          </div>
-        )}
-        <label {...dropZone("hero")} className={`flex items-center justify-center gap-2 bg-secondary/40 px-4 py-6 text-sm ${zoneClass("hero")}`}>
-          <Upload className="h-4 w-4" /><span>{uploading ? "Uploading…" : hero ? "Replace cover photo" : "Click to upload or drag an image here"}</span>
-          <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadHero(e.target.files)} />
-        </label>
-        <details className="text-[11px] text-muted-foreground">
-          <summary className="cursor-pointer">Or paste an image link</summary>
-          <Input className="mt-2" value={hero} onChange={(e) => setHero(e.target.value)} placeholder="https://…" aria-label="Cover photo URL" />
-        </details>
-      </div>
 
       <div className="space-y-2">
         <Label>Photo gallery</Label>
