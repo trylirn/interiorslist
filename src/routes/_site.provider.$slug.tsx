@@ -99,7 +99,7 @@ export const Route = createFileRoute("/_site/provider/$slug")({
           { "@type": "City", name: city, containedInPlace: { "@type": "State", name: stateCode || "United States" } },
         ],
       };
-      if (p.hero_photo_url) ld.image = p.hero_photo_url;
+      if ((p as Record<string, unknown>).logo_url) ld.logo = (p as Record<string, unknown>).logo_url;
       if (p.address) ld.address = { "@type": "PostalAddress", streetAddress: p.address, addressLocality: p.city, addressRegion: stateCode, addressCountry: "US" };
       if (p.latitude != null && p.longitude != null) ld.geo = { "@type": "GeoCoordinates", latitude: p.latitude, longitude: p.longitude };
       if (p.website) ld.sameAs = [p.website, ...Object.values((p.social_links ?? {}) as Record<string, string>)].filter(Boolean);
@@ -203,10 +203,10 @@ function ProviderPage() {
     : null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div className="mx-auto max-w-[100rem] px-4 py-12 md:px-8">
       <Link to="/designers/$state/$city" params={{ state: stateSlug, city: p.city_slug }} className="text-sm text-muted-foreground hover:text-brand">← Back to designers in {p.city}</Link>
 
-      <div className="mt-4 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
+      <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <div>
           {/* Everything-at-a-glance card */}
           <div className="rounded-3xl border border-border bg-card p-6 md:p-8">
@@ -243,7 +243,7 @@ function ProviderPage() {
               <p className="mt-4 text-base leading-relaxed text-foreground/85">{p.about_description.split("\n")[0]}</p>
             )}
 
-            <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-5 sm:grid-cols-3 md:grid-cols-4">
+            <div className="mt-5 grid grid-cols-2 gap-x-8 gap-y-4 border-t border-border pt-5 sm:grid-cols-3 lg:grid-cols-6">
               <Meta label="Based in" value={loc || "—"} icon={<MapPin className="h-3.5 w-3.5" />} />
               {p.years_in_business != null && <Meta label="In business" value={`${p.years_in_business} years`} icon={<Building2 className="h-3.5 w-3.5" />} />}
               {p.founded_year != null && <Meta label="Founded" value={String(p.founded_year)} icon={<Building2 className="h-3.5 w-3.5" />} />}
@@ -537,28 +537,14 @@ const SERVICE_AREA_LABEL: Record<string, string> = {
 
 function PracticeDetails({ p }: { p: any }) {
   const packages = Array.isArray(p.price_ranges) ? (p.price_ranges as any[]).filter((x) => x && (x.name || x.price)) : [];
-  const stats: { label: string; value: string }[] = [];
-  if (p.founded_year) stats.push({ label: "Founded", value: String(p.founded_year) });
-  if (p.years_in_business) stats.push({ label: "Years in business", value: `${p.years_in_business}+` });
-  if (p.team_size) stats.push({ label: "Team size", value: String(p.team_size) });
-  if (p.service_area) stats.push({ label: "Serves", value: SERVICE_AREA_LABEL[p.service_area] ?? String(p.service_area) });
 
-  const hasAny = stats.length > 0 || packages.length > 0 || p.client_types || p.not_a_fit || p.service_area_note;
+  // Founded / years / team size / service area already appear in the header card.
+  const hasAny = packages.length > 0 || p.client_types || p.not_a_fit || p.service_area_note;
   if (!hasAny) return null;
 
   return (
     <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
       <h2 className="font-display text-2xl">About this practice</h2>
-      {stats.length > 0 && (
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label} className="rounded-2xl border border-border bg-secondary/30 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{s.label}</p>
-              <p className="mt-1 font-display text-xl">{s.value}</p>
-            </div>
-          ))}
-        </div>
-      )}
       {p.service_area_note && <p className="mt-4 text-sm text-foreground/80">{p.service_area_note}</p>}
 
       {packages.length > 0 && (
