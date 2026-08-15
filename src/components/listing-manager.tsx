@@ -372,7 +372,7 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
   async function save() {
     setSaving(true);
     try {
-      await update({ data: { placeId, gallery_urls: photos, video_urls: videos, hero_photo_url: hero, logo_url: logo } });
+      await update({ data: { placeId, gallery_urls: photos, video_urls: videos, logo_url: logo } });
       toast.success("Media saved");
       qc.invalidateQueries({ queryKey: ["my-listing", placeId] });
     } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
@@ -380,7 +380,7 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
   }
 
   // Shared drag-and-drop wiring so every uploader accepts dropped image files.
-  function dropZone(target: "logo" | "hero" | "gallery") {
+  function dropZone(target: "logo" | "gallery") {
     return {
       onDragOver: (e: React.DragEvent) => { e.preventDefault(); setDragOver(target); },
       onDragLeave: () => setDragOver(null),
@@ -390,7 +390,6 @@ function MediaEditor({ placeId, listing }: { placeId: string; listing: Listing }
         const files = e.dataTransfer.files;
         if (!files?.length) return;
         if (target === "gallery") void uploadPhotos(files);
-        else if (target === "hero") void uploadHero(files);
         else void uploadLogo(files);
       },
       "data-active": dragOver === target ? "true" : undefined,
