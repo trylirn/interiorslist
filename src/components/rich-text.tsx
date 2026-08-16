@@ -52,7 +52,7 @@ export function sanitizeHtml(input: string): string {
 }
 
 export function isHtmlBody(body: string) {
-  return /^\s*</.test(body);
+  return /^\s*</.test(body) || /<\/[a-z][a-z0-9]*\s*>/i.test(body);
 }
 
 export function RichText({ html }: { html: string }) {
