@@ -521,9 +521,10 @@ function UnclaimedSidebar({ slug, website, mapsHref }: { slug: string; website: 
 function Meta({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="mt-1 flex items-center gap-1.5 text-sm">{icon}{value}</p>
+      <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground/70">{label}</p>
+      <p className="mt-1 flex items-center gap-1.5 text-[13px] font-normal text-foreground/70 [&_svg]:text-muted-foreground/60">{icon}{value}</p>
     </div>
+
   );
 }
 
