@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useCompareStore } from "@/stores/compare-store";
 import { getProvidersByIds } from "@/lib/compare.functions";
+import { BUDGET_BANDS } from "@/lib/cities";
 import { Button } from "@/components/ui/button";
 import { BadgeCheck, ExternalLink, MapPin, Star } from "lucide-react";
 
@@ -53,6 +54,7 @@ function ComparePage() {
         {p.services.slice(0, 10).map((s: string) => <span key={s} className="rounded-full bg-accent px-2 py-0.5 text-xs capitalize">{s.replace(/-/g, " ")}</span>)}
       </div>
     ) : "—" },
+    { label: "Typical job cost", render: (p) => (p as any).typical_project_budget ? (BUDGET_BANDS.find((b) => b.slug === (p as any).typical_project_budget)?.label ?? (p as any).typical_project_budget) : "—" },
     { label: "Style focus", render: (p) => p.skin_types?.length ? p.skin_types.join(", ") : "—" },
     { label: "Notes", render: (p) => p.recovery_tags?.length ? p.recovery_tags.join(", ") : "—" },
     { label: "Address", render: (p) => <span className="text-sm">{p.address ?? "—"}</span> },
