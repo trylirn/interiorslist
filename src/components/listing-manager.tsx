@@ -72,6 +72,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
   const qc = useQueryClient();
   const existingSocial = (listing.social_links as Record<string, string> | null) ?? {};
   const [form, setForm] = useState({
+    name: (listing.name as string) ?? "",
     about_description: (listing.about_description as string) ?? "",
     specialists: (listing.specialists as string) ?? "",
     notes: (listing.notes as string) ?? "",
@@ -155,6 +156,11 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
 
   return (
     <form onSubmit={onSave} className="space-y-5">
+      <div className="space-y-1.5">
+        <Label>Studio name</Label>
+        <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={160} required placeholder="Your studio name" />
+        <p className="text-[11px] text-muted-foreground">Shown as the heading on your public profile.</p>
+      </div>
       <div className="space-y-1.5">
         <Label>About</Label>
         <Textarea rows={5} value={form.about_description} onChange={(e) => setForm({ ...form, about_description: e.target.value })} placeholder="Tell visitors who you are, your philosophy, and what makes you different…" maxLength={4000} />
