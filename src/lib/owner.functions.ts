@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callerIsSuperAdmin } from "@/lib/caller-role";
+import { BUDGET_BANDS } from "@/lib/cities";
 
 
 
@@ -37,6 +38,7 @@ export const updateMyListing = createServerFn({ method: "POST" })
   .inputValidator((d) =>
     z.object({
       placeId: z.string().min(1).max(200),
+      name: z.string().trim().min(2).max(160).optional(),
       specialists: z.string().max(2000).optional(),
       notes: z.string().max(4000).optional(),
       about_description: z.string().max(4000).optional(),
@@ -73,8 +75,14 @@ export const updateMyListing = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { placeId, email_forward_to, ...rest } = data;
+    // Price tier is no longer edited directly — derive it from the chosen job-cost band.
+    const derivedTier =
+      rest.typical_project_budget !== undefined
+        ? (BUDGET_BANDS.find((b) => b.slug === rest.typical_project_budget)?.tier ?? null)
+        : undefined;
     const patch = {
       ...rest,
+      ...(derivedTier !== undefined ? { price_tier: derivedTier === "flexible" ? null : derivedTier } : {}),
       ...(email_forward_to !== undefined ? { email_forward_to: email_forward_to === "" ? null : email_forward_to } : {}),
     };
     const superAdmin = await callerIsSuperAdmin(supabase as never, userId);
