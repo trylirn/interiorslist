@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { BadgeCheck, Check, MapPin, Star, Wifi } from "lucide-react";
-import { serviceName, styleLabel, projectTypeLabel } from "@/lib/cities";
+import { serviceName, styleLabel, projectTypeLabel, BUDGET_BANDS } from "@/lib/cities";
 
 export type MatchResult = {
   place_id: string;
@@ -18,6 +18,7 @@ export type MatchResult = {
   styles?: string[] | null;
   project_types?: string[] | null;
   price_tier?: string | null;
+  typical_project_budget?: string | null;
   remote_services?: boolean | null;
   matchedServices?: string[];
   matchedStyles?: string[];
@@ -31,6 +32,11 @@ const TIER_LABEL: Record<string, string> = {
   moderate: "Mid-range",
   premium: "Premium",
 };
+
+function jobCostLabel(v?: string | null) {
+  if (!v) return null;
+  return BUDGET_BANDS.find((b) => b.slug === v)?.label ?? v;
+}
 
 function Chip({ children, on }: { children: React.ReactNode; on?: boolean }) {
   return (
@@ -140,12 +146,12 @@ export function MatchResultCard({
         </div>
       )}
 
-      {(m.project_types?.length || m.price_tier || m.remote_services) && (
+      {(m.project_types?.length || m.typical_project_budget || m.remote_services) && (
         <div className="mt-2 flex flex-wrap gap-1">
           {(m.project_types ?? []).slice(0, 3).map((p) => (
             <Chip key={p} on={p === m.matchedProjectType}>{projectTypeLabel(p)}</Chip>
           ))}
-          {m.price_tier && <Chip on={m.budgetFit}>{TIER_LABEL[m.price_tier] ?? m.price_tier}</Chip>}
+          {jobCostLabel(m.typical_project_budget) && <Chip on={m.budgetFit}>{jobCostLabel(m.typical_project_budget)}</Chip>}
           {m.remote_services && (
             <Chip>
               <Wifi className="mr-1 inline h-3 w-3" />

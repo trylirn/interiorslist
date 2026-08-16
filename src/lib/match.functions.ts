@@ -110,7 +110,7 @@ export const getMatches = createServerFn({ method: "POST" })
     let q = supabaseAdmin
       .from("providers")
       .select(
-        "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, badges, price_ranges, rating, review_count, styles, project_types, price_tier, remote_services",
+        "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, badges, price_ranges, rating, review_count, styles, project_types, price_tier, typical_project_budget, remote_services",
       );
     if (data.citySlug && data.citySlug !== "any") q = q.eq("city_slug", data.citySlug);
     const { data: rows, error } = await q.limit(200);
@@ -178,7 +178,7 @@ export const getMatches = createServerFn({ method: "POST" })
         place_id: string; slug: string; name: string; city: string; address: string | null;
         services: string[] | null; specialists: string | null; notes: string | null; branch_label: string | null;
         is_verified: boolean; rating: number | null; review_count: number | null;
-        styles: string[] | null; project_types: string[] | null; price_tier: string | null;
+        styles: string[] | null; project_types: string[] | null; price_tier: string | null; typical_project_budget: string | null;
         remote_services: boolean | null;
         matchedServices: string[]; matchedStyles: string[]; matchedProjectType: string | null; budgetFit: boolean;
       }),
