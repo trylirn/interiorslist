@@ -41,19 +41,19 @@ export function ProviderMap({ lat, lng, name, address, city }: Props) {
   }, [hasCoords, lat, lng, name]);
 
   return (
-    <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
-      <h2 className="font-display text-2xl flex items-center gap-2">
-        <MapPin className="h-5 w-5 text-brand" /> Location
+    <section className="mt-8 rounded-2xl border border-border bg-card p-4">
+      <h2 className="flex items-center gap-1.5 font-display text-base text-foreground/80">
+        <MapPin className="h-4 w-4 text-muted-foreground/70" /> Location
       </h2>
       {address && (
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground">
           {address}
         </p>
       )}
       {hasCoords && !err ? (
-        <div ref={ref} className="mt-4 h-[360px] w-full overflow-hidden rounded-xl border border-border bg-secondary/30" />
+        <div ref={ref} className="mt-3 h-[180px] w-full overflow-hidden rounded-xl border border-border bg-secondary/30" />
       ) : (
-        <div className="mt-4 flex h-[180px] items-center justify-center rounded-xl border border-dashed border-border bg-secondary/20 text-sm text-muted-foreground">
+        <div className="mt-3 flex h-[120px] items-center justify-center rounded-xl border border-dashed border-border bg-secondary/20 text-sm text-muted-foreground">
           {err ? "Map unavailable" : "Map location pending"}
         </div>
       )}
@@ -61,9 +61,9 @@ export function ProviderMap({ lat, lng, name, address, city }: Props) {
         href={directionsHref}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline"
+        className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline"
       >
-        <ExternalLink className="h-4 w-4" /> Get directions
+        <ExternalLink className="h-3.5 w-3.5" /> Get directions
       </a>
     </section>
   );
