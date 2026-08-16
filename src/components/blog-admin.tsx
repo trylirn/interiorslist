@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/rich-text-editor";
+import { collapseEmptyBlocks } from "@/components/rich-text";
 import { Switch } from "@/components/ui/switch";
 import { Upload, Trash2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -88,7 +89,7 @@ export function BlogAdmin() {
           category: form.category.trim() || undefined,
           tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean).slice(0, 20),
           author_name: form.author_name.trim() || undefined,
-          body_md: form.body_md,
+          body_md: collapseEmptyBlocks(form.body_md),
           published: form.published,
         },
       });
