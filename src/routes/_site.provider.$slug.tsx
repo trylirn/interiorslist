@@ -317,6 +317,7 @@ function ProviderPage() {
             </section>
           )}
 
+          <PracticeDetails p={p} />
 
           {/* Reviews */}
           <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
@@ -355,11 +356,8 @@ function ProviderPage() {
             )}
           </section>
 
-          <PracticeDetails p={p} />
-
-
-
           <ProviderMap lat={p.latitude} lng={p.longitude} name={p.name} address={p.address} city={p.city} />
+
 
           {p.city_slug && CITY_NEIGHBORS[p.city_slug] && (
             <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
