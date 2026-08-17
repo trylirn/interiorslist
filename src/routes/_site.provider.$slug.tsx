@@ -277,7 +277,7 @@ function ProviderPage() {
 
             <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-5">
               {mapsHref && <Button asChild size="sm" variant="outline" className="rounded-full"><a href={mapsHref} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "directions", p.city_slug)}><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
-              {p.social_links && Object.entries(p.social_links as Record<string, string>).filter(([k]) => k !== "website2").map(([key, url]) => (
+              {p.social_links && Object.entries(p.social_links as Record<string, string>).filter(([k]) => !["website", "website2"].includes(k)).map(([key, url]) => (
                 <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium capitalize hover:border-brand hover:text-brand">
                   {key === "instagram" && <Instagram className="h-3.5 w-3.5" />}
                   {key === "facebook" && <Facebook className="h-3.5 w-3.5" />}
