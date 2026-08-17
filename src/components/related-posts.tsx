@@ -15,23 +15,22 @@ export function RelatedPosts({ tags }: { tags: string[] }) {
     <section className="mt-12">
       <h2 className="font-display text-2xl">Related reading</h2>
       <p className="mt-1 text-sm text-muted-foreground">Guides to help you brief, budget and hire with confidence.</p>
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {posts.map((p: any) => (
           <Link
             key={p.slug}
             to="/blog/$slug"
             params={{ slug: p.slug }}
-            className="group overflow-hidden rounded-2xl border border-border bg-card transition hover:border-brand"
+            className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-brand"
           >
             {p.cover_url ? (
-              <img src={p.cover_url} alt="" loading="lazy" className="aspect-square w-full object-cover" />
+              <img src={p.cover_url} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover" />
             ) : (
-              <div className="aspect-square w-full bg-secondary" />
+              <div className="aspect-[4/3] w-full bg-secondary" />
             )}
-            <div className="p-3">
-              {p.category && <span className="text-[11px] font-semibold uppercase tracking-widest text-brand">{p.category}</span>}
-              <h3 className="mt-1.5 font-display text-base leading-snug group-hover:text-brand">{p.title}</h3>
-              {p.excerpt && <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">{p.excerpt}</p>}
+            <div className="p-2.5">
+              {p.category && <span className="text-[10px] font-semibold uppercase tracking-widest text-brand">{p.category}</span>}
+              <h3 className="mt-1 line-clamp-2 font-display text-sm leading-snug group-hover:text-brand">{p.title}</h3>
             </div>
           </Link>
         ))}

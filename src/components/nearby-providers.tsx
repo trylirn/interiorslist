@@ -15,7 +15,7 @@ export function NearbyProviders({ placeId }: { placeId: string }) {
       <p className="text-xs font-semibold uppercase tracking-widest text-brand">Nearby</p>
       <h2 className="mt-2 font-display text-3xl md:text-4xl">Nearby Studios</h2>
       <p className="mt-2 text-sm text-muted-foreground">The closest verified design studios to this location.</p>
-      <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {providers.map((p: any) => <ProviderCard key={p.place_id} {...p} />)}
       </div>
     </section>
