@@ -223,6 +223,8 @@ export const listAllProviders = createServerFn({ method: "GET" })
       .object({
         q: z.string().max(120).optional(),
         status: z.enum(["all", "published", "unpublished"]).optional(),
+        page: z.number().int().min(1).max(1000).optional(),
+        pageSize: z.number().int().min(10).max(500).optional(),
       })
       .parse(d ?? {}),
   )
@@ -246,18 +248,12 @@ export const listAllProviders = createServerFn({ method: "GET" })
       return q;
     };
 
-    // Page past PostgREST's 1000-row cap so nothing is silently cut off.
-    type Row = Awaited<ReturnType<typeof build>>["data"] extends (infer R)[] | null ? R : never;
-    const rows: Row[] = [];
-    let total = 0;
-    for (let from = 0; from < 5000; from += 1000) {
-      const { data: page, error, count } = await build().range(from, from + 999);
-      if (error) throw new Error(error.message);
-      if (typeof count === "number") total = count;
-      rows.push(...((page ?? []) as Row[]));
-      if (!page || page.length < 1000) break;
-    }
-    return { providers: rows, total };
+    const pageSize = data.pageSize ?? 100;
+    const page = data.page ?? 1;
+    const from = (page - 1) * pageSize;
+    const { data: rows, error, count } = await build().range(from, from + pageSize - 1);
+    if (error) throw new Error(error.message);
+    return { providers: rows ?? [], total: count ?? 0, page, pageSize };
   });
 
 export const toggleProviderFlag = createServerFn({ method: "POST" })
