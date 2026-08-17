@@ -14,7 +14,6 @@ import { RelatedProviders } from "@/components/related-providers";
 import { RelatedPosts } from "@/components/related-posts";
 
 import { NearbyProviders } from "@/components/nearby-providers";
-import { ProviderMap } from "@/components/provider-map";
 import { ConsultationForm } from "@/components/consultation-form";
 
 import { CITY_NEIGHBORS, BUDGET_BANDS } from "@/lib/cities";
@@ -102,8 +101,7 @@ export const Route = createFileRoute("/_site/provider/$slug")({
       if ((p as Record<string, unknown>).logo_url) ld.logo = (p as Record<string, unknown>).logo_url;
       if (p.address) ld.address = { "@type": "PostalAddress", streetAddress: p.address, addressLocality: p.city, addressRegion: stateCode, addressCountry: "US" };
       if (p.latitude != null && p.longitude != null) ld.geo = { "@type": "GeoCoordinates", latitude: p.latitude, longitude: p.longitude };
-      if (p.website) ld.sameAs = [p.website, ...Object.values((p.social_links ?? {}) as Record<string, string>)].filter(Boolean);
-      else if (p.social_links) ld.sameAs = Object.values(p.social_links as Record<string, string>).filter(Boolean);
+      if (p.social_links) ld.sameAs = Object.values(p.social_links as Record<string, string>).filter(Boolean);
       if (p.email) ld.email = p.email;
       
       if (Array.isArray(p.services) && p.services.length) {
@@ -278,7 +276,6 @@ function ProviderPage() {
             )}
 
             <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-5">
-              {p.website && <Button asChild size="sm" variant="outline" className="rounded-full"><a href={p.website} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "website", p.city_slug)}><Globe className="mr-2 h-4 w-4" />Website</a></Button>}
               {mapsHref && <Button asChild size="sm" variant="outline" className="rounded-full"><a href={mapsHref} target="_blank" rel="noopener noreferrer" onClick={() => trackLeadAction(p.place_id, "directions", p.city_slug)}><ExternalLink className="mr-2 h-4 w-4" />Directions</a></Button>}
               {p.social_links && Object.entries(p.social_links as Record<string, string>).filter(([k]) => k !== "website2").map(([key, url]) => (
                 <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium capitalize hover:border-brand hover:text-brand">
@@ -356,7 +353,6 @@ function ProviderPage() {
             )}
           </section>
 
-          <ProviderMap lat={p.latitude} lng={p.longitude} name={p.name} address={p.address} city={p.city} />
 
 
           {p.city_slug && CITY_NEIGHBORS[p.city_slug] && (
@@ -464,7 +460,7 @@ function ProviderPage() {
         {/* Sticky enquiry rail */}
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
           <ConsultationForm placeId={p.place_id} studioName={p.name} compact />
-          {!p.is_claimed && <UnclaimedSidebar slug={slug} website={p.website} mapsHref={mapsHref} />}
+          {!p.is_claimed && <UnclaimedSidebar slug={slug} mapsHref={mapsHref} />}
         </aside>
 
       </div>
@@ -495,7 +491,7 @@ function ProviderPage() {
 
 
 
-function UnclaimedSidebar({ slug, website, mapsHref }: { slug: string; website: string | null; mapsHref: string | null }) {
+function UnclaimedSidebar({ slug, mapsHref }: { slug: string; mapsHref: string | null }) {
   return (
     <div className="rounded-3xl border border-border bg-card p-6">
       <div className="flex items-center gap-2">
@@ -506,7 +502,6 @@ function UnclaimedSidebar({ slug, website, mapsHref }: { slug: string; website: 
         This studio hasn't claimed their Intearior listing yet. We'll still pass your brief along — or you can reach them directly:
       </p>
       <div className="mt-4 flex flex-col gap-2">
-        {website && <Button asChild variant="outline" className="w-full rounded-full"><a href={website} target="_blank" rel="noopener noreferrer"><Globe className="mr-2 h-4 w-4" />Visit website</a></Button>}
         {mapsHref && <Button asChild variant="outline" className="w-full rounded-full"><a href={mapsHref} target="_blank" rel="noopener noreferrer"><MapPin className="mr-2 h-4 w-4" />Get directions</a></Button>}
       </div>
       <div className="mt-6 rounded-xl border border-dashed border-border bg-secondary/40 p-4 text-center">

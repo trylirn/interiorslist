@@ -8,7 +8,7 @@ type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderDetail = Omit<ProviderRow, "email" | "email_forward_to" | "document_urls">;
 
 const PROVIDER_COLS =
-  "place_id, slug, name, city, city_slug, address, website, specialists, credentials, notes, branch_label, is_verified, badges, services, styles, services_raw, about_description, social_links, gallery_urls, video_urls, certificate_urls, hero_photo_url, logo_url, rating, review_count";
+  "place_id, slug, name, city, city_slug, address, specialists, credentials, notes, branch_label, is_verified, badges, services, styles, services_raw, about_description, social_links, gallery_urls, video_urls, certificate_urls, hero_photo_url, logo_url, rating, review_count";
 
 
 const PROVIDER_DETAIL_COLS =
@@ -82,6 +82,7 @@ export const getFeaturedProviders = createServerFn({ method: "GET" }).handler(as
     .from("providers")
     .select(PROVIDER_COLS)
     .eq("published", true)
+    .order("featured", { ascending: false })
     .order("is_verified", { ascending: false })
     .order("rating", { ascending: false, nullsFirst: false })
     .order("review_count", { ascending: false, nullsFirst: false })
