@@ -140,7 +140,7 @@ export function RichTextEditor({ value, onChange }: Props) {
           const text = e.clipboardData.getData("text/plain");
           document.execCommand("insertText", false, text);
         }}
-        className="prose-none min-h-[22rem] w-full px-4 py-3 text-[0.975rem] leading-7 outline-none [&_a]:text-brand [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-brand [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:mt-4 [&_h2]:font-display [&_h2]:text-2xl [&_h3]:mt-3 [&_h3]:font-display [&_h3]:text-xl [&_li]:mt-0.5 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-2 [&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1.5 [&_th]:border [&_th]:border-border [&_th]:bg-secondary/40 [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left [&_ul]:list-disc [&_ul]:pl-6"
+        className="prose-none max-h-[60vh] min-h-[22rem] overflow-y-auto w-full px-4 py-3 text-[0.975rem] leading-7 outline-none [&_a]:text-brand [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-brand [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:mt-4 [&_h2]:font-display [&_h2]:text-2xl [&_h3]:mt-3 [&_h3]:font-display [&_h3]:text-xl [&_li]:mt-0.5 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-2 [&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1.5 [&_th]:border [&_th]:border-border [&_th]:bg-secondary/40 [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left [&_ul]:list-disc [&_ul]:pl-6"
       />
     </div>
   );

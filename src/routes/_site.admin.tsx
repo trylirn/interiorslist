@@ -330,10 +330,17 @@ function ListingsTab() {
   const isSuper = roles?.isSuperAdmin === true;
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<"all" | "published" | "unpublished">("all");
+  const [page, setPage] = useState(1);
+  const pageSize = 100;
+  useEffect(() => { setPage(1); }, [q, status]);
   const { data, isLoading } = useQuery({
-    queryKey: ["admin-listings", q, status],
-    queryFn: () => listAllProviders({ data: { q, status } }),
+    queryKey: ["admin-listings", q, status, page],
+    queryFn: () => listAllProviders({ data: { q, status, page, pageSize } }),
   });
+  const total = data?.total ?? 0;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, total);
   const toggle = useServerFn(toggleProviderFlag);
   async function flip(placeId: string, field: "published" | "featured" | "is_verified", value: boolean) {
     try { await toggle({ data: { placeId, field, value } }); qc.invalidateQueries({ queryKey: ["admin-listings"] }); }
@@ -354,8 +361,11 @@ function ListingsTab() {
             </button>
           ))}
         </div>
-        {data && <span className="text-xs text-muted-foreground">{data.providers.length} shown</span>}
+        {data && <span className="text-xs text-muted-foreground">Showing {from}–{to} of {total.toLocaleString()}</span>}
       </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        <strong className="font-medium text-foreground">Featured</strong> pins a studio to the front of the homepage studio row, ahead of the usual rating-based order.
+      </p>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -393,6 +403,15 @@ function ListingsTab() {
           </tbody>
         </table>
       </div>
+      {pageCount > 1 && (
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Page {page} of {pageCount}</span>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((n) => Math.max(1, n - 1))}>Previous</Button>
+            <Button size="sm" variant="outline" disabled={page >= pageCount} onClick={() => setPage((n) => Math.min(pageCount, n + 1))}>Next</Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

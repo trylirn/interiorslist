@@ -8,7 +8,7 @@ type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderDetail = Omit<ProviderRow, "email" | "email_forward_to" | "document_urls">;
 
 const PROVIDER_COLS =
-  "place_id, slug, name, city, city_slug, address, website, specialists, credentials, notes, branch_label, is_verified, badges, services, styles, services_raw, about_description, social_links, gallery_urls, video_urls, certificate_urls, hero_photo_url, logo_url, rating, review_count";
+  "place_id, slug, name, city, city_slug, address, specialists, credentials, notes, branch_label, is_verified, badges, services, styles, services_raw, about_description, social_links, gallery_urls, video_urls, certificate_urls, hero_photo_url, logo_url, rating, review_count";
 
 
 const PROVIDER_DETAIL_COLS =
@@ -82,6 +82,7 @@ export const getFeaturedProviders = createServerFn({ method: "GET" }).handler(as
     .from("providers")
     .select(PROVIDER_COLS)
     .eq("published", true)
+    .order("featured", { ascending: false })
     .order("is_verified", { ascending: false })
     .order("rating", { ascending: false, nullsFirst: false })
     .order("review_count", { ascending: false, nullsFirst: false })
@@ -126,8 +127,9 @@ export const searchProviders = createServerFn({ method: "GET" })
   });
 
 export const getRelatedProviders = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
+  .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200), limit: z.number().int().min(1).max(12).optional() }).parse(d))
   .handler(async ({ data }) => {
+    const max = data.limit ?? 4;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: me } = await supabaseAdmin
       .from("providers")
@@ -145,11 +147,11 @@ export const getRelatedProviders = createServerFn({ method: "GET" })
         .eq("published", true)
         .neq("place_id", me.place_id)
         .overlaps("services", me.services as string[])
-        .limit(8);
+        .limit(max);
       related = rows ?? [];
     }
     // Fallback: same city top-rated
-    if (related.length < 4) {
+    if (related.length < max) {
       const { data: rows } = await supabaseAdmin
         .from("providers")
         .select(PROVIDER_COLS)
@@ -158,14 +160,14 @@ export const getRelatedProviders = createServerFn({ method: "GET" })
         .neq("place_id", me.place_id)
         .order("is_verified", { ascending: false })
         .order("rating", { ascending: false, nullsFirst: false })
-        .limit(8);
+        .limit(max);
       const have = new Set(related.map((r) => r.place_id));
       for (const r of rows ?? []) {
-        if (related.length >= 4) break;
+        if (related.length >= max) break;
         if (!have.has(r.place_id)) related.push(r);
       }
     }
-    return { providers: related.slice(0, 4) };
+    return { providers: related.slice(0, max) };
   });
 
 // Haversine distance in km
