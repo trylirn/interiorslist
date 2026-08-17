@@ -276,7 +276,6 @@ function OverviewPanel({ range }: { range: Range }) {
         </ChartCard>
         <ChartCard title="Lead Actions Breakdown" subtitle="What acquisition looks like">
           <DonutChart data={[
-            { name: "Phone", value: data.leadBreakdown.phone },
             { name: "Website", value: data.leadBreakdown.website },
             { name: "Directions", value: data.leadBreakdown.directions },
           ]} />
@@ -343,7 +342,6 @@ function actionChipFor(s: FeedSession): { label: string; icon: React.ReactNode; 
   if (a.type === "lead") {
     if (a.lead_type === "directions") return { label: "DIRECTIONS", icon: <MapPin className="h-3 w-3" />, className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300" };
     if (a.lead_type === "website") return { label: "WEBSITE", icon: <Globe className="h-3 w-3" />, className: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300" };
-    if (a.lead_type === "phone") return { label: "PHONE", icon: <Phone className="h-3 w-3" />, className: "bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300" };
     return { label: "LEAD", icon: <MousePointerClick className="h-3 w-3" />, className: "bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300" };
   }
   if (a.type === "click") return { label: "CLICK", icon: <MousePointerClick className="h-3 w-3" />, className: "bg-secondary text-secondary-foreground" };
@@ -632,7 +630,7 @@ function CityDetail({ range, citySlug, cityName, onBack }: { range: Range; cityS
             <StatCard label="Impressions" value={num(data.totals.impression)} />
             <StatCard label="Searches" value={num(data.totals.search)} />
             <StatCard label="Clicks" value={num(data.totals.listing_click)} />
-            <StatCard label="Lead actions" value={num(data.totals.lead_action)} sub={`${data.leads.phone} calls · ${data.leads.website} web · ${data.leads.directions} dir`} />
+            <StatCard label="Lead actions" value={num(data.totals.lead_action)} sub={`${data.leads.website} web · ${data.leads.directions} dir`} />
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <ChartCard title="Activity over time">
@@ -777,7 +775,7 @@ function ProviderDetailPanel({ range, placeId, name, onBack }: { range: Range; p
             <StatCard label="Impressions" value={num(data.totals.impression)} />
             <StatCard label="Clicks" value={num(data.totals.listing_click)} />
             <StatCard label="Lead actions" value={num(data.totals.lead_action)} sub={`${num(data.unique_visitors)} unique visitors`} />
-            <StatCard label="Lead mix" value={`${data.leads.phone}/${data.leads.website}/${data.leads.directions}`} sub="phone / web / directions" />
+            <StatCard label="Lead mix" value={`${data.leads.website}/${data.leads.directions}`} sub="web / directions" />
           </div>
           <ChartCard title="Activity over time">
             <TimeseriesChart data={data.timeseries} height={260} />
@@ -888,7 +886,6 @@ function entryStyle(m: string) {
 function WinnerBadge({ lead }: { lead: string | null }) {
   if (!lead) return null;
   const style =
-    lead === "phone" ? "bg-rose-100 text-rose-700" :
     lead === "website" ? "bg-sky-100 text-sky-700" :
     lead === "directions" ? "bg-emerald-100 text-emerald-700" :
     "bg-secondary";
@@ -937,7 +934,6 @@ function stepIcon(t: string, lead: string | null) {
   if (t === "impression") return "👁";
   if (t === "listing_click") return "👆";
   if (t === "lead_action") {
-    if (lead === "phone") return "📞";
     if (lead === "website") return "🌐";
     if (lead === "directions") return "📍";
   }
@@ -945,7 +941,6 @@ function stepIcon(t: string, lead: string | null) {
   return "•";
 }
 function leadLabel(t: string | null) {
-  if (t === "phone") return "called";
   if (t === "website") return "visited website of";
   if (t === "directions") return "got directions to";
   return "engaged with";
