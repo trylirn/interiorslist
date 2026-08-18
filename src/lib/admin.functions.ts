@@ -2,17 +2,10 @@ import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireAdmin } from "@/lib/caller-role";
 
-async function assertAdmin(userId: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (!data) throw new Error("Forbidden: admin only");
-}
+// Single source of truth for admin authorization lives in caller-role.ts.
+const assertAdmin = requireAdmin;
 
 export const adminMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
