@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -15,7 +16,7 @@ export const getProvidersByIds = createServerFn({ method: "POST" })
       .select(COLS)
       .in("place_id", data.ids)
       .eq("published", true);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     const safe = (rows ?? []).map(({ claimed_by_internal, ...rest }) => ({
       ...rest,
       is_claimed: !!claimed_by_internal,

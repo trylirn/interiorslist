@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -37,7 +38,7 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       timeline: data.timeline || null,
       rooms: data.rooms || null,
     });
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 
@@ -88,7 +89,7 @@ export const submitReview = createServerFn({ method: "POST" })
       relationship_disclosure: data.relationshipDisclosure || null,
       benefit_disclosure: data.benefitDisclosure || null,
     });
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 

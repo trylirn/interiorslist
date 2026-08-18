@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -56,7 +57,7 @@ export const submitPublicClaim = createServerFn({ method: "POST" })
       })
       .select("id, access_token")
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true, duplicate: false, claimId: created?.id ?? null, token: (created?.access_token as string | undefined) ?? null };
   });
 

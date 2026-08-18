@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -120,7 +121,7 @@ export const reviewClaim = createServerFn({ method: "POST" })
         ...(data.note?.trim() ? { last_message_at: now } : {}),
       })
       .eq("id", data.id);
-    if (upErr) throw new Error(upErr.message);
+    if (upErr) fail(upErr);
 
     if (data.note?.trim()) {
       const { data: me } = await supabaseAdmin.from("profiles").select("display_name, email").eq("id", context.userId).maybeSingle();
@@ -202,7 +203,7 @@ export const reviewSubmission = createServerFn({ method: "POST" })
         is_verified: true,
         business_status: "OPERATIONAL",
       });
-      if (insErr) throw new Error(insErr.message);
+      if (insErr) fail(insErr);
     }
     await supabaseAdmin
       .from("submissions")
@@ -252,7 +253,7 @@ export const listAllProviders = createServerFn({ method: "GET" })
     const page = data.page ?? 1;
     const from = (page - 1) * pageSize;
     const { data: rows, error, count } = await build().range(from, from + pageSize - 1);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { providers: rows ?? [], total: count ?? 0, page, pageSize };
   });
 
@@ -273,7 +274,7 @@ export const toggleProviderFlag = createServerFn({ method: "POST" })
       .from("providers") as unknown as { update: (p: Record<string, boolean>) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } })
       .update(patch)
       .eq("place_id", data.placeId);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 
@@ -286,7 +287,7 @@ export const getLicenseDocSignedUrl = createServerFn({ method: "POST" })
     const { data: signed, error } = await supabaseAdmin.storage
       .from("business-docs")
       .createSignedUrl(data.path, 60 * 10);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { url: signed.signedUrl };
   });
 

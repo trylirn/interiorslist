@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -24,7 +25,7 @@ export const submitClaim = createServerFn({ method: "POST" })
       business_role: data.businessRole,
       proof_notes: data.proofNotes,
     });
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 
@@ -53,6 +54,6 @@ export const submitBusiness = createServerFn({ method: "POST" })
       notes: data.notes,
       submitted_by: userId,
     });
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });

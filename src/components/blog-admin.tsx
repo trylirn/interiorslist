@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -59,7 +60,7 @@ export function BlogAdmin() {
       const ext = file.name.split(".").pop() ?? "jpg";
       const path = `covers/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error: upErr } = await supabase.storage.from("blog-images").upload(path, file);
-      if (upErr) throw new Error(upErr.message);
+      if (upErr) fail(upErr);
       const { data: signed, error: sErr } = await supabase.storage
         .from("blog-images")
         .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);

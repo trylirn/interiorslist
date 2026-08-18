@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 /**
@@ -14,7 +15,7 @@ export async function fetchAllPublished<T = Record<string, unknown>>(
     let q = supabaseAdmin.from("providers").select(columns).eq("published", true);
     if (filter) q = filter(q);
     const { data, error } = await q.range(from, from + pageSize - 1);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     const rows = (data ?? []) as T[];
     out.push(...rows);
     if (rows.length < pageSize) break;

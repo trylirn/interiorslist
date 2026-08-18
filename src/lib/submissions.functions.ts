@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -52,6 +53,6 @@ export const submitPublicBusiness = createServerFn({ method: "POST" })
       notes: data.notes || null,
       submitted_by: data.userId ?? null,
     });
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true, duplicate: false };
   });
