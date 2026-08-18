@@ -57,6 +57,10 @@ export const updateMyListing = createServerFn({ method: "POST" })
       certificate_urls: z.array(z.string().max(500)).max(20).optional(),
       document_urls: z.array(z.string().max(500)).max(20).optional(),
       social_links: z.record(z.string().max(40), z.string().max(500)).optional(),
+      team: z
+        .array(z.object({ name: z.string().min(1).max(120), role: z.string().min(1).max(120), bio: z.string().max(600).optional() }))
+        .max(30)
+        .optional(),
       email_forward_to: z.string().email().max(255).optional().or(z.literal("")),
       credentials: z.string().max(2000).optional(),
       founded_year: z.number().int().min(1800).max(2100).nullable().optional(),

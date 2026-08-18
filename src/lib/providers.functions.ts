@@ -9,7 +9,7 @@ type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderDetail = Omit<ProviderRow, "email" | "email_forward_to" | "document_urls">;
 
 const PROVIDER_COLS =
-  "place_id, slug, name, city, city_slug, address, specialists, credentials, notes, branch_label, is_verified, badges, services, styles, services_raw, about_description, social_links, gallery_urls, video_urls, certificate_urls, hero_photo_url, logo_url, rating, review_count";
+  "place_id, slug, name, city, city_slug, address, specialists, credentials, notes, branch_label, is_verified, badges, services, styles, services_raw, about_description, social_links, team, gallery_urls, video_urls, certificate_urls, hero_photo_url, logo_url, rating, review_count";
 
 
 const PROVIDER_DETAIL_COLS =
