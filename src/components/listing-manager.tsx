@@ -99,7 +99,13 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
     social_youtube: existingSocial.youtube ?? "",
     social_linkedin: existingSocial.linkedin ?? "",
     social_x: existingSocial.x ?? "",
+    social_pinterest: existingSocial.pinterest ?? "",
   });
+  const [team, setTeam] = useState<{ name: string; role: string; bio: string }[]>(
+    Array.isArray(listing.team)
+      ? (listing.team as any[]).map((m) => ({ name: String(m?.name ?? ""), role: String(m?.role ?? ""), bio: String(m?.bio ?? "") }))
+      : [],
+  );
   const [packages, setPackages] = useState<{ name: string; price: string; note: string }[]>(
     Array.isArray(listing.price_ranges)
       ? (listing.price_ranges as any[]).map((p) => ({ name: String(p?.name ?? ""), price: String(p?.price ?? ""), note: String(p?.note ?? "") }))
@@ -131,8 +137,9 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
       if (form.social_youtube) social.youtube = form.social_youtube;
       if (form.social_linkedin) social.linkedin = form.social_linkedin;
       if (form.social_x) social.x = form.social_x;
+      if (form.social_pinterest) social.pinterest = form.social_pinterest;
       const {
-        social_instagram, social_facebook, social_tiktok, social_youtube, social_linkedin, social_x,
+        social_instagram, social_facebook, social_tiktok, social_youtube, social_linkedin, social_x, social_pinterest,
         founded_year, years_in_business, service_area, ...rest
       } = form;
       await update({
@@ -143,6 +150,9 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
           founded_year: founded_year ? Number(founded_year) : null,
           years_in_business: years_in_business ? Number(years_in_business) : null,
           service_area: (service_area || null) as "local" | "regional" | "nationwide" | null,
+          team: team
+            .filter((m) => m.name.trim() && m.role.trim())
+            .map((m) => ({ name: m.name.trim(), role: m.role.trim(), bio: m.bio.trim() })),
           price_ranges: packages.filter((p) => p.name.trim()).map((p) => ({ name: p.name.trim(), price: p.price.trim(), note: p.note.trim() })),
         },
       });
@@ -174,7 +184,32 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
         <p className="text-[11px] text-muted-foreground">Optional. We'll mirror dashboard leads to this address (requires email setup).</p>
       </div>
       <div className="space-y-1.5"><Label>Branch label</Label><Input value={form.branch_label} onChange={(e) => setForm({ ...form, branch_label: e.target.value })} placeholder="Uptown, North, etc." /></div>
-      <div className="space-y-1.5"><Label>Designers on staff</Label><Textarea rows={3} value={form.specialists} onChange={(e) => setForm({ ...form, specialists: e.target.value })} placeholder="Jane Doe, Principal Designer; Jamie Smith, Design Associate" /></div>
+      <div className="space-y-3 rounded-2xl border border-border p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="font-display text-lg">Meet the team</p>
+            <p className="text-[11px] text-muted-foreground">Designers on staff. Shown publicly as a "Meet the team" card on your profile.</p>
+          </div>
+          <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setTeam((t) => [...t, { name: "", role: "", bio: "" }])}>
+            <Plus className="mr-1 h-3.5 w-3.5" /> Add member
+          </Button>
+        </div>
+        {team.length === 0 && (
+          <p className="text-xs text-muted-foreground">
+            No team members yet.{form.specialists ? ` Previously listed: ${form.specialists}` : ""}
+          </p>
+        )}
+        {team.map((m, i) => (
+          <div key={i} className="space-y-2 rounded-xl border border-border bg-secondary/20 p-3">
+            <div className="flex gap-2">
+              <Input value={m.name} onChange={(e) => setTeam((t) => t.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="Full name" maxLength={120} />
+              <Input value={m.role} onChange={(e) => setTeam((t) => t.map((x, j) => (j === i ? { ...x, role: e.target.value } : x)))} placeholder="Role / position" maxLength={120} />
+              <Button type="button" variant="ghost" size="icon" aria-label="Remove team member" onClick={() => setTeam((t) => t.filter((_, j) => j !== i))}><Trash2 className="h-4 w-4" /></Button>
+            </div>
+            <Textarea rows={2} value={m.bio} onChange={(e) => setTeam((t) => t.map((x, j) => (j === i ? { ...x, bio: e.target.value } : x)))} placeholder="Short intro (optional)" maxLength={600} />
+          </div>
+        ))}
+      </div>
       <div className="space-y-1.5"><Label>Internal notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Operational notes — not displayed publicly" /></div>
 
       <div className="space-y-3 rounded-2xl border border-border p-4">
@@ -232,6 +267,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
           <Input value={form.social_youtube} onChange={(e) => setForm({ ...form, social_youtube: e.target.value })} placeholder="YouTube URL" />
           <Input value={form.social_linkedin} onChange={(e) => setForm({ ...form, social_linkedin: e.target.value })} placeholder="LinkedIn URL" />
           <Input value={form.social_x} onChange={(e) => setForm({ ...form, social_x: e.target.value })} placeholder="X (Twitter) URL" />
+          <Input value={form.social_pinterest} onChange={(e) => setForm({ ...form, social_pinterest: e.target.value })} placeholder="Pinterest URL" />
         </div>
       </div>
 
