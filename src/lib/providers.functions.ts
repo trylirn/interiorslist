@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
@@ -32,7 +33,7 @@ export const listProvidersByCity = createServerFn({ method: "GET" })
     if (data.service) q = q.contains("services", [data.service]);
     q = q.order("is_verified", { ascending: false }).order("name").limit(data.limit ?? 100);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { providers: rows ?? [] };
   });
 
@@ -46,7 +47,7 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
       .eq("slug", data.slug)
       .eq("published", true)
       .maybeSingle<ProviderDetail>();
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     if (!provider) return { provider: null, reviews: [] };
 
     // Best-effort: warm coords for maps when we have an address but no lat/lng.
@@ -88,7 +89,7 @@ export const getFeaturedProviders = createServerFn({ method: "GET" }).handler(as
     .order("review_count", { ascending: false, nullsFirst: false })
     .order("name")
     .limit(8);
-  if (error) throw new Error(error.message);
+  if (error) fail(error);
   return { providers: data ?? [] };
 });
 
@@ -122,7 +123,7 @@ export const searchProviders = createServerFn({ method: "GET" })
     else q = q.order("is_verified", { ascending: false }).order("rating", { ascending: false, nullsFirst: false }).order("name");
     q = q.limit(data.limit ?? 120);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { providers: rows ?? [] };
   });
 
@@ -233,7 +234,7 @@ export const listByTreatment = createServerFn({ method: "GET" })
     if (data.city) q = q.eq("city_slug", data.city);
     q = q.order("is_verified", { ascending: false }).order("rating", { ascending: false, nullsFirst: false }).order("name").limit(100);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { providers: rows ?? [] };
   });
 
@@ -297,7 +298,7 @@ export const getStateSummary = createServerFn({ method: "GET" })
       .select("city, city_slug")
       .eq("state", code)
       .eq("published", true);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     const cities = new Map<string, { slug: string; name: string; count: number }>();
     for (const r of rows) {
       if (!r.city_slug) continue;
@@ -353,7 +354,7 @@ export const getCitySummary = createServerFn({ method: "GET" })
       .eq("city_slug", data.citySlug)
       .eq("published", true)
       .limit(1);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     const row = rows?.[0];
     if (!row) return { city: null };
     const code = (row.state ?? "").toUpperCase();
@@ -393,7 +394,7 @@ export const searchProvidersPaged = createServerFn({ method: "GET" })
     else q = q.order("is_verified", { ascending: false }).order("rating", { ascending: false, nullsFirst: false }).order("name");
 
     const { data: rows, error, count } = await q.range(from, from + pageSize - 1);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     const total = count ?? 0;
     return { providers: rows ?? [], total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
   });

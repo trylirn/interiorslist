@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -45,7 +46,7 @@ export const respondToReview = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin
       .from("review_responses")
       .upsert({ review_id: data.reviewId, owner_id: context.userId, body: data.body });
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 
@@ -96,10 +97,10 @@ export const upsertProviderFaq = createServerFn({ method: "POST" })
     };
     if (data.id) {
       const { error } = await supabaseAdmin.from("provider_faqs").update(row).eq("id", data.id);
-      if (error) throw new Error(error.message);
+      if (error) fail(error);
     } else {
       const { error } = await supabaseAdmin.from("provider_faqs").insert(row);
-      if (error) throw new Error(error.message);
+      if (error) fail(error);
     }
     return { ok: true };
   });
@@ -111,7 +112,7 @@ export const deleteProviderFaq = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (!(await ownsProvider(context.userId, data.placeId))) throw new Error("Forbidden");
     const { error } = await supabaseAdmin.from("provider_faqs").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 

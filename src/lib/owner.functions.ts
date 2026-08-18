@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -15,7 +16,7 @@ export const listMyListings = createServerFn({ method: "GET" })
       .select("place_id, slug, name, city, city_slug, address, website, specialists, services, branch_label, hero_photo_url, notes, is_verified")
       .eq("claimed_by", userId)
       .order("name");
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { listings: data ?? [] };
   });
 
@@ -29,7 +30,7 @@ export const getMyListing = createServerFn({ method: "GET" })
     let query = supabase.from("providers").select("*").eq("place_id", data.placeId);
     if (!superAdmin) query = query.eq("claimed_by", userId);
     const { data: row, error } = await query.maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { listing: row, asAdmin: superAdmin, asSuperAdmin: superAdmin };
   });
 
@@ -56,6 +57,10 @@ export const updateMyListing = createServerFn({ method: "POST" })
       certificate_urls: z.array(z.string().max(500)).max(20).optional(),
       document_urls: z.array(z.string().max(500)).max(20).optional(),
       social_links: z.record(z.string().max(40), z.string().max(500)).optional(),
+      team: z
+        .array(z.object({ name: z.string().min(1).max(120), role: z.string().min(1).max(120), bio: z.string().max(600).optional() }))
+        .max(30)
+        .optional(),
       email_forward_to: z.string().email().max(255).optional().or(z.literal("")),
       credentials: z.string().max(2000).optional(),
       founded_year: z.number().int().min(1800).max(2100).nullable().optional(),
@@ -89,7 +94,7 @@ export const updateMyListing = createServerFn({ method: "POST" })
     let query = supabase.from("providers").update(patch).eq("place_id", placeId);
     if (!superAdmin) query = query.eq("claimed_by", userId);
     const { error } = await query;
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 
@@ -106,7 +111,7 @@ export const listMyLeads = createServerFn({ method: "GET" })
     const { data, error } = await q
       .order("created_at", { ascending: false })
       .limit(200);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { leads: data ?? [] };
   });
 
@@ -124,7 +129,7 @@ export const updateLeadStatus = createServerFn({ method: "POST" })
       .from("contact_messages")
       .update({ status: data.status })
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 
@@ -141,7 +146,7 @@ export const listMyReviews = createServerFn({ method: "GET" })
         .eq("provider_place_id", input.placeId)
         .order("published_at", { ascending: false })
         .limit(200);
-      if (err) throw new Error(err.message);
+      if (err) fail(err);
       return { reviews: (rows ?? []).map((r) => ({ ...r, providerName: one?.name ?? "" })) };
     }
     // Fetch owned place_ids first (RLS-scoped via owner UPDATE policy still allows SELECT through public read).
@@ -158,7 +163,7 @@ export const listMyReviews = createServerFn({ method: "GET" })
       .in("provider_place_id", placeIds)
       .order("published_at", { ascending: false })
       .limit(200);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { reviews: (data ?? []).map((r) => ({ ...r, providerName: nameMap.get(r.provider_place_id) ?? "" })) };
   });
 
@@ -176,7 +181,7 @@ export const listMyClaims = createServerFn({ method: "GET" })
       ? q.or(`user_id.eq.${userId},contact_email.eq.${profile.email.toLowerCase()}`)
       : q.eq("user_id", userId);
     const { data: claims, error } = await q.order("submitted_at", { ascending: false }).limit(50);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     const ids = Array.from(new Set((claims ?? []).map((c) => c.provider_place_id)));
     const { data: providers } = ids.length
       ? await supabaseAdmin.from("providers").select("place_id, name, city, state").in("place_id", ids)
@@ -206,7 +211,7 @@ export const submitClaim = createServerFn({ method: "POST" })
       business_role: data.businessRole || null,
       proof_notes: data.proofNotes || null,
     });
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 

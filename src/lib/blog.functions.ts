@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -42,7 +43,7 @@ export const listBlogPosts = createServerFn({ method: "GET" })
     const { data: rows, error } = await q
       .order("published_at", { ascending: false, nullsFirst: false })
       .limit(data?.limit ?? 30);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     const posts = rows ?? [];
     const categories = Array.from(new Set(posts.map((p: any) => p.category).filter(Boolean))) as string[];
     return { posts, categories };
@@ -59,7 +60,7 @@ export const getBlogPost = createServerFn({ method: "GET" })
       .eq("slug", data.slug)
       .eq("published", true)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     if (!post) return { post: null, related: [] };
 
     const { data: rest } = await supabaseAdmin
@@ -128,7 +129,7 @@ export const listAllBlogPosts = createServerFn({ method: "GET" })
       .from("blog_posts")
       .select(ADMIN_COLS)
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { posts: data ?? [] };
   });
 
@@ -181,12 +182,12 @@ export const upsertBlogPost = createServerFn({ method: "POST" })
         .from("blog_posts")
         .update({ ...patch, published_at: keepDate })
         .eq("id", data.id);
-      if (error) throw new Error(error.message);
+      if (error) fail(error);
       return { ok: true, slug };
     }
 
     const { error } = await context.supabase.from("blog_posts").insert(row);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true, slug };
   });
 
@@ -196,6 +197,6 @@ export const deleteBlogPost = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await requireAdmin(context as never);
     const { error } = await context.supabase.from("blog_posts").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });

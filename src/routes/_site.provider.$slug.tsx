@@ -259,7 +259,7 @@ function ProviderPage() {
 
             {(p.specialists || p.credentials || p.address) && (
               <div className="mt-5 space-y-2 border-t border-border pt-5 text-sm">
-                {p.specialists && (
+                {p.specialists && !(Array.isArray(p.team) && (p.team as any[]).length > 0) && (
                   <p><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Team </span><span className="text-foreground/85">{p.specialists}</span></p>
                 )}
                 {p.credentials && (
@@ -300,6 +300,23 @@ function ProviderPage() {
               </div>
             )}
           </div>
+
+          {Array.isArray(p.team) && (p.team as any[]).filter((m) => m?.name).length > 0 && (
+            <section className="mt-6 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <h2 className="font-display text-2xl">Meet the team</h2>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {(p.team as any[])
+                  .filter((m) => m?.name)
+                  .map((m, i) => (
+                    <div key={`${m.name}-${i}`} className="rounded-2xl border border-border bg-secondary/25 p-4">
+                      <p className="font-display text-lg leading-tight">{m.name}</p>
+                      {m.role && <p className="mt-0.5 text-sm text-foreground/70">{m.role}</p>}
+                      {m.bio && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{m.bio}</p>}
+                    </div>
+                  ))}
+              </div>
+            </section>
+          )}
 
           {p.gallery_urls && p.gallery_urls.length > 0 && (
             <section className="mt-6 rounded-3xl border border-border bg-card p-6 md:p-8">

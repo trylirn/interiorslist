@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -114,7 +115,7 @@ export const getMatches = createServerFn({ method: "POST" })
       );
     if (data.citySlug && data.citySlug !== "any") q = q.eq("city_slug", data.citySlug);
     const { data: rows, error } = await q.limit(200);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
 
     const prefs = new Set(data.preferences ?? []);
     const wantedStyles = new Set(data.styles ?? []);

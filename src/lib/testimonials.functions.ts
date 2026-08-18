@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 
 export const listFeaturedTestimonials = createServerFn({ method: "GET" }).handler(async () => {
@@ -8,6 +9,6 @@ export const listFeaturedTestimonials = createServerFn({ method: "GET" }).handle
     .eq("featured", true)
     .order("created_at", { ascending: false })
     .limit(8);
-  if (error) throw new Error(error.message);
+  if (error) fail(error);
   return { testimonials: data ?? [] };
 });

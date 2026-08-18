@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -10,7 +11,7 @@ async function loadClaim(claimId: string, token: string) {
     .select("id, provider_place_id, contact_name, contact_email, status, decision_reason, proof_notes, submitted_at, access_token")
     .eq("id", claimId)
     .maybeSingle();
-  if (error) throw new Error(error.message);
+  if (error) fail(error);
   if (!data || data.access_token !== token) throw new Error("Claim not found");
   return { claim: data, supabaseAdmin };
 }
@@ -70,7 +71,7 @@ export const createClaimUploadUrl = createServerFn({ method: "POST" })
     const safe = data.fileName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-100);
     const path = `claims/${claim.id}/${Date.now()}-${safe}`;
     const { data: signed, error } = await supabaseAdmin.storage.from(BUCKET).createSignedUploadUrl(path);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { path, token: signed.token, signedUrl: signed.signedUrl };
   });
 
@@ -106,7 +107,7 @@ export const postClaimReply = createServerFn({ method: "POST" })
       body: data.body.trim(),
       attachment_path: data.attachmentPath || null,
     });
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
 
     await supabaseAdmin
       .from("claims")

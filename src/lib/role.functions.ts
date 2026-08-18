@@ -1,3 +1,4 @@
+import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -41,7 +42,7 @@ export const listAdmins = createServerFn({ method: "GET" })
       .select("id, user_id, role, created_at")
       .in("role", ["admin", "super_admin"])
       .order("created_at");
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
 
     const ids = Array.from(new Set((rows ?? []).map((r) => r.user_id)));
     const { data: profiles } = ids.length
@@ -138,7 +139,7 @@ export const grantRole = createServerFn({ method: "POST" })
       const { error } = await supabaseAdmin
         .from("user_roles")
         .upsert({ user_id: targetId, role: data.role }, { onConflict: "user_id,role" });
-      if (error) throw new Error(error.message);
+      if (error) fail(error);
       // super admins also carry the everyday admin role
       if (data.role === "super_admin") {
         await supabaseAdmin
@@ -154,7 +155,7 @@ export const grantRole = createServerFn({ method: "POST" })
         { email, role: data.role, invited_by: context.userId, accepted_at: null },
         { onConflict: "email,role" },
       );
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true, invited: true };
   });
 
@@ -181,7 +182,7 @@ export const revokeRole = createServerFn({ method: "POST" })
       .delete()
       .eq("user_id", data.userId)
       .eq("role", data.role);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
 
@@ -192,6 +193,6 @@ export const cancelInvite = createServerFn({ method: "POST" })
     await assertSuperAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("admin_invites").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) fail(error);
     return { ok: true };
   });
