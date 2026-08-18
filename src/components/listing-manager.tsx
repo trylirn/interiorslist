@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import { Eye, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Mail, Phone, Building2 } from "lucide-react";
+import { Eye, Plus, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Mail, Phone, Building2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function ListingManager({ placeId, admin = false }: { placeId: string; admin?: boolean }) {
