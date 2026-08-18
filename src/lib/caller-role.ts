@@ -12,3 +12,18 @@ export async function callerIsSuperAdmin(supabase: RpcClient, userId: string): P
   const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "super_admin" });
   return data === true;
 }
+
+/**
+ * Throwing admin guard used by every admin server function. Single source of
+ * truth so the admin check can't drift between modules.
+ */
+export async function requireAdmin(userId: string): Promise<void> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (!data) throw new Error("Forbidden: admin only");
+}
