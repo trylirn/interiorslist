@@ -94,7 +94,7 @@ function BlogIndex() {
             className="mt-10 grid gap-6 overflow-hidden rounded-3xl border border-border bg-card transition hover:border-brand md:grid-cols-2"
           >
             {lead.cover_url ? (
-              <img src={lead.cover_url} alt="" className="h-64 w-full object-cover md:h-full" loading="lazy" />
+              <img src={lead.cover_url} alt={`Cover image for ${lead.title}`} className="h-64 w-full object-cover md:h-full" loading="lazy" />
             ) : (
               <div className="h-64 w-full bg-secondary md:h-full" />
             )}
@@ -112,7 +112,7 @@ function BlogIndex() {
             {rest.map((p: any) => (
               <Link key={p.slug} to="/blog/$slug" params={{ slug: p.slug }} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:border-brand">
                 {p.cover_url ? (
-                  <img src={p.cover_url} alt="" className="h-44 w-full object-cover" loading="lazy" />
+                  <img src={p.cover_url} alt={`Cover image for ${p.title}`} className="h-44 w-full object-cover" loading="lazy" />
                 ) : (
                   <div className="h-44 w-full bg-secondary" />
                 )}
