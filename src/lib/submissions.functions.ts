@@ -20,6 +20,9 @@ export const submitPublicBusiness = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const { enforceRateLimit } = await import("@/lib/rate-limit.server");
+    await enforceRateLimit("submission", { max: 5, windowMinutes: 60 });
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const email = data.contactEmail.toLowerCase();
