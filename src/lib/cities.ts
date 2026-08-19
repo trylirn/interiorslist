@@ -94,7 +94,15 @@ export const CITIES: City[] = [
     neighbors: ["Cambridge", "Brookline", "Somerville", "Newton", "The North Shore"],
     intro: "Serving Boston, Cambridge, Brookline and the surrounding towns.",
   },
+  {
+    slug: "san-francisco-ca", name: "San Francisco", state: "CA", stateName: "California",
+    tagline: "Victorians, hillside flats and Bay Area modern",
+    geo: { lat: 37.7749, lng: -122.4194 },
+    neighbors: ["Oakland", "Berkeley", "Marin County", "Palo Alto", "San Jose"],
+    intro: "Interior design in San Francisco: studios working on Pacific Heights Victorians, Noe Valley and Mission remodels, SoMa lofts and compact city flats, plus projects across Marin, the East Bay and the Peninsula.",
+  },
 ];
+
 
 export const STATES = Array.from(
   new Map(CITIES.map((c) => [c.state, { code: c.state, name: c.stateName }])).values(),
