@@ -104,7 +104,7 @@ function BlogPost() {
       </p>
 
       {post.cover_url && (
-        <img src={post.cover_url} alt="" className="mt-8 w-full rounded-3xl border border-border object-cover" />
+        <img src={post.cover_url} alt={`Cover image for ${post.title}`} className="mt-8 w-full rounded-3xl border border-border object-cover" />
       )}
 
       <div className="mt-4">
@@ -125,7 +125,7 @@ function BlogPost() {
           <div className="mt-6 grid gap-6 sm:grid-cols-3">
             {data.related.map((r: any) => (
               <Link key={r.slug} to="/blog/$slug" params={{ slug: r.slug }} className="group rounded-2xl border border-border bg-card p-4 transition hover:border-brand">
-                {r.cover_url && <img src={r.cover_url} alt="" loading="lazy" className="mb-3 h-28 w-full rounded-xl object-cover" />}
+                {r.cover_url && <img src={r.cover_url} alt={`Cover image for ${r.title}`} loading="lazy" className="mb-3 h-28 w-full rounded-xl object-cover" />}
                 <h3 className="font-display text-lg leading-snug group-hover:text-brand">{r.title}</h3>
                 <p className="mt-1 text-xs text-muted-foreground">{fmt(r.published_at)}</p>
               </Link>
