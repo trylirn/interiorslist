@@ -23,6 +23,9 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const { enforceRateLimit } = await import("@/lib/rate-limit.server");
+    await enforceRateLimit("contact", { max: 5, windowMinutes: 60 });
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("contact_messages").insert({
       provider_place_id: data.placeId,
