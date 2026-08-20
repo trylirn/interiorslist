@@ -50,12 +50,11 @@ export function BlogAdmin() {
   const [form, setForm] = useState<typeof EMPTY | null>(null);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [filter, setFilter] = useState<"all" | "published" | "drafts">("all");
 
-  async function uploadCover(file: File | undefined) {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return toast.error("Please choose an image");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5 MB");
-    setUploading(true);
+  async function uploadToBucket(file: File): Promise<string | null> {
+    if (!file.type.startsWith("image/")) { toast.error("Please choose an image"); return null; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5 MB"); return null; }
     try {
       const ext = file.name.split(".").pop() ?? "jpg";
       const path = `covers/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -65,13 +64,24 @@ export function BlogAdmin() {
         .from("blog-images")
         .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
       if (sErr || !signed) throw new Error(sErr?.message ?? "Could not create image link");
-      setForm((f) => (f ? { ...f, cover_url: signed.signedUrl } : f));
-      toast.success("Cover uploaded");
+      return signed.signedUrl;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
-    } finally {
-      setUploading(false);
+      return null;
     }
+  }
+
+  async function uploadCover(file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return toast.error("Please choose an image");
+    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5 MB");
+    setUploading(true);
+    const url = await uploadToBucket(file);
+    if (url) {
+      setForm((f) => (f ? { ...f, cover_url: url } : f));
+      toast.success("Cover uploaded");
+    }
+    setUploading(false);
   }
 
   async function submit() {
@@ -116,6 +126,16 @@ export function BlogAdmin() {
       toast.error(e instanceof Error ? e.message : "Delete failed");
     }
   }
+
+  const all = (data?.posts ?? []) as Post[];
+  const counts = {
+    all: all.length,
+    published: all.filter((p) => p.published).length,
+    drafts: all.filter((p) => !p.published).length,
+  };
+  const visible = (filter === "all" ? all : all.filter((p) => (filter === "published" ? p.published : !p.published)))
+    .slice()
+    .sort((a, b) => Number(a.published) - Number(b.published));
 
   if (error) return <p className="text-sm text-destructive">You don't have access to the blog editor.</p>;
 
@@ -174,7 +194,11 @@ export function BlogAdmin() {
         <div className="space-y-1.5">
           <Label>Body</Label>
           <p className="text-[11px] text-muted-foreground">Write in plain English — use the toolbar for bold, headings, lists, alignment and links.</p>
-          <RichTextEditor value={form.body_md} onChange={(html: string) => setForm({ ...form, body_md: html })} />
+          <RichTextEditor
+            value={form.body_md}
+            onChange={(html: string) => setForm({ ...form, body_md: html })}
+            onUploadImage={uploadToBucket}
+          />
         </div>
 
 
@@ -198,19 +222,44 @@ export function BlogAdmin() {
         <Button onClick={() => setForm({ ...EMPTY })} className="gap-2"><Plus className="h-4 w-4" /> New post</Button>
       </div>
 
+      <div className="flex flex-wrap gap-1.5">
+        {(["all", "published", "drafts"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`rounded-full border px-3 py-1 text-xs capitalize transition ${
+              filter === f ? "border-brand bg-brand text-brand-foreground" : "border-border bg-card hover:border-brand/50"
+            }`}
+          >
+            {f === "all" ? "All" : f === "published" ? "Published" : "Drafts"} ({counts[f]})
+          </button>
+        ))}
+      </div>
+
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
-      ) : (data?.posts ?? []).length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No posts yet.</p>
+      ) : visible.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+          {filter === "drafts" ? "No drafts." : filter === "published" ? "Nothing published yet." : "No posts yet."}
+        </p>
       ) : (
         <ul className="space-y-2">
-          {(data!.posts as Post[]).map((p) => (
-            <li key={p.id} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
+          {visible.map((p) => (
+            <li key={p.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4">
               {p.cover_url && <img src={p.cover_url} alt="" className="h-12 w-16 rounded-lg object-cover" />}
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{p.title}</p>
+                <div className="flex min-w-0 items-center gap-2">
+                  <p className="truncate font-medium">{p.title}</p>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                      p.published ? "bg-emerald-500/15 text-emerald-700" : "bg-amber-500/15 text-amber-700"
+                    }`}
+                  >
+                    {p.published ? "Published" : "Draft"}
+                  </span>
+                </div>
                 <p className="truncate text-xs text-muted-foreground">
-                  /blog/{p.slug} · {p.published ? "Published" : "Draft"}{p.category ? ` · ${p.category}` : ""}
+                  /blog/{p.slug}{p.category ? ` · ${p.category}` : ""}
                 </p>
               </div>
               <Button

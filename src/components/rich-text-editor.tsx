@@ -1,11 +1,16 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bold, Italic, Underline, Heading2, Heading3, List, ListOrdered,
   AlignLeft, AlignCenter, AlignRight, Quote, Link2, Eraser,
-  Table as TableIcon, Rows3, Columns3, Trash2,
+  Table as TableIcon, Rows3, Columns3, Trash2, Image as ImageIcon, Minus,
 } from "lucide-react";
 
-type Props = { value: string; onChange: (html: string) => void };
+type Props = {
+  value: string;
+  onChange: (html: string) => void;
+  /** Uploads a picked file and resolves to a public URL (null on failure). */
+  onUploadImage?: (file: File) => Promise<string | null>;
+};
 
 function Btn({ title, onClick, children }: { title: string; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -23,8 +28,10 @@ function Btn({ title, onClick, children }: { title: string; onClick: () => void;
 }
 
 /** Simple visual editor — no markdown needed. Produces basic HTML. */
-export function RichTextEditor({ value, onChange }: Props) {
+export function RichTextEditor({ value, onChange, onUploadImage }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (ref.current && ref.current.innerHTML !== value) ref.current.innerHTML = value || "";
@@ -86,6 +93,29 @@ export function RichTextEditor({ value, onChange }: Props) {
     emit();
   }
 
+  function insertImage(url: string, alt: string) {
+    const safe = alt.replace(/"/g, "");
+    cmd("insertHTML", `<p><img src="${url}" alt="${safe}" /></p><p><br></p>`);
+  }
+
+  async function pickImage(file: File | undefined) {
+    if (!file || !onUploadImage) return;
+    setUploading(true);
+    try {
+      const url = await onUploadImage(file);
+      if (url) insertImage(url, window.prompt("Describe this image (for accessibility & SEO)") ?? "");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  function imageByUrl() {
+    const url = window.prompt("Image URL (https://…)");
+    if (!url || !/^https?:\/\//i.test(url)) return;
+    insertImage(url, window.prompt("Describe this image (for accessibility & SEO)") ?? "");
+  }
+
   function deleteTable() {
     const table = currentCell()?.closest("table");
     if (!table) return;
@@ -117,6 +147,22 @@ export function RichTextEditor({ value, onChange }: Props) {
         <Btn title="Delete table" onClick={deleteTable}><Trash2 className="h-4 w-4" /></Btn>
         <span className="mx-1 h-5 w-px bg-border" />
         <Btn
+          title={uploading ? "Uploading image…" : "Insert image"}
+          onClick={() => (onUploadImage ? fileRef.current?.click() : imageByUrl())}
+        >
+          <ImageIcon className={`h-4 w-4 ${uploading ? "animate-pulse" : ""}`} />
+        </Btn>
+        <Btn title="Image from URL" onClick={imageByUrl}><Link2 className="h-4 w-4 rotate-45" /></Btn>
+        <Btn title="Horizontal line" onClick={() => cmd("insertHTML", "<hr /><p><br></p>")}><Minus className="h-4 w-4" /></Btn>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => pickImage(e.target.files?.[0])}
+        />
+        <span className="mx-1 h-5 w-px bg-border" />
+        <Btn
           title="Add link"
           onClick={() => {
             const url = window.prompt("Link URL (https://…)");
@@ -140,7 +186,7 @@ export function RichTextEditor({ value, onChange }: Props) {
           const text = e.clipboardData.getData("text/plain");
           document.execCommand("insertText", false, text);
         }}
-        className="prose-none max-h-[60vh] min-h-[22rem] overflow-y-auto w-full px-4 py-3 text-[0.975rem] leading-7 outline-none [&_a]:text-brand [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-brand [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:mt-4 [&_h2]:font-display [&_h2]:text-2xl [&_h3]:mt-3 [&_h3]:font-display [&_h3]:text-xl [&_li]:mt-0.5 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-2 [&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1.5 [&_th]:border [&_th]:border-border [&_th]:bg-secondary/40 [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left [&_ul]:list-disc [&_ul]:pl-6"
+        className="prose-none max-h-[60vh] min-h-[22rem] overflow-y-auto w-full px-4 py-3 text-[0.975rem] leading-7 outline-none [&_a]:text-brand [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-brand [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:my-6 [&_hr]:border-t [&_hr]:border-border [&_img]:my-3 [&_img]:max-w-full [&_img]:rounded-xl [&_h2]:mt-4 [&_h2]:font-display [&_h2]:text-2xl [&_h3]:mt-3 [&_h3]:font-display [&_h3]:text-xl [&_li]:mt-0.5 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-2 [&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1.5 [&_th]:border [&_th]:border-border [&_th]:bg-secondary/40 [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left [&_ul]:list-disc [&_ul]:pl-6"
       />
     </div>
   );
