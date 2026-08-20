@@ -25,10 +25,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   getOverview, getLiveFeed, getCityAnalytics, getCityDetail,
   getProviderAnalytics, getProviderDetail, getUserJourneys, getJourneyDetail,
+  getBlogAnalytics,
 } from "@/lib/analytics.functions";
 import {
   ArrowLeft, ArrowRight, Eye, MousePointerClick, Phone, Globe, MapPin,
-  Search as SearchIcon, Smartphone, Zap, X, Compass, Trash2,
+  Search as SearchIcon, Smartphone, Zap, X, Compass, Trash2, BookOpen,
 } from "lucide-react";
 
 type Range = "today" | "yesterday" | "7d" | "30d" | "this_month" | "last_month";
@@ -188,17 +189,97 @@ export function AnalyticsDashboard() {
       </div>
 
       <Tabs defaultValue="overview">
-        <TabsList>
+        <TabsList className="flex w-full flex-wrap justify-start gap-1 h-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="cities">Cities</TabsTrigger>
           <TabsTrigger value="providers">Providers</TabsTrigger>
           <TabsTrigger value="journeys">User Journeys</TabsTrigger>
+          <TabsTrigger value="blog">Blog</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-6"><OverviewPanel range={range} /></TabsContent>
         <TabsContent value="cities" className="mt-6"><CitiesPanel range={range} /></TabsContent>
         <TabsContent value="providers" className="mt-6"><ProvidersPanel range={range} /></TabsContent>
         <TabsContent value="journeys" className="mt-6"><JourneysPanel range={range} /></TabsContent>
+        <TabsContent value="blog" className="mt-6"><BlogPanel range={range} /></TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+// ---------- Blog ----------
+
+function BlogPanel({ range }: { range: Range }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["blog-analytics", range],
+    queryFn: () => getBlogAnalytics({ data: { range } }),
+  });
+
+  if (isLoading || !data) return <p className="text-muted-foreground">Loading…</p>;
+  const t = data.totals;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Blog views" value={num(t.views)} sub={`${num(t.article_views)} articles · ${num(t.index_views)} index`} icon={<BookOpen className="h-4 w-4" />} />
+        <StatCard label="Unique readers" value={num(t.unique_visitors)} sub={`${num(t.sessions)} sessions`} icon={<Eye className="h-4 w-4" />} />
+        <StatCard label="Readers → studios" value={num(t.converted_sessions)} sub="sessions that went on to a studio" icon={<MousePointerClick className="h-4 w-4" />} />
+        <StatCard label="Conversion" value={pct(t.conversion_rate)} sub="of blog sessions" />
+      </div>
+
+      <ChartCard title="Blog views over time" subtitle="Daily article + index views">
+        {data.timeseries.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">No blog traffic in this range yet.</p>
+        ) : (
+          <ChartContainer config={{ views: { label: "Views", color: "var(--chart-1)" } }} className="aspect-auto w-full" style={{ height: 220 }}>
+            <AreaChart data={data.timeseries} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="fill-blog-views" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-views)" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="var(--color-views)" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" />
+              <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
+              <YAxis tickLine={false} axisLine={false} width={32} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+              <Area type="monotone" dataKey="views" stroke="var(--color-views)" fill="url(#fill-blog-views)" strokeWidth={2} />
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+
+      <div className="rounded-2xl border border-border bg-card">
+        <div className="border-b border-border p-5">
+          <h3 className="font-display text-lg">Top posts</h3>
+          <p className="text-xs text-muted-foreground">Most-read articles in this range</p>
+        </div>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Post</TableHead>
+                <TableHead className="text-right">Views</TableHead>
+                <TableHead className="text-right">Readers</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.topPosts.map((p) => (
+                <TableRow key={p.slug}>
+                  <TableCell className="max-w-[22rem]">
+                    <Link to="/blog/$slug" params={{ slug: p.slug }} className="block truncate hover:text-brand">{p.title}</Link>
+                    <span className="block truncate text-xs text-muted-foreground">/blog/{p.slug}</span>
+                  </TableCell>
+                  <TableCell className="text-right">{num(p.views)}</TableCell>
+                  <TableCell className="text-right">{num(p.unique_visitors)}</TableCell>
+                </TableRow>
+              ))}
+              {data.topPosts.length === 0 && (
+                <TableRow><TableCell colSpan={3} className="p-8 text-center text-muted-foreground">No article views yet.</TableCell></TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 }
