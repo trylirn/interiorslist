@@ -520,3 +520,84 @@ export const getJourneyDetail = createServerFn({ method: "POST" })
       })),
     };
   });
+
+/** Blog readership, derived from page_view events on /blog paths. */
+export const getBlogAnalytics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => RangeSchema.parse(d ?? {}))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { from, to } = resolveRange(data);
+    const events = await fetchEvents(from, to);
+
+    const blogEvents = events.filter(
+      (e) => e.event_type === "page_view" && typeof e.path === "string" && e.path.startsWith("/blog"),
+    );
+
+    const dayMap = new Map<string, { day: string; views: number }>();
+    const bySlug = new Map<string, { views: number; visitors: Set<string> }>();
+    const visitors = new Set<string>();
+    const blogSessions = new Set<string>();
+    let indexViews = 0;
+
+    for (const e of blogEvents) {
+      const day = String(e.created_at).slice(0, 10);
+      const d = dayMap.get(day) ?? { day, views: 0 };
+      d.views++;
+      dayMap.set(day, d);
+      if (e.visitor_id) visitors.add(e.visitor_id);
+      if (e.session_id) blogSessions.add(e.session_id);
+
+      const slug = String(e.path).replace(/^\/blog\/?/, "").split(/[?#]/)[0]?.replace(/\/$/, "") ?? "";
+      if (!slug) { indexViews++; continue; }
+      const s = bySlug.get(slug) ?? { views: 0, visitors: new Set<string>() };
+      s.views++;
+      if (e.visitor_id) s.visitors.add(e.visitor_id);
+      bySlug.set(slug, s);
+    }
+
+    // Blog readers who went on to engage with a studio in the same session.
+    let convertedSessions = 0;
+    for (const sid of blogSessions) {
+      const hit = events.some(
+        (e) =>
+          e.session_id === sid &&
+          (e.provider_place_id || e.event_type === "listing_click" || e.event_type === "lead_action"),
+      );
+      if (hit) convertedSessions++;
+    }
+
+    const slugs = Array.from(bySlug.keys());
+    const titles = new Map<string, string>();
+    if (slugs.length) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: posts } = await supabaseAdmin
+        .from("blog_posts")
+        .select("slug, title")
+        .in("slug", slugs);
+      for (const p of posts ?? []) titles.set((p as any).slug, (p as any).title);
+    }
+
+    const topPosts = slugs
+      .map((slug) => ({
+        slug,
+        title: titles.get(slug) ?? slug,
+        views: bySlug.get(slug)!.views,
+        unique_visitors: bySlug.get(slug)!.visitors.size,
+      }))
+      .sort((a, b) => b.views - a.views);
+
+    return {
+      totals: {
+        views: blogEvents.length,
+        index_views: indexViews,
+        article_views: blogEvents.length - indexViews,
+        unique_visitors: visitors.size,
+        sessions: blogSessions.size,
+        converted_sessions: convertedSessions,
+        conversion_rate: blogSessions.size ? convertedSessions / blogSessions.size : 0,
+      },
+      topPosts,
+      timeseries: Array.from(dayMap.values()).sort((a, b) => a.day.localeCompare(b.day)),
+    };
+  });
