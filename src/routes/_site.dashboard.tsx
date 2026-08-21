@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { listMyListings, listMyLeads, listMyReviews, updateLeadStatus, getMyOnboardingStatus, listMyClaims } from "@/lib/owner.functions";
 import { respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { getMyRoles } from "@/lib/role.functions";
+import { deleteMyAccount } from "@/lib/user-actions.functions";
 import { Star, Mail, Phone, ExternalLink, Building2, Shield, Clock } from "lucide-react";
 import { toast } from "sonner";
 

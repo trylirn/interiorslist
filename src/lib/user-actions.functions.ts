@@ -69,7 +69,6 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("providers").update({ claimed_by: null }).eq("claimed_by", userId);
     await supabaseAdmin.from("claims").delete().eq("user_id", userId);
-    await supabaseAdmin.from("reviews").delete().eq("user_id", userId);
     await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
     await supabaseAdmin.from("profiles").delete().eq("id", userId);
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
