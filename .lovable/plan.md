@@ -33,11 +33,30 @@ Current image insertion has no caption support at all, and inserting a link whil
 - Link button: when text is selected, link the text; when nothing is selected, insert the URL as a labelled link rather than doing nothing.
 - Allow `figure`, `figcaption` in the article sanitizer with matching styling on the public post page so captions render the same as in the editor.
 
-## 6. Outstanding items from last session
+## 6. New About page
+
+Rewrite `/about` as a full editorial page in the spirit of the Medspa.com about page, but written for Intearior and grounded only in what the site actually does:
+
+- Hero: headline, short positioning paragraph, and the studio image.
+- "What Intearior is" — an independent nationwide directory of interior design studios, no paid placement.
+- "How we build the directory" — how listings are gathered, verified as operating, and kept current; how studios claim and complete their profiles.
+- "What you can do here" — browse by city and state, filter by service, style and budget, get matched to up to 3 studios, compare studios side by side, read and write client reviews, and request consultations.
+- "Services covered" and "Cities we cover" blocks linking into the service and city hubs.
+- "For design studios" — claim your listing, respond to reviews, manage leads, with a link to the studios page.
+- "How we make money / independence" statement, plus the existing verify-credentials disclaimer.
+- Closing CTAs: Find a designer, Get matched, Claim your studio.
+- Fresh title/description/OG metadata and Organization + FAQ JSON-LD covering the questions the page answers. Live directory counts reuse the existing stats function rather than hardcoded numbers.
+
+## 7. Header wordmark casing
+
+The header wordmark renders as all caps. Change it to "Intearior" — capital I, rest lowercase — keeping the current font, size, and letter-spacing feel (spacing tightened slightly so lowercase reads well).
+
+## 8. Outstanding items from last session
 
 - Run typecheck and production build over the blog-analytics and blog-admin edits and fix whatever mismatched (helper names, imports).
 - Compare page mobile fix: solid background and fixed width on the pinned label column with a divider, stack each studio as its own card on phones instead of a horizontally scrolling table, and add bottom padding so the floating compare bar never covers the last row.
 - Mark the San Francisco SEO finding fixed once the build passes.
+
 
 ## Technical notes
 
@@ -47,4 +66,6 @@ Current image insertion has no caption support at all, and inserting a link whil
 - Service area: add `national_international` to the select and to the union type in `owner.functions.ts`/`listing-manager.tsx` (column is free text, no migration needed).
 - Editor: `src/components/rich-text-editor.tsx` figure/figcaption insertion + selected-image toolbar; `src/components/rich-text.tsx` sanitizer allow-list and prose styles.
 - Compare: `src/routes/_site.compare.tsx` — solid token background instead of `bg-inherit`, `md:` breakpoint switch between card list and table.
+- About page: rewrite `src/routes/_site.about.tsx`; reuse `getDirectoryStats`, `SERVICES`/`CITIES` from `src/lib/cities.ts`, and existing imagery in `src/lib/style-images.ts`.
+- Header wordmark: `BrandLockup` in `src/components/brand-logo.tsx` — drop `uppercase`, adjust tracking.
 - Verify with `bunx tsgo --noEmit` and `bun run build`.
