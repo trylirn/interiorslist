@@ -61,39 +61,66 @@ function ComparePage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div className="mx-auto max-w-6xl px-4 py-12 pb-32">
       <h1 className="font-display text-4xl">Compare</h1>
       <p className="mt-2 text-sm text-muted-foreground">Side-by-side comparison of your selected studios.</p>
 
-      <div className="mt-8 overflow-x-auto">
+      {/* Mobile: one card per studio */}
+      <div className="mt-8 space-y-6 md:hidden">
+        {data.map((p) => (
+          <div key={p.place_id} className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="flex items-start justify-between gap-3 border-b border-border p-4">
+              <div className="min-w-0">
+                <Link to="/provider/$slug" params={{ slug: p.slug }} className="font-display text-lg hover:text-brand break-words">{p.name}</Link>
+                <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3 shrink-0" />{p.city}</p>
+              </div>
+              <button onClick={() => remove(p.place_id)} className="shrink-0 text-xs text-muted-foreground hover:text-foreground">Remove</button>
+            </div>
+            <dl className="divide-y divide-border">
+              {rows.map((r) => (
+                <div key={r.label} className="p-4">
+                  <dt className="text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground">{r.label}</dt>
+                  <dd className="mt-1 break-words text-sm">{r.render(p)}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className="p-4">
+              <Button asChild size="sm" className="w-full rounded-full"><Link to="/provider/$slug" params={{ slug: p.slug }}>View profile</Link></Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tablet and up: side-by-side table */}
+      <div className="mt-8 hidden overflow-x-auto md:block">
         <table className="w-full min-w-[700px] border-separate border-spacing-0 text-sm">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 bg-background w-32"></th>
+              <th className="sticky left-0 z-10 w-36 min-w-[9rem] border-r border-border bg-background"></th>
               {data.map((p) => (
                 <th key={p.place_id} className="border-b border-border p-3 text-left align-top">
                   <div className="flex items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0">
                       <Link to="/provider/$slug" params={{ slug: p.slug }} className="font-display text-lg hover:text-brand">{p.name}</Link>
-                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{p.city}</p>
+                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3 shrink-0" />{p.city}</p>
                     </div>
-                    <button onClick={() => remove(p.place_id)} className="text-xs text-muted-foreground hover:text-foreground">Remove</button>
+                    <button onClick={() => remove(p.place_id)} className="shrink-0 text-xs text-muted-foreground hover:text-foreground">Remove</button>
                   </div>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.label} className="even:bg-secondary/30">
-                <td className="sticky left-0 z-10 bg-inherit border-b border-border p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground align-top">{r.label}</td>
+            {rows.map((r, i) => (
+              <tr key={r.label}>
+                <td className={`sticky left-0 z-10 w-36 min-w-[9rem] border-b border-r border-border p-3 align-top text-xs font-semibold uppercase tracking-wider text-muted-foreground ${i % 2 === 1 ? "bg-secondary" : "bg-background"}`}>{r.label}</td>
                 {data.map((p) => (
-                  <td key={p.place_id} className="border-b border-border p-3 align-top">{r.render(p)}</td>
+                  <td key={p.place_id} className={`border-b border-border p-3 align-top ${i % 2 === 1 ? "bg-secondary/30" : ""}`}>{r.render(p)}</td>
                 ))}
               </tr>
             ))}
             <tr>
-              <td className="sticky left-0 z-10 bg-background p-3"></td>
+              <td className="sticky left-0 z-10 w-36 min-w-[9rem] border-r border-border bg-background p-3"></td>
               {data.map((p) => (
                 <td key={p.place_id} className="p-3">
                   <Button asChild size="sm" className="w-full rounded-full"><Link to="/provider/$slug" params={{ slug: p.slug }}>View profile</Link></Button>
@@ -106,3 +133,4 @@ function ComparePage() {
     </div>
   );
 }
+
