@@ -436,12 +436,6 @@ function ProviderPage() {
             </section>
           )}
 
-          {p.notes && (
-            <section className="mt-8 rounded-3xl border border-border bg-card p-6 md:p-8">
-              <h2 className="font-display text-2xl">Additional notes</h2>
-              <p className="mt-3 text-foreground/85 leading-relaxed">{p.notes}</p>
-            </section>
-          )}
 
 
 

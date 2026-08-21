@@ -75,7 +75,6 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
     name: (listing.name as string) ?? "",
     about_description: (listing.about_description as string) ?? "",
     specialists: (listing.specialists as string) ?? "",
-    notes: (listing.notes as string) ?? "",
     website: (listing.website as string) ?? "",
     
     branch_label: (listing.branch_label as string) ?? "",
@@ -149,7 +148,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
           social_links: social,
           founded_year: founded_year ? Number(founded_year) : null,
           years_in_business: years_in_business ? Number(years_in_business) : null,
-          service_area: (service_area || null) as "local" | "regional" | "nationwide" | null,
+          service_area: (service_area || null) as "local" | "regional" | "nationwide" | "national_international" | null,
           team: team
             .filter((m) => m.name.trim() && m.role.trim())
             .map((m) => ({ name: m.name.trim(), role: m.role.trim(), bio: m.bio.trim() })),
@@ -210,7 +209,6 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
           </div>
         ))}
       </div>
-      <div className="space-y-1.5"><Label>Internal notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Operational notes — not displayed publicly" /></div>
 
       <div className="space-y-3 rounded-2xl border border-border p-4">
         <p className="font-display text-lg">Business details</p>
@@ -226,6 +224,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
                 <SelectItem value="local">Local area</SelectItem>
                 <SelectItem value="regional">Regional</SelectItem>
                 <SelectItem value="nationwide">Nationwide</SelectItem>
+                <SelectItem value="national_international">National &amp; International</SelectItem>
               </SelectContent>
             </Select>
           </div>
