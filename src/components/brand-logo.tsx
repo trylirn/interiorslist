@@ -10,7 +10,7 @@ export function BrandLockup({ className = "" }: { className?: string }) {
   return (
     <Link to="/" aria-label="Intearior — home" className={`flex items-center gap-3 ${className}`}>
       <img src={mark.url} alt="" aria-hidden className="h-16 w-16 object-contain md:h-[88px] md:w-[88px]" />
-      <span className="font-display text-xl font-semibold uppercase tracking-[0.16em] md:text-2xl">Intearior</span>
+      <span className="font-display text-xl font-semibold tracking-[0.06em] md:text-2xl">Intearior</span>
     </Link>
 
   );

@@ -57,3 +57,21 @@ export const submitBusiness = createServerFn({ method: "POST" })
     if (error) fail(error);
     return { ok: true };
   });
+
+export const deleteMyAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userId, supabase } = context;
+    const { callerIsSuperAdmin } = await import("@/lib/caller-role");
+    if (await callerIsSuperAdmin(supabase as never, userId)) {
+      throw new Error("Super admin accounts cannot be closed from the dashboard.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("providers").update({ claimed_by: null }).eq("claimed_by", userId);
+    await supabaseAdmin.from("claims").delete().eq("user_id", userId);
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
+    await supabaseAdmin.from("profiles").delete().eq("id", userId);
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (error) fail(error);
+    return { ok: true };
+  });

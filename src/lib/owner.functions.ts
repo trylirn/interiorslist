@@ -13,7 +13,7 @@ export const listMyListings = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("providers")
-      .select("place_id, slug, name, city, city_slug, address, website, specialists, services, branch_label, hero_photo_url, notes, is_verified")
+      .select("place_id, slug, name, city, city_slug, address, website, specialists, services, branch_label, hero_photo_url, is_verified")
       .eq("claimed_by", userId)
       .order("name");
     if (error) fail(error);
@@ -41,7 +41,6 @@ export const updateMyListing = createServerFn({ method: "POST" })
       placeId: z.string().min(1).max(200),
       name: z.string().trim().min(2).max(160).optional(),
       specialists: z.string().max(2000).optional(),
-      notes: z.string().max(4000).optional(),
       about_description: z.string().max(4000).optional(),
       website: z.string().max(500).optional(),
       logo_url: z.string().max(1000).optional(),
@@ -65,7 +64,7 @@ export const updateMyListing = createServerFn({ method: "POST" })
       credentials: z.string().max(2000).optional(),
       founded_year: z.number().int().min(1800).max(2100).nullable().optional(),
       years_in_business: z.number().int().min(0).max(200).nullable().optional(),
-      service_area: z.enum(["local", "regional", "nationwide"]).nullable().optional(),
+      service_area: z.enum(["local", "regional", "nationwide", "national_international"]).nullable().optional(),
       service_area_note: z.string().max(500).optional(),
       team_size: z.string().max(60).optional(),
       client_types: z.string().max(2000).optional(),
