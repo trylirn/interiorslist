@@ -66,4 +66,6 @@ The header wordmark renders as all caps. Change it to "Intearior" — capital I,
 - Service area: add `national_international` to the select and to the union type in `owner.functions.ts`/`listing-manager.tsx` (column is free text, no migration needed).
 - Editor: `src/components/rich-text-editor.tsx` figure/figcaption insertion + selected-image toolbar; `src/components/rich-text.tsx` sanitizer allow-list and prose styles.
 - Compare: `src/routes/_site.compare.tsx` — solid token background instead of `bg-inherit`, `md:` breakpoint switch between card list and table.
+- About page: rewrite `src/routes/_site.about.tsx`; reuse `getDirectoryStats`, `SERVICES`/`CITIES` from `src/lib/cities.ts`, and existing imagery in `src/lib/style-images.ts`.
+- Header wordmark: `BrandLockup` in `src/components/brand-logo.tsx` — drop `uppercase`, adjust tracking.
 - Verify with `bunx tsgo --noEmit` and `bun run build`.
