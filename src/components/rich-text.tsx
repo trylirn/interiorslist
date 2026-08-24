@@ -1,8 +1,9 @@
 const ALLOWED = new Set([
   "p", "br", "strong", "b", "em", "i", "u", "s", "a", "ul", "ol", "li",
   "h2", "h3", "h4", "blockquote", "hr", "img", "div", "span", "code", "pre",
-  "table", "thead", "tbody", "tr", "th", "td",
+  "table", "thead", "tbody", "tr", "th", "td", "figure", "figcaption",
 ]);
+
 
 /** Collapses empty paragraph / <br> runs produced by contenteditable. */
 export function collapseEmptyBlocks(html: string): string {
@@ -58,7 +59,7 @@ export function isHtmlBody(body: string) {
 export function RichText({ html }: { html: string }) {
   return (
     <div
-      className="text-[1.05rem] leading-7 text-foreground/90 [&_a]:text-brand [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:mt-4 [&_blockquote]:border-l-2 [&_blockquote]:border-brand [&_blockquote]:pl-5 [&_blockquote]:font-display [&_blockquote]:text-xl [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-3xl [&_h3]:mt-6 [&_h3]:font-display [&_h3]:text-2xl [&_h4]:mt-4 [&_h4]:text-lg [&_h4]:font-semibold [&_hr]:mt-6 [&_hr]:border-border [&_img]:mt-6 [&_img]:w-full [&_img]:rounded-2xl [&_li]:mt-0.5 [&_ol]:mt-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-3 [&_table]:mt-6 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2 [&_th]:border [&_th]:border-border [&_th]:bg-secondary/40 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:pl-6"
+      className="text-[1.05rem] leading-7 text-foreground/90 [&_a]:text-brand [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:mt-4 [&_blockquote]:border-l-2 [&_blockquote]:border-brand [&_blockquote]:pl-5 [&_blockquote]:font-display [&_blockquote]:text-xl [&_figcaption]:mt-2 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-muted-foreground [&_figure]:mt-6 [&_figure>img]:mt-0 [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-3xl [&_h3]:mt-6 [&_h3]:font-display [&_h3]:text-2xl [&_h4]:mt-4 [&_h4]:text-lg [&_h4]:font-semibold [&_hr]:mt-6 [&_hr]:border-border [&_img]:mt-6 [&_img]:w-full [&_img]:rounded-2xl [&_li]:mt-0.5 [&_ol]:mt-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-3 [&_table]:mt-6 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2 [&_th]:border [&_th]:border-border [&_th]:bg-secondary/40 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:pl-6"
       dangerouslySetInnerHTML={{ __html: sanitizeHtml(collapseEmptyBlocks(html)) }}
     />
   );

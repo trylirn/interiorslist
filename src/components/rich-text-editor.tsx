@@ -3,7 +3,9 @@ import {
   Bold, Italic, Underline, Heading2, Heading3, List, ListOrdered,
   AlignLeft, AlignCenter, AlignRight, Quote, Link2, Eraser,
   Table as TableIcon, Rows3, Columns3, Trash2, Image as ImageIcon, Minus,
+  Rows2, Columns2, Type, Captions, CaptionsOff, Link, Unlink, X,
 } from "lucide-react";
+
 
 type Props = {
   value: string;
@@ -32,8 +34,10 @@ export function RichTextEditor({ value, onChange, onUploadImage }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [selectedImg, setSelectedImg] = useState<HTMLImageElement | null>(null);
 
   useEffect(() => {
+
     if (ref.current && ref.current.innerHTML !== value) ref.current.innerHTML = value || "";
   }, [value]);
 
@@ -93,9 +97,42 @@ export function RichTextEditor({ value, onChange, onUploadImage }: Props) {
     emit();
   }
 
-  function insertImage(url: string, alt: string) {
-    const safe = alt.replace(/"/g, "");
-    cmd("insertHTML", `<p><img src="${url}" alt="${safe}" /></p><p><br></p>`);
+  function deleteRow() {
+    const cell = currentCell();
+    const row = cell?.parentElement as HTMLTableRowElement | undefined;
+    const table = cell?.closest("table");
+    if (!row || !table) return;
+    if (table.rows.length <= 1) table.remove();
+    else row.remove();
+    emit();
+  }
+
+  function deleteColumn() {
+    const cell = currentCell();
+    const table = cell?.closest("table");
+    if (!cell || !table) return;
+    const index = cell.cellIndex;
+    if ((table.rows[0]?.cells.length ?? 0) <= 1) {
+      table.remove();
+    } else {
+      Array.from(table.rows).forEach((row) => row.cells[index]?.remove());
+    }
+    emit();
+  }
+
+  const esc = (v: string) => v.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  function insertImage(url: string, alt: string, caption: string) {
+    const fig = caption.trim()
+      ? `<figure><img src="${esc(url)}" alt="${esc(alt)}" /><figcaption>${esc(caption.trim())}</figcaption></figure>`
+      : `<figure><img src="${esc(url)}" alt="${esc(alt)}" /></figure>`;
+    cmd("insertHTML", `${fig}<p><br></p>`);
+  }
+
+  function askImageMeta(url: string) {
+    const alt = window.prompt("Describe this image (for accessibility & SEO)") ?? "";
+    const caption = window.prompt("Caption to show beneath the image (optional)") ?? "";
+    insertImage(url, alt, caption);
   }
 
   async function pickImage(file: File | undefined) {
@@ -103,7 +140,7 @@ export function RichTextEditor({ value, onChange, onUploadImage }: Props) {
     setUploading(true);
     try {
       const url = await onUploadImage(file);
-      if (url) insertImage(url, window.prompt("Describe this image (for accessibility & SEO)") ?? "");
+      if (url) askImageMeta(url);
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -113,8 +150,85 @@ export function RichTextEditor({ value, onChange, onUploadImage }: Props) {
   function imageByUrl() {
     const url = window.prompt("Image URL (https://…)");
     if (!url || !/^https?:\/\//i.test(url)) return;
-    insertImage(url, window.prompt("Describe this image (for accessibility & SEO)") ?? "");
+    askImageMeta(url);
   }
+
+  /* ---- selected-image actions ---- */
+
+  function figureOf(img: HTMLImageElement) {
+    return img.closest("figure");
+  }
+
+  function editAlt() {
+    if (!selectedImg) return;
+    const next = window.prompt("Alt text (describes the image)", selectedImg.alt);
+    if (next === null) return;
+    selectedImg.alt = next;
+    emit();
+  }
+
+  function editCaption() {
+    if (!selectedImg) return;
+    const fig = figureOf(selectedImg);
+    if (!fig) return;
+    const existing = fig.querySelector("figcaption");
+    const next = window.prompt("Caption", existing?.textContent ?? "");
+    if (next === null) return;
+    if (!next.trim()) {
+      existing?.remove();
+    } else if (existing) {
+      existing.textContent = next.trim();
+    } else {
+      const cap = document.createElement("figcaption");
+      cap.textContent = next.trim();
+      fig.appendChild(cap);
+    }
+    emit();
+  }
+
+  function removeCaption() {
+    if (!selectedImg) return;
+    figureOf(selectedImg)?.querySelector("figcaption")?.remove();
+    emit();
+  }
+
+  function toggleImageLink() {
+    if (!selectedImg) return;
+    const anchor = selectedImg.closest("a");
+    if (anchor) {
+      anchor.replaceWith(selectedImg);
+    } else {
+      const url = window.prompt("Link this image to (https://… or /path)");
+      if (!url || !/^(https?:\/\/|\/)/i.test(url)) return;
+      const a = document.createElement("a");
+      a.setAttribute("href", url);
+      a.setAttribute("rel", "noopener noreferrer");
+      selectedImg.replaceWith(a);
+      a.appendChild(selectedImg);
+    }
+    emit();
+  }
+
+  function deleteImage() {
+    if (!selectedImg) return;
+    (figureOf(selectedImg) ?? selectedImg.closest("a") ?? selectedImg).remove();
+    setSelectedImg(null);
+    emit();
+  }
+
+  function addLink() {
+    const sel = window.getSelection();
+    const hasSelection = !!sel && !sel.isCollapsed && !!sel.toString().trim();
+    const url = window.prompt("Link URL (https://…)");
+    if (!url || !/^(https?:\/\/|mailto:|\/)/i.test(url)) return;
+    if (hasSelection) {
+      cmd("createLink", url);
+      return;
+    }
+    const label = window.prompt("Link text", url) ?? url;
+    cmd("insertHTML", `<a href="${esc(url)}" rel="noopener noreferrer">${esc(label)}</a>&nbsp;`);
+  }
+
 
   function deleteTable() {
     const table = currentCell()?.closest("table");
@@ -144,7 +258,10 @@ export function RichTextEditor({ value, onChange, onUploadImage }: Props) {
         <Btn title="Insert table" onClick={insertTable}><TableIcon className="h-4 w-4" /></Btn>
         <Btn title="Add row" onClick={addRow}><Rows3 className="h-4 w-4" /></Btn>
         <Btn title="Add column" onClick={addColumn}><Columns3 className="h-4 w-4" /></Btn>
+        <Btn title="Delete row" onClick={deleteRow}><Rows2 className="h-4 w-4" /></Btn>
+        <Btn title="Delete column" onClick={deleteColumn}><Columns2 className="h-4 w-4" /></Btn>
         <Btn title="Delete table" onClick={deleteTable}><Trash2 className="h-4 w-4" /></Btn>
+
         <span className="mx-1 h-5 w-px bg-border" />
         <Btn
           title={uploading ? "Uploading image…" : "Insert image"}
@@ -162,17 +279,27 @@ export function RichTextEditor({ value, onChange, onUploadImage }: Props) {
           onChange={(e) => pickImage(e.target.files?.[0])}
         />
         <span className="mx-1 h-5 w-px bg-border" />
-        <Btn
-          title="Add link"
-          onClick={() => {
-            const url = window.prompt("Link URL (https://…)");
-            if (url && /^https?:\/\//i.test(url)) cmd("createLink", url);
-          }}
-        >
+        <Btn title="Add link" onClick={addLink}>
           <Link2 className="h-4 w-4" />
         </Btn>
         <Btn title="Clear formatting" onClick={() => cmd("removeFormat")}><Eraser className="h-4 w-4" /></Btn>
       </div>
+      {selectedImg && (
+        <div className="flex flex-wrap items-center gap-1 border-b border-border bg-secondary/40 px-2 py-1.5">
+          <span className="mr-1 text-xs font-medium text-muted-foreground">Image</span>
+          <Btn title="Edit alt text" onClick={editAlt}><Type className="h-4 w-4" /></Btn>
+          <Btn title="Edit caption" onClick={editCaption}><Captions className="h-4 w-4" /></Btn>
+          <Btn title="Remove caption" onClick={removeCaption}><CaptionsOff className="h-4 w-4" /></Btn>
+          <Btn
+            title={selectedImg.closest("a") ? "Remove link" : "Link image"}
+            onClick={toggleImageLink}
+          >
+            {selectedImg.closest("a") ? <Unlink className="h-4 w-4" /> : <Link className="h-4 w-4" />}
+          </Btn>
+          <Btn title="Delete image" onClick={deleteImage}><Trash2 className="h-4 w-4" /></Btn>
+          <Btn title="Deselect" onClick={() => setSelectedImg(null)}><X className="h-4 w-4" /></Btn>
+        </div>
+      )}
       <div
         ref={ref}
         contentEditable
@@ -181,12 +308,17 @@ export function RichTextEditor({ value, onChange, onUploadImage }: Props) {
         aria-label="Article body"
         onInput={emit}
         onBlur={emit}
+        onClick={(e) => {
+          const t = e.target as HTMLElement;
+          setSelectedImg(t instanceof HTMLImageElement ? t : null);
+        }}
+
         onPaste={(e) => {
           e.preventDefault();
           const text = e.clipboardData.getData("text/plain");
           document.execCommand("insertText", false, text);
         }}
-        className="prose-none max-h-[60vh] min-h-[22rem] overflow-y-auto w-full px-4 py-3 text-[0.975rem] leading-7 outline-none [&_a]:text-brand [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-brand [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:my-6 [&_hr]:border-t [&_hr]:border-border [&_img]:my-3 [&_img]:max-w-full [&_img]:rounded-xl [&_h2]:mt-4 [&_h2]:font-display [&_h2]:text-2xl [&_h3]:mt-3 [&_h3]:font-display [&_h3]:text-xl [&_li]:mt-0.5 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-2 [&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1.5 [&_th]:border [&_th]:border-border [&_th]:bg-secondary/40 [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left [&_ul]:list-disc [&_ul]:pl-6"
+        className="prose-none max-h-[60vh] min-h-[22rem] overflow-y-auto w-full px-4 py-3 text-[0.975rem] leading-7 outline-none [&_a]:text-brand [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-brand [&_blockquote]:pl-4 [&_blockquote]:italic [&_figcaption]:mt-1.5 [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-muted-foreground [&_figure]:my-4 [&_hr]:my-6 [&_hr]:border-t [&_hr]:border-border [&_img]:my-3 [&_img]:max-w-full [&_img]:rounded-xl [&_h2]:mt-4 [&_h2]:font-display [&_h2]:text-2xl [&_h3]:mt-3 [&_h3]:font-display [&_h3]:text-xl [&_li]:mt-0.5 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-2 [&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1.5 [&_th]:border [&_th]:border-border [&_th]:bg-secondary/40 [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left [&_ul]:list-disc [&_ul]:pl-6"
       />
     </div>
   );
