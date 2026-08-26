@@ -111,7 +111,7 @@ export const getMatches = createServerFn({ method: "POST" })
     let q = supabaseAdmin
       .from("providers")
       .select(
-        "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, badges, price_ranges, rating, review_count, styles, project_types, price_tier, typical_project_budget, remote_services",
+        "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, featured, badges, price_ranges, rating, review_count, styles, project_types, price_tier, typical_project_budget, remote_services",
       );
     if (data.citySlug && data.citySlug !== "any") q = q.eq("city_slug", data.citySlug);
     const { data: rows, error } = await q.limit(200);
@@ -166,14 +166,22 @@ export const getMatches = createServerFn({ method: "POST" })
           matchedStyles,
           matchedProjectType,
           budgetFit: !!budgetFit,
-        } as Record<string, unknown> & { score: number };
+          qualifies: matchedServices.length > 0 || matchedStyles.length > 0 || !!matchedProjectType,
+          tierRank: p.featured ? 0 : p.is_verified ? 1 : 2,
+        } as Record<string, unknown> & { score: number; qualifies: boolean; tierRank: number };
       })
       .filter((p) => !(prefs.has("verified-only") && !p.is_verified))
       .filter((p) => !(prefs.has("remote-ok") && data.citySlug === "any") || !!p.remote_services)
-      .sort((a, b) => b.score - a.score)
+      // Paid (featured) first, then verified, then the rest — but only among
+      // studios that actually fit the brief; irrelevant paid listings never jump ahead.
+      .sort((a, b) => {
+        if (a.qualifies !== b.qualifies) return a.qualifies ? -1 : 1;
+        if (a.tierRank !== b.tierRank) return a.tierRank - b.tierRank;
+        return b.score - a.score;
+      })
       .slice(0, 3);
 
-    const max = scored[0]?.score || 1;
+    const max = Math.max(1, ...scored.map((m) => m.score));
     const matches = scored.map((m) => ({
       ...(m as unknown as {
         place_id: string; slug: string; name: string; city: string; address: string | null;
