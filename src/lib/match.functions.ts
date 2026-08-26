@@ -111,7 +111,7 @@ export const getMatches = createServerFn({ method: "POST" })
     let q = supabaseAdmin
       .from("providers")
       .select(
-        "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, badges, price_ranges, rating, review_count, styles, project_types, price_tier, typical_project_budget, remote_services",
+        "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, featured, badges, price_ranges, rating, review_count, styles, project_types, price_tier, typical_project_budget, remote_services",
       );
     if (data.citySlug && data.citySlug !== "any") q = q.eq("city_slug", data.citySlug);
     const { data: rows, error } = await q.limit(200);
