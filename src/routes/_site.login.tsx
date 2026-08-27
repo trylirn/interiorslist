@@ -83,7 +83,7 @@ function SignInPanel() {
 
 
 
-const LICENSE_TYPES = ["ASID", "NCIDQ", "IIDA", "Licensed Interior Designer", "Design Principal", "Other"];
+const LICENSE_TYPES = ["Certified Interior Designer", "Licensed Interior Designer", "Design Principal", "Other"];
 
 function BusinessSignupWizard() {
   const navigate = useNavigate();

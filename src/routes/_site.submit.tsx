@@ -81,7 +81,7 @@ function SubmitPage() {
         <div className="space-y-1.5"><Label>Address</Label><Input name="address" maxLength={300} /></div>
         <div className="space-y-1.5"><Label>Website</Label><Input name="website" type="url" maxLength={300} placeholder="https://…" /></div>
         <div className="space-y-1.5"><Label>Your email *</Label><Input name="contactEmail" type="email" required maxLength={255} /></div>
-        <div className="space-y-1.5"><Label>Notes (services, styles, professional credentials such as ASID/NCIDQ membership)</Label><Textarea name="notes" maxLength={2000} rows={4} /></div>
+        <div className="space-y-1.5"><Label>Notes (services, styles, professional certifications and memberships)</Label><Textarea name="notes" maxLength={2000} rows={4} /></div>
         <Button type="submit" disabled={loading} className="w-full h-11">{loading ? "Submitting…" : "Submit studio"}</Button>
       </form>
     </div>

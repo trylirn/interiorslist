@@ -260,7 +260,7 @@ function HomePage() {
               <ShieldCheck className="h-10 w-10 text-brand" />
               <h2 className="mt-4 font-display text-4xl">Hire with confidence</h2>
               <p className="mt-4 text-muted-foreground">
-                Every listing is reviewed before it goes live. We show credentials such as NCIDQ certification, ASID or IIDA membership and state registration, and link straight to each studio's own portfolio so you can check the work yourself.
+                Every listing is reviewed before it goes live. We show the professional certifications, memberships and state registration a studio holds, and link straight to each studio's own portfolio so you can check the work yourself.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button asChild variant="outline" className="rounded-full"><Link to="/how-it-works">How it works</Link></Button>
@@ -269,7 +269,7 @@ function HomePage() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <TrustCard Icon={BadgeCheck} title="Vetted" body="Listings reviewed before publication." />
-              <TrustCard Icon={ShieldCheck} title="Credentials shown" body="NCIDQ, ASID, IIDA and registration on every profile." />
+              <TrustCard Icon={ShieldCheck} title="Credentials shown" body="Certifications, memberships and registration on every profile." />
               <TrustCard Icon={MapPin} title="Nationwide" body="Major metros across the country, plus virtual e-design." />
               <TrustCard Icon={Scale} title="Independent" body="No paid placements or referral fees." />
             </div>
@@ -346,7 +346,7 @@ const FAQ = [
   { q: "How are studios vetted?", a: "We review every listing for a real business address, an active portfolio or website, and any credentials the studio claims before it is published." },
   { q: "Do you accept paid placements?", a: "No. There are no paid placements and no commission on projects. Featured studios are chosen on verification status and review quality." },
   { q: "How much does an interior designer cost?", a: "Fees are usually charged as a flat project fee, an hourly rate, a cost-plus percentage on furnishings, or a mix. Every listing shows a typical project budget so you can shortlist studios that work at your scale." },
-  { q: "What credentials should I look for?", a: "NCIDQ certification is the main professional standard in the US, with ASID and IIDA as leading membership bodies. Some states also register or license interior designers for commercial work." },
+  { q: "What credentials should I look for?", a: "Look for recognised professional certifications and industry memberships, plus proof of insurance. Some states also register or license interior designers for commercial work." },
   { q: "How do I claim my studio's listing?", a: "Sign in and open your studio's profile — you'll see a 'Claim this listing' button. We verify ownership before granting access." },
   { q: "Can I leave a review?", a: "Yes. Sign in and leave a review on any studio's profile, including how the project went on budget, communication and results." },
   { q: "Do you cover my city?", a: "We cover major metros nationwide and are adding cities continuously. Many studios also offer virtual e-design anywhere in the country." },

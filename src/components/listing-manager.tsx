@@ -230,7 +230,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
           </div>
         </div>
         <div className="space-y-1.5"><Label>Service area note</Label><Input value={form.service_area_note} onChange={(e) => setForm({ ...form, service_area_note: e.target.value })} placeholder="Serving the metro area and surrounding suburbs" maxLength={500} /></div>
-        <div className="space-y-1.5"><Label>Credentials &amp; licenses</Label><Textarea rows={3} value={form.credentials} onChange={(e) => setForm({ ...form, credentials: e.target.value })} placeholder="ASID member, NCIDQ certified, licensed interior designer #…" maxLength={2000} /></div>
+        <div className="space-y-1.5"><Label>Credentials &amp; licenses</Label><Textarea rows={3} value={form.credentials} onChange={(e) => setForm({ ...form, credentials: e.target.value })} placeholder="Professional certifications, memberships, license #…" maxLength={2000} /></div>
         <div className="space-y-1.5"><Label>Types of clients served</Label><Textarea rows={3} value={form.client_types} onChange={(e) => setForm({ ...form, client_types: e.target.value })} placeholder="Homeowners, developers, boutique hotels…" maxLength={2000} /></div>
         <div className="space-y-1.5">
           <Label>Not a good fit if…</Label>

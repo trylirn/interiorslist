@@ -50,7 +50,7 @@ function TermsPage() {
       </Section>
 
       <Section title="4. No professional advice">
-        The content on the Site — including design guides, editorial articles, studio descriptions, FAQs, service listings, and any information linked from studio websites — is for general informational purposes only. It is <strong>not professional, architectural, or engineering advice</strong>. Always verify a studio's licensing, insurance, and professional credentials (such as ASID or NCIDQ membership), and review any proposed contract carefully — with your own legal counsel if needed — before engaging a studio for any project.
+        The content on the Site — including design guides, editorial articles, studio descriptions, FAQs, service listings, and any information linked from studio websites — is for general informational purposes only. It is <strong>not professional, architectural, or engineering advice</strong>. Always verify a studio's licensing, insurance, and professional credentials and certifications, and review any proposed contract carefully — with your own legal counsel if needed — before engaging a studio for any project.
       </Section>
 
       <Section title="5. Verify licensing, insurance, and contracts yourself">

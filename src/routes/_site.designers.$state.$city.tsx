@@ -164,7 +164,7 @@ function CityPage() {
           </details>
           <details className="rounded-xl border border-border bg-secondary/30 p-4">
             <summary className="cursor-pointer font-medium">Do I need a licensed interior designer?</summary>
-            <p className="mt-2 text-foreground/80">Residential decorating generally has no licensing requirement, but many states register or license designers for commercial work. Look for NCIDQ certification and ASID or IIDA membership.</p>
+            <p className="mt-2 text-foreground/80">Residential decorating generally has no licensing requirement, but many states register or license designers for commercial work. Look for recognised professional certifications, memberships and state registration.</p>
           </details>
           <details className="rounded-xl border border-border bg-secondary/30 p-4">
             <summary className="cursor-pointer font-medium">How do I shortlist studios in {c.name}?</summary>
