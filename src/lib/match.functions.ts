@@ -150,7 +150,7 @@ export const getMatches = createServerFn({ method: "POST" })
         if (prefs.has("boutique") && !p.brand_id) score += 6;
         if (prefs.has("remote-ok") && p.remote_services) score += 10;
         if (prefs.has("manages-build") && services.includes("renovation-management")) score += 10;
-        if (prefs.has("certified") && `${p.specialists ?? ""} ${p.notes ?? ""}`.match(/NCIDQ|ASID|IIDA/i)) score += 8;
+        if (prefs.has("certified") && `${p.specialists ?? ""} ${p.notes ?? ""}`.match(/certifi|licen|accredit|member/i)) score += 8;
 
         const matchedServices = services.filter((s) => wantedServices.has(s));
         const matchedStyles = styles.filter((s) => wantedStyles.has(s));

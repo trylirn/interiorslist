@@ -38,7 +38,7 @@ function PrivacyPage() {
         <p className="font-medium">Information you provide:</p>
         <ul className="mt-1 list-disc pl-5 space-y-1">
           <li><strong>Account information</strong>: email address, display name, and authentication credentials when you create an account.</li>
-          <li><strong>Business submissions and claims</strong>: business name, address, website, contact email, contact phone, professional credentials (such as ASID or NCIDQ membership), uploaded credential documents, and any notes you provide.</li>
+          <li><strong>Business submissions and claims</strong>: business name, address, website, contact email, contact phone, professional credentials and certifications, uploaded credential documents, and any notes you provide.</li>
           <li><strong>Enquiry and consultation forms</strong>: your name, email, phone, project details, budget range, and messages you send through a studio contact form.</li>
           <li><strong>Reviews and messages</strong>: your display name, email, star rating, and review text.</li>
           <li><strong>Preferences</strong>: saved comparisons and quiz answers such as service category and city.</li>

@@ -37,7 +37,7 @@ function HowItWorks() {
           Message the studio from their profile. The studio gets the inquiry in their dashboard and responds to you directly. We don't take a cut.
         </Block>
         <Block n="4" Icon={ShieldCheck} title="Verify before you hire">
-          We link to studio websites and surface professional credentials such as ASID or NCIDQ membership, but always confirm licensing, insurance, and a written contract before starting any project.
+          We link to studio websites and surface the professional certifications and memberships studios list, but always confirm licensing, insurance, and a written contract before starting any project.
         </Block>
       </div>
 
