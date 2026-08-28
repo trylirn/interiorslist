@@ -78,6 +78,10 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
     website: (listing.website as string) ?? "",
     
     branch_label: (listing.branch_label as string) ?? "",
+    address: (listing.address as string) ?? "",
+    city: (listing.city as string) ?? "",
+    state: ((listing.state as string) ?? "").toUpperCase(),
+    postal_code: (listing.postal_code as string) ?? "",
     email_forward_to: (listing.email_forward_to as string) ?? "",
     services: ((listing.services as string[]) ?? []),
     styles: ((listing.styles as string[]) ?? []),
