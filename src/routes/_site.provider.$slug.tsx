@@ -558,9 +558,8 @@ function BusinessHours({ hours }: { hours: unknown }) {
       <dl className="mt-2 grid gap-x-8 gap-y-1 text-[13px] sm:grid-cols-2">
         {rows.map((d) => {
           const v = src[d.key]!;
-          const isToday = d.key === todayKey;
           return (
-            <div key={d.key} className={`flex items-center justify-between gap-4 ${isToday ? "font-medium text-foreground" : "text-foreground/70"}`}>
+            <div key={d.key} className="flex items-center justify-between gap-4 text-foreground/70">
               <dt>{d.label}</dt>
               <dd className={v.closed ? "text-muted-foreground" : ""}>
                 {v.closed ? "Closed" : `${prettyTime(v.open ?? "")} – ${prettyTime(v.close ?? "")}`}
