@@ -66,6 +66,31 @@ export function ListingManager({ placeId, admin = false }: { placeId: string; ad
 
 type Listing = Record<string, unknown>;
 
+type DayHours = { closed: boolean; open: string; close: string };
+const DAYS: { key: string; label: string }[] = [
+  { key: "mon", label: "Monday" },
+  { key: "tue", label: "Tuesday" },
+  { key: "wed", label: "Wednesday" },
+  { key: "thu", label: "Thursday" },
+  { key: "fri", label: "Friday" },
+  { key: "sat", label: "Saturday" },
+  { key: "sun", label: "Sunday" },
+];
+
+function initialHours(raw: unknown): Record<string, DayHours> {
+  const src = (raw && typeof raw === "object" ? raw : {}) as Record<string, any>;
+  const out: Record<string, DayHours> = {};
+  for (const d of DAYS) {
+    const v = src[d.key];
+    out[d.key] = {
+      closed: v ? Boolean(v.closed) : d.key === "sat" || d.key === "sun",
+      open: typeof v?.open === "string" ? v.open : "09:00",
+      close: typeof v?.close === "string" ? v.close : "17:00",
+    };
+  }
+  return out;
+}
+
 function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Listing; backTo: string }) {
   const navigate = useNavigate();
   const update = useServerFn(updateMyListing);
@@ -78,6 +103,10 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
     website: (listing.website as string) ?? "",
     
     branch_label: (listing.branch_label as string) ?? "",
+    address: (listing.address as string) ?? "",
+    city: (listing.city as string) ?? "",
+    state: ((listing.state as string) ?? "").toUpperCase(),
+    postal_code: (listing.postal_code as string) ?? "",
     email_forward_to: (listing.email_forward_to as string) ?? "",
     services: ((listing.services as string[]) ?? []),
     styles: ((listing.styles as string[]) ?? []),
@@ -110,6 +139,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
       ? (listing.price_ranges as any[]).map((p) => ({ name: String(p?.name ?? ""), price: String(p?.price ?? ""), note: String(p?.note ?? "") }))
       : [],
   );
+  const [hours, setHours] = useState<Record<string, DayHours>>(() => initialHours(listing.hours));
   const [saving, setSaving] = useState(false);
   // Anything that isn't one of the preset bands is treated as a custom cost line.
   const isCustomCost =
@@ -153,6 +183,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
             .filter((m) => m.name.trim() && m.role.trim())
             .map((m) => ({ name: m.name.trim(), role: m.role.trim(), bio: m.bio.trim() })),
           price_ranges: packages.filter((p) => p.name.trim()).map((p) => ({ name: p.name.trim(), price: p.price.trim(), note: p.note.trim() })),
+          hours,
         },
       });
       toast.success("Listing updated");
@@ -176,6 +207,76 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
         <p className="text-[11px] text-muted-foreground">Shown publicly on your profile under "About".</p>
       </div>
       <div className="space-y-1.5"><Label>Website</Label><Input value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} /></div>
+
+      <div className="space-y-3 rounded-2xl border border-border p-4">
+        <div>
+          <p className="font-display text-lg">Address</p>
+          <p className="text-[11px] text-muted-foreground">Used on your public profile and to place you in the right city directory.</p>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Street address</Label>
+          <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} maxLength={300} placeholder="120 Design Ave, Suite 3" />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="space-y-1.5">
+            <Label>City</Label>
+            <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} maxLength={120} placeholder="Austin" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>State</Label>
+            <Input value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value.toUpperCase().slice(0, 2) })} maxLength={2} placeholder="TX" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>ZIP code</Label>
+            <Input value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} maxLength={20} placeholder="78701" />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3 rounded-2xl border border-border p-4">
+        <div>
+          <p className="font-display text-lg">Business hours</p>
+          <p className="text-[11px] text-muted-foreground">Shown publicly on your profile so clients know when to reach you.</p>
+        </div>
+        <div className="space-y-2">
+          {DAYS.map((d) => {
+            const h = hours[d.key]!;
+            return (
+              <div key={d.key} className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-secondary/20 px-3 py-2">
+                <span className="w-24 text-sm font-medium">{d.label}</span>
+                <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={h.closed}
+                    onChange={(e) => setHours((prev) => ({ ...prev, [d.key]: { ...h, closed: e.target.checked } }))}
+                  />
+                  Closed
+                </label>
+                {!h.closed && (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="time"
+                      aria-label={`${d.label} opening time`}
+                      className="h-9 w-32"
+                      value={h.open}
+                      onChange={(e) => setHours((prev) => ({ ...prev, [d.key]: { ...h, open: e.target.value } }))}
+                    />
+                    <span className="text-xs text-muted-foreground">to</span>
+                    <Input
+                      type="time"
+                      aria-label={`${d.label} closing time`}
+                      className="h-9 w-32"
+                      value={h.close}
+                      onChange={(e) => setHours((prev) => ({ ...prev, [d.key]: { ...h, close: e.target.value } }))}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       
       <div className="space-y-1.5">
         <Label>Forward new leads to this email</Label>

@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callerIsSuperAdmin } from "@/lib/caller-role";
-import { BUDGET_BANDS } from "@/lib/cities";
+import { BUDGET_BANDS, slugify } from "@/lib/cities";
 
 
 
@@ -44,6 +44,16 @@ export const updateMyListing = createServerFn({ method: "POST" })
       about_description: z.string().max(4000).optional(),
       website: z.string().max(500).optional(),
       logo_url: z.string().max(1000).optional(),
+      address: z.string().max(300).optional(),
+      city: z.string().max(120).optional(),
+      state: z.string().max(2).optional(),
+      postal_code: z.string().max(20).optional(),
+      hours: z
+        .record(
+          z.string().max(12),
+          z.object({ closed: z.boolean(), open: z.string().max(10), close: z.string().max(10) }),
+        )
+        .optional(),
 
       branch_label: z.string().max(120).optional(),
       services: z.array(z.string().min(1).max(80)).max(40).optional(),
@@ -84,8 +94,14 @@ export const updateMyListing = createServerFn({ method: "POST" })
       rest.typical_project_budget !== undefined
         ? (BUDGET_BANDS.find((b) => b.slug === rest.typical_project_budget)?.tier ?? null)
         : undefined;
+    // Keep the directory grouping in sync when the studio edits its city/state.
+    const normalizedState = rest.state ? rest.state.toUpperCase() : undefined;
+    const citySlug =
+      rest.city && normalizedState ? `${slugify(rest.city)}-${normalizedState.toLowerCase()}` : undefined;
     const patch = {
       ...rest,
+      ...(normalizedState ? { state: normalizedState } : {}),
+      ...(citySlug ? { city_slug: citySlug } : {}),
       ...(derivedTier !== undefined ? { price_tier: derivedTier === "flexible" ? null : derivedTier } : {}),
       ...(email_forward_to !== undefined ? { email_forward_to: email_forward_to === "" ? null : email_forward_to } : {}),
     };

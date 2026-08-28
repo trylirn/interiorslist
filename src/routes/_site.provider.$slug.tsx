@@ -271,6 +271,8 @@ function ProviderPage() {
               </div>
             )}
 
+            <BusinessHours hours={p.hours} />
+
             {p.about_description && p.about_description.split("\n").length > 1 && (
               <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-foreground/85">{p.about_description.split("\n").slice(1).join("\n").trim()}</p>
             )}
@@ -520,6 +522,53 @@ function UnclaimedSidebar({ slug, mapsHref }: { slug: string; mapsHref: string |
         <p className="mt-2 text-sm text-foreground/85">Is this your business?</p>
         <Button asChild className="mt-3 w-full rounded-full"><Link to="/claim/$slug" params={{ slug }}>Claim this listing</Link></Button>
       </div>
+    </div>
+  );
+}
+
+const HOUR_DAYS: { key: string; label: string }[] = [
+  { key: "mon", label: "Monday" },
+  { key: "tue", label: "Tuesday" },
+  { key: "wed", label: "Wednesday" },
+  { key: "thu", label: "Thursday" },
+  { key: "fri", label: "Friday" },
+  { key: "sat", label: "Saturday" },
+  { key: "sun", label: "Sunday" },
+];
+
+function prettyTime(t: string) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(t);
+  if (!m) return t;
+  const h = Number(m[1]);
+  const suffix = h >= 12 ? "pm" : "am";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}${m[2] === "00" ? "" : `:${m[2]}`}${suffix}`;
+}
+
+function BusinessHours({ hours }: { hours: unknown }) {
+  if (!hours || typeof hours !== "object") return null;
+  const src = hours as Record<string, { closed?: boolean; open?: string; close?: string }>;
+  const rows = HOUR_DAYS.filter((d) => src[d.key] && typeof src[d.key] === "object");
+  if (rows.length === 0) return null;
+  const todayKey = HOUR_DAYS[(new Date().getDay() + 6) % 7]!.key;
+
+  return (
+    <div className="mt-5 border-t border-border pt-5">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Business hours</p>
+      <dl className="mt-2 grid gap-x-8 gap-y-1 text-[13px] sm:grid-cols-2">
+        {rows.map((d) => {
+          const v = src[d.key]!;
+          const isToday = d.key === todayKey;
+          return (
+            <div key={d.key} className={`flex items-center justify-between gap-4 ${isToday ? "font-medium text-foreground" : "text-foreground/70"}`}>
+              <dt>{d.label}</dt>
+              <dd className={v.closed ? "text-muted-foreground" : ""}>
+                {v.closed ? "Closed" : `${prettyTime(v.open ?? "")} – ${prettyTime(v.close ?? "")}`}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
     </div>
   );
 }
