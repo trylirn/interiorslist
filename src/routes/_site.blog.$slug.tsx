@@ -122,11 +122,11 @@ function BlogPost() {
       {data.related?.length > 0 && (
         <section className="mt-16 border-t border-border pt-10">
           <h2 className="font-display text-2xl">Related posts</h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-3">
+          <div className="mt-6 grid gap-5 grid-cols-2 sm:grid-cols-3">
             {data.related.map((r: any) => (
               <Link key={r.slug} to="/blog/$slug" params={{ slug: r.slug }} className="group rounded-2xl border border-border bg-card p-4 transition hover:border-brand">
                 {r.cover_url && <img src={r.cover_url} alt={`Cover image for ${r.title}`} loading="lazy" className="mb-3 h-28 w-full rounded-xl object-cover" />}
-                <h3 className="font-display text-lg leading-snug group-hover:text-brand">{r.title}</h3>
+                <h3 className="font-display text-base leading-snug group-hover:text-brand">{r.title}</h3>
                 <p className="mt-1 text-xs text-muted-foreground">{fmt(r.published_at)}</p>
               </Link>
             ))}
@@ -134,7 +134,9 @@ function BlogPost() {
         </section>
       )}
 
-      <div className="mt-14 rounded-3xl border border-border bg-secondary/40 p-8 text-center">
+      <BlogLocationCta />
+
+      <div className="mt-8 rounded-3xl border border-border bg-secondary/40 p-8 text-center">
         <h2 className="font-display text-2xl">Ready to find your designer?</h2>
         <p className="mt-2 text-sm text-muted-foreground">Answer a few questions and we'll match you with studios that fit your project.</p>
         <Link to="/match" className="mt-5 inline-block rounded-full bg-brand px-6 py-3 text-sm font-medium text-brand-foreground hover:opacity-90">
