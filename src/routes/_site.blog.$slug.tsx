@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getBlogPost } from "@/lib/blog.functions";
 import { Markdown, readingTime } from "@/components/markdown";
 import { RichText, isHtmlBody } from "@/components/rich-text";
+import { BlogLocationCta } from "@/components/blog-location-cta";
 
 const postQuery = (slug: string) =>
   queryOptions({

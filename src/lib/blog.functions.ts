@@ -49,7 +49,7 @@ export const listBlogPosts = createServerFn({ method: "GET" })
     return { posts, categories };
   });
 
-/** A single published post plus up to 3 related posts. */
+/** A single published post plus up to 6 related posts. */
 export const getBlogPost = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
   .handler(async ({ data }) => {
@@ -80,7 +80,7 @@ export const getBlogPost = createServerFn({ method: "GET" })
           ((r.tags ?? []) as string[]).filter((t) => tags.has(t)).length,
       }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
+      .slice(0, 6)
       .map((s) => s.row);
 
     return { post, related: scored };
