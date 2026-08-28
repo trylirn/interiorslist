@@ -66,6 +66,31 @@ export function ListingManager({ placeId, admin = false }: { placeId: string; ad
 
 type Listing = Record<string, unknown>;
 
+type DayHours = { closed: boolean; open: string; close: string };
+const DAYS: { key: string; label: string }[] = [
+  { key: "mon", label: "Monday" },
+  { key: "tue", label: "Tuesday" },
+  { key: "wed", label: "Wednesday" },
+  { key: "thu", label: "Thursday" },
+  { key: "fri", label: "Friday" },
+  { key: "sat", label: "Saturday" },
+  { key: "sun", label: "Sunday" },
+];
+
+function initialHours(raw: unknown): Record<string, DayHours> {
+  const src = (raw && typeof raw === "object" ? raw : {}) as Record<string, any>;
+  const out: Record<string, DayHours> = {};
+  for (const d of DAYS) {
+    const v = src[d.key];
+    out[d.key] = {
+      closed: v ? Boolean(v.closed) : d.key === "sat" || d.key === "sun",
+      open: typeof v?.open === "string" ? v.open : "09:00",
+      close: typeof v?.close === "string" ? v.close : "17:00",
+    };
+  }
+  return out;
+}
+
 function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Listing; backTo: string }) {
   const navigate = useNavigate();
   const update = useServerFn(updateMyListing);
