@@ -139,6 +139,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
       ? (listing.price_ranges as any[]).map((p) => ({ name: String(p?.name ?? ""), price: String(p?.price ?? ""), note: String(p?.note ?? "") }))
       : [],
   );
+  const [hours, setHours] = useState<Record<string, DayHours>>(() => initialHours(listing.hours));
   const [saving, setSaving] = useState(false);
   // Anything that isn't one of the preset bands is treated as a custom cost line.
   const isCustomCost =
@@ -182,6 +183,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
             .filter((m) => m.name.trim() && m.role.trim())
             .map((m) => ({ name: m.name.trim(), role: m.role.trim(), bio: m.bio.trim() })),
           price_ranges: packages.filter((p) => p.name.trim()).map((p) => ({ name: p.name.trim(), price: p.price.trim(), note: p.note.trim() })),
+          hours,
         },
       });
       toast.success("Listing updated");
