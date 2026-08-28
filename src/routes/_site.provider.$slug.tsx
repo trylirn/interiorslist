@@ -271,6 +271,8 @@ function ProviderPage() {
               </div>
             )}
 
+            <BusinessHours hours={p.hours} />
+
             {p.about_description && p.about_description.split("\n").length > 1 && (
               <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-foreground/85">{p.about_description.split("\n").slice(1).join("\n").trim()}</p>
             )}
