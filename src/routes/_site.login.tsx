@@ -49,6 +49,23 @@ function SignInPanel() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<"link" | "password">("link");
+  const [sent, setSent] = useState(false);
+
+  async function sendLink(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/welcome` },
+      });
+      if (error) throw error;
+      setSent(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send sign-in link");
+    } finally { setLoading(false); }
+  }
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
@@ -62,23 +79,43 @@ function SignInPanel() {
     } finally { setLoading(false); }
   }
 
-  async function handleGoogle() {
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (res.error) toast.error("Google sign-in failed");
+  if (sent) {
+    return (
+      <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-6 text-center">
+        <h2 className="font-display text-2xl">Check your email</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          We sent a one-click sign-in link to <span className="font-medium text-foreground">{email}</span>. It expires shortly — open it on this device.
+        </p>
+        <Button variant="outline" className="mt-4 h-11 w-full" onClick={() => setSent(false)}>Use a different email</Button>
+      </div>
+    );
   }
 
   return (
     <div className="mx-auto max-w-md space-y-4">
-      <Button onClick={handleGoogle} variant="outline" className="h-11 w-full">Continue with Google</Button>
-      <div className="flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />or email<div className="h-px flex-1 bg-border" /></div>
-      <form onSubmit={signIn} className="space-y-3">
-        <div className="space-y-1.5"><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-        <div className="space-y-1.5"><Label>Password</Label><Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-        <Button type="submit" disabled={loading} className="w-full h-11">{loading ? "…" : "Sign in"}</Button>
-      </form>
+      {mode === "link" ? (
+        <form onSubmit={sendLink} className="space-y-3">
+          <div className="space-y-1.5"><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+          <Button type="submit" disabled={loading} className="h-11 w-full">{loading ? "Sending…" : "Email me a sign-in link"}</Button>
+          <p className="text-center text-xs text-muted-foreground">No password needed — we'll email you a one-click link.</p>
+          <button type="button" onClick={() => setMode("password")} className="w-full text-center text-xs text-muted-foreground hover:underline">
+            Sign in with password instead
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={signIn} className="space-y-3">
+          <div className="space-y-1.5"><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Password</Label><Input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+          <Button type="submit" disabled={loading} className="h-11 w-full">{loading ? "…" : "Sign in"}</Button>
+          <button type="button" onClick={() => setMode("link")} className="w-full text-center text-xs text-muted-foreground hover:underline">
+            Email me a sign-in link instead
+          </button>
+        </form>
+      )}
     </div>
   );
 }
+
 
 
 
