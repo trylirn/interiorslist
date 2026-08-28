@@ -550,7 +550,7 @@ function BusinessHours({ hours }: { hours: unknown }) {
   const src = hours as Record<string, { closed?: boolean; open?: string; close?: string }>;
   const rows = HOUR_DAYS.filter((d) => src[d.key] && typeof src[d.key] === "object");
   if (rows.length === 0) return null;
-  const todayKey = HOUR_DAYS[(new Date().getDay() + 6) % 7]!.key;
+
 
   return (
     <div className="mt-5 border-t border-border pt-5">
