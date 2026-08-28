@@ -44,6 +44,16 @@ export const updateMyListing = createServerFn({ method: "POST" })
       about_description: z.string().max(4000).optional(),
       website: z.string().max(500).optional(),
       logo_url: z.string().max(1000).optional(),
+      address: z.string().max(300).optional(),
+      city: z.string().max(120).optional(),
+      state: z.string().max(2).optional(),
+      postal_code: z.string().max(20).optional(),
+      hours: z
+        .record(
+          z.string().max(12),
+          z.object({ closed: z.boolean(), open: z.string().max(10), close: z.string().max(10) }),
+        )
+        .optional(),
 
       branch_label: z.string().max(120).optional(),
       services: z.array(z.string().min(1).max(80)).max(40).optional(),
