@@ -147,6 +147,7 @@ export function SiteFooter() {
 
           <FooterCol title="Trust">
             <li><Link to="/how-it-works" className="hover:text-brand">How it works</Link></li>
+            <li><Link to="/faq" className="hover:text-brand">FAQ</Link></li>
             <li><Link to="/privacy" className="hover:text-brand">Privacy</Link></li>
             <li><Link to="/terms" className="hover:text-brand">Terms</Link></li>
           </FooterCol>
