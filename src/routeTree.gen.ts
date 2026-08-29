@@ -16,6 +16,7 @@ import { Route as SiteAdminRouteImport } from './routes/_site.admin'
 import { Route as SiteCompareRouteImport } from './routes/_site.compare'
 import { Route as SiteContactRouteImport } from './routes/_site.contact'
 import { Route as SiteDashboardRouteImport } from './routes/_site.dashboard'
+import { Route as SiteFaqRouteImport } from './routes/_site.faq'
 import { Route as SiteForBusinessRouteImport } from './routes/_site.for-business'
 import { Route as SiteGuideRouteImport } from './routes/_site.guide'
 import { Route as SiteHowItWorksRouteImport } from './routes/_site.how-it-works'
@@ -76,6 +77,11 @@ const SiteContactRoute = SiteContactRouteImport.update({
 const SiteDashboardRoute = SiteDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteFaqRoute = SiteFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteForBusinessRoute = SiteForBusinessRouteImport.update({
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRouteWithChildren
+  '/faq': typeof SiteFaqRoute
   '/for-business': typeof SiteForBusinessRoute
   '/guide': typeof SiteGuideRoute
   '/how-it-works': typeof SiteHowItWorksRoute
@@ -257,6 +264,7 @@ export interface FileRoutesByTo {
   '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRouteWithChildren
+  '/faq': typeof SiteFaqRoute
   '/for-business': typeof SiteForBusinessRoute
   '/guide': typeof SiteGuideRoute
   '/how-it-works': typeof SiteHowItWorksRoute
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/_site/compare': typeof SiteCompareRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/dashboard': typeof SiteDashboardRouteWithChildren
+  '/_site/faq': typeof SiteFaqRoute
   '/_site/for-business': typeof SiteForBusinessRoute
   '/_site/guide': typeof SiteGuideRoute
   '/_site/how-it-works': typeof SiteHowItWorksRoute
@@ -332,6 +341,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/contact'
     | '/dashboard'
+    | '/faq'
     | '/for-business'
     | '/guide'
     | '/how-it-works'
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/contact'
     | '/dashboard'
+    | '/faq'
     | '/for-business'
     | '/guide'
     | '/how-it-works'
@@ -402,6 +413,7 @@ export interface FileRouteTypes {
     | '/_site/compare'
     | '/_site/contact'
     | '/_site/dashboard'
+    | '/_site/faq'
     | '/_site/for-business'
     | '/_site/guide'
     | '/_site/how-it-works'
@@ -487,6 +499,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof SiteDashboardRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/faq': {
+      id: '/_site/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof SiteFaqRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/for-business': {
@@ -712,6 +731,7 @@ interface SiteRouteChildren {
   SiteCompareRoute: typeof SiteCompareRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteDashboardRoute: typeof SiteDashboardRouteWithChildren
+  SiteFaqRoute: typeof SiteFaqRoute
   SiteForBusinessRoute: typeof SiteForBusinessRoute
   SiteGuideRoute: typeof SiteGuideRoute
   SiteHowItWorksRoute: typeof SiteHowItWorksRoute
@@ -743,6 +763,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteCompareRoute: SiteCompareRoute,
   SiteContactRoute: SiteContactRoute,
   SiteDashboardRoute: SiteDashboardRouteWithChildren,
+  SiteFaqRoute: SiteFaqRoute,
   SiteForBusinessRoute: SiteForBusinessRoute,
   SiteGuideRoute: SiteGuideRoute,
   SiteHowItWorksRoute: SiteHowItWorksRoute,

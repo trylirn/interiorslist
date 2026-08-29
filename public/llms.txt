@@ -11,7 +11,7 @@ Intearior helps homeowners find verified, currently-operating interior design st
 - [Match](/match): Take a quick quiz to get matched with studios suited to your project.
 - [Submit a business](/submit): Suggest an interior design studio for the directory.
 - [For Business](/for-business): Claim or submit your studio listing.
-- [About](/about): What Intearior is and how listings are vetted.
+- [FAQ](/faq): Answers for homeowners and design studios about how the directory works.
 - [Contact](/contact): Reach the team for corrections, partnerships, or support.
 - [Privacy](/privacy): How we handle your data and third-party sources.
 - [Terms](/terms): Terms of use and directory disclaimers.
