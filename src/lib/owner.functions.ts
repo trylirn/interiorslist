@@ -2,7 +2,7 @@ import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { callerIsSuperAdmin } from "@/lib/caller-role";
+import { callerIsAdmin, callerIsSuperAdmin } from "@/lib/caller-role";
 import { BUDGET_BANDS, slugify } from "@/lib/cities";
 
 
@@ -120,7 +120,7 @@ export const listMyLeads = createServerFn({ method: "GET" })
   .handler(async ({ data: input, context }) => {
     const { supabase, userId } = context;
     // Scope to the studios this account actually owns (admins keep site-wide visibility).
-    const admin = await callerIsSuperAdmin(supabase as never, userId);
+    const admin = await callerIsAdmin(supabase as never, userId);
     const { data: mine } = await supabase.from("providers").select("place_id, name").eq("claimed_by", userId);
     const nameMap = new Map((mine ?? []).map((m) => [m.place_id, m.name]));
     const owned = (mine ?? []).map((m) => m.place_id);
