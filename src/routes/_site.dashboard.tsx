@@ -1,25 +1,37 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { listMyListings, listMyLeads, listMyReviews, updateLeadStatus, getMyOnboardingStatus, listMyClaims } from "@/lib/owner.functions";
+import { listMyListings, listMyReviews, getMyOnboardingStatus, listMyClaims } from "@/lib/owner.functions";
 import { respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { getMyRoles } from "@/lib/role.functions";
 import { deleteMyAccount } from "@/lib/user-actions.functions";
-import { Star, Mail, Phone, ExternalLink, Building2, Shield, Clock } from "lucide-react";
+import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
+import { LeadsInbox } from "@/components/leads-inbox";
+import { Star, ExternalLink, Building2, Shield, Clock, Inbox, MessageSquare, FileCheck2, Settings } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard | Intearior" }, { name: "robots", content: "noindex, nofollow" }] }),
+  validateSearch: (s: Record<string, unknown>) => z.object({ tab: z.string().optional() }).parse(s),
   component: Dashboard,
 });
 
+const NAV: DashboardNavItem[] = [
+  { key: "listings", label: "My Listings", icon: Building2 },
+  { key: "leads", label: "Leads", icon: Inbox },
+  { key: "reviews", label: "Reviews", icon: MessageSquare },
+  { key: "claims", label: "Claims", icon: FileCheck2 },
+  { key: "settings", label: "Settings", icon: Settings },
+];
+
 function Dashboard() {
+  const { tab } = Route.useSearch();
+  const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -32,6 +44,9 @@ function Dashboard() {
   const ownsListings = (listingsData?.listings.length ?? 0) > 0;
   const { data: onboarding } = useQuery({ queryKey: ["my-onboarding"], queryFn: () => getMyOnboardingStatus(), enabled: !!email });
 
+  const active = NAV.some((n) => n.key === tab) ? (tab as string) : "listings";
+  const setActive = (key: string) => navigate({ to: "/dashboard", search: { tab: key } });
+
   if (!ready) return <div className="mx-auto max-w-2xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
   if (!email) return (
     <div className="mx-auto max-w-md py-24 text-center px-4">
@@ -40,74 +55,82 @@ function Dashboard() {
     </div>
   );
 
+  if (!listingsLoading && !ownsListings) {
+    return (
+      <DashboardShell
+        title="Dashboard"
+        subtitle={<span className="truncate">Signed in as {email}</span>}
+        items={[{ key: "claims", label: "Claims", icon: FileCheck2 }, { key: "settings", label: "Settings", icon: Settings }]}
+        active={active === "settings" ? "settings" : "claims"}
+        onSelect={setActive}
+      >
+        {onboarding && !roles?.isAdmin && <OnboardingBanner status={onboarding} />}
+        {active === "settings" && !roles?.isSuperAdmin ? (
+          <CloseAccount />
+        ) : (
+          <>
+            <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
+              <Building2 className="mx-auto h-8 w-8 text-muted-foreground" />
+              <h2 className="mt-3 font-display text-2xl">
+                {roles?.isAdmin ? "You're signed in as an admin" : "You don't manage any listings yet"}
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {roles?.isAdmin
+                  ? "The brand dashboard is for studio owners. Head to the admin console to manage the site."
+                  : "Are you a studio owner? Find your business and claim it, or submit a new listing."}
+              </p>
+              <div className="mt-6 flex flex-wrap justify-center gap-2">
+                {roles?.isAdmin ? (
+                  <Button asChild><Link to="/admin"><Shield className="mr-2 h-4 w-4" />Open admin</Link></Button>
+                ) : (
+                  <>
+                    <Button asChild><Link to="/search">Find your listing</Link></Button>
+                    <Button asChild variant="outline"><Link to="/submit">Submit a business</Link></Button>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="mt-8">
+              <h2 className="font-display text-2xl">Your claims</h2>
+              <div className="mt-4"><ClaimsTab /></div>
+            </div>
+          </>
+        )}
+      </DashboardShell>
+    );
+  }
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-4xl">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Signed in as <span className="font-medium text-foreground">{email}</span></p>
-        </div>
-        <div className="flex gap-2">
-          {roles?.isAdmin && <Button asChild size="sm"><Link to="/admin"><Shield className="mr-2 h-4 w-4" />Admin</Link></Button>}
-          
-          <Button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/"; }} variant="outline" size="sm">Sign out</Button>
-        </div>
-      </div>
-
-      {onboarding && !roles?.isAdmin && (
-        <OnboardingBanner status={onboarding} />
-      )}
-
+    <DashboardShell
+      title="Dashboard"
+      subtitle={<span className="truncate">Signed in as {email}</span>}
+      items={NAV}
+      active={active}
+      onSelect={setActive}
+      extraNav={roles?.isAdmin ? (
+        <Link to="/admin" className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-secondary/60 hover:text-foreground">
+          <Shield className="h-4 w-4" />Admin console
+        </Link>
+      ) : undefined}
+    >
+      {onboarding && !roles?.isAdmin && <OnboardingBanner status={onboarding} />}
       {listingsLoading ? (
-        <p className="mt-10 text-muted-foreground">Loading…</p>
-      ) : ownsListings ? (
-        <Tabs defaultValue="listings" className="mt-8">
-          <TabsList>
-            <TabsTrigger value="listings">My Listings</TabsTrigger>
-            <TabsTrigger value="leads">Leads</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-            <TabsTrigger value="claims">Claims</TabsTrigger>
-          </TabsList>
-          <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
-          <TabsContent value="leads" className="mt-6"><LeadsTab /></TabsContent>
-          <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
-          <TabsContent value="claims" className="mt-6"><ClaimsTab /></TabsContent>
-        </Tabs>
+        <p className="text-muted-foreground">Loading…</p>
       ) : (
-        <div className="mt-10 rounded-3xl border border-dashed border-border bg-card p-10 text-center">
-          <Building2 className="mx-auto h-8 w-8 text-muted-foreground" />
-          <h2 className="mt-3 font-display text-2xl">
-            {roles?.isAdmin ? "You're signed in as an admin" : "You don't manage any listings yet"}
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {roles?.isAdmin
-              ? "The brand dashboard is for studio owners. Head to the admin console to manage the site."
-              : "Are you a studio owner? Find your business and claim it, or submit a new listing."}
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
-            {roles?.isAdmin ? (
-              <Button asChild><Link to="/admin"><Shield className="mr-2 h-4 w-4" />Open admin</Link></Button>
-            ) : (
-              <>
-                <Button asChild><Link to="/search">Find your listing</Link></Button>
-                <Button asChild variant="outline"><Link to="/submit">Submit a business</Link></Button>
-              </>
-            )}
-          </div>
-        </div>
+        <>
+          {active === "listings" && <ListingsTab />}
+          {active === "leads" && <LeadsInbox />}
+          {active === "reviews" && <ReviewsTab />}
+          {active === "claims" && <ClaimsTab />}
+          {active === "settings" && (roles?.isSuperAdmin
+            ? <p className="text-sm text-muted-foreground">Super admin accounts can't be closed from the dashboard.</p>
+            : <CloseAccount />)}
+        </>
       )}
-
-      {!ownsListings && !listingsLoading && (
-        <div className="mt-8">
-          <h2 className="font-display text-2xl">Your claims</h2>
-          <div className="mt-4"><ClaimsTab /></div>
-        </div>
-      )}
-
-      {!roles?.isSuperAdmin && <CloseAccount />}
-    </div>
+    </DashboardShell>
   );
 }
+
 
 function CloseAccount() {
   const [open, setOpen] = useState(false);
