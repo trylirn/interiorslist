@@ -118,17 +118,29 @@ export const listMyLeads = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200).optional() }).optional().parse(d))
   .handler(async ({ data: input, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    // Scope to the studios this account actually owns (admins keep site-wide visibility).
+    const admin = await callerIsSuperAdmin(supabase as never, userId);
+    const { data: mine } = await supabase.from("providers").select("place_id, name").eq("claimed_by", userId);
+    const nameMap = new Map((mine ?? []).map((m) => [m.place_id, m.name]));
+    const owned = (mine ?? []).map((m) => m.place_id);
+    if (!admin && !owned.length) return { leads: [], listings: [] };
+
     let q = supabase
       .from("contact_messages")
       .select("id, provider_place_id, first_name, last_name, email, phone, message, status, created_at, location, project_type, budget, style, timeline, rooms");
     if (input?.placeId) q = q.eq("provider_place_id", input.placeId);
-    const { data, error } = await q
-      .order("created_at", { ascending: false })
-      .limit(200);
+    else if (!admin) q = q.in("provider_place_id", owned);
+    const { data, error } = await q.order("created_at", { ascending: false }).limit(500);
     if (error) fail(error);
-    return { leads: data ?? [] };
+
+    const leads = (data ?? []).map((l) => ({ ...l, providerName: nameMap.get(l.provider_place_id) ?? "" }));
+    const listings = Array.from(
+      new Map(leads.map((l) => [l.provider_place_id, { place_id: l.provider_place_id, name: l.providerName || l.provider_place_id }])).values(),
+    );
+    return { leads, listings };
   });
+
 
 export const updateLeadStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
