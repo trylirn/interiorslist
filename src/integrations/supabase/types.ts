@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_closure_feedback: {
+        Row: {
+          created_at: string
+          details: string | null
+          email: string | null
+          id: string
+          missing_features: string | null
+          reason: string
+          user_id: string | null
+          would_return: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          email?: string | null
+          id?: string
+          missing_features?: string | null
+          reason: string
+          user_id?: string | null
+          would_return?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          email?: string | null
+          id?: string
+          missing_features?: string | null
+          reason?: string
+          user_id?: string | null
+          would_return?: string | null
+        }
+        Relationships: []
+      }
       admin_invites: {
         Row: {
           accepted_at: string | null
