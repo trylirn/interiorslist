@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyListing, updateMyListing, listMyLeads, listMyReviews, updateLeadStatus } from "@/lib/owner.functions";
+import { getMyListing, updateMyListing, listMyReviews } from "@/lib/owner.functions";
 import { listProviderFaqs, upsertProviderFaq, deleteProviderFaq, getListingMetrics, respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { SERVICES, STYLES, PROJECT_TYPES, BUDGET_BANDS } from "@/lib/cities";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import { Eye, Plus, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Mail, Phone, Building2 } from "lucide-react";
+import { Eye, Plus, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Inbox, Building2 } from "lucide-react";
+import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
+import { LeadsInbox } from "@/components/leads-inbox";
 import { toast } from "sonner";
 
 export function ListingManager({ placeId, admin = false }: { placeId: string; admin?: boolean }) {
@@ -30,7 +32,7 @@ export function ListingManager({ placeId, admin = false }: { placeId: string; ad
     </div>
   );
 
-  return <ListingManagerShell placeId={placeId} admin={admin} backTo={backTo} listing={data.listing} />;
+  return <ListingManagerShell placeId={placeId} admin={admin} backTo={backTo} listing={data.listing as Listing} />;
 }
 
 const LISTING_NAV: DashboardNavItem[] = [
@@ -52,10 +54,10 @@ function ListingManagerShell({
   placeId: string;
   admin: boolean;
   backTo: string;
-  listing: unknown;
+  listing: Listing;
 }) {
   const [tab, setTab] = useState("info");
-  const l = listing as Listing;
+  const l = listing;
   return (
     <DashboardShell
       title={l.name as string}
@@ -769,51 +771,6 @@ function MetricsPanel({ placeId }: { placeId: string }) {
           <t.icon className="h-5 w-5 text-brand" />
           <p className="mt-3 text-xs uppercase tracking-widest text-muted-foreground">{t.label}</p>
           <p className="mt-1 font-display text-3xl">{t.value}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ListingLeads({ placeId }: { placeId: string }) {
-  const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["listing-leads", placeId], queryFn: () => listMyLeads({ data: { placeId } }) });
-  const setStatusFn = useServerFn(updateLeadStatus);
-  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
-  const leads = data?.leads ?? [];
-  if (!leads.length) return <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No leads yet for this listing.</p>;
-  return (
-    <div className="space-y-3">
-      {leads.map((l) => (
-        <div key={l.id} className="rounded-2xl border border-border bg-card p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="font-medium">{l.first_name} {l.last_name}</p>
-              <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{l.email}</span>
-                {l.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{l.phone}</span>}
-                <span>{new Date(l.created_at).toLocaleDateString()}</span>
-              </div>
-            </div>
-            <Select
-              value={l.status}
-              onValueChange={async (v) => {
-                try {
-                  await setStatusFn({ data: { id: l.id, status: v as "new" | "contacted" | "closed" } });
-                  toast.success("Updated");
-                  qc.invalidateQueries({ queryKey: ["listing-leads", placeId] });
-                } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
-              }}
-            >
-              <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="new">New</SelectItem>
-                <SelectItem value="contacted">Contacted</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <p className="mt-3 whitespace-pre-line text-sm">{l.message}</p>
         </div>
       ))}
     </div>
