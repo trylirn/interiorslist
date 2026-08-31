@@ -15,7 +15,6 @@ import {
   getLicenseDocSignedUrl,
   getClaimThreadAdmin,
 } from "@/lib/admin.functions";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,9 +23,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 import { BlogAdmin } from "@/components/blog-admin";
+import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
+import { z } from "zod";
+import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, UserCog } from "lucide-react";
 
 
 export const Route = createFileRoute("/_site/admin")({
+  validateSearch: (sp: Record<string, unknown>) => z.object({ tab: z.string().optional() }).parse(sp),
   head: () => ({ meta: [{ title: "Admin | Intearior" }, { name: "description", content: "Internal Intearior admin console for managing studio listings, claims and leads." }, { name: "robots", content: "noindex, nofollow" }] }),
   component: AdminLayout,
 });
@@ -78,46 +81,57 @@ function AdminPage() {
     );
   }
 
+  return <AdminShell />;
+}
+
+const ADMIN_NAV: DashboardNavItem[] = [
+  { key: "analytics", label: "Analytics", icon: BarChart3 },
+  { key: "overview", label: "Overview", icon: LayoutDashboard },
+  { key: "claims", label: "Claims", icon: FileCheck2 },
+  { key: "submissions", label: "Submissions", icon: Inbox },
+  { key: "listings", label: "Listings", icon: Building2 },
+  { key: "team", label: "Team", icon: Users },
+  { key: "blog", label: "Blog", icon: Newspaper },
+  { key: "mine", label: "My dashboard", icon: UserCog },
+];
+
+function AdminShell() {
+  const { tab } = Route.useSearch();
+  const navigate = useNavigate();
+  const active = ADMIN_NAV.some((n) => n.key === tab) ? (tab as string) : "analytics";
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="font-display text-4xl">Admin</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Site-wide management.</p>
-
-      <Tabs defaultValue="analytics" className="mt-8">
-        <TabsList>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="claims">Claims</TabsTrigger>
-          <TabsTrigger value="submissions">Submissions</TabsTrigger>
-          <TabsTrigger value="listings">Listings</TabsTrigger>
-          <TabsTrigger value="team">Team</TabsTrigger>
-          <TabsTrigger value="blog">Blog</TabsTrigger>
-          <TabsTrigger value="mine">My dashboard</TabsTrigger>
-        </TabsList>
-        <TabsContent value="analytics" className="mt-6"><AnalyticsDashboard /></TabsContent>
-        <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
-        <TabsContent value="claims" className="mt-6"><ClaimsTab /></TabsContent>
-        <TabsContent value="submissions" className="mt-6"><SubmissionsTab /></TabsContent>
-        <TabsContent value="listings" className="mt-6"><ListingsTab /></TabsContent>
-        <TabsContent value="team" className="mt-6"><TeamTab /></TabsContent>
-        <TabsContent value="blog" className="mt-6"><BlogAdmin /></TabsContent>
-
-        <TabsContent value="mine" className="mt-6">
-          <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
-            <p className="font-medium">Your own provider dashboard (sandbox)</p>
-            <p className="mt-1 text-muted-foreground">
-              A private demo listing that behaves exactly like a real studio account — edit anything here to explore the studio experience. It is never published to the directory.
-            </p>
-            <Button asChild size="sm" className="mt-3">
-              <Link to="/admin/provider/$placeId" params={{ placeId: "demo-admin-listing" }}>Open my dashboard</Link>
-            </Button>
-          </div>
-        </TabsContent>
-      </Tabs>
-      <p className="mt-6 text-xs text-muted-foreground">
-        <Link to="/admin/articles" className="text-brand underline">Scrape studio articles →</Link>
-      </p>
-    </div>
+    <DashboardShell
+      title="Admin"
+      subtitle="Site-wide management."
+      items={ADMIN_NAV}
+      active={active}
+      onSelect={(key) => navigate({ to: "/admin", search: { tab: key }, replace: true })}
+      extraNav={
+        <Link to="/admin/articles" className="block px-3 py-2 text-sm text-muted-foreground hover:text-brand">
+          Scrape studio articles →
+        </Link>
+      }
+    >
+      {active === "analytics" && <AnalyticsDashboard />}
+      {active === "overview" && <OverviewTab />}
+      {active === "claims" && <ClaimsTab />}
+      {active === "submissions" && <SubmissionsTab />}
+      {active === "listings" && <ListingsTab />}
+      {active === "team" && <TeamTab />}
+      {active === "blog" && <BlogAdmin />}
+      {active === "mine" && (
+        <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
+          <p className="font-medium">Your own provider dashboard (sandbox)</p>
+          <p className="mt-1 text-muted-foreground">
+            A private demo listing that behaves exactly like a real studio account — edit anything here to explore the studio experience. It is never published to the directory.
+          </p>
+          <Button asChild size="sm" className="mt-3">
+            <Link to="/admin/provider/$placeId" params={{ placeId: "demo-admin-listing" }}>Open my dashboard</Link>
+          </Button>
+        </div>
+      )}
+    </DashboardShell>
   );
 }
 
