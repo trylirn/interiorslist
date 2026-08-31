@@ -30,37 +30,59 @@ export function ListingManager({ placeId, admin = false }: { placeId: string; ad
     </div>
   );
 
+  return <ListingManagerShell placeId={placeId} admin={admin} backTo={backTo} listing={data.listing} />;
+}
+
+const LISTING_NAV: DashboardNavItem[] = [
+  { key: "info", label: "About & info", icon: Building2 },
+  { key: "media", label: "Media", icon: Upload },
+  { key: "docs", label: "Certificates & files", icon: FileText },
+  { key: "faqs", label: "FAQs", icon: MessageSquare },
+  { key: "leads", label: "Leads", icon: Inbox },
+  { key: "reviews", label: "Reviews", icon: MessageSquare },
+  { key: "metrics", label: "Metrics", icon: Eye },
+];
+
+function ListingManagerShell({
+  placeId,
+  admin,
+  backTo,
+  listing,
+}: {
+  placeId: string;
+  admin: boolean;
+  backTo: string;
+  listing: unknown;
+}) {
+  const [tab, setTab] = useState("info");
+  const l = listing as Listing;
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <Link to={backTo} className="text-sm text-muted-foreground hover:text-brand">← Back to {admin ? "admin" : "dashboard"}</Link>
+    <DashboardShell
+      title={l.name as string}
+      subtitle={[l.city, l.state].filter(Boolean).join(", ")}
+      items={LISTING_NAV}
+      active={tab}
+      onSelect={setTab}
+      extraNav={
+        <Link to={backTo} className="block px-3 py-2 text-sm text-muted-foreground hover:text-brand">
+          ← Back to {admin ? "admin" : "dashboard"}
+        </Link>
+      }
+    >
       {admin && (
-        <div className="mt-3 flex items-center gap-2 rounded-xl border border-brand/40 bg-brand/5 px-4 py-2.5 text-sm">
-          <Shield className="h-4 w-4 text-brand" />
+        <div className="mb-6 flex items-start gap-2 rounded-xl border border-brand/40 bg-brand/5 px-4 py-2.5 text-sm">
+          <Shield className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
           <span>Super admin onboarding mode — you are editing this studio on their behalf. Changes save to their live listing.</span>
         </div>
       )}
-      <h1 className="mt-3 font-display text-4xl">{(data.listing as Listing).name as string}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{[(data.listing as Listing).city, (data.listing as Listing).state].filter(Boolean).join(", ")}</p>
-
-      <Tabs defaultValue="info" className="mt-8">
-        <TabsList className="flex flex-wrap">
-          <TabsTrigger value="info">About & info</TabsTrigger>
-          <TabsTrigger value="media">Media</TabsTrigger>
-          <TabsTrigger value="docs">Certificates & files</TabsTrigger>
-          <TabsTrigger value="faqs">FAQs</TabsTrigger>
-          <TabsTrigger value="leads">Leads</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          <TabsTrigger value="metrics">Metrics</TabsTrigger>
-        </TabsList>
-        <TabsContent value="info" className="mt-6"><InfoEditor placeId={placeId} listing={data.listing} backTo={backTo} /></TabsContent>
-        <TabsContent value="media" className="mt-6"><MediaEditor placeId={placeId} listing={data.listing} /></TabsContent>
-        <TabsContent value="docs" className="mt-6"><DocsEditor placeId={placeId} listing={data.listing} /></TabsContent>
-        <TabsContent value="faqs" className="mt-6"><FaqEditor placeId={placeId} /></TabsContent>
-        <TabsContent value="leads" className="mt-6"><ListingLeads placeId={placeId} /></TabsContent>
-        <TabsContent value="reviews" className="mt-6"><ListingReviews placeId={placeId} /></TabsContent>
-        <TabsContent value="metrics" className="mt-6"><MetricsPanel placeId={placeId} /></TabsContent>
-      </Tabs>
-    </div>
+      {tab === "info" && <InfoEditor placeId={placeId} listing={listing} backTo={backTo} />}
+      {tab === "media" && <MediaEditor placeId={placeId} listing={listing} />}
+      {tab === "docs" && <DocsEditor placeId={placeId} listing={listing} />}
+      {tab === "faqs" && <FaqEditor placeId={placeId} />}
+      {tab === "leads" && <LeadsInbox placeId={placeId} />}
+      {tab === "reviews" && <ListingReviews placeId={placeId} />}
+      {tab === "metrics" && <MetricsPanel placeId={placeId} />}
+    </DashboardShell>
   );
 }
 
