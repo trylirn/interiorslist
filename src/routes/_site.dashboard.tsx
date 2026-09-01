@@ -122,9 +122,7 @@ function Dashboard() {
           {active === "leads" && <LeadsInbox />}
           {active === "reviews" && <ReviewsTab />}
           {active === "claims" && <ClaimsTab />}
-          {active === "settings" && (roles?.isSuperAdmin
-            ? <p className="text-sm text-muted-foreground">Super admin accounts can't be closed from the dashboard.</p>
-            : <CloseAccount />)}
+          {active === "settings" && <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />}
         </>
       )}
     </DashboardShell>
