@@ -93,6 +93,7 @@ const ADMIN_NAV: DashboardNavItem[] = [
   { key: "team", label: "Team", icon: Users },
   { key: "blog", label: "Blog", icon: Newspaper },
   { key: "mine", label: "My dashboard", icon: UserCog },
+  { key: "settings", label: "Settings", icon: Settings },
 ];
 
 function AdminShell() {
