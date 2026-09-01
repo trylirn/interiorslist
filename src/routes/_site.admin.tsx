@@ -138,6 +138,7 @@ function AdminShell() {
           </Button>
         </div>
       )}
+      {active === "settings" && <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />}
     </DashboardShell>
   );
 }
