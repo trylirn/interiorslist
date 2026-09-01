@@ -65,8 +65,8 @@ function Dashboard() {
         onSelect={setActive}
       >
         {onboarding && !roles?.isAdmin && <OnboardingBanner status={onboarding} />}
-        {active === "settings" && !roles?.isSuperAdmin ? (
-          <CloseAccount />
+        {active === "settings" ? (
+          <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />
         ) : (
           <>
             <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
