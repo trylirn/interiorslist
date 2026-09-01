@@ -101,6 +101,11 @@ function AdminShell() {
   const { tab } = Route.useSearch();
   const navigate = useNavigate();
   const active = ADMIN_NAV.some((n) => n.key === tab) ? (tab as string) : "analytics";
+  const [email, setEmail] = useState<string | null>(null);
+  const { data: roles } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles() });
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setEmail(data.session?.user.email ?? null));
+  }, []);
 
   return (
     <DashboardShell
