@@ -9,9 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { listMyListings, listMyReviews, getMyOnboardingStatus, listMyClaims } from "@/lib/owner.functions";
 import { respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { getMyRoles } from "@/lib/role.functions";
-import { deleteMyAccount } from "@/lib/user-actions.functions";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { LeadsInbox } from "@/components/leads-inbox";
+import { AccountSettings } from "@/components/account-settings";
 import { Star, ExternalLink, Building2, Shield, Clock, Inbox, MessageSquare, FileCheck2, Settings } from "lucide-react";
 import { toast } from "sonner";
 
@@ -65,8 +65,8 @@ function Dashboard() {
         onSelect={setActive}
       >
         {onboarding && !roles?.isAdmin && <OnboardingBanner status={onboarding} />}
-        {active === "settings" && !roles?.isSuperAdmin ? (
-          <CloseAccount />
+        {active === "settings" ? (
+          <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />
         ) : (
           <>
             <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
@@ -122,67 +122,12 @@ function Dashboard() {
           {active === "leads" && <LeadsInbox />}
           {active === "reviews" && <ReviewsTab />}
           {active === "claims" && <ClaimsTab />}
-          {active === "settings" && (roles?.isSuperAdmin
-            ? <p className="text-sm text-muted-foreground">Super admin accounts can't be closed from the dashboard.</p>
-            : <CloseAccount />)}
+          {active === "settings" && <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />}
         </>
       )}
     </DashboardShell>
   );
 }
-
-
-function CloseAccount() {
-  const [open, setOpen] = useState(false);
-  const [confirm, setConfirm] = useState("");
-  const [busy, setBusy] = useState(false);
-  const del = useServerFn(deleteMyAccount);
-
-  async function onDelete() {
-    setBusy(true);
-    try {
-      await del({ data: undefined as never });
-      await supabase.auth.signOut();
-      toast.success("Your account has been closed");
-      window.location.href = "/";
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not close account");
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div className="mt-16 rounded-3xl border border-destructive/40 bg-destructive/5 p-6">
-      <h2 className="font-display text-xl text-destructive">Close account</h2>
-      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        Closing your account permanently removes your profile, saved details, claims and reviews. Any studio listing
-        you claimed is released back to unclaimed — the listing itself stays in the directory. This cannot be undone.
-      </p>
-      {!open ? (
-        <Button variant="outline" className="mt-4 border-destructive/50 text-destructive hover:bg-destructive/10" onClick={() => setOpen(true)}>
-          Close my account
-        </Button>
-      ) : (
-        <div className="mt-4 max-w-sm space-y-3">
-          <label className="block text-sm font-medium">Type <span className="font-mono">DELETE</span> to confirm</label>
-          <input
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-            placeholder="DELETE"
-          />
-          <div className="flex gap-2">
-            <Button variant="destructive" disabled={confirm !== "DELETE" || busy} onClick={onDelete}>
-              {busy ? "Closing…" : "Permanently close account"}
-            </Button>
-            <Button variant="ghost" onClick={() => { setOpen(false); setConfirm(""); }}>Cancel</Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 
 
 function ClaimsTab() {
