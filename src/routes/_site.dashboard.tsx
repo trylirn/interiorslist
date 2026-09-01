@@ -9,9 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { listMyListings, listMyReviews, getMyOnboardingStatus, listMyClaims } from "@/lib/owner.functions";
 import { respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { getMyRoles } from "@/lib/role.functions";
-import { deleteMyAccount } from "@/lib/user-actions.functions";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { LeadsInbox } from "@/components/leads-inbox";
+import { AccountSettings } from "@/components/account-settings";
 import { Star, ExternalLink, Building2, Shield, Clock, Inbox, MessageSquare, FileCheck2, Settings } from "lucide-react";
 import { toast } from "sonner";
 
