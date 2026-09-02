@@ -59,6 +59,11 @@ function ListingManagerShell({
   listing: Listing;
 }) {
   const [tab, setTab] = useState("info");
+  const [email, setEmail] = useState<string | null>(null);
+  const { data: roles } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles() });
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setEmail(data.session?.user.email ?? null));
+  }, []);
   const l = listing;
   return (
     <DashboardShell
@@ -86,6 +91,7 @@ function ListingManagerShell({
       {tab === "leads" && <LeadsInbox placeId={placeId} />}
       {tab === "reviews" && <ListingReviews placeId={placeId} />}
       {tab === "metrics" && <MetricsPanel placeId={placeId} />}
+      {tab === "settings" && <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />}
     </DashboardShell>
   );
 }
