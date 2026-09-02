@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video, Newspaper } from "lucide-react";
+import { MapPin, Globe, Mail, ExternalLink, BadgeCheck, Building2, ShieldCheck, HelpCircle, Star, Send, Instagram, Facebook, Youtube, Award, FileText, Video } from "lucide-react";
 import { RelatedProviders } from "@/components/related-providers";
 import { RelatedPosts } from "@/components/related-posts";
 
@@ -477,22 +477,6 @@ function ProviderPage() {
         </aside>
 
       </div>
-
-      {Array.isArray((p as any).articles) && (p as any).articles.length > 0 && (
-        <section className="mt-12 rounded-3xl border border-border bg-card p-6 md:p-8">
-          <h2 className="font-display text-2xl flex items-center gap-2"><Newspaper className="h-5 w-5 text-brand" /> Latest from {p.name}</h2>
-          <ul className="mt-4 space-y-2">
-            {((p as any).articles as Array<{ title: string; url: string }>).map((a) => (
-              <li key={a.url}>
-                <a href={a.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm hover:border-brand">
-                  <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
-                  <span><span className="font-medium">{a.title}</span> <span className="text-muted-foreground">→ Read on {p.name}</span></span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       <NearbyProviders placeId={p.place_id} />
       <RelatedProviders placeId={p.place_id} />
