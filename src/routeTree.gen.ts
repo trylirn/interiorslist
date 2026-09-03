@@ -27,7 +27,6 @@ import { Route as SiteSearchRouteImport } from './routes/_site.search'
 import { Route as SiteSubmitRouteImport } from './routes/_site.submit'
 import { Route as SiteTermsRouteImport } from './routes/_site.terms'
 import { Route as SiteWelcomeRouteImport } from './routes/_site.welcome'
-import { Route as SiteAdminArticlesRouteImport } from './routes/_site.admin.articles'
 import { Route as SiteBlogIndexRouteImport } from './routes/_site.blog.index'
 import { Route as SiteBlogSlugRouteImport } from './routes/_site.blog.$slug'
 import { Route as SiteClaimIndexRouteImport } from './routes/_site.claim.index'
@@ -134,11 +133,6 @@ const SiteWelcomeRoute = SiteWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => SiteRoute,
 } as any)
-const SiteAdminArticlesRoute = SiteAdminArticlesRouteImport.update({
-  id: '/articles',
-  path: '/articles',
-  getParentRoute: () => SiteAdminRoute,
-} as any)
 const SiteBlogIndexRoute = SiteBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -240,7 +234,6 @@ export interface FileRoutesByFullPath {
   '/submit': typeof SiteSubmitRoute
   '/terms': typeof SiteTermsRoute
   '/welcome': typeof SiteWelcomeRoute
-  '/admin/articles': typeof SiteAdminArticlesRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
@@ -276,7 +269,6 @@ export interface FileRoutesByTo {
   '/terms': typeof SiteTermsRoute
   '/welcome': typeof SiteWelcomeRoute
   '/': typeof SiteIndexRoute
-  '/admin/articles': typeof SiteAdminArticlesRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
@@ -314,7 +306,6 @@ export interface FileRoutesById {
   '/_site/terms': typeof SiteTermsRoute
   '/_site/welcome': typeof SiteWelcomeRoute
   '/_site/': typeof SiteIndexRoute
-  '/_site/admin/articles': typeof SiteAdminArticlesRoute
   '/_site/blog/$slug': typeof SiteBlogSlugRoute
   '/_site/claim/$slug': typeof SiteClaimSlugRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
@@ -352,7 +343,6 @@ export interface FileRouteTypes {
     | '/submit'
     | '/terms'
     | '/welcome'
-    | '/admin/articles'
     | '/blog/$slug'
     | '/claim/$slug'
     | '/provider/$slug'
@@ -388,7 +378,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/welcome'
     | '/'
-    | '/admin/articles'
     | '/blog/$slug'
     | '/claim/$slug'
     | '/provider/$slug'
@@ -425,7 +414,6 @@ export interface FileRouteTypes {
     | '/_site/terms'
     | '/_site/welcome'
     | '/_site/'
-    | '/_site/admin/articles'
     | '/_site/blog/$slug'
     | '/_site/claim/$slug'
     | '/_site/provider/$slug'
@@ -578,13 +566,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteWelcomeRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/_site/admin/articles': {
-      id: '/_site/admin/articles'
-      path: '/articles'
-      fullPath: '/admin/articles'
-      preLoaderRoute: typeof SiteAdminArticlesRouteImport
-      parentRoute: typeof SiteAdminRoute
-    }
     '/_site/blog/': {
       id: '/_site/blog/'
       path: '/blog'
@@ -701,12 +682,10 @@ declare module '@tanstack/react-router' {
 }
 
 interface SiteAdminRouteChildren {
-  SiteAdminArticlesRoute: typeof SiteAdminArticlesRoute
   SiteAdminProviderPlaceIdRoute: typeof SiteAdminProviderPlaceIdRoute
 }
 
 const SiteAdminRouteChildren: SiteAdminRouteChildren = {
-  SiteAdminArticlesRoute: SiteAdminArticlesRoute,
   SiteAdminProviderPlaceIdRoute: SiteAdminProviderPlaceIdRoute,
 }
 

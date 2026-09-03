@@ -25,8 +25,7 @@ import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 import { BlogAdmin } from "@/components/blog-admin";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { z } from "zod";
-import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, UserCog, Settings } from "lucide-react";
-import { AccountSettings } from "@/components/account-settings";
+import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, UserCog } from "lucide-react";
 
 
 export const Route = createFileRoute("/_site/admin")({
@@ -94,7 +93,6 @@ const ADMIN_NAV: DashboardNavItem[] = [
   { key: "team", label: "Team", icon: Users },
   { key: "blog", label: "Blog", icon: Newspaper },
   { key: "mine", label: "My dashboard", icon: UserCog },
-  { key: "settings", label: "Settings", icon: Settings },
 ];
 
 function AdminShell() {
@@ -114,11 +112,6 @@ function AdminShell() {
       items={ADMIN_NAV}
       active={active}
       onSelect={(key) => navigate({ to: "/admin", search: { tab: key }, replace: true })}
-      extraNav={
-        <Link to="/admin/articles" className="block px-3 py-2 text-sm text-muted-foreground hover:text-brand">
-          Scrape studio articles →
-        </Link>
-      }
     >
       {active === "analytics" && <AnalyticsDashboard />}
       {active === "overview" && <OverviewTab />}
@@ -138,7 +131,7 @@ function AdminShell() {
           </Button>
         </div>
       )}
-      {active === "settings" && <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />}
+      
     </DashboardShell>
   );
 }
