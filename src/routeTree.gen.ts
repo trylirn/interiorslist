@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteImport } from './routes/_site'
+import { Route as SitemapLocationsDotxmlRouteImport } from './routes/sitemap-locations[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SiteIndexRouteImport } from './routes/_site.index'
@@ -47,6 +48,11 @@ import { Route as SiteDesignersStateCityRouteImport } from './routes/_site.desig
 
 const SiteRoute = SiteRouteImport.update({
   id: '/_site',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapLocationsDotxmlRoute = SitemapLocationsDotxmlRouteImport.update({
+  id: '/sitemap-locations.xml',
+  path: '/sitemap-locations.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
@@ -224,6 +230,7 @@ const SiteDesignersStateCityRoute = SiteDesignersStateCityRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
+  '/sitemap-locations.xml': typeof SitemapLocationsDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof SiteAdminRouteWithChildren
@@ -259,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/designers/$state/': typeof SiteDesignersStateIndexRoute
 }
 export interface FileRoutesByTo {
+  '/sitemap-locations.xml': typeof SitemapLocationsDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof SiteAdminRouteWithChildren
@@ -297,6 +305,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
+  '/sitemap-locations.xml': typeof SitemapLocationsDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_site/admin': typeof SiteAdminRouteWithChildren
@@ -336,6 +345,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/sitemap-locations.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/admin'
@@ -371,6 +381,7 @@ export interface FileRouteTypes {
     | '/designers/$state/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/sitemap-locations.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/admin'
@@ -408,6 +419,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_site'
+    | '/sitemap-locations.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/_site/admin'
@@ -446,6 +458,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
+  SitemapLocationsDotxmlRoute: typeof SitemapLocationsDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
@@ -458,6 +471,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof SiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-locations.xml': {
+      id: '/sitemap-locations.xml'
+      path: '/sitemap-locations.xml'
+      fullPath: '/sitemap-locations.xml'
+      preLoaderRoute: typeof SitemapLocationsDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-pages.xml': {
@@ -793,6 +813,7 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
+  SitemapLocationsDotxmlRoute: SitemapLocationsDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
