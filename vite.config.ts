@@ -12,9 +12,10 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
+  // Keep `undici` out of the server bundle; the option is passed straight through.
   nitro: {
     rollupConfig: {
       external: ["undici"],
     },
   },
-});
+} as Parameters<typeof defineConfig>[0]);

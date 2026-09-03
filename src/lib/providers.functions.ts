@@ -66,7 +66,7 @@ export const getProviderBySlug = createServerFn({ method: "GET" })
 
     const { data: reviews } = await supabaseAdmin
       .from("reviews")
-      .select("id, author_name, author_photo, rating, text, relative_time, published_at")
+      .select("id, author_name, author_photo, rating, text, relative_time, published_at, source")
       .eq("provider_place_id", provider.place_id)
       .order("published_at", { ascending: false })
       .limit(20);

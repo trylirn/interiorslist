@@ -350,7 +350,14 @@ function ProviderPage() {
                   return (
                     <div key={r.id} className="rounded-xl border border-border bg-secondary/20 p-5">
                       <div className="flex items-center justify-between">
-                        <div className="text-sm font-medium">{r.author_name}</div>
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          {r.author_name}
+                          {r.source === "google" && (
+                            <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
+                              via Google
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-0.5">
                           {Array.from({ length: 5 }).map((_, i) => (
                             <Star key={i} className={`h-3.5 w-3.5 ${i < (r.rating ?? 0) ? "fill-rating text-rating" : "text-border"}`} />
