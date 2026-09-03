@@ -796,11 +796,46 @@ function ListingReviews({ placeId }: { placeId: string }) {
     enabled: ids.length > 0,
   });
   const respond = useServerFn(respondToReview);
+  const importReviews = useServerFn(importGoogleReviews);
+  const [importing, setImporting] = useState(false);
   const respMap = new Map((respData?.responses ?? []).map((r) => [r.review_id, r.body]));
+
+  async function runImport() {
+    setImporting(true);
+    try {
+      const res = await importReviews({ data: { placeId } });
+      toast.success(res.imported ? `Imported ${res.imported} Google review${res.imported === 1 ? "" : "s"}` : "No Google reviews found for this studio");
+      qc.invalidateQueries({ queryKey: ["listing-reviews", placeId] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not import reviews");
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  const importBar = (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
+      <div>
+        <p className="text-sm font-medium">Import reviews from Google</p>
+        <p className="text-xs text-muted-foreground">Google returns up to 5 reviews per business. Re-running updates them instead of duplicating.</p>
+      </div>
+      <Button size="sm" variant="outline" onClick={runImport} disabled={importing}>
+        {importing ? "Importing…" : "Import reviews"}
+      </Button>
+    </div>
+  );
+
   if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
-  if (!reviews.length) return <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No reviews yet for this listing.</p>;
+  if (!reviews.length)
+    return (
+      <div className="space-y-3">
+        {importBar}
+        <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No reviews yet for this listing.</p>
+      </div>
+    );
   return (
     <div className="space-y-3">
+      {importBar}
       {reviews.map((r) => (
         <ListingReviewCard
           key={r.id}
