@@ -91,7 +91,7 @@ export const importGoogleReviews = createServerFn({ method: "POST" })
       imported += 1;
     }
 
-    const patch: Record<string, unknown> = {};
+    const patch: { rating?: number; review_count?: number } = {};
     if (typeof body.result?.rating === "number") patch.rating = body.result.rating;
     if (typeof body.result?.user_ratings_total === "number") patch.review_count = body.result.user_ratings_total;
     if (Object.keys(patch).length) {
