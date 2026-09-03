@@ -169,7 +169,7 @@ export const listMyReviews = createServerFn({ method: "GET" })
       const { data: one } = await supabase.from("providers").select("place_id, name").eq("place_id", input.placeId).maybeSingle();
       const { data: rows, error: err } = await supabase
         .from("reviews")
-        .select("id, provider_place_id, author_name, rating, text, published_at")
+        .select("id, provider_place_id, author_name, rating, text, published_at, source")
         .eq("provider_place_id", input.placeId)
         .order("published_at", { ascending: false })
         .limit(200);
@@ -186,7 +186,7 @@ export const listMyReviews = createServerFn({ method: "GET" })
     const nameMap = new Map((mine ?? []).map((m) => [m.place_id, m.name]));
     const { data, error } = await supabase
       .from("reviews")
-      .select("id, provider_place_id, author_name, rating, text, published_at")
+      .select("id, provider_place_id, author_name, rating, text, published_at, source")
       .in("provider_place_id", placeIds)
       .order("published_at", { ascending: false })
       .limit(200);
