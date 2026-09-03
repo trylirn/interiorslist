@@ -859,6 +859,7 @@ export type Database = {
           decision_factors: string | null
           email: string | null
           end_year: number | null
+          external_id: string | null
           id: string
           is_current_client: string | null
           provider_place_id: string
@@ -870,6 +871,7 @@ export type Database = {
           rating_value: number | null
           relationship_disclosure: string | null
           relative_time: string | null
+          source: string
           start_year: number | null
           text: string | null
         }
@@ -882,6 +884,7 @@ export type Database = {
           decision_factors?: string | null
           email?: string | null
           end_year?: number | null
+          external_id?: string | null
           id?: string
           is_current_client?: string | null
           provider_place_id: string
@@ -893,6 +896,7 @@ export type Database = {
           rating_value?: number | null
           relationship_disclosure?: string | null
           relative_time?: string | null
+          source?: string
           start_year?: number | null
           text?: string | null
         }
@@ -905,6 +909,7 @@ export type Database = {
           decision_factors?: string | null
           email?: string | null
           end_year?: number | null
+          external_id?: string | null
           id?: string
           is_current_client?: string | null
           provider_place_id?: string
@@ -916,6 +921,7 @@ export type Database = {
           rating_value?: number | null
           relationship_disclosure?: string | null
           relative_time?: string | null
+          source?: string
           start_year?: number | null
           text?: string | null
         }
