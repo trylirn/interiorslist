@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,9 +13,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import { Eye, Plus, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Inbox, Building2 } from "lucide-react";
+import { Eye, Plus, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Inbox, Building2, Settings } from "lucide-react";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { LeadsInbox } from "@/components/leads-inbox";
+import { AccountSettings } from "@/components/account-settings";
+import { getMyRoles } from "@/lib/role.functions";
 import { toast } from "sonner";
 
 export function ListingManager({ placeId, admin = false }: { placeId: string; admin?: boolean }) {
@@ -42,6 +44,7 @@ const LISTING_NAV: DashboardNavItem[] = [
   { key: "leads", label: "Leads", icon: Inbox },
   { key: "reviews", label: "Reviews", icon: MessageSquare },
   { key: "metrics", label: "Metrics", icon: Eye },
+  { key: "settings", label: "Settings", icon: Settings },
 ];
 
 function ListingManagerShell({
@@ -56,6 +59,11 @@ function ListingManagerShell({
   listing: Listing;
 }) {
   const [tab, setTab] = useState("info");
+  const [email, setEmail] = useState<string | null>(null);
+  const { data: roles } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles() });
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setEmail(data.session?.user.email ?? null));
+  }, []);
   const l = listing;
   return (
     <DashboardShell
@@ -83,6 +91,7 @@ function ListingManagerShell({
       {tab === "leads" && <LeadsInbox placeId={placeId} />}
       {tab === "reviews" && <ListingReviews placeId={placeId} />}
       {tab === "metrics" && <MetricsPanel placeId={placeId} />}
+      {tab === "settings" && <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />}
     </DashboardShell>
   );
 }
