@@ -21,20 +21,20 @@ import { AccountSettings } from "@/components/account-settings";
 import { getMyRoles } from "@/lib/role.functions";
 import { toast } from "sonner";
 
-export function ListingManager({ placeId, admin = false }: { placeId: string; admin?: boolean }) {
+export function ListingManager({ placeId }: { placeId: string }) {
   const { data, isLoading } = useQuery({ queryKey: ["my-listing", placeId], queryFn: () => getMyListing({ data: { placeId } }) });
-  const backTo = admin ? "/admin" : "/dashboard";
+  const backTo = "/dashboard";
 
   if (isLoading) return <div className="mx-auto max-w-3xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
   if (!data?.listing) return (
     <div className="mx-auto max-w-md py-24 text-center px-4">
       <h1 className="font-display text-3xl">Not found</h1>
-      <p className="mt-3 text-muted-foreground">This listing doesn't exist{admin ? "." : " or isn't claimed by you."}</p>
+      <p className="mt-3 text-muted-foreground">This listing doesn't exist or isn't claimed by you.</p>
       <Button asChild className="mt-6"><Link to={backTo}>Back</Link></Button>
     </div>
   );
 
-  return <ListingManagerShell placeId={placeId} admin={admin} backTo={backTo} listing={data.listing as Listing} />;
+  return <ListingManagerShell placeId={placeId} backTo={backTo} listing={data.listing as Listing} />;
 }
 
 const LISTING_NAV: DashboardNavItem[] = [
@@ -50,12 +50,10 @@ const LISTING_NAV: DashboardNavItem[] = [
 
 function ListingManagerShell({
   placeId,
-  admin,
   backTo,
   listing,
 }: {
   placeId: string;
-  admin: boolean;
   backTo: string;
   listing: Listing;
 }) {
@@ -75,16 +73,10 @@ function ListingManagerShell({
       onSelect={setTab}
       extraNav={
         <Link to={backTo} className="block px-3 py-2 text-sm text-muted-foreground hover:text-brand">
-          ← Back to {admin ? "admin" : "dashboard"}
+          ← Back to dashboard
         </Link>
       }
     >
-      {admin && (
-        <div className="mb-6 flex items-start gap-2 rounded-xl border border-brand/40 bg-brand/5 px-4 py-2.5 text-sm">
-          <Shield className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
-          <span>Super admin onboarding mode — you are editing this studio on their behalf. Changes save to their live listing.</span>
-        </div>
-      )}
       {tab === "info" && <InfoEditor placeId={placeId} listing={listing} backTo={backTo} />}
       {tab === "media" && <MediaEditor placeId={placeId} listing={listing} />}
       {tab === "docs" && <DocsEditor placeId={placeId} listing={listing} />}
