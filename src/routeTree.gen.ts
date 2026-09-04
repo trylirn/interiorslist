@@ -41,7 +41,6 @@ import { Route as SiteReviewSlugRouteImport } from './routes/_site.review.$slug'
 import { Route as SiteServiceSlugRouteImport } from './routes/_site.service.$slug'
 import { Route as SiteStyleSlugRouteImport } from './routes/_site.style.$slug'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
-import { Route as SiteAdminProviderPlaceIdRouteImport } from './routes/_site.admin.provider.$placeId'
 import { Route as SiteBestStateCityRouteImport } from './routes/_site.best.$state.$city'
 import { Route as SiteClaimStatusIdRouteImport } from './routes/_site.claim.status.$id'
 import { Route as SiteDashboardListingPlaceIdRouteImport } from './routes/_site.dashboard.listing.$placeId'
@@ -207,12 +206,6 @@ const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   path: '/api/public/track',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SiteAdminProviderPlaceIdRoute =
-  SiteAdminProviderPlaceIdRouteImport.update({
-    id: '/provider/$placeId',
-    path: '/provider/$placeId',
-    getParentRoute: () => SiteAdminRoute,
-  } as any)
 const SiteBestStateCityRoute = SiteBestStateCityRouteImport.update({
   id: '/best/$state/$city',
   path: '/best/$state/$city',
@@ -247,7 +240,7 @@ export interface FileRoutesByFullPath {
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-studios.xml': typeof SitemapStudiosDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/admin': typeof SiteAdminRouteWithChildren
+  '/admin': typeof SiteAdminRoute
   '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRouteWithChildren
@@ -272,7 +265,6 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof SiteBlogIndexRoute
   '/claim/': typeof SiteClaimIndexRoute
   '/review/': typeof SiteReviewIndexRoute
-  '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/best/$state/$city': typeof SiteBestStateCityRoute
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
@@ -285,7 +277,7 @@ export interface FileRoutesByTo {
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-studios.xml': typeof SitemapStudiosDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/admin': typeof SiteAdminRouteWithChildren
+  '/admin': typeof SiteAdminRoute
   '/compare': typeof SiteCompareRoute
   '/contact': typeof SiteContactRoute
   '/dashboard': typeof SiteDashboardRouteWithChildren
@@ -311,7 +303,6 @@ export interface FileRoutesByTo {
   '/blog': typeof SiteBlogIndexRoute
   '/claim': typeof SiteClaimIndexRoute
   '/review': typeof SiteReviewIndexRoute
-  '/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/best/$state/$city': typeof SiteBestStateCityRoute
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
@@ -326,7 +317,7 @@ export interface FileRoutesById {
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-studios.xml': typeof SitemapStudiosDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/_site/admin': typeof SiteAdminRouteWithChildren
+  '/_site/admin': typeof SiteAdminRoute
   '/_site/compare': typeof SiteCompareRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/dashboard': typeof SiteDashboardRouteWithChildren
@@ -352,7 +343,6 @@ export interface FileRoutesById {
   '/_site/blog/': typeof SiteBlogIndexRoute
   '/_site/claim/': typeof SiteClaimIndexRoute
   '/_site/review/': typeof SiteReviewIndexRoute
-  '/_site/admin/provider/$placeId': typeof SiteAdminProviderPlaceIdRoute
   '/_site/best/$state/$city': typeof SiteBestStateCityRoute
   '/_site/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
@@ -393,7 +383,6 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/claim/'
     | '/review/'
-    | '/admin/provider/$placeId'
     | '/best/$state/$city'
     | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
@@ -432,7 +421,6 @@ export interface FileRouteTypes {
     | '/blog'
     | '/claim'
     | '/review'
-    | '/admin/provider/$placeId'
     | '/best/$state/$city'
     | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
@@ -472,7 +460,6 @@ export interface FileRouteTypes {
     | '/_site/blog/'
     | '/_site/claim/'
     | '/_site/review/'
-    | '/_site/admin/provider/$placeId'
     | '/_site/best/$state/$city'
     | '/_site/claim/status/$id'
     | '/_site/dashboard/listing/$placeId'
@@ -716,13 +703,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_site/admin/provider/$placeId': {
-      id: '/_site/admin/provider/$placeId'
-      path: '/provider/$placeId'
-      fullPath: '/admin/provider/$placeId'
-      preLoaderRoute: typeof SiteAdminProviderPlaceIdRouteImport
-      parentRoute: typeof SiteAdminRoute
-    }
     '/_site/best/$state/$city': {
       id: '/_site/best/$state/$city'
       path: '/best/$state/$city'
@@ -761,18 +741,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface SiteAdminRouteChildren {
-  SiteAdminProviderPlaceIdRoute: typeof SiteAdminProviderPlaceIdRoute
-}
-
-const SiteAdminRouteChildren: SiteAdminRouteChildren = {
-  SiteAdminProviderPlaceIdRoute: SiteAdminProviderPlaceIdRoute,
-}
-
-const SiteAdminRouteWithChildren = SiteAdminRoute._addFileChildren(
-  SiteAdminRouteChildren,
-)
-
 interface SiteDashboardRouteChildren {
   SiteDashboardListingPlaceIdRoute: typeof SiteDashboardListingPlaceIdRoute
 }
@@ -786,7 +754,7 @@ const SiteDashboardRouteWithChildren = SiteDashboardRoute._addFileChildren(
 )
 
 interface SiteRouteChildren {
-  SiteAdminRoute: typeof SiteAdminRouteWithChildren
+  SiteAdminRoute: typeof SiteAdminRoute
   SiteCompareRoute: typeof SiteCompareRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteDashboardRoute: typeof SiteDashboardRouteWithChildren
@@ -818,7 +786,7 @@ interface SiteRouteChildren {
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
-  SiteAdminRoute: SiteAdminRouteWithChildren,
+  SiteAdminRoute: SiteAdminRoute,
   SiteCompareRoute: SiteCompareRoute,
   SiteContactRoute: SiteContactRoute,
   SiteDashboardRoute: SiteDashboardRouteWithChildren,
