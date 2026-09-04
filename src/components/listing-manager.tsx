@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyListing, updateMyListing, listMyReviews } from "@/lib/owner.functions";
+import { getMyListing, updateMyListing, listMyReviews, sendTestLeadEmail } from "@/lib/owner.functions";
 import { importGoogleReviews } from "@/lib/reviews-import.functions";
 import { listProviderFaqs, upsertProviderFaq, deleteProviderFaq, getListingMetrics, respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { SERVICES, STYLES, PROJECT_TYPES, BUDGET_BANDS } from "@/lib/cities";
@@ -121,6 +121,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
   const update = useServerFn(updateMyListing);
   const qc = useQueryClient();
   const existingSocial = (listing.social_links as Record<string, string> | null) ?? {};
+  const [testingEmail, setTestingEmail] = useState(false);
   const [form, setForm] = useState({
     name: (listing.name as string) ?? "",
     about_description: (listing.about_description as string) ?? "",
@@ -315,7 +316,7 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
             onClick={async () => {
               setTestingEmail(true);
               try {
-                const res = await sendTestLeadEmailFn({ data: { placeId } });
+                const res = await sendTestLeadEmail({ data: { placeId } });
                 if (res.sent) toast.success(`Test lead email sent to ${res.recipient}`);
                 else toast.message("Email not sent — this address has unsubscribed from Intearior emails.");
               } catch (e) {
