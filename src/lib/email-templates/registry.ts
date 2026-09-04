@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { template as newLeadTemplate } from './new-lead'
 
 export interface TemplateEntry {
   component: ComponentType<any>
