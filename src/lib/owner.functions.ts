@@ -116,6 +116,44 @@ export const updateMyListing = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// Sends a sample new-lead email so owners can verify lead forwarding works.
+export const sendTestLeadEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: listing, error } = await supabase
+      .from("providers")
+      .select("name, email, email_forward_to")
+      .eq("place_id", data.placeId)
+      .eq("claimed_by", userId)
+      .maybeSingle();
+    if (error) fail(error);
+    const recipient = listing?.email_forward_to || listing?.email;
+    if (!listing || !recipient) fail("Add a forwarding email (or listing email) first.");
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    const result = await sendTemplateEmail("new-lead", recipient, {
+      templateData: {
+        studioName: listing.name,
+        clientName: "Jane Miller",
+        clientEmail: "jane@example.com",
+        clientPhone: "(415) 555-0132",
+        location: "San Francisco, CA",
+        projectType: "Full home design",
+        rooms: "Living room, Kitchen",
+        budget: "$50k–$100k",
+        style: "Modern",
+        timeline: "1–3 months",
+        message: "This is a test enquiry from Intearior — your lead forwarding is working.",
+        dashboardUrl: "https://intearior.com/dashboard",
+      },
+      idempotencyKey: `test-lead-${data.placeId}-${Date.now()}`,
+    });
+    return { ok: true, sent: result.sent, recipient };
+  });
+
+
+
 
 export const listMyLeads = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

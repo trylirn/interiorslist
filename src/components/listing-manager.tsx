@@ -302,11 +302,33 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
         </div>
       </div>
 
-      
       <div className="space-y-1.5">
         <Label>Forward new leads to this email</Label>
-        <Input type="email" value={form.email_forward_to} onChange={(e) => setForm({ ...form, email_forward_to: e.target.value })} placeholder="leads@yourstudio.com" />
-        <p className="text-[11px] text-muted-foreground">Optional. We'll mirror dashboard leads to this address (requires email setup).</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Input type="email" className="flex-1 min-w-52" value={form.email_forward_to} onChange={(e) => setForm({ ...form, email_forward_to: e.target.value })} placeholder="leads@yourstudio.com" />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            disabled={testingEmail}
+            onClick={async () => {
+              setTestingEmail(true);
+              try {
+                const res = await sendTestLeadEmailFn({ data: { placeId } });
+                if (res.sent) toast.success(`Test lead email sent to ${res.recipient}`);
+                else toast.message("Email not sent — this address has unsubscribed from Intearior emails.");
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Couldn't send the test email yet.");
+              } finally {
+                setTestingEmail(false);
+              }
+            }}
+          >
+            {testingEmail ? "Sending…" : "Send test email"}
+          </Button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">Optional. Every new lead is emailed here too (falls back to your listing email if blank). Save changes before testing a new address.</p>
       </div>
       <div className="space-y-1.5"><Label>Branch label</Label><Input value={form.branch_label} onChange={(e) => setForm({ ...form, branch_label: e.target.value })} placeholder="Uptown, North, etc." /></div>
       <div className="space-y-3 rounded-2xl border border-border p-4">
