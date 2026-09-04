@@ -27,21 +27,58 @@ export const sendContactMessage = createServerFn({ method: "POST" })
     await enforceRateLimit("contact", { max: 5, windowMinutes: 60 });
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("contact_messages").insert({
-      provider_place_id: data.placeId,
-      first_name: data.firstName,
-      last_name: data.lastName,
-      email: data.email,
-      phone: data.phone || null,
-      message: data.message,
-      location: data.location || null,
-      project_type: data.projectType || null,
-      budget: data.budget || null,
-      style: data.style || null,
-      timeline: data.timeline || null,
-      rooms: data.rooms || null,
-    });
+    const { data: inserted, error } = await supabaseAdmin
+      .from("contact_messages")
+      .insert({
+        provider_place_id: data.placeId,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+        phone: data.phone || null,
+        message: data.message,
+        location: data.location || null,
+        project_type: data.projectType || null,
+        budget: data.budget || null,
+        style: data.style || null,
+        timeline: data.timeline || null,
+        rooms: data.rooms || null,
+      })
+      .select("id")
+      .single();
     if (error) fail(error);
+
+    // Forward the lead to the studio by email. The lead is already saved — an
+    // email failure must never lose or block it, so this is best-effort.
+    try {
+      const { data: provider } = await supabaseAdmin
+        .from("providers")
+        .select("name, slug, email, email_forward_to")
+        .eq("place_id", data.placeId)
+        .maybeSingle();
+      const recipient = provider?.email_forward_to || provider?.email;
+      if (recipient) {
+        const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+        await sendTemplateEmail("new-lead", recipient, {
+          templateData: {
+            studioName: provider?.name ?? undefined,
+            clientName: `${data.firstName} ${data.lastName}`.trim(),
+            clientEmail: data.email,
+            clientPhone: data.phone || undefined,
+            location: data.location || undefined,
+            projectType: data.projectType || undefined,
+            rooms: data.rooms || undefined,
+            budget: data.budget || undefined,
+            style: data.style || undefined,
+            timeline: data.timeline || undefined,
+            message: data.message,
+            dashboardUrl: "https://intearior.com/dashboard",
+          },
+          idempotencyKey: `new-lead-${inserted?.id ?? crypto.randomUUID()}`,
+        });
+      }
+    } catch (emailError) {
+      console.error("Lead email forwarding failed:", emailError);
+    }
     return { ok: true };
   });
 
