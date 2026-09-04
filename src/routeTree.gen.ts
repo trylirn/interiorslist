@@ -46,6 +46,7 @@ import { Route as SiteClaimStatusIdRouteImport } from './routes/_site.claim.stat
 import { Route as SiteDashboardListingPlaceIdRouteImport } from './routes/_site.dashboard.listing.$placeId'
 import { Route as SiteDesignersStateIndexRouteImport } from './routes/_site.designers.$state.index'
 import { Route as SiteDesignersStateCityRouteImport } from './routes/_site.designers.$state.$city'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const SiteRoute = SiteRouteImport.update({
   id: '/_site',
@@ -232,6 +233,12 @@ const SiteDesignersStateCityRoute = SiteDesignersStateCityRouteImport.update({
   path: '/designers/$state/$city',
   getParentRoute: () => SiteRoute,
 } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/designers/$state/': typeof SiteDesignersStateIndexRoute
 }
 export interface FileRoutesByTo {
@@ -307,6 +315,7 @@ export interface FileRoutesByTo {
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/designers/$state': typeof SiteDesignersStateIndexRoute
 }
 export interface FileRoutesById {
@@ -347,6 +356,7 @@ export interface FileRoutesById {
   '/_site/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/_site/designers/$state/$city': typeof SiteDesignersStateCityRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_site/designers/$state/': typeof SiteDesignersStateIndexRoute
 }
 export interface FileRouteTypes {
@@ -387,6 +397,7 @@ export interface FileRouteTypes {
     | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
+    | '/lovable/email/transactional/preview'
     | '/designers/$state/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
+    | '/lovable/email/transactional/preview'
     | '/designers/$state'
   id:
     | '__root__'
@@ -464,6 +476,7 @@ export interface FileRouteTypes {
     | '/_site/claim/status/$id'
     | '/_site/dashboard/listing/$placeId'
     | '/_site/designers/$state/$city'
+    | '/lovable/email/transactional/preview'
     | '/_site/designers/$state/'
   fileRoutesById: FileRoutesById
 }
@@ -475,6 +488,7 @@ export interface RootRouteChildren {
   SitemapStudiosDotxmlRoute: typeof SitemapStudiosDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -738,6 +752,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteDesignersStateCityRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -827,6 +848,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapStudiosDotxmlRoute: SitemapStudiosDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
