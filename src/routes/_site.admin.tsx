@@ -119,17 +119,6 @@ function AdminShell() {
       {active === "listings" && <ListingsTab />}
       {active === "team" && <TeamTab />}
       {active === "blog" && <BlogAdmin />}
-      {active === "mine" && (
-        <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
-          <p className="font-medium">Your own provider dashboard (sandbox)</p>
-          <p className="mt-1 text-muted-foreground">
-            A private demo listing that behaves exactly like a real studio account — edit anything here to explore the studio experience. It is never published to the directory.
-          </p>
-          <Button asChild size="sm" className="mt-3">
-            <Link to="/admin/provider/$placeId" params={{ placeId: "demo-admin-listing" }}>Open my dashboard</Link>
-          </Button>
-        </div>
-      )}
       
     </DashboardShell>
   );
