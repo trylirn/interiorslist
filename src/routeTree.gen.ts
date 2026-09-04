@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteImport } from './routes/_site'
+import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
 import { Route as SitemapLocationsDotxmlRouteImport } from './routes/sitemap-locations[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapStudiosDotxmlRouteImport } from './routes/sitemap-studios[.]xml'
@@ -49,6 +50,11 @@ import { Route as SiteDesignersStateCityRouteImport } from './routes/_site.desig
 
 const SiteRoute = SiteRouteImport.update({
   id: '/_site',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
+  id: '/sitemap-blog.xml',
+  path: '/sitemap-blog.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapLocationsDotxmlRoute = SitemapLocationsDotxmlRouteImport.update({
@@ -236,6 +242,7 @@ const SiteDesignersStateCityRoute = SiteDesignersStateCityRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-locations.xml': typeof SitemapLocationsDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-studios.xml': typeof SitemapStudiosDotxmlRoute
@@ -273,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/designers/$state/': typeof SiteDesignersStateIndexRoute
 }
 export interface FileRoutesByTo {
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-locations.xml': typeof SitemapLocationsDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-studios.xml': typeof SitemapStudiosDotxmlRoute
@@ -313,6 +321,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-locations.xml': typeof SitemapLocationsDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-studios.xml': typeof SitemapStudiosDotxmlRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/sitemap-blog.xml'
     | '/sitemap-locations.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-studios.xml'
@@ -391,6 +401,7 @@ export interface FileRouteTypes {
     | '/designers/$state/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/sitemap-blog.xml'
     | '/sitemap-locations.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-studios.xml'
@@ -430,6 +441,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_site'
+    | '/sitemap-blog.xml'
     | '/sitemap-locations.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-studios.xml'
@@ -470,6 +482,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
+  SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
   SitemapLocationsDotxmlRoute: typeof SitemapLocationsDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapStudiosDotxmlRoute: typeof SitemapStudiosDotxmlRoute
@@ -484,6 +497,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof SiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-blog.xml': {
+      id: '/sitemap-blog.xml'
+      path: '/sitemap-blog.xml'
+      fullPath: '/sitemap-blog.xml'
+      preLoaderRoute: typeof SitemapBlogDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-locations.xml': {
@@ -833,6 +853,7 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
+  SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
   SitemapLocationsDotxmlRoute: SitemapLocationsDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapStudiosDotxmlRoute: SitemapStudiosDotxmlRoute,
