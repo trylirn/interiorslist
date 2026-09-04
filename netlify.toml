@@ -1,6 +1,19 @@
 [build]
   command = "npm run build"
-  publish = "dist"
+  publish = "dist/client"
 
 [build.environment]
-  NODE_VERSION = "22"
+  NODE_VERSION = "20"
+  # Build the server bundle for Netlify Functions instead of the default
+  # Cloudflare Worker target used by Lovable hosting.
+  NITRO_PRESET = "netlify"
+
+[functions]
+  directory = ".netlify/functions-internal"
+  node_bundler = "esbuild"
+
+# SSR fallback: everything not matched by a static asset goes to the server handler.
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200

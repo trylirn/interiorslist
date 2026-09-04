@@ -2,7 +2,7 @@ import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { callerIsAdmin, callerIsSuperAdmin } from "@/lib/caller-role";
+import { callerIsAdmin } from "@/lib/caller-role";
 import { BUDGET_BANDS, slugify } from "@/lib/cities";
 
 
@@ -25,13 +25,15 @@ export const getMyListing = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ placeId: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    // Only super admins may open a studio they do not own (manual onboarding).
-    const superAdmin = await callerIsSuperAdmin(supabase as never, userId);
-    let query = supabase.from("providers").select("*").eq("place_id", data.placeId);
-    if (!superAdmin) query = query.eq("claimed_by", userId);
-    const { data: row, error } = await query.maybeSingle();
+    // A listing dashboard is only ever accessible to the account that owns it.
+    const { data: row, error } = await supabase
+      .from("providers")
+      .select("*")
+      .eq("place_id", data.placeId)
+      .eq("claimed_by", userId)
+      .maybeSingle();
     if (error) fail(error);
-    return { listing: row, asAdmin: superAdmin, asSuperAdmin: superAdmin };
+    return { listing: row };
   });
 
 export const updateMyListing = createServerFn({ method: "POST" })
@@ -105,10 +107,11 @@ export const updateMyListing = createServerFn({ method: "POST" })
       ...(derivedTier !== undefined ? { price_tier: derivedTier === "flexible" ? null : derivedTier } : {}),
       ...(email_forward_to !== undefined ? { email_forward_to: email_forward_to === "" ? null : email_forward_to } : {}),
     };
-    const superAdmin = await callerIsSuperAdmin(supabase as never, userId);
-    let query = supabase.from("providers").update(patch).eq("place_id", placeId);
-    if (!superAdmin) query = query.eq("claimed_by", userId);
-    const { error } = await query;
+    const { error } = await supabase
+      .from("providers")
+      .update(patch)
+      .eq("place_id", placeId)
+      .eq("claimed_by", userId);
     if (error) fail(error);
     return { ok: true };
   });
