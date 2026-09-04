@@ -25,7 +25,7 @@ import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 import { BlogAdmin } from "@/components/blog-admin";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { z } from "zod";
-import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, UserCog } from "lucide-react";
+import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper } from "lucide-react";
 
 
 export const Route = createFileRoute("/_site/admin")({
@@ -92,7 +92,6 @@ const ADMIN_NAV: DashboardNavItem[] = [
   { key: "listings", label: "Listings", icon: Building2 },
   { key: "team", label: "Team", icon: Users },
   { key: "blog", label: "Blog", icon: Newspaper },
-  { key: "mine", label: "My dashboard", icon: UserCog },
 ];
 
 function AdminShell() {
@@ -120,17 +119,6 @@ function AdminShell() {
       {active === "listings" && <ListingsTab />}
       {active === "team" && <TeamTab />}
       {active === "blog" && <BlogAdmin />}
-      {active === "mine" && (
-        <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm">
-          <p className="font-medium">Your own provider dashboard (sandbox)</p>
-          <p className="mt-1 text-muted-foreground">
-            A private demo listing that behaves exactly like a real studio account — edit anything here to explore the studio experience. It is never published to the directory.
-          </p>
-          <Button asChild size="sm" className="mt-3">
-            <Link to="/admin/provider/$placeId" params={{ placeId: "demo-admin-listing" }}>Open my dashboard</Link>
-          </Button>
-        </div>
-      )}
       
     </DashboardShell>
   );
@@ -384,21 +372,17 @@ function ListingsTab() {
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <tr><th className="p-2">Name</th><th>City</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Featured</th>{isSuper && <th>Onboard</th>}</tr>
+            <tr><th className="p-2">Name</th><th>City</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Featured</th></tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={isSuper ? 7 : 6} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
+            {isLoading && <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
             {!isLoading && data?.providers.length === 0 && (
-              <tr><td colSpan={isSuper ? 7 : 6} className="p-4 text-center text-muted-foreground">No studios match.</td></tr>
+              <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">No studios match.</td></tr>
             )}
             {data?.providers.map((p) => (
               <tr key={p.place_id} className="border-t border-border">
                 <td className="p-2">
-                  {isSuper ? (
-                    <Link to="/admin/provider/$placeId" params={{ placeId: p.place_id }} className="hover:text-brand">{p.name}</Link>
-                  ) : (
-                    <span>{p.name}</span>
-                  )}
+                  <span>{p.name}</span>
                   {!p.published && <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">Unpublished</span>}
                 </td>
                 <td>{p.city}</td>
@@ -406,13 +390,6 @@ function ListingsTab() {
                 <td><Switch checked={p.is_verified} onCheckedChange={(v) => flip(p.place_id, "is_verified", v)} /></td>
                 <td><Switch checked={p.published} onCheckedChange={(v) => flip(p.place_id, "published", v)} /></td>
                 <td><Switch checked={p.featured} onCheckedChange={(v) => flip(p.place_id, "featured", v)} /></td>
-                {isSuper && (
-                  <td>
-                    <Button asChild size="sm" variant="outline" className="h-7 text-xs">
-                      <Link to="/admin/provider/$placeId" params={{ placeId: p.place_id }}>Open dashboard</Link>
-                    </Button>
-                  </td>
-                )}
               </tr>
             ))}
           </tbody>
