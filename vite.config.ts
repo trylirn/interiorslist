@@ -7,22 +7,20 @@
 import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// Loads all env vars into process.env for server-side code (never exposed to the client bundle).
+const serverEnv = loadEnv(process.env.NODE_ENV ?? "production", process.cwd(), "");
+Object.assign(process.env, serverEnv);
+
 // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
-export default defineConfig(({ mode }: { mode: string }) => {
-  // Loads all env vars into process.env for server-side code (never exposed to the client bundle).
-  const serverEnv = loadEnv(mode, process.cwd(), "");
-  Object.assign(process.env, serverEnv);
-
-  return {
-    tanstackStart: {
-      server: { entry: "server" },
+export default defineConfig({
+  tanstackStart: {
+    server: { entry: "server" },
+  },
+  // Keep `undici` out of the server bundle; the option is passed straight through.
+  nitro: {
+    rollupConfig: {
+      external: ["undici"],
     },
-    // Keep `undici` out of the server bundle; the option is passed straight through.
-    nitro: {
-      rollupConfig: {
-        external: ["undici"],
-      },
-    },
-  } as Parameters<typeof defineConfig>[0];
-});
+  },
+} as Parameters<typeof defineConfig>[0]);
