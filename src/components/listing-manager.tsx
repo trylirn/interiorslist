@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import { Eye, Plus, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Shield, Inbox, Building2, Settings } from "lucide-react";
+import { Eye, Plus, MessageSquare, Star, Trash2, Upload, X, Video, FileText, Award, Inbox, Building2, Settings } from "lucide-react";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { LeadsInbox } from "@/components/leads-inbox";
 import { AccountSettings } from "@/components/account-settings";

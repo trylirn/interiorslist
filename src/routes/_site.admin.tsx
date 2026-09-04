@@ -25,7 +25,7 @@ import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 import { BlogAdmin } from "@/components/blog-admin";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { z } from "zod";
-import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, UserCog } from "lucide-react";
+import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper } from "lucide-react";
 
 
 export const Route = createFileRoute("/_site/admin")({
