@@ -103,12 +103,18 @@ function AdminShell() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setEmail(data.session?.user.email ?? null));
   }, []);
+  const { data: metrics } = useQuery({ queryKey: ["admin-metrics"], queryFn: () => adminMetrics() });
+  const navWithBadges = ADMIN_NAV.map((item) => {
+    if (item.key === "claims") return { ...item, badge: metrics?.totals.pendingClaims };
+    if (item.key === "submissions") return { ...item, badge: metrics?.totals.pendingSubmissions };
+    return item;
+  });
 
   return (
     <DashboardShell
       title="Admin"
       subtitle="Site-wide management."
-      items={ADMIN_NAV}
+      items={navWithBadges}
       active={active}
       onSelect={(key) => navigate({ to: "/admin", search: { tab: key }, replace: true })}
     >
