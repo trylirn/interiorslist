@@ -46,6 +46,8 @@ import { Route as SiteClaimStatusIdRouteImport } from './routes/_site.claim.stat
 import { Route as SiteDashboardListingPlaceIdRouteImport } from './routes/_site.dashboard.listing.$placeId'
 import { Route as SiteDesignersStateIndexRouteImport } from './routes/_site.designers.$state.index'
 import { Route as SiteDesignersStateCityRouteImport } from './routes/_site.designers.$state.$city'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const SiteRoute = SiteRouteImport.update({
@@ -233,6 +235,16 @@ const SiteDesignersStateCityRoute = SiteDesignersStateCityRouteImport.update({
   path: '/designers/$state/$city',
   getParentRoute: () => SiteRoute,
 } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -276,6 +288,8 @@ export interface FileRoutesByFullPath {
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/designers/$state/': typeof SiteDesignersStateIndexRoute
 }
@@ -315,6 +329,8 @@ export interface FileRoutesByTo {
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/designers/$state': typeof SiteDesignersStateIndexRoute
 }
@@ -356,6 +372,8 @@ export interface FileRoutesById {
   '/_site/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/_site/designers/$state/$city': typeof SiteDesignersStateCityRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_site/designers/$state/': typeof SiteDesignersStateIndexRoute
 }
@@ -397,6 +415,8 @@ export interface FileRouteTypes {
     | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/designers/$state/'
   fileRoutesByTo: FileRoutesByTo
@@ -436,6 +456,8 @@ export interface FileRouteTypes {
     | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/designers/$state'
   id:
@@ -476,6 +498,8 @@ export interface FileRouteTypes {
     | '/_site/claim/status/$id'
     | '/_site/dashboard/listing/$placeId'
     | '/_site/designers/$state/$city'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/_site/designers/$state/'
   fileRoutesById: FileRoutesById
@@ -488,6 +512,8 @@ export interface RootRouteChildren {
   SitemapStudiosDotxmlRoute: typeof SitemapStudiosDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -752,6 +778,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteDesignersStateCityRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -848,6 +888,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapStudiosDotxmlRoute: SitemapStudiosDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
