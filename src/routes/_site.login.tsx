@@ -57,7 +57,7 @@ function SignInPanel() {
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${window.location.origin}/welcome` },
+        options: { emailRedirectTo: `${window.location.origin}/dashboard` },
       });
       if (error) throw error;
       setSent(true);
