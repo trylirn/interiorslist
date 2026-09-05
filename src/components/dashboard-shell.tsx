@@ -73,7 +73,7 @@ export function DashboardShell({
             <Icon className="h-4 w-4 shrink-0" />
             {!compact && <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>}
             {!compact && item.badge ? (
-              <span className="shrink-0 rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-medium text-brand">
+              <span className="shrink-0 rounded-full bg-destructive px-2 py-0.5 text-[11px] font-medium text-destructive-foreground">
                 {item.badge}
               </span>
             ) : null}
