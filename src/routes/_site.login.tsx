@@ -72,7 +72,7 @@ function SignInPanel() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate({ to: "/welcome" });
+      navigate({ to: "/dashboard" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Sign in failed");
     } finally { setLoading(false); }
@@ -145,7 +145,7 @@ function BusinessSignupWizard() {
         email: form.email,
         password: form.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/welcome`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: { display_name: form.contactName || form.businessName, account_type: "business" },
         },
       });
