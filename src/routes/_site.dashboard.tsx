@@ -39,6 +39,9 @@ function Dashboard() {
     supabase.auth.getSession().then(({ data }) => { setEmail(data.session?.user.email ?? null); setReady(true); });
   }, []);
   const { data: roles } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles(), enabled: !!email });
+  useEffect(() => {
+    if (roles?.isAdmin) navigate({ to: "/admin" });
+  }, [roles?.isAdmin, navigate]);
   const { data: listingsData, isLoading: listingsLoading } = useQuery({
     queryKey: ["my-listings"], queryFn: () => listMyListings(), enabled: !!email,
   });
