@@ -1,0 +1,1 @@
+REVOKE SELECT (owner_id) ON public.review_responses FROM anon;
