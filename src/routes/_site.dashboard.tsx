@@ -6,7 +6,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { listMyListings, listMyReviews, getMyOnboardingStatus, listMyClaims } from "@/lib/owner.functions";
+import { listMyListings, listMyReviews, getMyOnboardingStatus, listMyClaims, listMyLeads } from "@/lib/owner.functions";
 import { respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { getMyRoles } from "@/lib/role.functions";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
@@ -43,6 +43,9 @@ function Dashboard() {
   });
   const ownsListings = (listingsData?.listings.length ?? 0) > 0;
   const { data: onboarding } = useQuery({ queryKey: ["my-onboarding"], queryFn: () => getMyOnboardingStatus(), enabled: !!email });
+  const { data: leadsData } = useQuery({ queryKey: ["leads-inbox", "all"], queryFn: () => listMyLeads(), enabled: !!email });
+  const newLeadsCount = leadsData?.leads.filter((l) => l.status === "new").length ?? 0;
+  const navWithBadges = NAV.map((item) => (item.key === "leads" ? { ...item, badge: newLeadsCount } : item));
 
   const active = NAV.some((n) => n.key === tab) ? (tab as string) : "listings";
   const setActive = (key: string) => navigate({ to: "/dashboard", search: { tab: key } });
@@ -104,7 +107,7 @@ function Dashboard() {
     <DashboardShell
       title="Dashboard"
       subtitle={<span className="truncate">Signed in as {email}</span>}
-      items={NAV}
+      items={navWithBadges}
       active={active}
       onSelect={setActive}
       extraNav={roles?.isAdmin ? (
