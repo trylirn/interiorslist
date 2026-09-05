@@ -194,7 +194,7 @@ function OnboardingBanner({ status }: { status: Onboarding }) {
     );
   }
 
-  if (status.listingCount === 0 || !status.profileComplete) {
+  if (status.listingCount === 0) {
     return (
       <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-secondary/40 p-5">
         <Building2 className="h-5 w-5 shrink-0 text-brand" />
