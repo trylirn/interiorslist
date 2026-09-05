@@ -12,6 +12,7 @@ import { getMyRoles } from "@/lib/role.functions";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { LeadsInbox } from "@/components/leads-inbox";
 import { AccountSettings } from "@/components/account-settings";
+import { ListingManager } from "@/components/listing-manager";
 import { Star, ExternalLink, Building2, Shield, Clock, Inbox, MessageSquare, FileCheck2, Settings } from "lucide-react";
 import { toast } from "sonner";
 
