@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.prevent_profile_account_type_change() FROM PUBLIC, anon, authenticated;
