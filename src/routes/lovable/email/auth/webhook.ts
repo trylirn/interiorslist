@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "Interior project"
+const SITE_NAME = "Intearior"
 const SENDER_DOMAIN = "notify.intearior.com"
 const ROOT_DOMAIN = "intearior.com"
 const FROM_DOMAIN = "intearior.com"
