@@ -6,7 +6,7 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
 async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
   const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-  const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+  const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_SERVER_KEY;
   if (!LOVABLE_API_KEY || !GOOGLE_MAPS_API_KEY) return null;
   const url = `${GATEWAY_URL}/maps/api/geocode/json?address=${encodeURIComponent(address)}`;
   try {
