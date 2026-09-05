@@ -61,6 +61,7 @@ function Dashboard() {
       <Button asChild className="mt-6"><Link to="/login">Sign in</Link></Button>
     </div>
   );
+  if (roles?.isAdmin) return <div className="mx-auto max-w-2xl px-4 py-16"><p className="text-muted-foreground">Redirecting to admin…</p></div>;
 
   if (!listingsLoading && !ownsListings) {
     return (
