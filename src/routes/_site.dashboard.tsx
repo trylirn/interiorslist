@@ -122,7 +122,11 @@ function Dashboard() {
         <p className="text-muted-foreground">Loading…</p>
       ) : (
         <>
-          {active === "listings" && <ListingsTab />}
+          {active === "listings" && (
+            listingsData && listingsData.listings.length === 1
+             ? <ListingManager placeId={listingsData.listings[0].place_id} />
+             : <ListingsTab />
+          )}
           {active === "leads" && <LeadsInbox />}
           {active === "reviews" && <ReviewsTab />}
           {active === "claims" && <ClaimsTab />}
