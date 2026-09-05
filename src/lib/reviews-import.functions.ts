@@ -37,7 +37,7 @@ export const importGoogleReviews = createServerFn({ method: "POST" })
     await enforceRateLimit(`google-reviews:${data.placeId}`, { max: 5, windowMinutes: 60 });
 
     const lovableKey = process.env["LOVABLE_API_KEY"];
-    const mapsKey = process.env["GOOGLE_MAPS_API_KEY"];
+    const mapsKey = process.env["GOOGLE_MAPS_SERVER_KEY"];
     if (!lovableKey || !mapsKey) throw new Error("Google reviews are not configured for this site yet.");
 
     const url =
