@@ -63,7 +63,32 @@ When finished (after enough signal, max 6 questions):
 Available studio services for reference: ${SERVICES.map((s) => s.slug).join(", ")}.`;
 }
 
-async function callAI(messages: Array<{ role: string; content: string }>) {
+function parseJson(text: string) {
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("Matching failed — unexpected response");
+  return JSON.parse(match[0]) as Record<string, unknown>;
+}
+
+type Msg = { role: string; content: string };
+
+async function callOpenAI(messages: Msg[]) {
+  const key = process.env["OPENAI_API_KEY"];
+  if (!key) throw new Error("openai-unavailable");
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages,
+      response_format: { type: "json_object" },
+    }),
+  });
+  if (!res.ok) throw new Error(`openai-unavailable (${res.status})`);
+  const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  return parseJson(body.choices?.[0]?.message?.content ?? "");
+}
+
+async function callLovable(messages: Msg[]) {
   const key = process.env["LOVABLE_API_KEY"];
   if (!key) throw new Error("Matching is not configured");
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -79,10 +104,17 @@ async function callAI(messages: Array<{ role: string; content: string }>) {
   if (res.status === 402) throw new Error("Matching is temporarily unavailable. Please try again later.");
   if (!res.ok) throw new Error(`Matching failed (${res.status})`);
   const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-  const text = body.choices?.[0]?.message?.content ?? "";
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Matching failed — unexpected response");
-  return JSON.parse(match[0]) as Record<string, unknown>;
+  return parseJson(body.choices?.[0]?.message?.content ?? "");
+}
+
+/** OpenAI is primary; the Lovable AI engine is the automatic fallback. */
+async function callAI(messages: Msg[]) {
+  try {
+    return await callOpenAI(messages);
+  } catch (e) {
+    console.error("OpenAI matching failed, falling back", e);
+    return await callLovable(messages);
+  }
 }
 
 const FALLBACK: MatchQuestion = {

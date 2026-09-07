@@ -15,7 +15,8 @@ export const listMyListings = createServerFn({ method: "GET" })
       .from("providers")
       .select("place_id, slug, name, city, city_slug, address, website, specialists, services, branch_label, hero_photo_url, is_verified")
       .eq("claimed_by", userId)
-      .order("name");
+      .order("name")
+      .limit(1); // one studio per owner
     if (error) fail(error);
     return { listings: data ?? [] };
   });
