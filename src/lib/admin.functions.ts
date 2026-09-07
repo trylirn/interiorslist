@@ -103,7 +103,24 @@ export const reviewClaim = createServerFn({ method: "POST" })
       : data.action === "request_info" ? "needs_info"
       : "pending";
 
+    // Public claims can arrive without an account. If an account already
+    // exists for the contact email, attach the listing to it.
+    let ownerId = claim.user_id as string | null;
+    if (data.action === "approve") {
+      if (!ownerId && claim.contact_email) {
+        const { data: match } = await supabaseAdmin
+          .from("profiles")
+          .select("id")
+          .ilike("email", claim.contact_email as string)
+          .maybeSingle();
+        ownerId = match?.id ?? null;
+      }
+      const { assertNoExistingStudio } = await import("@/lib/one-studio.server");
+      await assertNoExistingStudio(ownerId, claim.contact_email as string | null, { ignoreClaimId: claim.id as string });
+    }
+
     const now = new Date().toISOString();
+
     const { error: upErr } = await supabaseAdmin
       .from("claims")
       .update({
@@ -128,24 +145,51 @@ export const reviewClaim = createServerFn({ method: "POST" })
     }
 
     if (data.action === "approve") {
-      // Public claims can arrive without an account. If an account already
-      // exists for the contact email, attach the listing to it.
-      let ownerId = claim.user_id as string | null;
-      if (!ownerId && claim.contact_email) {
-        const { data: match } = await supabaseAdmin
-          .from("profiles")
-          .select("id")
-          .ilike("email", claim.contact_email as string)
-          .maybeSingle();
-        ownerId = match?.id ?? null;
-      }
       await supabaseAdmin
         .from("providers")
         .update({ claimed_by: ownerId, is_verified: true, published: true })
         .eq("place_id", claim.provider_place_id);
     }
+
+
+    // Status email — never blocks the decision.
+    const templateName =
+      data.action === "approve" ? "claim-approved"
+      : data.action === "reject" ? "claim-rejected"
+      : data.action === "request_info" ? "claim-needs-info"
+      : null;
+    if (templateName && claim.contact_email) {
+      try {
+        const { data: provider } = await supabaseAdmin
+          .from("providers")
+          .select("name")
+          .eq("place_id", claim.provider_place_id)
+          .maybeSingle();
+        const { data: full } = await supabaseAdmin
+          .from("claims")
+          .select("contact_name, access_token")
+          .eq("id", data.id)
+          .maybeSingle();
+        const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+        await sendTemplateEmail(templateName, claim.contact_email as string, {
+          idempotencyKey: `claim-${data.id}-${status}-${now}`,
+          templateData: {
+            contactName: (full?.contact_name as string | null)?.split(" ")[0] ?? null,
+            studioName: provider?.name ?? null,
+            note: data.note?.trim() || null,
+            actionUrl:
+              data.action === "approve"
+                ? "https://intearior.com/dashboard"
+                : `https://intearior.com/claim/status/${data.id}?token=${(full?.access_token as string | null) ?? ""}`,
+          },
+        });
+      } catch (e) {
+        console.error("claim status email failed", e);
+      }
+    }
     return { ok: true };
   });
+
 
 
 export const listPendingSubmissions = createServerFn({ method: "GET" })

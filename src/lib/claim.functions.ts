@@ -24,9 +24,13 @@ export const submitPublicClaim = createServerFn({ method: "POST" })
     await enforceRateLimit("claim", { max: 5, windowMinutes: 60 });
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { assertNoExistingStudio } = await import("@/lib/one-studio.server");
 
     const email = data.contactEmail.toLowerCase();
     const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+    // One studio per owner.
+    await assertNoExistingStudio(data.userId ?? null, email);
 
     // Throttle: max 5 claims per email per hour, and one pending claim per listing/email.
     const { count } = await supabaseAdmin
@@ -61,6 +65,30 @@ export const submitPublicClaim = createServerFn({ method: "POST" })
       .select("id, access_token")
       .maybeSingle();
     if (error) fail(error);
+
+    // Confirmation email — never blocks the claim.
+    if (created?.id) {
+      try {
+        const { data: provider } = await supabaseAdmin
+          .from("providers")
+          .select("name")
+          .eq("place_id", data.placeId)
+          .maybeSingle();
+        const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+        await sendTemplateEmail("claim-received", email, {
+          idempotencyKey: `claim-${created.id}-received`,
+          templateData: {
+            contactName: data.firstName,
+            studioName: provider?.name ?? null,
+            actionUrl: `https://intearior.com/claim/status/${created.id}?token=${created.access_token ?? ""}`,
+          },
+        });
+      } catch (e) {
+        console.error("claim received email failed", e);
+      }
+    }
+
     return { ok: true, duplicate: false, claimId: created?.id ?? null, token: (created?.access_token as string | undefined) ?? null };
   });
+
 

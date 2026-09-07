@@ -26,6 +26,10 @@ export const submitPublicBusiness = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const email = data.contactEmail.toLowerCase();
+
+    const { assertNoExistingStudio } = await import("@/lib/one-studio.server");
+    await assertNoExistingStudio(data.userId ?? null, email);
+
     const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
     const { count } = await supabaseAdmin

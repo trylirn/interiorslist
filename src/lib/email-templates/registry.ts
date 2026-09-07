@@ -1,5 +1,7 @@
 import type { ComponentType } from 'react'
 import { template as newLeadTemplate } from './new-lead'
+import { claimReceived, claimNeedsInfo, claimApproved, claimRejected } from './claim-status'
+
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -20,4 +22,9 @@ export interface TemplateEntry {
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'new-lead': newLeadTemplate,
+  'claim-received': claimReceived,
+  'claim-needs-info': claimNeedsInfo,
+  'claim-approved': claimApproved,
+  'claim-rejected': claimRejected,
 }
+
