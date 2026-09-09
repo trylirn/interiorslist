@@ -193,6 +193,7 @@ function BusinessSignupWizard() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     businessName: "", city: "", address: "", website: "", phone: "",
     licenseType: "", licenseNumber: "", npi: "",
