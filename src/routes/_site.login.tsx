@@ -221,9 +221,22 @@ function BusinessSignupWizard() {
           data: { display_name: form.contactName || form.businessName, account_type: "business" },
         },
       });
-      if (suErr) throw suErr;
+      if (suErr) {
+        const m = suErr.message || "";
+        const status = (suErr as { status?: number }).status;
+        if (status === 429 || /security purposes|rate limit/i.test(m)) {
+          toast.success("Account created. Check your email to confirm, then sign in.");
+          navigate({ to: "/" });
+          return;
+        }
+        if (/already registered|already exists/i.test(m)) {
+          throw new Error("That email already has an account — sign in with your email link instead.");
+        }
+        throw suErr;
+      }
       const userId = signUp.user?.id;
-      if (!userId) throw new Error("Signup failed");
+      if (!userId) throw new Error("We couldn't create the account. Please try again.");
+
 
       // Optional license doc upload (folder must equal userId per storage RLS)
       let licensePath: string | null = null;
