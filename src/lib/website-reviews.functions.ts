@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callerIsAdmin } from "@/lib/caller-role";
 import { fail } from "@/lib/errors";
 
-type Candidate = { text: string; author: string | null };
+type Candidate = { text: string; author: string | null; rating: number | null };
 
 function decode(s: string): string {
   return s
