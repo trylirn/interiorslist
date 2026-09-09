@@ -887,7 +887,7 @@ function WebsiteImport({ placeId }: { placeId: string }) {
       setCandidates(res.candidates);
       setSource(res.source);
       setPicked(new Set());
-      setRatings(Object.fromEntries(res.candidates.map((c, i) => [i, c.rating ?? null])));
+      setRatings(Object.fromEntries(res.candidates.map((c, i) => [i, c.rating == null ? null : Math.round(c.rating)])));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not read that page");
     } finally { setBusy(false); }
