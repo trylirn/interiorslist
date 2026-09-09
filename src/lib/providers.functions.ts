@@ -427,5 +427,7 @@ export const getDirectoryStats = createServerFn({ method: "GET" }).handler(async
     const s = (r.state ?? "").toUpperCase().trim();
     if (s) states.add(s);
   }
-  return { studios: rows.length, cities: cities.size, states: states.size };
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { count } = await supabaseAdmin.from("reviews").select("id", { count: "exact", head: true });
+  return { studios: rows.length, cities: cities.size, states: states.size, reviews: count ?? 0 };
 });

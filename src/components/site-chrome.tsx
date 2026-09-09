@@ -44,7 +44,7 @@ export function SiteHeader() {
           </Link>
           {roles?.isAdmin && <Link to="/admin" className="text-sm font-medium text-brand hover:underline">Admin</Link>}
           {userEmail ? (
-            <Link to="/dashboard" className="text-sm font-medium hover:text-brand">Account</Link>
+            roles?.isAdmin ? null : <Link to="/dashboard" className="text-sm font-medium hover:text-brand">Account</Link>
           ) : (
             <Link to="/login" className="text-sm font-medium hover:text-brand">Sign In</Link>
           )}
@@ -64,7 +64,7 @@ export function SiteHeader() {
             <Link to="/review" onClick={() => setOpen(false)}>Write a Review</Link>
             {roles?.isAdmin && <Link to="/admin" onClick={() => setOpen(false)}>Admin</Link>}
             {userEmail
-              ? <Link to="/dashboard" onClick={() => setOpen(false)}>Account</Link>
+              ? (roles?.isAdmin ? null : <Link to="/dashboard" onClick={() => setOpen(false)}>Account</Link>)
               : <Link to="/login" onClick={() => setOpen(false)}>Sign in</Link>}
           </div>
         </div>

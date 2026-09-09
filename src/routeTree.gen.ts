@@ -32,6 +32,7 @@ import { Route as SiteSubmitRouteImport } from './routes/_site.submit'
 import { Route as SiteTermsRouteImport } from './routes/_site.terms'
 import { Route as SiteWelcomeRouteImport } from './routes/_site.welcome'
 import { Route as PhotoSplatRouteImport } from './routes/photo.$'
+import { Route as SiteAuthCallbackRouteImport } from './routes/_site.auth.callback'
 import { Route as SiteBlogIndexRouteImport } from './routes/_site.blog.index'
 import { Route as SiteBlogSlugRouteImport } from './routes/_site.blog.$slug'
 import { Route as SiteClaimIndexRouteImport } from './routes/_site.claim.index'
@@ -165,6 +166,11 @@ const PhotoSplatRoute = PhotoSplatRouteImport.update({
   path: '/photo/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SiteAuthCallbackRoute = SiteAuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteBlogIndexRoute = SiteBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -281,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof SiteTermsRoute
   '/welcome': typeof SiteWelcomeRoute
   '/photo/$': typeof PhotoSplatRoute
+  '/auth/callback': typeof SiteAuthCallbackRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
@@ -323,6 +330,7 @@ export interface FileRoutesByTo {
   '/welcome': typeof SiteWelcomeRoute
   '/photo/$': typeof PhotoSplatRoute
   '/': typeof SiteIndexRoute
+  '/auth/callback': typeof SiteAuthCallbackRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
@@ -367,6 +375,7 @@ export interface FileRoutesById {
   '/_site/welcome': typeof SiteWelcomeRoute
   '/photo/$': typeof PhotoSplatRoute
   '/_site/': typeof SiteIndexRoute
+  '/_site/auth/callback': typeof SiteAuthCallbackRoute
   '/_site/blog/$slug': typeof SiteBlogSlugRoute
   '/_site/claim/$slug': typeof SiteClaimSlugRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
@@ -411,6 +420,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/welcome'
     | '/photo/$'
+    | '/auth/callback'
     | '/blog/$slug'
     | '/claim/$slug'
     | '/provider/$slug'
@@ -453,6 +463,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/photo/$'
     | '/'
+    | '/auth/callback'
     | '/blog/$slug'
     | '/claim/$slug'
     | '/provider/$slug'
@@ -496,6 +507,7 @@ export interface FileRouteTypes {
     | '/_site/welcome'
     | '/photo/$'
     | '/_site/'
+    | '/_site/auth/callback'
     | '/_site/blog/$slug'
     | '/_site/claim/$slug'
     | '/_site/provider/$slug'
@@ -693,6 +705,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PhotoSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_site/auth/callback': {
+      id: '/_site/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof SiteAuthCallbackRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/blog/': {
       id: '/_site/blog/'
       path: '/blog'
@@ -851,6 +870,7 @@ interface SiteRouteChildren {
   SiteTermsRoute: typeof SiteTermsRoute
   SiteWelcomeRoute: typeof SiteWelcomeRoute
   SiteIndexRoute: typeof SiteIndexRoute
+  SiteAuthCallbackRoute: typeof SiteAuthCallbackRoute
   SiteBlogSlugRoute: typeof SiteBlogSlugRoute
   SiteClaimSlugRoute: typeof SiteClaimSlugRoute
   SiteProviderSlugRoute: typeof SiteProviderSlugRoute
@@ -883,6 +903,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteTermsRoute: SiteTermsRoute,
   SiteWelcomeRoute: SiteWelcomeRoute,
   SiteIndexRoute: SiteIndexRoute,
+  SiteAuthCallbackRoute: SiteAuthCallbackRoute,
   SiteBlogSlugRoute: SiteBlogSlugRoute,
   SiteClaimSlugRoute: SiteClaimSlugRoute,
   SiteProviderSlugRoute: SiteProviderSlugRoute,

@@ -273,7 +273,7 @@ export const listAllProviders = createServerFn({ method: "GET" })
     const build = () => {
       let q = supabaseAdmin
         .from("providers")
-        .select("place_id, slug, name, city, claimed_by, is_verified, published, featured, rating, review_count", {
+        .select("place_id, slug, name, city, claimed_by, is_verified, published, featured, plan, plan_expires_at, rating, review_count", {
           count: "exact",
         })
         .order("name");
@@ -299,7 +299,7 @@ export const toggleProviderFlag = createServerFn({ method: "POST" })
   .inputValidator((d) =>
     z.object({
       placeId: z.string().min(1).max(200),
-      field: z.enum(["published", "featured", "is_verified"]),
+      field: z.enum(["published", "is_verified"]),
       value: z.boolean(),
     }).parse(d),
   )
@@ -309,6 +309,28 @@ export const toggleProviderFlag = createServerFn({ method: "POST" })
     const patch: Record<string, boolean> = { [data.field]: data.value };
     const { error } = await (supabaseAdmin
       .from("providers") as unknown as { update: (p: Record<string, boolean>) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } })
+      .update(patch)
+      .eq("place_id", data.placeId);
+    if (error) fail(error);
+    return { ok: true };
+  });
+
+/** Featured is derived from the plan: premium (and unexpired) studios are featured. */
+export const setProviderPlan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      placeId: z.string().min(1).max(200),
+      plan: z.enum(["free", "premium"]),
+      expiresAt: z.string().max(40).nullable().optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await assertAdmin(context.userId);
+    const patch = { plan: data.plan, plan_expires_at: data.plan === "premium" ? (data.expiresAt ?? null) : null };
+    const { error } = await (supabaseAdmin
+      .from("providers") as unknown as { update: (p: Record<string, unknown>) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } })
       .update(patch)
       .eq("place_id", data.placeId);
     if (error) fail(error);

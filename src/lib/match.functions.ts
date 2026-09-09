@@ -113,15 +113,31 @@ export const getMatches = createServerFn({ method: "POST" })
       .select(
         "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, featured, badges, price_ranges, rating, review_count, styles, project_types, price_tier, typical_project_budget, remote_services",
       );
+    const SELECT_COLS =
+      "place_id, slug, name, city, city_slug, address, services, specialists, notes, branch_label, brand_id, is_verified, featured, badges, price_ranges, rating, review_count, styles, project_types, price_tier, typical_project_budget, remote_services";
     if (data.citySlug && data.citySlug !== "any") q = q.eq("city_slug", data.citySlug);
-    const { data: rows, error } = await q.limit(200);
+    const { data: rowsRaw, error } = await q.limit(200);
     if (error) fail(error);
+    let rows = rowsRaw ?? [];
+    // Always be able to show 3 studios: if the chosen city is thin, widen out nationally.
+    if (rows.length < 3) {
+      const { data: extra } = await supabaseAdmin.from("providers").select(SELECT_COLS).limit(200);
+      const seen = new Set(rows.map((r) => (r as { place_id: string }).place_id));
+      for (const r of extra ?? []) {
+        const id = (r as { place_id: string }).place_id;
+        if (!seen.has(id)) {
+          seen.add(id);
+          rows.push(r as never);
+        }
+      }
+      rows = rows.slice(0, 200);
+    }
 
     const prefs = new Set(data.preferences ?? []);
     const wantedStyles = new Set(data.styles ?? []);
     const budgetTier = data.budget ? BUDGET_TIER[data.budget] : undefined;
 
-    const scored = (rows ?? [])
+    const scored = rows
       .map((p: Record<string, unknown>) => {
         let score = 0;
         const services = (p.services ?? []) as string[];

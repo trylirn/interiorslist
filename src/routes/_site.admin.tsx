@@ -12,6 +12,7 @@ import {
   reviewSubmission,
   listAllProviders,
   toggleProviderFlag,
+  setProviderPlan,
   getLicenseDocSignedUrl,
   getClaimThreadAdmin,
 } from "@/lib/admin.functions";
@@ -25,7 +26,8 @@ import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 import { BlogAdmin } from "@/components/blog-admin";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { z } from "zod";
-import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper } from "lucide-react";
+import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, Settings } from "lucide-react";
+import { AccountSettings } from "@/components/account-settings";
 
 
 export const Route = createFileRoute("/_site/admin")({
@@ -92,6 +94,7 @@ const ADMIN_NAV: DashboardNavItem[] = [
   { key: "listings", label: "Listings", icon: Building2 },
   { key: "team", label: "Team", icon: Users },
   { key: "blog", label: "Blog", icon: Newspaper },
+  { key: "account", label: "Account", icon: Settings },
 ];
 
 function AdminShell() {
@@ -125,6 +128,7 @@ function AdminShell() {
       {active === "listings" && <ListingsTab />}
       {active === "team" && <TeamTab />}
       {active === "blog" && <BlogAdmin />}
+      {active === "account" && <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />}
       
     </DashboardShell>
   );
@@ -351,7 +355,12 @@ function ListingsTab() {
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
   const toggle = useServerFn(toggleProviderFlag);
-  async function flip(placeId: string, field: "published" | "featured" | "is_verified", value: boolean) {
+  const setPlan = useServerFn(setProviderPlan);
+  async function changePlan(placeId: string, plan: "free" | "premium") {
+    try { await setPlan({ data: { placeId, plan } }); qc.invalidateQueries({ queryKey: ["admin-listings"] }); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  }
+  async function flip(placeId: string, field: "published" | "is_verified", value: boolean) {
     try { await toggle({ data: { placeId, field, value } }); qc.invalidateQueries({ queryKey: ["admin-listings"] }); }
     catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
   }
@@ -373,12 +382,12 @@ function ListingsTab() {
         {data && <span className="text-xs text-muted-foreground">Showing {from}–{to} of {total.toLocaleString()}</span>}
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        <strong className="font-medium text-foreground">Featured</strong> pins a studio to the front of the homepage studio row, ahead of the usual rating-based order.
+        <strong className="font-medium text-foreground">Plan</strong> drives featured placement automatically: premium studios are pinned to the front of the homepage row and ranked first in Get Matched. Moving a studio back to free removes it.
       </p>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <tr><th className="p-2">Name</th><th>City</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Featured</th></tr>
+            <tr><th className="p-2">Name</th><th>City</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Plan</th></tr>
           </thead>
           <tbody>
             {isLoading && <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
@@ -395,7 +404,18 @@ function ListingsTab() {
                 <td>{p.claimed_by ? "✓" : "—"}</td>
                 <td><Switch checked={p.is_verified} onCheckedChange={(v) => flip(p.place_id, "is_verified", v)} /></td>
                 <td><Switch checked={p.published} onCheckedChange={(v) => flip(p.place_id, "published", v)} /></td>
-                <td><Switch checked={p.featured} onCheckedChange={(v) => flip(p.place_id, "featured", v)} /></td>
+                <td>
+                  <select
+                    aria-label="Plan"
+                    className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                    value={p.plan === "premium" ? "premium" : "free"}
+                    onChange={(e) => changePlan(p.place_id, e.target.value as "free" | "premium")}
+                  >
+                    <option value="free">Free</option>
+                    <option value="premium">Premium</option>
+                  </select>
+                  {p.featured && <span className="ml-2 text-[10px] uppercase tracking-wide text-brand">Featured</span>}
+                </td>
               </tr>
             ))}
           </tbody>
