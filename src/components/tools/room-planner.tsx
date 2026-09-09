@@ -129,17 +129,20 @@ export function RoomPlanner() {
     const preset = byKind(kind);
     if (!preset) return;
 
+    // cascade new pieces so they don't land exactly on top of each other
+    const step = (plan.items.length % 6) * 0.75;
     const item: Item = {
       id: uid(),
       kind: preset.kind,
       label: preset.label,
-      x: snap(Math.max(0.5, plan.roomW / 2 - preset.w / 2)),
-      y: snap(Math.max(0.5, plan.roomH / 2 - preset.h / 2)),
+      x: snap(Math.max(0.5, Math.min(plan.roomW - preset.w - 0.5, plan.roomW / 2 - preset.w / 2 + step))),
+      y: snap(Math.max(0.5, Math.min(plan.roomH - preset.h - 0.5, plan.roomH / 2 - preset.h / 2 + step))),
       w: preset.w,
       h: preset.h,
       rot: 0,
       color: preset.color,
     };
+
     commit({ ...plan, items: [...plan.items, item] });
     setSelected(item.id);
   }
