@@ -2,7 +2,7 @@ import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
-import { fetchAllPublished } from "./providers.server";
+import { cachedAggregate, fetchAllPublished } from "./providers.server";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 // Public detail projection — excludes private fields (email, email_forward_to, document_urls).
@@ -93,12 +93,14 @@ export const getFeaturedProviders = createServerFn({ method: "GET" }).handler(as
   return { providers: data ?? [] };
 });
 
-export const getCityStats = createServerFn({ method: "GET" }).handler(async () => {
-  const data = await fetchAllPublished<{ city_slug: string }>("city_slug");
-  const counts: Record<string, number> = {};
-  for (const row of data) counts[row.city_slug] = (counts[row.city_slug] ?? 0) + 1;
-  return { counts };
-});
+export const getCityStats = createServerFn({ method: "GET" }).handler(async () =>
+  cachedAggregate("city-stats", async () => {
+    const data = await fetchAllPublished<{ city_slug: string }>("city_slug");
+    const counts: Record<string, number> = {};
+    for (const row of data) counts[row.city_slug] = (counts[row.city_slug] ?? 0) + 1;
+    return { counts };
+  }),
+);
 
 export const searchProviders = createServerFn({ method: "GET" })
   .inputValidator((d) =>
