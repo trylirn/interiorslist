@@ -111,7 +111,7 @@ function SearchPage() {
         <span className="text-border">|</span>
         <span>{(stats?.reviews ?? 0).toLocaleString()} client reviews</span>
         <span className="text-border">|</span>
-        <span className="text-muted-foreground">Independent directory — we never sell placement</span>
+        <span className="text-muted-foreground">Independent directory</span>
       </div>
 
       <form
