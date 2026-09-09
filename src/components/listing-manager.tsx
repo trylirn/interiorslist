@@ -887,6 +887,7 @@ function WebsiteImport({ placeId }: { placeId: string }) {
       setCandidates(res.candidates);
       setSource(res.source);
       setPicked(new Set());
+      setRatings(Object.fromEntries(res.candidates.map((c, i) => [i, c.rating ?? null])));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not read that page");
     } finally { setBusy(false); }
@@ -895,15 +896,19 @@ function WebsiteImport({ placeId }: { placeId: string }) {
   async function save() {
     setBusy(true);
     try {
-      const chosen = candidates.filter((_, i) => picked.has(i));
+      const chosen = candidates
+        .map((c, i) => ({ text: c.text, author: c.author, rating: ratings[i] ?? null, i }))
+        .filter((c) => picked.has(c.i))
+        .map(({ i: _i, ...rest }) => rest);
       const res = await saveFn({ data: { placeId, sourceUrl: source, reviews: chosen } });
       toast.success(`Saved ${res.saved} review${res.saved === 1 ? "" : "s"}`);
-      setCandidates([]); setPicked(new Set()); setUrl("");
+      setCandidates([]); setPicked(new Set()); setRatings({}); setUrl("");
       qc.invalidateQueries({ queryKey: ["listing-reviews", placeId] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save reviews");
     } finally { setBusy(false); }
   }
+
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
