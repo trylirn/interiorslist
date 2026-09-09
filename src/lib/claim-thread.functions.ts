@@ -1,18 +1,48 @@
 import { fail } from "@/lib/errors";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 const BUCKET = "business-docs";
 
-async function loadClaim(claimId: string, token: string) {
+/**
+ * A claim thread is private: the signed-in user must be the claimant (linked
+ * account or the email the claim was filed with) or an admin. The private link
+ * token alone is no longer enough to read or reply.
+ */
+async function loadClaim(claimId: string, token: string, userId: string, userEmail: string | null) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("claims")
-    .select("id, provider_place_id, contact_name, contact_email, status, decision_reason, proof_notes, submitted_at, access_token")
+    .select(
+      "id, provider_place_id, user_id, contact_name, contact_email, status, decision_reason, proof_notes, submitted_at, access_token",
+    )
     .eq("id", claimId)
     .maybeSingle();
   if (error) fail(error);
   if (!data || data.access_token !== token) throw new Error("Claim not found");
+
+  const email = (userEmail ?? "").toLowerCase();
+  const isClaimant =
+    data.user_id === userId || (!!email && (data.contact_email ?? "").toLowerCase() === email);
+
+  let allowed = isClaimant;
+  if (!allowed) {
+    const { data: role } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .in("role", ["admin", "super_admin"])
+      .maybeSingle();
+    allowed = !!role;
+  }
+  if (!allowed) throw new Error("You don't have access to this claim.");
+
+  // Bind the claim to the signed-in account the first time they open it.
+  if (!data.user_id && isClaimant) {
+    await supabaseAdmin.from("claims").update({ user_id: userId }).eq("id", data.id);
+  }
+
   return { claim: data, supabaseAdmin };
 }
 
