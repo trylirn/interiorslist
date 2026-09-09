@@ -165,7 +165,14 @@ export const fetchWebsiteReviews = createServerFn({ method: "POST" })
     let html = "";
     try {
       const res = await fetch(target.toString(), {
-        headers: { "User-Agent": "IntearriorBot/1.0 (+https://intearior.com)", Accept: "text/html" },
+        redirect: "follow",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 IntearriorBot/1.0 (+https://intearior.com)",
+          Accept: "text/html,application/xhtml+xml",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
+
       });
       if (!res.ok) throw new Error(`status ${res.status}`);
       html = (await res.text()).slice(0, 1_500_000);
