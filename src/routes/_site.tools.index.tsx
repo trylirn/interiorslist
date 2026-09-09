@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Calculator, LayoutGrid, Palette } from "lucide-react";
+import { Calculator, Palette } from "lucide-react";
 
 export const Route = createFileRoute("/_site/tools/")({
   head: () => ({
@@ -9,10 +9,10 @@ export const Route = createFileRoute("/_site/tools/")({
       {
         name: "description",
         content:
-          "Free tools for planning a room: a 2D room planner, an interior design budget estimator and a colour palette generator. No sign-up, saved in your browser.",
+          "Free tools for planning a project: an interior design budget estimator and a colour palette generator. No sign-up, saved in your browser.",
       },
       { property: "og:title", content: "Free Interior Design Tools | Intearior" },
-      { property: "og:description", content: "Plan a layout, estimate a budget and build a colour palette — free, no sign-up." },
+      { property: "og:description", content: "Estimate a budget and build a colour palette — free, no sign-up." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -27,15 +27,11 @@ function ToolsHub() {
       <p className="text-xs font-semibold uppercase tracking-widest text-brand">Free tools</p>
       <h1 className="mt-3 font-display text-5xl md:text-6xl">Plan it before you pay for it.</h1>
       <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
-        Three free tools for homeowners and studios. Nothing to sign up for, and everything you make is saved
+        Free tools for homeowners and studios. Nothing to sign up for, and everything you make is saved
         in your own browser.
       </p>
 
-      <div className="mt-14 grid gap-6 md:grid-cols-3">
-        <ToolCard
-          to="/tools/room-planner" Icon={LayoutGrid} title="2D Room Planner"
-          body="Set your room dimensions, drop in doors and windows, then move furniture around to test a layout."
-        />
+      <div className="mt-14 grid gap-6 md:grid-cols-2">
         <ToolCard
           to="/tools/budget-estimator" Icon={Calculator} title="Budget Estimator"
           body="Room, size, scope, finish level and state — get a realistic cost range with a breakdown of where it goes."
@@ -45,6 +41,7 @@ function ToolsHub() {
           body="Built for studios: harmony rules, shade ladders, contrast checks and palettes pulled from a photo."
         />
       </div>
+
 
       <div className="mt-16 border border-border bg-secondary/30 p-8">
         <h2 className="font-display text-2xl">Ready to talk to a real studio?</h2>
