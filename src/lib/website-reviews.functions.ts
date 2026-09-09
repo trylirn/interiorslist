@@ -130,14 +130,27 @@ function extractCandidates(html: string): Candidate[] {
     .replace(/<!--[\s\S]*?-->/g, " ")
     .replace(/<(nav|header|footer|form|svg)[\s\S]*?<\/\1>/gi, " ");
 
+  const ldRatings = jsonLdRatings(html);
+  const ldLookup = (text: string): number | null => {
+    const key = text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().slice(0, 60);
+    if (ldRatings.has(key)) return ldRatings.get(key) ?? null;
+    for (const [k, v] of ldRatings) if (k.length >= 20 && (k.startsWith(key.slice(0, 40)) || key.startsWith(k.slice(0, 40)))) return v;
+    return null;
+  };
+
   const found: Candidate[] = [];
-  const push = (text: string, author: string | null) => {
+  const push = (text: string, author: string | null, rating: number | null = null) => {
     const t = text.trim().replace(/^["“”']+|["“”']+$/g, "").trim();
     if (t.length < 40 || t.length > 2000) return;
     if (found.some((f) => f.text === t)) return;
     const a = author ? author.replace(/\s+/g, " ").trim() : null;
-    found.push({ text: t, author: a && a.length >= 2 && a.length <= 80 ? a : null });
+    found.push({
+      text: t,
+      author: a && a.length >= 2 && a.length <= 80 ? a : null,
+      rating: ldLookup(t) ?? rating,
+    });
   };
+
 
   const fromBlock = (inner: string) => {
     // Prefer a dedicated text child if the block has one; otherwise use the whole block
