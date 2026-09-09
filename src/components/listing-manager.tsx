@@ -300,6 +300,11 @@ function InfoEditor({ placeId, listing, backTo }: { placeId: string; listing: Li
       </div>
 
       <div className="space-y-1.5">
+        {!form.email_forward_to?.trim() && (
+          <p className="rounded-xl border border-amber-300/60 bg-amber-50 px-3 py-2 text-[12px] text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+            Add an email below so new enquiries reach your inbox, not just this dashboard.
+          </p>
+        )}
         <Label>Forward new leads to this email</Label>
         <div className="flex flex-wrap items-center gap-2">
           <Input type="email" className="flex-1 min-w-52" value={form.email_forward_to} onChange={(e) => setForm({ ...form, email_forward_to: e.target.value })} placeholder="leads@yourstudio.com" />

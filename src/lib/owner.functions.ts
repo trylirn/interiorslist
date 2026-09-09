@@ -176,7 +176,27 @@ export const listMyLeads = createServerFn({ method: "GET" })
     const { data, error } = await q.order("created_at", { ascending: false }).limit(500);
     if (error) fail(error);
 
-    const leads = (data ?? []).map((l) => ({ ...l, providerName: nameMap.get(l.provider_place_id) ?? "" }));
+    // Flag leads whose studio has no address on file — those were routed to
+    // Intearior operations and need outreach.
+    const leadPlaceIds = Array.from(new Set((data ?? []).map((l) => l.provider_place_id)));
+    const noContact = new Set<string>();
+    if (leadPlaceIds.length) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: contacts } = await supabaseAdmin
+        .from("providers")
+        .select("place_id, name, email, email_forward_to, claimed_by")
+        .in("place_id", leadPlaceIds);
+      for (const c of contacts ?? []) {
+        if (!nameMap.has(c.place_id)) nameMap.set(c.place_id, c.name);
+        if (!c.email && !c.email_forward_to) noContact.add(c.place_id);
+      }
+    }
+
+    const leads = (data ?? []).map((l) => ({
+      ...l,
+      providerName: nameMap.get(l.provider_place_id) ?? "",
+      noStudioContact: noContact.has(l.provider_place_id),
+    }));
     const listings = Array.from(
       new Map(leads.map((l) => [l.provider_place_id, { place_id: l.provider_place_id, name: l.providerName || l.provider_place_id }])).values(),
     );

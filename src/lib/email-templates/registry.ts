@@ -1,5 +1,7 @@
 import type { ComponentType } from 'react'
 import { template as newLeadTemplate } from './new-lead'
+import { template as enquiryConfirmation } from './enquiry-confirmation'
+import { claimSubmittedAdmin, submissionReceivedAdmin } from './ops-alerts'
 import { claimReceived, claimNeedsInfo, claimApproved, claimRejected } from './claim-status'
 
 
@@ -26,5 +28,8 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'claim-needs-info': claimNeedsInfo,
   'claim-approved': claimApproved,
   'claim-rejected': claimRejected,
+  'enquiry-confirmation': enquiryConfirmation,
+  'claim-submitted-admin': claimSubmittedAdmin,
+  'submission-received-admin': submissionReceivedAdmin,
 }
 

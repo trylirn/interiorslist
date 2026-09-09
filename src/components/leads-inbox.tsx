@@ -32,6 +32,7 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
   const [listing, setListing] = useState<string>("all");
   const [source, setSource] = useState<string>("all");
   const [range, setRange] = useState<string>("all");
+  const [contact, setContact] = useState<string>("all");
   const [q, setQ] = useState("");
   const [limit, setLimit] = useState(50);
 
@@ -58,6 +59,7 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
       if (listing !== "all" && l.provider_place_id !== listing) return false;
       if (source !== "all" && sourceOf(l) !== source) return false;
       if (days && now - new Date(l.created_at).getTime() > days * 864e5) return false;
+      if (contact === "missing" && !l.noStudioContact) return false;
       if (needle) {
         const hay = [l.first_name, l.last_name, l.email, l.phone, l.message, l.location, l.project_type, l.providerName]
           .join(" ")
@@ -66,7 +68,7 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
       }
       return true;
     });
-  }, [leads, status, listing, source, range, q]);
+  }, [leads, status, listing, source, range, q, contact]);
 
   async function setLeadStatus(id: string, next: Status) {
     try {
@@ -158,6 +160,13 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
             <SelectItem value="Studio page">Studio page</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={contact} onValueChange={setContact}>
+          <SelectTrigger><SelectValue placeholder="Studio contact" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All studios</SelectItem>
+            <SelectItem value="missing">No studio contact</SelectItem>
+          </SelectContent>
+        </Select>
         <Select value={range} onValueChange={setRange}>
           <SelectTrigger><SelectValue placeholder="Date" /></SelectTrigger>
           <SelectContent>
@@ -207,7 +216,12 @@ function LeadCard({ lead: l, showStudio, onStatus }: { lead: Lead; showStudio: b
     ["Timeline", l.timeline],
   ];
   const filled = rows.filter(([, v]) => !!v && String(v).trim());
-  const badges = [sourceOf(l), l.project_type, l.budget].filter(Boolean) as string[];
+  const badges = [
+    sourceOf(l),
+    ...(l.noStudioContact ? ["Unclaimed — needs outreach"] : []),
+    l.project_type,
+    l.budget,
+  ].filter(Boolean) as string[];
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">

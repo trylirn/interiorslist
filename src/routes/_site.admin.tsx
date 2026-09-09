@@ -13,6 +13,7 @@ import {
   listAllProviders,
   toggleProviderFlag,
   setProviderPlan,
+  setProviderContactEmail,
   getLicenseDocSignedUrl,
   getClaimThreadAdmin,
 } from "@/lib/admin.functions";
@@ -340,12 +341,48 @@ function SubmissionsTab() {
   );
 }
 
+function ContactEmailCell({ placeId, value, forwardTo }: { placeId: string; value: string; forwardTo: string }) {
+  const [email, setEmail] = useState(value);
+  const [busy, setBusy] = useState(false);
+  const save = useServerFn(setProviderContactEmail);
+  const dirty = email.trim() !== value;
+  async function commit() {
+    if (!dirty) return;
+    setBusy(true);
+    try {
+      await save({ data: { placeId, email: email.trim() } });
+      toast.success("Contact email saved");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+      setEmail(value);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="flex items-center gap-1">
+      <Input
+        type="email"
+        aria-label="Studio contact email"
+        className="h-8 w-52 text-xs"
+        placeholder={forwardTo ? `Forwarding: ${forwardTo}` : "No email on file"}
+        value={email}
+        disabled={busy}
+        onChange={(e) => setEmail(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
+      />
+      {!email && !forwardTo && <span className="text-[10px] uppercase tracking-wide text-destructive">Missing</span>}
+    </div>
+  );
+}
+
 function ListingsTab() {
   const qc = useQueryClient();
   const { data: roles } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles() });
   const isSuper = roles?.isSuperAdmin === true;
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<"all" | "published" | "unpublished">("all");
+  const [status, setStatus] = useState<"all" | "published" | "unpublished" | "no_email">("all");
   const [page, setPage] = useState(1);
   const pageSize = 100;
   useEffect(() => { setPage(1); }, [q, status]);
@@ -372,13 +409,13 @@ function ListingsTab() {
       <div className="flex flex-wrap items-center gap-2">
         <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name…" className="max-w-sm" aria-label="Search studios" />
         <div className="flex rounded-md border border-border p-0.5">
-          {(["all", "published", "unpublished"] as const).map((s) => (
+          {(["all", "published", "unpublished", "no_email"] as const).map((s) => (
             <button
               key={s}
               onClick={() => setStatus(s)}
               className={`rounded px-3 py-1 text-xs capitalize ${status === s ? "bg-secondary font-medium" : "text-muted-foreground"}`}
             >
-              {s}
+              {s === "no_email" ? "No contact email" : s}
             </button>
           ))}
         </div>
@@ -390,12 +427,12 @@ function ListingsTab() {
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
           <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <tr><th className="p-2">Name</th><th>City</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Plan</th></tr>
+            <tr><th className="p-2">Name</th><th>City</th><th>Contact email</th><th>Claimed</th><th>Verified</th><th>Published</th><th>Plan</th></tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
+            {isLoading && <tr><td colSpan={7} className="p-4 text-center text-muted-foreground">Loading…</td></tr>}
             {!isLoading && data?.providers.length === 0 && (
-              <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">No studios match.</td></tr>
+              <tr><td colSpan={7} className="p-4 text-center text-muted-foreground">No studios match.</td></tr>
             )}
             {data?.providers.map((p) => (
               <tr key={p.place_id} className="border-t border-border">
@@ -404,6 +441,13 @@ function ListingsTab() {
                   {!p.published && <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">Unpublished</span>}
                 </td>
                 <td>{p.city}</td>
+                <td className="py-1 pr-2">
+                  <ContactEmailCell
+                    placeId={p.place_id}
+                    value={(p.email as string | null) ?? ""}
+                    forwardTo={(p.email_forward_to as string | null) ?? ""}
+                  />
+                </td>
                 <td>{p.claimed_by ? "✓" : "—"}</td>
                 <td><Switch checked={p.is_verified} onCheckedChange={(v) => flip(p.place_id, "is_verified", v)} /></td>
                 <td><Switch checked={p.published} onCheckedChange={(v) => flip(p.place_id, "published", v)} /></td>

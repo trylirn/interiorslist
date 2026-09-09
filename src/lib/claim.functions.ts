@@ -83,6 +83,23 @@ export const submitPublicClaim = createServerFn({ method: "POST" })
             actionUrl: `https://intearior.com/claim/status/${created.id}?token=${created.access_token ?? ""}`,
           },
         });
+
+        // Internal alert so a pending claim never waits unseen.
+        const { OPS_EMAIL } = await import("@/lib/email-templates/ops");
+        await sendTemplateEmail("claim-submitted-admin", OPS_EMAIL, {
+          idempotencyKey: `claim-${created.id}-ops`,
+          templateData: {
+            title: "New studio claim awaiting review",
+            lines: [
+              `Studio: ${provider?.name ?? data.placeId}`,
+              `From: ${data.firstName} ${data.lastName} (${email})`,
+              data.contactPhone ? `Phone: ${data.contactPhone}` : "",
+              data.businessRole ? `Role: ${data.businessRole}` : "",
+            ].filter(Boolean),
+            actionUrl: "https://intearior.com/admin?tab=claims",
+            actionLabel: "Review claim",
+          },
+        });
       } catch (e) {
         console.error("claim received email failed", e);
       }

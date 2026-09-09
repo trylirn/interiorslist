@@ -61,5 +61,28 @@ export const submitPublicBusiness = createServerFn({ method: "POST" })
       submitted_by: data.userId ?? null,
     });
     if (error) fail(error);
+
+    // Internal alert — best-effort, never blocks the submission.
+    try {
+      const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+      const { OPS_EMAIL } = await import("@/lib/email-templates/ops");
+      await sendTemplateEmail("submission-received-admin", OPS_EMAIL, {
+        idempotencyKey: `submission-${email}-${data.businessName}-${Date.now()}`,
+        templateData: {
+          title: "New studio submission awaiting review",
+          lines: [
+            `Studio: ${data.businessName}`,
+            `City: ${data.city}`,
+            `From: ${email}`,
+            data.website ? `Website: ${data.website}` : "",
+          ].filter(Boolean),
+          actionUrl: "https://intearior.com/admin?tab=submissions",
+          actionLabel: "Review submission",
+        },
+      });
+    } catch (e) {
+      console.error("submission ops alert failed", e);
+    }
+
     return { ok: true, duplicate: false };
   });
