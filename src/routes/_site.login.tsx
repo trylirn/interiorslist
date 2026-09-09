@@ -272,7 +272,9 @@ function BusinessSignupWizard() {
       toast.success("Business account created. We'll review your submission shortly.");
       navigate({ to: "/dashboard" });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Signup failed");
+      const msg = e instanceof Error ? e.message : "Signup failed";
+      setError(msg);
+      toast.error(msg);
     } finally { setBusy(false); }
   }
 
