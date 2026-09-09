@@ -50,6 +50,8 @@ function SignInPanel() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"link" | "password">("link");
   const [sent, setSent] = useState(false);
+  const [code, setCode] = useState("");
+
 
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
@@ -78,6 +80,20 @@ function SignInPanel() {
     } finally { setLoading(false); }
   }
 
+  async function verifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    const token = code.replace(/\D/g, "");
+    if (token.length !== 6) { toast.error("Enter the 6-digit code from the email"); return; }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+      if (error) throw error;
+      navigate({ to: "/dashboard" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "That code didn't work — request a new one.");
+    } finally { setLoading(false); }
+  }
+
   if (sent) {
     return (
       <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-6 text-center">
@@ -85,10 +101,27 @@ function SignInPanel() {
         <p className="mt-2 text-sm text-muted-foreground">
           We sent a one-click sign-in link to <span className="font-medium text-foreground">{email}</span>. It's valid for 1 hour and works on any device — but it can only be used once, so open it yourself rather than forwarding it.
         </p>
-        <Button variant="outline" className="mt-4 h-11 w-full" onClick={() => setSent(false)}>Use a different email</Button>
+        <form onSubmit={verifyCode} className="mt-5 space-y-3 text-left">
+          <Label htmlFor="otp-code">Or enter the 6-digit code from that email</Label>
+          <Input
+            id="otp-code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            placeholder="123456"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            className="h-12 text-center text-xl tracking-[0.5em]"
+          />
+          <Button type="submit" disabled={loading || code.length !== 6} className="h-11 w-full">
+            {loading ? "Checking…" : "Sign in with code"}
+          </Button>
+        </form>
+        <Button variant="outline" className="mt-3 h-11 w-full" onClick={() => { setSent(false); setCode(""); }}>Use a different email</Button>
       </div>
     );
   }
+
 
   return (
     <div className="mx-auto max-w-md space-y-4">

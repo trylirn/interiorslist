@@ -52,7 +52,9 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
                 React.createElement(MagicLinkEmail, {
                   siteName: SITE_NAME,
                   confirmationUrl: data.url,
+                  token: data.token ?? '',
                 }),
+
             },
             recovery: {
               subject: 'Reset your password',
