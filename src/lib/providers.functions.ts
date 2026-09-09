@@ -2,7 +2,7 @@ import { fail } from "@/lib/errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
-import { fetchAllPublished } from "./providers.server";
+import { fetchAllPublished, cachedAggregate } from "./providers.server";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 // Public detail projection — excludes private fields (email, email_forward_to, document_urls).
