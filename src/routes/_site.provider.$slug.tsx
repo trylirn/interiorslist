@@ -15,6 +15,8 @@ import { RelatedPosts } from "@/components/related-posts";
 
 import { NearbyProviders } from "@/components/nearby-providers";
 import { ConsultationForm } from "@/components/consultation-form";
+import { PhotoGallery } from "@/components/photo-lightbox";
+import { photoUrl } from "@/lib/photo-url";
 
 import { CITY_NEIGHBORS, BUDGET_BANDS } from "@/lib/cities";
 
@@ -211,7 +213,7 @@ function ProviderPage() {
             <div className="flex items-start gap-4">
               {(p as Record<string, unknown>).logo_url ? (
                 <img
-                  src={(p as Record<string, unknown>).logo_url as string}
+                  src={photoUrl((p as Record<string, unknown>).logo_url as string)}
                   alt={`${p.name} logo`}
                   className="h-16 w-16 shrink-0 rounded-2xl border border-border object-cover"
                 />
@@ -323,13 +325,10 @@ function ProviderPage() {
           {p.gallery_urls && p.gallery_urls.length > 0 && (
             <section className="mt-6 rounded-3xl border border-border bg-card p-6 md:p-8">
               <h2 className="font-display text-2xl">Photo gallery</h2>
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {p.gallery_urls.map((url: string) => (
-                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square overflow-hidden rounded-xl border border-border bg-secondary/30">
-                    <img src={url} alt={`Interior design project by ${p.name} in ${p.city ?? "the US"}`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
-                  </a>
-                ))}
-              </div>
+              <PhotoGallery
+                urls={p.gallery_urls as string[]}
+                alt={`Interior design project by ${p.name} in ${p.city ?? "the US"}`}
+              />
             </section>
           )}
 
