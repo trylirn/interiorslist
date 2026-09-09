@@ -95,6 +95,7 @@ const ADMIN_NAV: DashboardNavItem[] = [
   { key: "listings", label: "Listings", icon: Building2 },
   { key: "team", label: "Team", icon: Users },
   { key: "blog", label: "Blog", icon: Newspaper },
+  { key: "tools", label: "Tool demand", icon: Wrench },
   { key: "account", label: "Account", icon: Settings },
 ];
 
@@ -129,6 +130,7 @@ function AdminShell() {
       {active === "listings" && <ListingsTab />}
       {active === "team" && <TeamTab />}
       {active === "blog" && <BlogAdmin />}
+      {active === "tools" && <ToolDemand />}
       {active === "account" && <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />}
       
     </DashboardShell>
