@@ -875,8 +875,10 @@ function WebsiteImport({ placeId }: { placeId: string }) {
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [source, setSource] = useState("");
-  const [candidates, setCandidates] = useState<{ text: string; author: string | null }[]>([]);
+  const [candidates, setCandidates] = useState<{ text: string; author: string | null; rating: number | null }[]>([]);
   const [picked, setPicked] = useState<Set<number>>(new Set());
+  const [ratings, setRatings] = useState<Record<number, number | null>>({});
+
 
   async function find() {
     setBusy(true);
