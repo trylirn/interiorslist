@@ -119,6 +119,7 @@ export const createClaimUploadUrl = createServerFn({ method: "POST" })
 
 /** Claimant reply — moves the claim back to pending for another look. */
 export const postClaimReply = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
       .object({
