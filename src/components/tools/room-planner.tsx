@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Download, Redo2, RotateCw, Trash2, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import { logToolUsage } from "@/lib/tool-usage";
+import { CATEGORIES, FURNITURE, FurnitureGlyph, byKind } from "./furniture";
+
 
 /* ---------------------------------------------------------------- types */
 
@@ -36,35 +38,8 @@ type Plan = {
   openings: Opening[];
 };
 
-const FURNITURE: { kind: string; label: string; w: number; h: number; color: string }[] = [
-  { kind: "sofa", label: "Sofa", w: 7, h: 3, color: "#8a6f52" },
-  { kind: "loveseat", label: "Loveseat", w: 5, h: 3, color: "#9c8266" },
-  { kind: "armchair", label: "Armchair", w: 3, h: 3, color: "#a68f74" },
-  { kind: "coffee-table", label: "Coffee table", w: 4, h: 2, color: "#6d5b47" },
-  { kind: "side-table", label: "Side table", w: 1.7, h: 1.7, color: "#7b6852" },
-  { kind: "tv-unit", label: "TV unit", w: 6, h: 1.5, color: "#4c4741" },
-  { kind: "rug-8x10", label: "Rug 8×10", w: 10, h: 8, color: "#cbbda8" },
-  { kind: "dining-table", label: "Dining table (6)", w: 6, h: 3.3, color: "#7a6144" },
-  { kind: "dining-round", label: "Round table", w: 4.5, h: 4.5, color: "#7a6144" },
-  { kind: "chair", label: "Chair", w: 1.6, h: 1.6, color: "#8d7a63" },
-  { kind: "kitchen-island", label: "Kitchen island", w: 7, h: 3.3, color: "#5f5a53" },
-  { kind: "counter", label: "Counter run", w: 8, h: 2, color: "#6b665e" },
-  { kind: "fridge", label: "Fridge", w: 3, h: 2.5, color: "#8f9297" },
-  { kind: "range", label: "Range", w: 2.5, h: 2.2, color: "#8f9297" },
-  { kind: "bed-king", label: "King bed", w: 6.3, h: 6.7, color: "#9b8a76" },
-  { kind: "bed-queen", label: "Queen bed", w: 5, h: 6.7, color: "#9b8a76" },
-  { kind: "bed-single", label: "Single bed", w: 3.2, h: 6.3, color: "#9b8a76" },
-  { kind: "nightstand", label: "Nightstand", w: 1.7, h: 1.5, color: "#7b6852" },
-  { kind: "wardrobe", label: "Wardrobe", w: 6, h: 2, color: "#665845" },
-  { kind: "dresser", label: "Dresser", w: 5, h: 1.7, color: "#665845" },
-  { kind: "desk", label: "Desk", w: 5, h: 2.5, color: "#6d5b47" },
-  { kind: "bookcase", label: "Bookcase", w: 3, h: 1.2, color: "#5d5140" },
-  { kind: "vanity", label: "Bath vanity", w: 4, h: 1.8, color: "#6b665e" },
-  { kind: "bathtub", label: "Bathtub", w: 5, h: 2.6, color: "#adb5bd" },
-  { kind: "shower", label: "Shower", w: 3, h: 3, color: "#adb5bd" },
-  { kind: "toilet", label: "Toilet", w: 1.6, h: 2.4, color: "#adb5bd" },
-  { kind: "plant", label: "Plant", w: 1.5, h: 1.5, color: "#6f8f6a" },
-];
+/* furniture catalogue + top-down illustrations live in ./furniture */
+
 
 const STORE_KEY = "intearior_room_plan";
 const EMPTY: Plan = { roomW: 16, roomH: 13, unit: "ft", items: [], openings: [] };
@@ -83,6 +58,8 @@ export function RoomPlanner() {
   const [selected, setSelected] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ id: string; dx: number; dy: number } | null>(null);
+  const odrag = useRef<{ id: string } | null>(null);
+
 
   useEffect(() => {
     try {
@@ -149,7 +126,9 @@ export function RoomPlanner() {
   );
 
   function addItem(kind: string) {
-    const preset = FURNITURE.find((f) => f.kind === kind)!;
+    const preset = byKind(kind);
+    if (!preset) return;
+
     const item: Item = {
       id: uid(),
       kind: preset.kind,
@@ -183,10 +162,42 @@ export function RoomPlanner() {
     setPast((prev) => [...prev.slice(-40), plan]);
   }
 
+  function onOpeningPointerDown(e: React.PointerEvent, o: Opening) {
+    e.stopPropagation();
+    (e.target as Element).setPointerCapture(e.pointerId);
+    odrag.current = { id: o.id };
+    setSelected(null);
+    setPast((prev) => [...prev.slice(-40), plan]);
+  }
+
+  /** Snap a dragged opening to the nearest wall and slide it along that wall. */
+  function moveOpening(id: string, px: number, py: number) {
+    const o = plan.openings.find((x) => x.id === id);
+    if (!o) return;
+    const dists = {
+      top: Math.abs(py),
+      bottom: Math.abs(plan.roomH - py),
+      left: Math.abs(px),
+      right: Math.abs(plan.roomW - px),
+    } as const;
+    const wall = (Object.keys(dists) as Opening["wall"][]).reduce((a, b) => (dists[a] <= dists[b] ? a : b));
+    const along = wall === "top" || wall === "bottom" ? px : py;
+    const wallLen = wall === "top" || wall === "bottom" ? plan.roomW : plan.roomH;
+    const offset = Math.max(0, Math.min(wallLen - o.width, snap(along - o.width / 2)));
+    commit(
+      { ...plan, openings: plan.openings.map((x) => (x.id === id ? { ...x, wall, offset } : x)) },
+      false,
+    );
+  }
+
   function onPointerMove(e: React.PointerEvent) {
+    const p = toFeet(e.clientX, e.clientY);
+    if (odrag.current) {
+      moveOpening(odrag.current.id, p.x, p.y);
+      return;
+    }
     const d = drag.current;
     if (!d) return;
-    const p = toFeet(e.clientX, e.clientY);
     const item = plan.items.find((i) => i.id === d.id);
     if (!item) return;
     const nx = Math.max(-1, Math.min(plan.roomW - 0.5, snap(p.x - d.dx)));
@@ -195,11 +206,13 @@ export function RoomPlanner() {
   }
 
   function onPointerUp() {
-    if (drag.current) {
+    if (drag.current || odrag.current) {
       drag.current = null;
+      odrag.current = null;
       logToolUsage({ tool: "room-planner" });
     }
   }
+
 
   const sel = useMemo(() => plan.items.find((i) => i.id === selected) ?? null, [plan.items, selected]);
   const area = Math.round(plan.roomW * plan.roomH);
@@ -279,49 +292,102 @@ export function RoomPlanner() {
               fill="none" stroke="#2c2a27" strokeWidth={7}
             />
 
-            {/* openings */}
+            {/* openings — drag along any wall */}
             {plan.openings.map((o) => {
               const len = o.width * SCALE;
               const off = o.offset * SCALE;
-              const pos =
-                o.wall === "top" ? { x: PAD + off, y: PAD - 4, w: len, h: 8 }
-                : o.wall === "bottom" ? { x: PAD + off, y: PAD + plan.roomH * SCALE - 4, w: len, h: 8 }
-                : o.wall === "left" ? { x: PAD - 4, y: PAD + off, w: 8, h: len }
-                : { x: PAD + plan.roomW * SCALE - 4, y: PAD + off, w: 8, h: len };
+              const horiz = o.wall === "top" || o.wall === "bottom";
+              const x = o.wall === "right" ? PAD + plan.roomW * SCALE : PAD + (horiz ? off : 0);
+              const y = o.wall === "bottom" ? PAD + plan.roomH * SCALE : PAD + (horiz ? 0 : off);
+              const inward =
+                o.wall === "top" ? 1 : o.wall === "bottom" ? -1 : o.wall === "left" ? 1 : -1;
               return (
-                <rect
-                  key={o.id} x={pos.x} y={pos.y} width={pos.w} height={pos.h}
-                  fill={o.type === "door" ? "#ffffff" : "#8fb3cf"}
-                  stroke={o.type === "door" ? "#2c2a27" : "#4a7ea3"} strokeWidth={2}
-                />
+                <g
+                  key={o.id}
+                  className="cursor-grab"
+                  onPointerDown={(e) => onOpeningPointerDown(e, o)}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* clear the wall behind the opening */}
+                  <rect
+                    x={horiz ? x : x - 5} y={horiz ? y - 5 : y}
+                    width={horiz ? len : 10} height={horiz ? 10 : len}
+                    fill="#ffffff"
+                  />
+                  {o.type === "door" ? (
+                    <g stroke="#2c2a27" fill="none" strokeWidth={2}>
+                      {horiz ? (
+                        <>
+                          <path d={`M${x} ${y} a${len} ${len} 0 0 ${inward > 0 ? 1 : 0} ${len} ${inward * len}`} opacity={0.45} />
+                          <line x1={x} y1={y} x2={x} y2={y + inward * len} strokeWidth={4} />
+                        </>
+                      ) : (
+                        <>
+                          <path d={`M${x} ${y} a${len} ${len} 0 0 ${inward > 0 ? 0 : 1} ${inward * len} ${len}`} opacity={0.45} />
+                          <line x1={x} y1={y} x2={x + inward * len} y2={y} strokeWidth={4} />
+                        </>
+                      )}
+                    </g>
+                  ) : (
+                    <g>
+                      <rect
+                        x={horiz ? x : x - 3.5} y={horiz ? y - 3.5 : y}
+                        width={horiz ? len : 7} height={horiz ? 7 : len}
+                        fill="#cfe3f2" stroke="#4a7ea3" strokeWidth={2}
+                      />
+                      {horiz ? (
+                        <line x1={x} y1={y} x2={x + len} y2={y} stroke="#4a7ea3" strokeWidth={1.5} />
+                      ) : (
+                        <line x1={x} y1={y} x2={x} y2={y + len} stroke="#4a7ea3" strokeWidth={1.5} />
+                      )}
+                    </g>
+                  )}
+                  {/* grab area */}
+                  <rect
+                    x={horiz ? x : x - 9} y={horiz ? y - 9 : y}
+                    width={horiz ? len : 18} height={horiz ? 18 : len}
+                    fill="transparent"
+                  />
+                </g>
               );
             })}
 
             {/* furniture */}
             {plan.items.map((it) => {
-              const cx = PAD + (it.x + it.w / 2) * SCALE;
-              const cy = PAD + (it.y + it.h / 2) * SCALE;
+              const px = PAD + it.x * SCALE;
+              const py = PAD + it.y * SCALE;
+              const pw = it.w * SCALE;
+              const ph = it.h * SCALE;
+              const cx = px + pw / 2;
+              const cy = py + ph / 2;
               const isSel = it.id === selected;
+              const def = byKind(it.kind);
               return (
                 <g key={it.id} transform={`rotate(${it.rot} ${cx} ${cy})`}>
+                  <svg x={px} y={py} width={pw} height={ph} viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
+                    <FurnitureGlyph glyph={def?.glyph ?? "coffee-table"} color={it.color} />
+                  </svg>
                   <rect
-                    x={PAD + it.x * SCALE} y={PAD + it.y * SCALE}
-                    width={it.w * SCALE} height={it.h * SCALE}
-                    fill={it.color} fillOpacity={0.85}
-                    stroke={isSel ? "#111111" : "#5c5348"} strokeWidth={isSel ? 3 : 1.5}
+                    x={px} y={py} width={pw} height={ph}
+                    fill="transparent"
+                    stroke={isSel ? "#111111" : "none"} strokeWidth={isSel ? 3 : 0}
+                    strokeDasharray={isSel ? "6 4" : undefined}
                     className="cursor-move"
                     onPointerDown={(e) => onPointerDown(e, it)}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  <text
-                    x={cx} y={cy + 4} textAnchor="middle" fontSize={11} fill="#ffffff"
-                    pointerEvents="none" style={{ paintOrder: "stroke" }} stroke="#00000055" strokeWidth={2}
-                  >
-                    {it.label}
-                  </text>
+                  {isSel && (
+                    <text
+                      x={cx} y={py - 5} textAnchor="middle" fontSize={11} fill="#2c2a27"
+                      pointerEvents="none" style={{ paintOrder: "stroke" }} stroke="#ffffff" strokeWidth={3}
+                    >
+                      {it.label}
+                    </text>
+                  )}
                 </g>
               );
             })}
+
 
             {/* dimensions */}
             <text x={PAD + (plan.roomW * SCALE) / 2} y={PAD - 14} textAnchor="middle" fontSize={13} fill="#6b6459">
@@ -336,9 +402,11 @@ export function RoomPlanner() {
           </svg>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Drag pieces to move them. Tap a piece to select it, then resize or rotate on the right. Everything is
-          saved in this browser — no account needed.
+          Drag pieces to move them; tap one to select it, then resize or rotate on the right. Doors and windows
+          drag along the walls and snap to whichever wall you pull them nearest. Everything is saved in this
+          browser — no account needed.
         </p>
+
       </div>
 
       {/* side panel */}
@@ -409,17 +477,28 @@ export function RoomPlanner() {
         </Panel>
 
         <Panel title="Add furniture">
-          <div className="flex max-h-64 flex-wrap gap-1.5 overflow-y-auto">
-            {FURNITURE.map((f) => (
-              <button
-                key={f.kind} onClick={() => addItem(f.kind)}
-                className="border border-border px-2 py-1 text-xs hover:border-brand hover:text-brand"
-              >
-                {f.label}
-              </button>
+          <div className="max-h-[420px] space-y-4 overflow-y-auto pr-1">
+            {CATEGORIES.map((cat) => (
+              <div key={cat}>
+                <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{cat}</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {FURNITURE.filter((f) => f.category === cat).map((f) => (
+                    <button
+                      key={f.kind} onClick={() => addItem(f.kind)} title={`${f.label} — ${f.w}×${f.h} ft`}
+                      className="flex flex-col items-center gap-1 border border-border p-1.5 text-[10px] leading-tight hover:border-brand hover:text-brand"
+                    >
+                      <svg viewBox="0 0 100 100" className="h-8 w-8" aria-hidden="true">
+                        <FurnitureGlyph glyph={f.glyph} color={f.color} />
+                      </svg>
+                      <span className="line-clamp-2 text-center">{f.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </Panel>
+
 
         {sel && (
           <Panel title={`Selected — ${sel.label}`}>
