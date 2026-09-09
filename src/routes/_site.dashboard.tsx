@@ -25,7 +25,7 @@ function Dashboard() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => { setEmail(data.session?.user.email ?? null); setReady(true); });
   }, []);
-  const { data: roles } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles(), enabled: !!email });
+  const { data: roles, isLoading: rolesLoading } = useQuery({ queryKey: ["my-roles"], queryFn: () => getMyRoles(), enabled: !!email });
   useEffect(() => {
     if (roles?.isAdmin) navigate({ to: "/admin" });
   }, [roles?.isAdmin, navigate]);
@@ -33,11 +33,16 @@ function Dashboard() {
     queryKey: ["my-listings"], queryFn: () => listMyListings(), enabled: !!email,
   });
   const { data: onboarding } = useQuery({ queryKey: ["my-onboarding"], queryFn: () => getMyOnboardingStatus(), enabled: !!email });
+  const { data: claimsData, isLoading: claimsLoading } = useQuery({
+    queryKey: ["my-claims"], queryFn: () => listMyClaims(), enabled: !!email,
+  });
 
   const active = tab === "settings" ? "settings" : "claims";
   const setActive = (key: string) => navigate({ to: "/dashboard", search: { tab: key } });
 
-  if (!ready || listingsLoading) return <div className="mx-auto max-w-2xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
+  // Wait for roles before showing anything owner-specific, so admins never see the studio setup screen.
+  if (!ready || (email && (rolesLoading || listingsLoading || claimsLoading)))
+    return <div className="mx-auto max-w-2xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
   if (!email) return (
     <div className="mx-auto max-w-md py-24 text-center px-4">
       <h1 className="font-display text-3xl">Please sign in</h1>
@@ -50,6 +55,8 @@ function Dashboard() {
     return <ListingManager placeId={listingsData.listings[0].place_id} />;
   }
 
+  const openClaim = (claimsData?.claims ?? []).find((c) => c.status === "pending" || c.status === "needs_info") ?? null;
+
   return (
     <DashboardShell
       title="Dashboard"
@@ -58,9 +65,42 @@ function Dashboard() {
       active={active}
       onSelect={setActive}
     >
-      {onboarding && <OnboardingBanner status={onboarding} />}
+      {!openClaim && onboarding && <OnboardingBanner status={onboarding} />}
       {active === "settings" ? (
         <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />
+      ) : openClaim ? (
+        <>
+          <div className="mt-8 rounded-3xl border border-brand/30 bg-brand/5 p-8">
+            <Clock className="h-8 w-8 text-brand" />
+            <h2 className="mt-3 font-display text-2xl">
+              {openClaim.status === "needs_info" ? "We need a bit more information" : "Your claim is under review"}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              You claimed <span className="font-medium text-foreground">{openClaim.provider?.name ?? openClaim.provider_place_id}</span>
+              {openClaim.provider ? ` in ${openClaim.provider.city}, ${openClaim.provider.state}` : ""} on{" "}
+              {new Date(openClaim.submitted_at).toLocaleDateString()}.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {openClaim.status === "needs_info"
+                ? "Send the proof we asked for and we'll finish the review."
+                : "Our team checks every claim — usually within 1–2 business days. As soon as it's approved, this page becomes your studio dashboard."}
+            </p>
+            {openClaim.decision_reason && (
+              <p className="mt-3 whitespace-pre-line rounded-2xl bg-background/70 p-4 text-sm">{openClaim.decision_reason}</p>
+            )}
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Button asChild>
+                <Link to="/claim/status/$id" params={{ id: openClaim.id }} search={{ token: openClaim.access_token as string }}>
+                  {openClaim.status === "needs_info" ? "Send proof" : "View claim"}
+                </Link>
+              </Button>
+            </div>
+          </div>
+          <div className="mt-8">
+            <h2 className="font-display text-2xl">Your claims</h2>
+            <div className="mt-4"><ClaimsTab /></div>
+          </div>
+        </>
       ) : (
         <>
           <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
@@ -80,6 +120,7 @@ function Dashboard() {
           </div>
         </>
       )}
+
     </DashboardShell>
   );
 }
