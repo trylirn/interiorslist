@@ -88,3 +88,10 @@ const darkModeCss = `
   [data-ogsc] .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
   [data-ogsb] .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
 `
+const code = {
+  fontSize: '30px',
+  fontWeight: 'bold' as const,
+  letterSpacing: '8px',
+  color: '#193b26',
+  margin: '0 0 10px',
+}
