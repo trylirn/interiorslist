@@ -33,6 +33,75 @@ const BLOCK_CLASS = /(testimonial|tmls|review|quote|feedback|praise|kudos)/i;
 const AUTHOR_CLASS = /(name|author|cite|client|byline|customer)/i;
 const NOISE_CLASS = /(rating|stars|arrow|image|avatar|photo|icon|position|date|meta)/i;
 
+function clampRating(n: number): number | null {
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const r = Math.round(Math.min(5, n) * 10) / 10;
+  return r >= 1 ? r : null;
+}
+
+/** Ratings declared in structured data, keyed by a normalised prefix of the review text. */
+function jsonLdRatings(rawHtml: string): Map<string, number> {
+  const map = new Map<string, number>();
+  const add = (text: unknown, rating: unknown) => {
+    if (typeof text !== "string") return;
+    const value =
+      typeof rating === "number"
+        ? rating
+        : typeof rating === "string"
+          ? Number.parseFloat(rating)
+          : typeof rating === "object" && rating !== null
+            ? Number.parseFloat(String((rating as Record<string, unknown>)["ratingValue"] ?? ""))
+            : NaN;
+    const r = clampRating(value);
+    if (!r) return;
+    const key = strip(text).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().slice(0, 60);
+    if (key.length >= 20) map.set(key, r);
+  };
+  const walk = (node: unknown) => {
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+    if (!node || typeof node !== "object") return;
+    const o = node as Record<string, unknown>;
+    if (o["reviewBody"] || o["description"]) add(o["reviewBody"] ?? o["description"], o["reviewRating"] ?? o["ratingValue"]);
+    Object.values(o).forEach(walk);
+  };
+  for (const s of rawHtml.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    try { walk(JSON.parse((s[1] ?? "").trim())); } catch { /* ignore malformed blocks */ }
+  }
+  return map;
+}
+
+/** Best-effort star rating for one testimonial block. */
+function detectRating(inner: string): number | null {
+  const micro = inner.match(/itemprop=["']ratingValue["'][^>]*content=["']\s*([\d.]+)/i)
+    ?? inner.match(/content=["']\s*([\d.]+)\s*["'][^>]*itemprop=["']ratingValue["']/i);
+  if (micro) { const r = clampRating(Number.parseFloat(micro[1] ?? "")); if (r) return r; }
+
+  for (const attr of inner.matchAll(/(?:aria-label|title|alt|data-rating)=["']([^"']{1,80})["']/gi)) {
+    const v = attr[1] ?? "";
+    const m =
+      v.match(/([\d.]+)\s*(?:out of|\/)\s*5/i) ??
+      v.match(/rated?\s*:?\s*([\d.]+)/i) ??
+      v.match(/([\d.]+)\s*stars?\b/i) ??
+      (/^\s*([1-5](?:\.\d)?)\s*$/.test(v) ? v.match(/([\d.]+)/) : null);
+    if (m) { const r = clampRating(Number.parseFloat(m[1] ?? "")); if (r) return r; }
+  }
+
+  const text = strip(inner);
+  const inText = text.match(/([\d.]+)\s*(?:out of|\/)\s*5/i) ?? text.match(/\b([1-5](?:\.\d)?)\s*stars?\b/i);
+  if (inText) { const r = clampRating(Number.parseFloat(inText[1] ?? "")); if (r) return r; }
+
+  // Count filled star elements as a last resort.
+  let filled = 0;
+  for (const el of inner.matchAll(/<(?:i|span|svg|img|li)\b[^>]*(?:class|src)=["']([^"']*)["'][^>]*>/gi)) {
+    const c = el[1] ?? "";
+    if (!/star/i.test(c)) continue;
+    if (/(empty|o\b|outline|off|grey|gray|inactive|half)/i.test(c)) continue;
+    if (/(fill|full|active|checked|on\b|solid|fas\b|selected)/i.test(c) || /star/i.test(c)) filled += 1;
+  }
+  return filled >= 1 && filled <= 5 ? filled : null;
+}
+
+
 /** Find the inner HTML of the element whose opening tag starts at `start`, honouring nesting. */
 function innerHtml(html: string, tag: string, start: number): { inner: string; end: number } | null {
   const open = html.indexOf(">", start);
