@@ -57,7 +57,7 @@ function SignInPanel() {
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
       if (error) throw error;
       setSent(true);
@@ -83,7 +83,7 @@ function SignInPanel() {
       <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-6 text-center">
         <h2 className="font-display text-2xl">Check your email</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          We sent a one-click sign-in link to <span className="font-medium text-foreground">{email}</span>. It expires shortly — open it on this device.
+          We sent a one-click sign-in link to <span className="font-medium text-foreground">{email}</span>. It expires shortly — you can open it on any device.
         </p>
         <Button variant="outline" className="mt-4 h-11 w-full" onClick={() => setSent(false)}>Use a different email</Button>
       </div>

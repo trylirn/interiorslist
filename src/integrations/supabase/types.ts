@@ -623,6 +623,8 @@ export type Database = {
           phone: string | null
           photos_json: Json | null
           place_id: string
+          plan: string
+          plan_expires_at: string | null
           postal_code: string | null
           price_level: number | null
           price_ranges: Json | null
@@ -693,6 +695,8 @@ export type Database = {
           phone?: string | null
           photos_json?: Json | null
           place_id: string
+          plan?: string
+          plan_expires_at?: string | null
           postal_code?: string | null
           price_level?: number | null
           price_ranges?: Json | null
@@ -763,6 +767,8 @@ export type Database = {
           phone?: string | null
           photos_json?: Json | null
           place_id?: string
+          plan?: string
+          plan_expires_at?: string | null
           postal_code?: string | null
           price_level?: number | null
           price_ranges?: Json | null

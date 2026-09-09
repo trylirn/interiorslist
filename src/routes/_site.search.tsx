@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { searchProvidersPaged, listStates, listCities } from "@/lib/providers.functions";
+import { searchProvidersPaged, listStates, listCities, getDirectoryStats } from "@/lib/providers.functions";
 import { ProviderCard } from "@/components/provider-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { SERVICES, STYLES } from "@/lib/cities";
-import { Search, X } from "lucide-react";
+import { ArrowRight, Search, X } from "lucide-react";
 import { BrowseByLocation } from "@/components/browse-by-location";
 
 export const Route = createFileRoute("/_site/search")({
@@ -61,6 +61,7 @@ function SearchPage() {
     queryFn: () => listCities({ data: state ? { state } : {} }),
     staleTime: 30 * 60 * 1000,
   });
+  const { data: stats } = useQuery({ queryKey: ["directory-stats"], queryFn: () => getDirectoryStats(), staleTime: 30 * 60 * 1000 });
   const cityOptions = cityData?.cities ?? [];
 
   useEffect(() => {
@@ -89,8 +90,27 @@ function SearchPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-2 pt-12">
-      <h1 className="font-display text-4xl md:text-5xl">Find a Studio</h1>
-      <p className="mt-2 text-muted-foreground">Browse every verified design studio, or filter to find the perfect match.</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <h1 className="font-display text-4xl md:text-5xl">Find a Studio</h1>
+        <Button asChild size="lg" className="rounded-none px-6">
+          <Link to="/match">Get matched in 30 seconds <ArrowRight className="ml-2 h-4 w-4" /></Link>
+        </Button>
+      </div>
+      <p className="mt-3 max-w-4xl text-muted-foreground">
+        Looking for someone to design your space? Browse interior design studios on Intearior to find professionals for
+        full-home design, single rooms, renovations and furnishing. This page is for homeowners who want a designer whose
+        style, budget and way of working actually fits their project.
+      </p>
+      <p className="mt-2 text-sm font-medium">
+        {(stats?.studios ?? total).toLocaleString()} studios available
+      </p>
+      <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-border bg-card px-5 py-4 text-sm">
+        <span>{(stats?.studios ?? total).toLocaleString()} studios</span>
+        <span className="text-border">|</span>
+        <span>{(stats?.reviews ?? 0).toLocaleString()} client reviews</span>
+        <span className="text-border">|</span>
+        <span className="text-muted-foreground">Independent directory — we never sell placement</span>
+      </div>
 
       <form
         onSubmit={(e) => { e.preventDefault(); applyParam({ q: q || undefined, page: undefined }); }}

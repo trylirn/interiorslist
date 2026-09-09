@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyListing, updateMyListing, listMyReviews, sendTestLeadEmail } from "@/lib/owner.functions";
 import { importGoogleReviews } from "@/lib/reviews-import.functions";
+import { fetchWebsiteReviews, saveWebsiteReviews } from "@/lib/website-reviews.functions";
 import { listProviderFaqs, upsertProviderFaq, deleteProviderFaq, getListingMetrics, respondToReview, listReviewResponses } from "@/lib/brand-extra.functions";
 import { SERVICES, STYLES, PROJECT_TYPES, BUDGET_BANDS } from "@/lib/cities";
 import { Button } from "@/components/ui/button";
@@ -71,11 +72,6 @@ function ListingManagerShell({
       items={LISTING_NAV}
       active={tab}
       onSelect={setTab}
-      extraNav={
-        <Link to={backTo} className="block px-3 py-2 text-sm text-muted-foreground hover:text-brand">
-          ← Back to dashboard
-        </Link>
-      }
     >
       {tab === "info" && <InfoEditor placeId={placeId} listing={listing} backTo={backTo} />}
       {tab === "media" && <MediaEditor placeId={placeId} listing={listing} />}
@@ -846,12 +842,14 @@ function ListingReviews({ placeId }: { placeId: string }) {
     return (
       <div className="space-y-3">
         {importBar}
+        <WebsiteImport placeId={placeId} />
         <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No reviews yet for this listing.</p>
       </div>
     );
   return (
     <div className="space-y-3">
       {importBar}
+      <WebsiteImport placeId={placeId} />
       {reviews.map((r) => (
         <ListingReviewCard
           key={r.id}
@@ -866,6 +864,81 @@ function ListingReviews({ placeId }: { placeId: string }) {
           }}
         />
       ))}
+    </div>
+  );
+}
+
+function WebsiteImport({ placeId }: { placeId: string }) {
+  const qc = useQueryClient();
+  const fetchFn = useServerFn(fetchWebsiteReviews);
+  const saveFn = useServerFn(saveWebsiteReviews);
+  const [url, setUrl] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [source, setSource] = useState("");
+  const [candidates, setCandidates] = useState<{ text: string; author: string | null }[]>([]);
+  const [picked, setPicked] = useState<Set<number>>(new Set());
+
+  async function find() {
+    setBusy(true);
+    try {
+      const res = await fetchFn({ data: { placeId, url } });
+      setCandidates(res.candidates);
+      setSource(res.source);
+      setPicked(new Set());
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not read that page");
+    } finally { setBusy(false); }
+  }
+
+  async function save() {
+    setBusy(true);
+    try {
+      const chosen = candidates.filter((_, i) => picked.has(i));
+      const res = await saveFn({ data: { placeId, sourceUrl: source, reviews: chosen } });
+      toast.success(`Saved ${res.saved} review${res.saved === 1 ? "" : "s"}`);
+      setCandidates([]); setPicked(new Set()); setUrl("");
+      qc.invalidateQueries({ queryKey: ["listing-reviews", placeId] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save reviews");
+    } finally { setBusy(false); }
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <p className="text-sm font-medium">Import testimonials from your website</p>
+      <p className="text-xs text-muted-foreground">
+        Paste the page where your client testimonials appear. You choose which ones to keep — they're saved as
+        self-reported reviews from your site.
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://yourstudio.com/testimonials" className="max-w-md" />
+        <Button size="sm" variant="outline" onClick={find} disabled={busy || !url}>{busy ? "Reading…" : "Find testimonials"}</Button>
+      </div>
+      {candidates.length > 0 && (
+        <div className="mt-4 space-y-2">
+          {candidates.map((c, i) => (
+            <label key={i} className="flex cursor-pointer gap-3 rounded-xl border border-border p-3 text-sm">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={picked.has(i)}
+                onChange={(e) => {
+                  const next = new Set(picked);
+                  if (e.target.checked) next.add(i); else next.delete(i);
+                  setPicked(next);
+                }}
+              />
+              <span>
+                <span className="block">{c.text}</span>
+                {c.author && <span className="mt-1 block text-xs text-muted-foreground">— {c.author}</span>}
+              </span>
+            </label>
+          ))}
+          <Button size="sm" onClick={save} disabled={busy || picked.size === 0}>
+            Save {picked.size || ""} selected
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
