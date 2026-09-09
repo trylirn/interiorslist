@@ -130,8 +130,13 @@ export const postClaimReply = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
-    const { claim, supabaseAdmin } = await loadClaim(data.claimId, data.token);
+  .handler(async ({ data, context }) => {
+    const { claim, supabaseAdmin } = await loadClaim(
+      data.claimId,
+      data.token,
+      context.userId,
+      (context.claims['email'] as string | undefined) ?? null,
+    );
     if (claim.status === "approved") throw new Error("This claim has already been approved.");
 
     const { count } = await supabaseAdmin
