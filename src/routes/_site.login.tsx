@@ -51,21 +51,46 @@ function SignInPanel() {
   const [mode, setMode] = useState<"link" | "password">("link");
   const [sent, setSent] = useState(false);
   const [code, setCode] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+  const sendingRef = useRef(false);
 
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
+    if (sendingRef.current) return;
+    sendingRef.current = true;
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
-      if (error) throw error;
+      if (error) {
+        const msg = error.message || "";
+        const wait = Number(msg.match(/after (\d+) seconds/)?.[1] ?? 0);
+        // A rate-limit response means an email was already sent moments ago —
+        // treat it as success and show the code screen with a cooldown.
+        if (error.status === 429 || /security purposes|rate limit/i.test(msg)) {
+          setCooldown(wait || 60);
+          setSent(true);
+          toast.info(`We already sent an email to ${email}. Check your inbox.`);
+          return;
+        }
+        throw error;
+      }
+      setCooldown(60);
       setSent(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not send sign-in link");
-    } finally { setLoading(false); }
+    } finally {
+      sendingRef.current = false;
+      setLoading(false);
+    }
   }
 
   async function signIn(e: React.FormEvent) {
@@ -83,7 +108,7 @@ function SignInPanel() {
   async function verifyCode(e: React.FormEvent) {
     e.preventDefault();
     const token = code.replace(/\D/g, "");
-    if (token.length !== 6) { toast.error("Enter the 6-digit code from the email"); return; }
+    if (token.length < 6) { toast.error("Enter the code from the email"); return; }
     setLoading(true);
     try {
       const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
@@ -93,6 +118,7 @@ function SignInPanel() {
       toast.error(err instanceof Error ? err.message : "That code didn't work — request a new one.");
     } finally { setLoading(false); }
   }
+
 
   if (sent) {
     return (
