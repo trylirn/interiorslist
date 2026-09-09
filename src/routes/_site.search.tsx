@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { SERVICES, STYLES } from "@/lib/cities";
-import { ArrowRight, Search, X } from "lucide-react";
+import { ArrowRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { BrowseByLocation } from "@/components/browse-by-location";
 
 export const Route = createFileRoute("/_site/search")({
@@ -75,6 +75,8 @@ function SearchPage() {
   const pageCount = data?.pageCount ?? 1;
 
   const hasFilter = !!(qParam || city || service || style || state || sort);
+  const activeFilterCount = [city, service, style, state].filter(Boolean).length;
+  const [showFilters, setShowFilters] = useState(activeFilterCount > 0);
   const stateVal = state ?? "any";
   const cityVal = city ?? "any";
   const serviceVal = service ?? "any";
@@ -123,7 +125,25 @@ function SearchPage() {
         <Button type="submit" size="lg" className="rounded-full px-6">Search</Button>
       </form>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-5">
+      <div className="mt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setShowFilters((v) => !v)}
+          aria-expanded={showFilters}
+          className="h-11 rounded-xl px-4"
+        >
+          <SlidersHorizontal className="mr-2 h-4 w-4" />
+          Filters
+          {activeFilterCount > 0 && (
+            <span className="ml-2 rounded-full bg-foreground px-2 py-0.5 text-[11px] font-semibold text-background">
+              {activeFilterCount}
+            </span>
+          )}
+        </Button>
+      </div>
+
+      <div className={`mt-4 gap-3 md:grid-cols-5 ${showFilters ? "grid" : "hidden"}`}>
         <div className="space-y-1.5">
           <label htmlFor="filter-state" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">State</label>
           <Select value={stateVal} onValueChange={(v) => applyParam({ state: v === "any" ? undefined : v, city: undefined, page: undefined })}>
