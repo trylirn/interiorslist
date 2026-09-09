@@ -84,7 +84,7 @@ function ClaimStatus() {
       </Shell>
     );
   }
-  if (isLoading) return <Shell><p className="text-muted-foreground">Loading…</p></Shell>;
+  if (signedIn === null || isLoading) return <Shell><p className="text-muted-foreground">Loading…</p></Shell>;
   if (error || !data) {
     return (
       <Shell>
