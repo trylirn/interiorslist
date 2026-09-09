@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { MapPin, BadgeCheck, Building2 } from "lucide-react";
 import { CompareButton } from "@/components/compare-button";
 import { trackImpressions, trackListingClick } from "@/lib/analytics";
+import { photoUrl } from "@/lib/photo-url";
 
 export type ProviderCardProps = {
   place_id: string;
@@ -43,7 +44,7 @@ export function ProviderCard(p: ProviderCardProps) {
         <div className="flex items-start gap-3 pr-12">
           {p.logo_url ? (
             <img
-              src={p.logo_url}
+              src={photoUrl(p.logo_url)}
               alt={`${p.name} logo`}
               loading="lazy"
               className="h-10 w-10 shrink-0 rounded-lg border border-border bg-background object-contain"
