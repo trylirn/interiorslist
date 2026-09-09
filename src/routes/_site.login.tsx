@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,21 +51,46 @@ function SignInPanel() {
   const [mode, setMode] = useState<"link" | "password">("link");
   const [sent, setSent] = useState(false);
   const [code, setCode] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+  const sendingRef = useRef(false);
 
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
+    if (sendingRef.current) return;
+    sendingRef.current = true;
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
-      if (error) throw error;
+      if (error) {
+        const msg = error.message || "";
+        const wait = Number(msg.match(/after (\d+) seconds/)?.[1] ?? 0);
+        // A rate-limit response means an email was already sent moments ago —
+        // treat it as success and show the code screen with a cooldown.
+        if (error.status === 429 || /security purposes|rate limit/i.test(msg)) {
+          setCooldown(wait || 60);
+          setSent(true);
+          toast.info(`We already sent an email to ${email}. Check your inbox.`);
+          return;
+        }
+        throw error;
+      }
+      setCooldown(60);
       setSent(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not send sign-in link");
-    } finally { setLoading(false); }
+    } finally {
+      sendingRef.current = false;
+      setLoading(false);
+    }
   }
 
   async function signIn(e: React.FormEvent) {
@@ -83,7 +108,7 @@ function SignInPanel() {
   async function verifyCode(e: React.FormEvent) {
     e.preventDefault();
     const token = code.replace(/\D/g, "");
-    if (token.length !== 6) { toast.error("Enter the 6-digit code from the email"); return; }
+    if (token.length < 6) { toast.error("Enter the code from the email"); return; }
     setLoading(true);
     try {
       const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
@@ -94,6 +119,7 @@ function SignInPanel() {
     } finally { setLoading(false); }
   }
 
+
   if (sent) {
     return (
       <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-6 text-center">
@@ -102,22 +128,31 @@ function SignInPanel() {
           We sent a one-click sign-in link to <span className="font-medium text-foreground">{email}</span>. It's valid for 1 hour and works on any device — but it can only be used once, so open it yourself rather than forwarding it.
         </p>
         <form onSubmit={verifyCode} className="mt-5 space-y-3 text-left">
-          <Label htmlFor="otp-code">Or enter the 6-digit code from that email</Label>
+          <Label htmlFor="otp-code">Or enter the code from that email</Label>
           <Input
             id="otp-code"
             inputMode="numeric"
             autoComplete="one-time-code"
-            maxLength={6}
-            placeholder="123456"
+            maxLength={8}
+            placeholder="12345678"
             value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            className="h-12 text-center text-xl tracking-[0.5em]"
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 8))}
+            className="h-12 text-center text-xl tracking-[0.4em]"
           />
-          <Button type="submit" disabled={loading || code.length !== 6} className="h-11 w-full">
+          <Button type="submit" disabled={loading || code.length < 6} className="h-11 w-full">
             {loading ? "Checking…" : "Sign in with code"}
           </Button>
         </form>
-        <Button variant="outline" className="mt-3 h-11 w-full" onClick={() => { setSent(false); setCode(""); }}>Use a different email</Button>
+        <Button
+          variant="ghost"
+          className="mt-3 h-11 w-full"
+          disabled={loading || cooldown > 0}
+          onClick={(e) => sendLink(e as unknown as React.FormEvent)}
+        >
+          {cooldown > 0 ? `Resend email in ${cooldown}s` : "Resend email"}
+        </Button>
+        <Button variant="outline" className="mt-1 h-11 w-full" onClick={() => { setSent(false); setCode(""); }}>Use a different email</Button>
+
       </div>
     );
   }
