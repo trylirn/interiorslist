@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_site/blog/$slug")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(postQuery(params.slug)),
   head: ({ params, loaderData }) => {
     const post = (loaderData as { post?: any } | undefined)?.post;
-    const canonical = `https://interiorslist.lovable.app/blog/${params.slug}`;
+    const canonical = `https://intearior.com/blog/${params.slug}`;
     const clamp = (s: string, max: number) => (s.length <= max ? s : `${s.slice(0, max - 1).trimEnd()}…`);
     const title = clamp(post?.title ? `${post.title} | Intearior` : "Article | Intearior", 60);
     const description = clamp(

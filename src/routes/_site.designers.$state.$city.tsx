@@ -56,7 +56,7 @@ export const Route = createFileRoute("/_site/designers/$state/$city")({
             "@type": "CollectionPage",
             name: title,
             description,
-            url: `https://interiorslist.lovable.app${path}`,
+            url: `https://intearior.com${path}`,
           }),
         },
         {
@@ -65,9 +65,9 @@ export const Route = createFileRoute("/_site/designers/$state/$city")({
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Home", item: "https://interiorslist.lovable.app/" },
-              { "@type": "ListItem", position: 2, name: st, item: `https://interiorslist.lovable.app/designers/${params.state}` },
-              { "@type": "ListItem", position: 3, name: `${name}, ${st}`, item: `https://interiorslist.lovable.app${path}` },
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://intearior.com/" },
+              { "@type": "ListItem", position: 2, name: st, item: `https://intearior.com/designers/${params.state}` },
+              { "@type": "ListItem", position: 3, name: `${name}, ${st}`, item: `https://intearior.com${path}` },
             ],
           }),
         },

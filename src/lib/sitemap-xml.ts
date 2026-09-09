@@ -1,4 +1,4 @@
-export const BASE_URL = "https://interiorslist.lovable.app";
+export const BASE_URL = "https://intearior.com";
 
 export interface SitemapEntry {
   path: string;

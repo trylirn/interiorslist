@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_site/style/$slug")({
             "@type": "CollectionPage",
             name: title,
             description: c.intro,
-            url: `https://interiorslist.lovable.app/style/${c.slug}`,
+            url: `https://intearior.com/style/${c.slug}`,
           }),
         },
         {
@@ -51,9 +51,9 @@ export const Route = createFileRoute("/_site/style/$slug")({
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Home", item: "https://interiorslist.lovable.app/" },
-              { "@type": "ListItem", position: 2, name: "Styles", item: "https://interiorslist.lovable.app/search" },
-              { "@type": "ListItem", position: 3, name: c.label, item: `https://interiorslist.lovable.app/style/${c.slug}` },
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://intearior.com/" },
+              { "@type": "ListItem", position: 2, name: "Styles", item: "https://intearior.com/search" },
+              { "@type": "ListItem", position: 3, name: c.label, item: `https://intearior.com/style/${c.slug}` },
             ],
           }),
         },
