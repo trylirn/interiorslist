@@ -189,22 +189,5 @@ function OnboardingBanner({ status }: { status: Onboarding }) {
     );
   }
 
-  if (status.listingCount === 0) {
-    return (
-      <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-secondary/40 p-5">
-        <Building2 className="h-5 w-5 shrink-0 text-brand" />
-        <div className="min-w-[16rem] flex-1">
-          <p className="font-medium">Finish setting up your studio profile</p>
-          <p className="text-sm text-muted-foreground">
-            Claim your studio or submit it, then add services, photos, credentials and FAQs so clients can find you.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button asChild size="sm"><Link to="/claim">Claim your listing</Link></Button>
-          <Button asChild size="sm" variant="outline"><Link to="/submit">Submit a business</Link></Button>
-        </div>
-      </div>
-    );
-  }
   return null;
 }
