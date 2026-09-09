@@ -276,19 +276,21 @@ export const STATE_NAMES: Record<string, string> = {
   WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
 };
 
-export const listStates = createServerFn({ method: "GET" }).handler(async () => {
-  const data = await fetchAllPublished<{ state: string | null }>("state");
-  const counts = new Map<string, number>();
-  for (const r of data) {
-    const s = (r.state ?? "").toUpperCase();
-    if (!s) continue;
-    counts.set(s, (counts.get(s) ?? 0) + 1);
-  }
-  const states = Array.from(counts.entries())
-    .map(([code, count]) => ({ code, name: STATE_NAMES[code] ?? code, slug: code.toLowerCase(), count }))
-    .sort((a, b) => a.name.localeCompare(b.name));
-  return { states };
-});
+export const listStates = createServerFn({ method: "GET" }).handler(async () =>
+  cachedAggregate("states", async () => {
+    const data = await fetchAllPublished<{ state: string | null }>("state");
+    const counts = new Map<string, number>();
+    for (const r of data) {
+      const s = (r.state ?? "").toUpperCase();
+      if (!s) continue;
+      counts.set(s, (counts.get(s) ?? 0) + 1);
+    }
+    const states = Array.from(counts.entries())
+      .map(([code, count]) => ({ code, name: STATE_NAMES[code] ?? code, slug: code.toLowerCase(), count }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return { states };
+  }),
+);
 
 export const getStateSummary = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ state: z.string().min(2).max(2) }).parse(d))
