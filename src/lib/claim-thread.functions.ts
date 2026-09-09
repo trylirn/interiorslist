@@ -97,13 +97,19 @@ export const getClaimThread = createServerFn({ method: "GET" })
     };
   });
 
-/** Signed upload URL so a claimant (with or without an account) can attach proof. */
+/** Signed upload URL so a signed-in claimant can attach proof. */
 export const createClaimUploadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({ claimId: z.string().uuid(), token: z.string().uuid(), fileName: z.string().trim().min(1).max(200) }).parse(d),
   )
-  .handler(async ({ data }) => {
-    const { claim, supabaseAdmin } = await loadClaim(data.claimId, data.token);
+  .handler(async ({ data, context }) => {
+    const { claim, supabaseAdmin } = await loadClaim(
+      data.claimId,
+      data.token,
+      context.userId,
+      (context.claims['email'] as string | undefined) ?? null,
+    );
     const safe = data.fileName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-100);
     const path = `claims/${claim.id}/${Date.now()}-${safe}`;
     const { data: signed, error } = await supabaseAdmin.storage.from(BUCKET).createSignedUploadUrl(path);
