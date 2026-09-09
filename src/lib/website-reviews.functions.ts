@@ -117,12 +117,6 @@ function extractCandidates(html: string): Candidate[] {
     if (!BLOCK_CLASS.test(cls)) continue;
     const got = innerHtml(body, m[1] ?? "div", m.index);
     if (!got) continue;
-    // Skip wrappers that contain other testimonial blocks (carousels, lists).
-    const nested = new RegExp(
-      `<(?:div|section|article|li|figure|blockquote)\\b[^>]*?(?:class|id)=["'][^"']*(?:${BLOCK_CLASS.source.slice(1, -1)})`,
-      "i",
-    ).test(got.inner);
-    if (nested) continue;
     fromBlock(got.inner);
   }
 
@@ -139,7 +133,10 @@ function extractCandidates(html: string): Candidate[] {
     for (const p of body.matchAll(/<p[^>]*>([\s\S]{80,1500}?)<\/p>/gi)) push(strip(p[1] ?? ""), null);
   }
 
-  return found.slice(0, 30);
+  // Drop wrapper blocks that simply contain other candidates' text.
+  const leaves = found.filter((f) => !found.some((o) => o !== f && f.text.includes(o.text)));
+  return (leaves.length ? leaves : found).slice(0, 30);
+
 }
 
 
