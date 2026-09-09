@@ -332,19 +332,18 @@ export const getStateSummary = createServerFn({ method: "GET" })
 export const listTopCities = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ limit: z.number().int().min(1).max(60).optional() }).parse(d ?? {}))
   .handler(async ({ data }) => {
-    const rows = await fetchAllPublished<{ city: string | null; city_slug: string | null; state: string | null }>("city, city_slug, state");
-    const map = new Map<string, { slug: string; name: string; state: string; count: number }>();
-    for (const r of rows) {
-      if (!r.city_slug) continue;
-      const cur = map.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, state: (r.state ?? "").toUpperCase(), count: 0 };
-      cur.count += 1;
-      map.set(r.city_slug, cur);
-    }
-    return {
-      cities: Array.from(map.values())
-        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-        .slice(0, data?.limit ?? 24),
-    };
+    const ranked = await cachedAggregate("top-cities", async () => {
+      const rows = await fetchAllPublished<{ city: string | null; city_slug: string | null; state: string | null }>("city, city_slug, state");
+      const map = new Map<string, { slug: string; name: string; state: string; count: number }>();
+      for (const r of rows) {
+        if (!r.city_slug) continue;
+        const cur = map.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, state: (r.state ?? "").toUpperCase(), count: 0 };
+        cur.count += 1;
+        map.set(r.city_slug, cur);
+      }
+      return Array.from(map.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    });
+    return { cities: ranked.slice(0, data?.limit ?? 24) };
   });
 
 /** Resolve a city slug against real data (falls back to nothing when empty). */
