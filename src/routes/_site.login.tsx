@@ -50,6 +50,8 @@ function SignInPanel() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"link" | "password">("link");
   const [sent, setSent] = useState(false);
+  const [code, setCode] = useState("");
+
 
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
