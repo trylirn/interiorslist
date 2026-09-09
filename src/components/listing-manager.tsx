@@ -905,9 +905,10 @@ function WebsiteImport({ placeId }: { placeId: string }) {
       setCandidates([]); setPicked(new Set()); setRatings({}); setUrl("");
       qc.invalidateQueries({ queryKey: ["listing-reviews", placeId] });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save reviews");
+      toast.error(e instanceof Error && e.message ? e.message : "Could not save reviews");
     } finally { setBusy(false); }
   }
+
 
 
   return (
