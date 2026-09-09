@@ -137,6 +137,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <RouteChangeTracker router={router} />
       <Outlet />
+      <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
 }
