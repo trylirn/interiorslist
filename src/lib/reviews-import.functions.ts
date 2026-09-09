@@ -6,17 +6,38 @@ import { callerIsAdmin } from "@/lib/caller-role";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
-type GoogleReview = {
-  author_name?: string;
-  profile_photo_url?: string;
+type NewReview = {
+  name?: string;
   rating?: number;
-  text?: string;
-  relative_time_description?: string;
-  time?: number;
+  text?: { text?: string };
+  originalText?: { text?: string };
+  relativePublishTimeDescription?: string;
+  publishTime?: string;
+  authorAttribution?: { displayName?: string; photoUri?: string };
 };
 
+function mapsHeaders(lovableKey: string, mapsKey: string, fieldMask: string) {
+  return {
+    Authorization: `Bearer ${lovableKey}`,
+    "X-Connection-Api-Key": mapsKey,
+    "Content-Type": "application/json",
+    "X-Goog-FieldMask": fieldMask,
+  };
+}
+
+async function readError(res: Response, where: string): Promise<never> {
+  const body = await res.text();
+  console.error(`Google ${where} failed [${res.status}]: ${body}`);
+  if (res.status === 403) {
+    throw new Error(
+      "Google denied the request. The Google Maps key needs the Places API enabled and no HTTP-referrer restriction.",
+    );
+  }
+  throw new Error("Google could not be reached right now. Please try again.");
+}
+
 /**
- * Google Places Details returns at most 5 reviews per place — a hard API limit.
+ * Google Places returns at most 5 reviews per place — a hard API limit.
  */
 export const importGoogleReviews = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -27,7 +48,7 @@ export const importGoogleReviews = createServerFn({ method: "POST" })
     const admin = await callerIsAdmin(supabase as never, userId);
     const { data: owned } = await supabase
       .from("providers")
-      .select("place_id, claimed_by")
+      .select("place_id, claimed_by, name, address, city, state, postal_code, google_place_id")
       .eq("place_id", data.placeId)
       .maybeSingle();
     if (!owned) throw new Error("Studio not found");
@@ -37,63 +58,77 @@ export const importGoogleReviews = createServerFn({ method: "POST" })
     await enforceRateLimit(`google-reviews:${data.placeId}`, { max: 5, windowMinutes: 60 });
 
     const lovableKey = process.env["LOVABLE_API_KEY"];
-    const mapsKey = process.env["GOOGLE_MAPS_SERVER_KEY"];
+    const mapsKey = process.env["GOOGLE_MAPS_API_KEY"] ?? process.env["GOOGLE_MAPS_SERVER_KEY"];
     if (!lovableKey || !mapsKey) throw new Error("Google reviews are not configured for this site yet.");
 
-    const url =
-      `${GATEWAY_URL}/maps/api/place/details/json?place_id=${encodeURIComponent(data.placeId)}` +
-      `&fields=reviews,rating,user_ratings_total&reviews_sort=newest`;
-
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": mapsKey },
-    });
-    if (!res.ok) {
-      const body = await res.text();
-      console.error(`Places details failed [${res.status}]: ${body}`);
-      throw new Error("Google could not be reached right now. Please try again.");
-    }
-    const body = (await res.json()) as {
-      status?: string;
-      error_message?: string;
-      result?: { reviews?: GoogleReview[]; rating?: number; user_ratings_total?: number };
-    };
-    if (body.status && body.status !== "OK") {
-      console.error(`Places details status ${body.status}: ${body.error_message ?? ""}`);
-      if (body.status === "NOT_FOUND" || body.status === "INVALID_REQUEST") {
-        throw new Error("This studio has no matching Google listing.");
-      }
-      throw new Error("Google could not return reviews right now. Please try again.");
-    }
-
-    const reviews = body.result?.reviews ?? [];
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // 1. Resolve the studio's Google listing id (cached on the record after the first lookup).
+    let googleId = owned.google_place_id ?? null;
+    if (!googleId) {
+      const textQuery = [owned.name, owned.address, owned.city, owned.state, owned.postal_code]
+        .filter(Boolean)
+        .join(", ");
+      const findRes = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
+        method: "POST",
+        headers: mapsHeaders(lovableKey, mapsKey, "places.id,places.displayName,places.formattedAddress"),
+        body: JSON.stringify({ textQuery, maxResultCount: 1 }),
+      });
+      if (!findRes.ok) await readError(findRes, "place search");
+      const found = (await findRes.json()) as { places?: Array<{ id?: string }> };
+      googleId = found.places?.[0]?.id ?? null;
+      if (!googleId) {
+        throw new Error("We couldn't find this studio on Google — check the business name and address.");
+      }
+      await supabaseAdmin.from("providers").update({ google_place_id: googleId }).eq("place_id", data.placeId);
+    }
+
+    // 2. Pull details + reviews.
+    const detailsRes = await fetch(`${GATEWAY_URL}/places/v1/places/${encodeURIComponent(googleId)}`, {
+      headers: mapsHeaders(lovableKey, mapsKey, "id,rating,userRatingCount,reviews"),
+    });
+    if (!detailsRes.ok) {
+      if (detailsRes.status === 404) {
+        throw new Error("We couldn't find this studio on Google — check the business name and address.");
+      }
+      await readError(detailsRes, "place details");
+    }
+    const details = (await detailsRes.json()) as {
+      rating?: number;
+      userRatingCount?: number;
+      reviews?: NewReview[];
+    };
+
+    const reviews = details.reviews ?? [];
 
     let imported = 0;
     for (const r of reviews) {
-      const externalId = `${r.time ?? ""}-${(r.author_name ?? "anon").toLowerCase().replace(/\s+/g, "-")}`.slice(0, 200);
-      const { error } = await supabaseAdmin
-        .from("reviews")
-        .upsert(
-          {
-            provider_place_id: data.placeId,
-            source: "google",
-            external_id: externalId,
-            author_name: r.author_name ?? "Google reviewer",
-            author_photo: r.profile_photo_url ?? null,
-            rating: r.rating ?? null,
-            text: r.text ?? null,
-            relative_time: r.relative_time_description ?? null,
-            published_at: r.time ? new Date(r.time * 1000).toISOString() : new Date().toISOString(),
-          },
-          { onConflict: "provider_place_id,source,external_id" },
-        );
+      const author = r.authorAttribution?.displayName ?? "Google reviewer";
+      const externalId = (r.name ?? `${r.publishTime ?? ""}-${author}`)
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .slice(0, 200);
+      const { error } = await supabaseAdmin.from("reviews").upsert(
+        {
+          provider_place_id: data.placeId,
+          source: "google",
+          external_id: externalId,
+          author_name: author,
+          author_photo: r.authorAttribution?.photoUri ?? null,
+          rating: r.rating ?? null,
+          text: r.text?.text ?? r.originalText?.text ?? null,
+          relative_time: r.relativePublishTimeDescription ?? null,
+          published_at: r.publishTime ?? new Date().toISOString(),
+        },
+        { onConflict: "provider_place_id,source,external_id" },
+      );
       if (error) fail(error);
       imported += 1;
     }
 
     const patch: { rating?: number; review_count?: number } = {};
-    if (typeof body.result?.rating === "number") patch.rating = body.result.rating;
-    if (typeof body.result?.user_ratings_total === "number") patch.review_count = body.result.user_ratings_total;
+    if (typeof details.rating === "number") patch.rating = details.rating;
+    if (typeof details.userRatingCount === "number") patch.review_count = details.userRatingCount;
     if (Object.keys(patch).length) {
       await supabaseAdmin.from("providers").update(patch).eq("place_id", data.placeId);
     }
