@@ -206,7 +206,10 @@ function BusinessSignupWizard() {
   }
 
   async function submit() {
-    if (form.password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+    setError(null);
+    if (!form.contactName.trim()) { setError("Please enter your name."); toast.error("Please enter your name."); return; }
+    if (!form.email.trim()) { setError("Please enter your account email."); toast.error("Please enter your account email."); return; }
+    if (form.password.length < 8) { setError("Password must be at least 8 characters."); toast.error("Password must be at least 8 characters"); return; }
     setBusy(true);
     try {
       const { data: signUp, error: suErr } = await supabase.auth.signUp({
