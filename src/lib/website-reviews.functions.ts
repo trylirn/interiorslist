@@ -64,7 +64,7 @@ function extractCandidates(html: string): Candidate[] {
   const found: Candidate[] = [];
   const push = (text: string, author: string | null) => {
     const t = text.trim().replace(/^["“”']+|["“”']+$/g, "").trim();
-    if (t.length < 40 || t.length > 3000) return;
+    if (t.length < 40 || t.length > 2000) return;
     if (found.some((f) => f.text === t)) return;
     const a = author ? author.replace(/\s+/g, " ").trim() : null;
     found.push({ text: t, author: a && a.length >= 2 && a.length <= 80 ? a : null });
