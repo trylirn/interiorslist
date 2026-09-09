@@ -47,7 +47,6 @@ import { Route as SiteStyleSlugRouteImport } from './routes/_site.style.$slug'
 import { Route as SiteToolsIndexRouteImport } from './routes/_site.tools.index'
 import { Route as SiteToolsBudgetEstimatorRouteImport } from './routes/_site.tools.budget-estimator'
 import { Route as SiteToolsColorPaletteRouteImport } from './routes/_site.tools.color-palette'
-import { Route as SiteToolsRoomPlannerRouteImport } from './routes/_site.tools.room-planner'
 import { Route as ApiPublicToolUsageRouteImport } from './routes/api.public.tool-usage'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as SiteBestStateCityRouteImport } from './routes/_site.best.$state.$city'
@@ -250,11 +249,6 @@ const SiteToolsColorPaletteRoute = SiteToolsColorPaletteRouteImport.update({
   path: '/tools/color-palette',
   getParentRoute: () => SiteRoute,
 } as any)
-const SiteToolsRoomPlannerRoute = SiteToolsRoomPlannerRouteImport.update({
-  id: '/tools/room-planner',
-  path: '/tools/room-planner',
-  getParentRoute: () => SiteRoute,
-} as any)
 const ApiPublicToolUsageRoute = ApiPublicToolUsageRouteImport.update({
   id: '/api/public/tool-usage',
   path: '/api/public/tool-usage',
@@ -347,7 +341,6 @@ export interface FileRoutesByFullPath {
   '/style/$slug': typeof SiteStyleSlugRoute
   '/tools/budget-estimator': typeof SiteToolsBudgetEstimatorRoute
   '/tools/color-palette': typeof SiteToolsColorPaletteRoute
-  '/tools/room-planner': typeof SiteToolsRoomPlannerRoute
   '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/': typeof SiteBlogIndexRoute
@@ -398,7 +391,6 @@ export interface FileRoutesByTo {
   '/style/$slug': typeof SiteStyleSlugRoute
   '/tools/budget-estimator': typeof SiteToolsBudgetEstimatorRoute
   '/tools/color-palette': typeof SiteToolsColorPaletteRoute
-  '/tools/room-planner': typeof SiteToolsRoomPlannerRoute
   '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog': typeof SiteBlogIndexRoute
@@ -451,7 +443,6 @@ export interface FileRoutesById {
   '/_site/style/$slug': typeof SiteStyleSlugRoute
   '/_site/tools/budget-estimator': typeof SiteToolsBudgetEstimatorRoute
   '/_site/tools/color-palette': typeof SiteToolsColorPaletteRoute
-  '/_site/tools/room-planner': typeof SiteToolsRoomPlannerRoute
   '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_site/blog/': typeof SiteBlogIndexRoute
@@ -504,7 +495,6 @@ export interface FileRouteTypes {
     | '/style/$slug'
     | '/tools/budget-estimator'
     | '/tools/color-palette'
-    | '/tools/room-planner'
     | '/api/public/tool-usage'
     | '/api/public/track'
     | '/blog/'
@@ -555,7 +545,6 @@ export interface FileRouteTypes {
     | '/style/$slug'
     | '/tools/budget-estimator'
     | '/tools/color-palette'
-    | '/tools/room-planner'
     | '/api/public/tool-usage'
     | '/api/public/track'
     | '/blog'
@@ -607,7 +596,6 @@ export interface FileRouteTypes {
     | '/_site/style/$slug'
     | '/_site/tools/budget-estimator'
     | '/_site/tools/color-palette'
-    | '/_site/tools/room-planner'
     | '/api/public/tool-usage'
     | '/api/public/track'
     | '/_site/blog/'
@@ -909,13 +897,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteToolsColorPaletteRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/_site/tools/room-planner': {
-      id: '/_site/tools/room-planner'
-      path: '/tools/room-planner'
-      fullPath: '/tools/room-planner'
-      preLoaderRoute: typeof SiteToolsRoomPlannerRouteImport
-      parentRoute: typeof SiteRoute
-    }
     '/api/public/tool-usage': {
       id: '/api/public/tool-usage'
       path: '/api/public/tool-usage'
@@ -1035,7 +1016,6 @@ interface SiteRouteChildren {
   SiteStyleSlugRoute: typeof SiteStyleSlugRoute
   SiteToolsBudgetEstimatorRoute: typeof SiteToolsBudgetEstimatorRoute
   SiteToolsColorPaletteRoute: typeof SiteToolsColorPaletteRoute
-  SiteToolsRoomPlannerRoute: typeof SiteToolsRoomPlannerRoute
   SiteBlogIndexRoute: typeof SiteBlogIndexRoute
   SiteClaimIndexRoute: typeof SiteClaimIndexRoute
   SiteCostEstimatorIndexRoute: typeof SiteCostEstimatorIndexRoute
@@ -1075,7 +1055,6 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteStyleSlugRoute: SiteStyleSlugRoute,
   SiteToolsBudgetEstimatorRoute: SiteToolsBudgetEstimatorRoute,
   SiteToolsColorPaletteRoute: SiteToolsColorPaletteRoute,
-  SiteToolsRoomPlannerRoute: SiteToolsRoomPlannerRoute,
   SiteBlogIndexRoute: SiteBlogIndexRoute,
   SiteClaimIndexRoute: SiteClaimIndexRoute,
   SiteCostEstimatorIndexRoute: SiteCostEstimatorIndexRoute,

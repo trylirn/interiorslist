@@ -1,7 +1,7 @@
 import { trackingDisabled } from "@/lib/analytics";
 
 export type ToolUsage = {
-  tool: "budget-estimator" | "room-planner" | "color-palette";
+  tool: "budget-estimator" | "color-palette";
   room_type?: string;
   scope?: string;
   state_code?: string;
