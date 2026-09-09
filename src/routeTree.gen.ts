@@ -42,6 +42,7 @@ import { Route as SiteReviewIndexRouteImport } from './routes/_site.review.index
 import { Route as SiteReviewSlugRouteImport } from './routes/_site.review.$slug'
 import { Route as SiteServiceSlugRouteImport } from './routes/_site.service.$slug'
 import { Route as SiteStyleSlugRouteImport } from './routes/_site.style.$slug'
+import { Route as ApiPublicToolUsageRouteImport } from './routes/api.public.tool-usage'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as SiteBestStateCityRouteImport } from './routes/_site.best.$state.$city'
 import { Route as SiteClaimStatusIdRouteImport } from './routes/_site.claim.status.$id'
@@ -216,6 +217,11 @@ const SiteStyleSlugRoute = SiteStyleSlugRouteImport.update({
   path: '/style/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
+const ApiPublicToolUsageRoute = ApiPublicToolUsageRouteImport.update({
+  id: '/api/public/tool-usage',
+  path: '/api/public/tool-usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   id: '/api/public/track',
   path: '/api/public/track',
@@ -294,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/review/$slug': typeof SiteReviewSlugRoute
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
+  '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/': typeof SiteBlogIndexRoute
   '/claim/': typeof SiteClaimIndexRoute
@@ -337,6 +344,7 @@ export interface FileRoutesByTo {
   '/review/$slug': typeof SiteReviewSlugRoute
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
+  '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog': typeof SiteBlogIndexRoute
   '/claim': typeof SiteClaimIndexRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/_site/review/$slug': typeof SiteReviewSlugRoute
   '/_site/service/$slug': typeof SiteServiceSlugRoute
   '/_site/style/$slug': typeof SiteStyleSlugRoute
+  '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_site/blog/': typeof SiteBlogIndexRoute
   '/_site/claim/': typeof SiteClaimIndexRoute
@@ -427,6 +436,7 @@ export interface FileRouteTypes {
     | '/review/$slug'
     | '/service/$slug'
     | '/style/$slug'
+    | '/api/public/tool-usage'
     | '/api/public/track'
     | '/blog/'
     | '/claim/'
@@ -470,6 +480,7 @@ export interface FileRouteTypes {
     | '/review/$slug'
     | '/service/$slug'
     | '/style/$slug'
+    | '/api/public/tool-usage'
     | '/api/public/track'
     | '/blog'
     | '/claim'
@@ -514,6 +525,7 @@ export interface FileRouteTypes {
     | '/_site/review/$slug'
     | '/_site/service/$slug'
     | '/_site/style/$slug'
+    | '/api/public/tool-usage'
     | '/api/public/track'
     | '/_site/blog/'
     | '/_site/claim/'
@@ -536,6 +548,7 @@ export interface RootRouteChildren {
   SitemapStudiosDotxmlRoute: typeof SitemapStudiosDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   PhotoSplatRoute: typeof PhotoSplatRoute
+  ApiPublicToolUsageRoute: typeof ApiPublicToolUsageRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -775,6 +788,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteStyleSlugRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/api/public/tool-usage': {
+      id: '/api/public/tool-usage'
+      path: '/api/public/tool-usage'
+      fullPath: '/api/public/tool-usage'
+      preLoaderRoute: typeof ApiPublicToolUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/track': {
       id: '/api/public/track'
       path: '/api/public/track'
@@ -929,6 +949,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapStudiosDotxmlRoute: SitemapStudiosDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   PhotoSplatRoute: PhotoSplatRoute,
+  ApiPublicToolUsageRoute: ApiPublicToolUsageRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
