@@ -61,7 +61,7 @@ function ToolsHub() {
 function ToolCard({
   to, Icon, title, body,
 }: {
-  to: "/tools/room-planner" | "/tools/budget-estimator" | "/tools/color-palette";
+  to: "/tools/budget-estimator" | "/tools/color-palette";
   Icon: typeof Calculator;
   title: string;
   body: string;
