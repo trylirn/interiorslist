@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callerIsAdmin } from "@/lib/caller-role";
 import { fail } from "@/lib/errors";
 
-type Candidate = { text: string; author: string | null };
+type Candidate = { text: string; author: string | null; rating: number | null };
 
 function decode(s: string): string {
   return s
@@ -32,6 +32,75 @@ function strip(html: string): string {
 const BLOCK_CLASS = /(testimonial|tmls|review|quote|feedback|praise|kudos)/i;
 const AUTHOR_CLASS = /(name|author|cite|client|byline|customer)/i;
 const NOISE_CLASS = /(rating|stars|arrow|image|avatar|photo|icon|position|date|meta)/i;
+
+function clampRating(n: number): number | null {
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const r = Math.round(Math.min(5, n) * 10) / 10;
+  return r >= 1 ? r : null;
+}
+
+/** Ratings declared in structured data, keyed by a normalised prefix of the review text. */
+function jsonLdRatings(rawHtml: string): Map<string, number> {
+  const map = new Map<string, number>();
+  const add = (text: unknown, rating: unknown) => {
+    if (typeof text !== "string") return;
+    const value =
+      typeof rating === "number"
+        ? rating
+        : typeof rating === "string"
+          ? Number.parseFloat(rating)
+          : typeof rating === "object" && rating !== null
+            ? Number.parseFloat(String((rating as Record<string, unknown>)["ratingValue"] ?? ""))
+            : NaN;
+    const r = clampRating(value);
+    if (!r) return;
+    const key = strip(text).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().slice(0, 60);
+    if (key.length >= 20) map.set(key, r);
+  };
+  const walk = (node: unknown) => {
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+    if (!node || typeof node !== "object") return;
+    const o = node as Record<string, unknown>;
+    if (o["reviewBody"] || o["description"]) add(o["reviewBody"] ?? o["description"], o["reviewRating"] ?? o["ratingValue"]);
+    Object.values(o).forEach(walk);
+  };
+  for (const s of rawHtml.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    try { walk(JSON.parse((s[1] ?? "").trim())); } catch { /* ignore malformed blocks */ }
+  }
+  return map;
+}
+
+/** Best-effort star rating for one testimonial block. */
+function detectRating(inner: string): number | null {
+  const micro = inner.match(/itemprop=["']ratingValue["'][^>]*content=["']\s*([\d.]+)/i)
+    ?? inner.match(/content=["']\s*([\d.]+)\s*["'][^>]*itemprop=["']ratingValue["']/i);
+  if (micro) { const r = clampRating(Number.parseFloat(micro[1] ?? "")); if (r) return r; }
+
+  for (const attr of inner.matchAll(/(?:aria-label|title|alt|data-rating)=["']([^"']{1,80})["']/gi)) {
+    const v = attr[1] ?? "";
+    const m =
+      v.match(/([\d.]+)\s*(?:out of|\/)\s*5/i) ??
+      v.match(/rated?\s*:?\s*([\d.]+)/i) ??
+      v.match(/([\d.]+)\s*stars?\b/i) ??
+      (/^\s*([1-5](?:\.\d)?)\s*$/.test(v) ? v.match(/([\d.]+)/) : null);
+    if (m) { const r = clampRating(Number.parseFloat(m[1] ?? "")); if (r) return r; }
+  }
+
+  const text = strip(inner);
+  const inText = text.match(/([\d.]+)\s*(?:out of|\/)\s*5/i) ?? text.match(/\b([1-5](?:\.\d)?)\s*stars?\b/i);
+  if (inText) { const r = clampRating(Number.parseFloat(inText[1] ?? "")); if (r) return r; }
+
+  // Count filled star elements as a last resort.
+  let filled = 0;
+  for (const el of inner.matchAll(/<(?:i|span|svg|img|li)\b[^>]*(?:class|src)=["']([^"']*)["'][^>]*>/gi)) {
+    const c = el[1] ?? "";
+    if (!/star/i.test(c)) continue;
+    if (/(empty|o\b|outline|off|grey|gray|inactive|half)/i.test(c)) continue;
+    if (/(fill|full|active|checked|on\b|solid|fas\b|selected)/i.test(c) || /star/i.test(c)) filled += 1;
+  }
+  return filled >= 1 && filled <= 5 ? filled : null;
+}
+
 
 /** Find the inner HTML of the element whose opening tag starts at `start`, honouring nesting. */
 function innerHtml(html: string, tag: string, start: number): { inner: string; end: number } | null {
@@ -61,14 +130,27 @@ function extractCandidates(html: string): Candidate[] {
     .replace(/<!--[\s\S]*?-->/g, " ")
     .replace(/<(nav|header|footer|form|svg)[\s\S]*?<\/\1>/gi, " ");
 
+  const ldRatings = jsonLdRatings(html);
+  const ldLookup = (text: string): number | null => {
+    const key = text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().slice(0, 60);
+    if (ldRatings.has(key)) return ldRatings.get(key) ?? null;
+    for (const [k, v] of ldRatings) if (k.length >= 20 && (k.startsWith(key.slice(0, 40)) || key.startsWith(k.slice(0, 40)))) return v;
+    return null;
+  };
+
   const found: Candidate[] = [];
-  const push = (text: string, author: string | null) => {
+  const push = (text: string, author: string | null, rating: number | null = null) => {
     const t = text.trim().replace(/^["“”']+|["“”']+$/g, "").trim();
     if (t.length < 40 || t.length > 2000) return;
     if (found.some((f) => f.text === t)) return;
     const a = author ? author.replace(/\s+/g, " ").trim() : null;
-    found.push({ text: t, author: a && a.length >= 2 && a.length <= 80 ? a : null });
+    found.push({
+      text: t,
+      author: a && a.length >= 2 && a.length <= 80 ? a : null,
+      rating: ldLookup(t) ?? rating,
+    });
   };
+
 
   const fromBlock = (inner: string) => {
     // Prefer a dedicated text child if the block has one; otherwise use the whole block
@@ -106,7 +188,7 @@ function extractCandidates(html: string): Candidate[] {
         " ",
       );
     }
-    push(strip(textPart), author);
+    push(strip(textPart), author, detectRating(inner));
   };
 
   // Blocks whose class/id hints at a testimonial, walked with nesting awareness.
@@ -196,9 +278,16 @@ export const saveWebsiteReviews = createServerFn({ method: "POST" })
         placeId: z.string().min(1).max(200),
         sourceUrl: z.string().url().max(500),
         reviews: z
-          .array(z.object({ text: z.string().min(20).max(2000), author: z.string().max(120).nullable() }))
+          .array(
+            z.object({
+              text: z.string().min(20).max(2000),
+              author: z.string().max(120).nullable(),
+              rating: z.number().min(1).max(5).nullable().optional(),
+            }),
+          )
           .min(1)
           .max(20),
+
       })
       .parse(d),
   )
@@ -227,6 +316,7 @@ export const saveWebsiteReviews = createServerFn({ method: "POST" })
           external_id: externalId,
           author_name: r.author ?? "Studio client",
           text: r.text,
+          rating: r.rating ? Math.max(1, Math.min(5, Math.round(r.rating))) : null,
           relative_time: null,
           published_at: new Date().toISOString(),
         },
@@ -235,5 +325,20 @@ export const saveWebsiteReviews = createServerFn({ method: "POST" })
       if (error) fail(error);
       saved += 1;
     }
+
+    // Refresh the studio's headline score from everything we hold for it.
+    const { data: all } = await supabaseAdmin
+      .from("reviews")
+      .select("rating")
+      .eq("provider_place_id", data.placeId);
+    const rated = (all ?? []).map((x) => x.rating).filter((n): n is number => typeof n === "number" && n > 0);
+    if (rated.length) {
+      const avg = Math.round((rated.reduce((s, n) => s + n, 0) / rated.length) * 10) / 10;
+      await supabaseAdmin
+        .from("providers")
+        .update({ rating: avg, review_count: (all ?? []).length })
+        .eq("place_id", data.placeId);
+    }
     return { saved };
+
   });

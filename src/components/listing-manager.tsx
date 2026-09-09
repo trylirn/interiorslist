@@ -875,8 +875,10 @@ function WebsiteImport({ placeId }: { placeId: string }) {
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [source, setSource] = useState("");
-  const [candidates, setCandidates] = useState<{ text: string; author: string | null }[]>([]);
+  const [candidates, setCandidates] = useState<{ text: string; author: string | null; rating: number | null }[]>([]);
   const [picked, setPicked] = useState<Set<number>>(new Set());
+  const [ratings, setRatings] = useState<Record<number, number | null>>({});
+
 
   async function find() {
     setBusy(true);
@@ -885,6 +887,7 @@ function WebsiteImport({ placeId }: { placeId: string }) {
       setCandidates(res.candidates);
       setSource(res.source);
       setPicked(new Set());
+      setRatings(Object.fromEntries(res.candidates.map((c, i) => [i, c.rating == null ? null : Math.round(c.rating)])));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not read that page");
     } finally { setBusy(false); }
@@ -893,15 +896,19 @@ function WebsiteImport({ placeId }: { placeId: string }) {
   async function save() {
     setBusy(true);
     try {
-      const chosen = candidates.filter((_, i) => picked.has(i));
+      const chosen = candidates
+        .map((c, i) => ({ text: c.text, author: c.author, rating: ratings[i] ?? null, i }))
+        .filter((c) => picked.has(c.i))
+        .map(({ i: _i, ...rest }) => rest);
       const res = await saveFn({ data: { placeId, sourceUrl: source, reviews: chosen } });
       toast.success(`Saved ${res.saved} review${res.saved === 1 ? "" : "s"}`);
-      setCandidates([]); setPicked(new Set()); setUrl("");
+      setCandidates([]); setPicked(new Set()); setRatings({}); setUrl("");
       qc.invalidateQueries({ queryKey: ["listing-reviews", placeId] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save reviews");
     } finally { setBusy(false); }
   }
+
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
@@ -917,23 +924,42 @@ function WebsiteImport({ placeId }: { placeId: string }) {
       {candidates.length > 0 && (
         <div className="mt-4 space-y-2">
           {candidates.map((c, i) => (
-            <label key={i} className="flex cursor-pointer gap-3 rounded-xl border border-border p-3 text-sm">
-              <input
-                type="checkbox"
-                className="mt-1"
-                checked={picked.has(i)}
-                onChange={(e) => {
-                  const next = new Set(picked);
-                  if (e.target.checked) next.add(i); else next.delete(i);
-                  setPicked(next);
-                }}
-              />
-              <span>
-                <span className="block">{c.text}</span>
-                {c.author && <span className="mt-1 block text-xs text-muted-foreground">— {c.author}</span>}
-              </span>
-            </label>
+            <div key={i} className="rounded-xl border border-border p-3 text-sm">
+              <label className="flex cursor-pointer gap-3">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  checked={picked.has(i)}
+                  onChange={(e) => {
+                    const next = new Set(picked);
+                    if (e.target.checked) next.add(i); else next.delete(i);
+                    setPicked(next);
+                  }}
+                />
+                <span>
+                  <span className="block">{c.text}</span>
+                  {c.author && <span className="mt-1 block text-xs text-muted-foreground">— {c.author}</span>}
+                </span>
+              </label>
+              <div className="mt-2 flex items-center gap-2 pl-6 text-xs text-muted-foreground">
+                <span>Rating</span>
+                <select
+                  className="h-8 rounded-md border border-border bg-background px-2 text-xs"
+                  value={ratings[i] ?? ""}
+                  onChange={(e) =>
+                    setRatings((r) => ({ ...r, [i]: e.target.value ? Number(e.target.value) : null }))
+                  }
+                >
+                  <option value="">No rating</option>
+                  {[5, 4, 3, 2, 1].map((n) => (
+                    <option key={n} value={n}>{n} out of 5</option>
+                  ))}
+                </select>
+                {c.rating != null && <span>detected on your page</span>}
+              </div>
+            </div>
           ))}
+
           <Button size="sm" onClick={save} disabled={busy || picked.size === 0}>
             Save {picked.size || ""} selected
           </Button>
