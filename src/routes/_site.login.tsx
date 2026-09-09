@@ -128,22 +128,31 @@ function SignInPanel() {
           We sent a one-click sign-in link to <span className="font-medium text-foreground">{email}</span>. It's valid for 1 hour and works on any device — but it can only be used once, so open it yourself rather than forwarding it.
         </p>
         <form onSubmit={verifyCode} className="mt-5 space-y-3 text-left">
-          <Label htmlFor="otp-code">Or enter the 6-digit code from that email</Label>
+          <Label htmlFor="otp-code">Or enter the code from that email</Label>
           <Input
             id="otp-code"
             inputMode="numeric"
             autoComplete="one-time-code"
-            maxLength={6}
-            placeholder="123456"
+            maxLength={8}
+            placeholder="12345678"
             value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            className="h-12 text-center text-xl tracking-[0.5em]"
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 8))}
+            className="h-12 text-center text-xl tracking-[0.4em]"
           />
-          <Button type="submit" disabled={loading || code.length !== 6} className="h-11 w-full">
+          <Button type="submit" disabled={loading || code.length < 6} className="h-11 w-full">
             {loading ? "Checking…" : "Sign in with code"}
           </Button>
         </form>
-        <Button variant="outline" className="mt-3 h-11 w-full" onClick={() => { setSent(false); setCode(""); }}>Use a different email</Button>
+        <Button
+          variant="ghost"
+          className="mt-3 h-11 w-full"
+          disabled={loading || cooldown > 0}
+          onClick={(e) => sendLink(e as unknown as React.FormEvent)}
+        >
+          {cooldown > 0 ? `Resend email in ${cooldown}s` : "Resend email"}
+        </Button>
+        <Button variant="outline" className="mt-1 h-11 w-full" onClick={() => { setSent(false); setCode(""); }}>Use a different email</Button>
+
       </div>
     );
   }
