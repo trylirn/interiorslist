@@ -46,11 +46,17 @@ async function loadClaim(claimId: string, token: string, userId: string, userEma
   return { claim: data, supabaseAdmin };
 }
 
-/** Read a claim and its message thread using the private claim link. */
+/** Read a claim and its message thread — signed-in claimant or admin only. */
 export const getClaimThread = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ claimId: z.string().uuid(), token: z.string().uuid() }).parse(d))
-  .handler(async ({ data }) => {
-    const { claim, supabaseAdmin } = await loadClaim(data.claimId, data.token);
+  .handler(async ({ data, context }) => {
+    const { claim, supabaseAdmin } = await loadClaim(
+      data.claimId,
+      data.token,
+      context.userId,
+      (context.claims['email'] as string | undefined) ?? null,
+    );
 
     const { data: provider } = await supabaseAdmin
       .from("providers")
