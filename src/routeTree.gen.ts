@@ -42,6 +42,10 @@ import { Route as SiteReviewIndexRouteImport } from './routes/_site.review.index
 import { Route as SiteReviewSlugRouteImport } from './routes/_site.review.$slug'
 import { Route as SiteServiceSlugRouteImport } from './routes/_site.service.$slug'
 import { Route as SiteStyleSlugRouteImport } from './routes/_site.style.$slug'
+import { Route as SiteToolsIndexRouteImport } from './routes/_site.tools.index'
+import { Route as SiteToolsBudgetEstimatorRouteImport } from './routes/_site.tools.budget-estimator'
+import { Route as SiteToolsColorPaletteRouteImport } from './routes/_site.tools.color-palette'
+import { Route as SiteToolsRoomPlannerRouteImport } from './routes/_site.tools.room-planner'
 import { Route as ApiPublicToolUsageRouteImport } from './routes/api.public.tool-usage'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as SiteBestStateCityRouteImport } from './routes/_site.best.$state.$city'
@@ -217,6 +221,27 @@ const SiteStyleSlugRoute = SiteStyleSlugRouteImport.update({
   path: '/style/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteToolsIndexRoute = SiteToolsIndexRouteImport.update({
+  id: '/tools/',
+  path: '/tools/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteToolsBudgetEstimatorRoute =
+  SiteToolsBudgetEstimatorRouteImport.update({
+    id: '/tools/budget-estimator',
+    path: '/tools/budget-estimator',
+    getParentRoute: () => SiteRoute,
+  } as any)
+const SiteToolsColorPaletteRoute = SiteToolsColorPaletteRouteImport.update({
+  id: '/tools/color-palette',
+  path: '/tools/color-palette',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteToolsRoomPlannerRoute = SiteToolsRoomPlannerRouteImport.update({
+  id: '/tools/room-planner',
+  path: '/tools/room-planner',
+  getParentRoute: () => SiteRoute,
+} as any)
 const ApiPublicToolUsageRoute = ApiPublicToolUsageRouteImport.update({
   id: '/api/public/tool-usage',
   path: '/api/public/tool-usage',
@@ -300,11 +325,15 @@ export interface FileRoutesByFullPath {
   '/review/$slug': typeof SiteReviewSlugRoute
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
+  '/tools/budget-estimator': typeof SiteToolsBudgetEstimatorRoute
+  '/tools/color-palette': typeof SiteToolsColorPaletteRoute
+  '/tools/room-planner': typeof SiteToolsRoomPlannerRoute
   '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/': typeof SiteBlogIndexRoute
   '/claim/': typeof SiteClaimIndexRoute
   '/review/': typeof SiteReviewIndexRoute
+  '/tools/': typeof SiteToolsIndexRoute
   '/best/$state/$city': typeof SiteBestStateCityRoute
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
@@ -344,11 +373,15 @@ export interface FileRoutesByTo {
   '/review/$slug': typeof SiteReviewSlugRoute
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
+  '/tools/budget-estimator': typeof SiteToolsBudgetEstimatorRoute
+  '/tools/color-palette': typeof SiteToolsColorPaletteRoute
+  '/tools/room-planner': typeof SiteToolsRoomPlannerRoute
   '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog': typeof SiteBlogIndexRoute
   '/claim': typeof SiteClaimIndexRoute
   '/review': typeof SiteReviewIndexRoute
+  '/tools': typeof SiteToolsIndexRoute
   '/best/$state/$city': typeof SiteBestStateCityRoute
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
@@ -390,11 +423,15 @@ export interface FileRoutesById {
   '/_site/review/$slug': typeof SiteReviewSlugRoute
   '/_site/service/$slug': typeof SiteServiceSlugRoute
   '/_site/style/$slug': typeof SiteStyleSlugRoute
+  '/_site/tools/budget-estimator': typeof SiteToolsBudgetEstimatorRoute
+  '/_site/tools/color-palette': typeof SiteToolsColorPaletteRoute
+  '/_site/tools/room-planner': typeof SiteToolsRoomPlannerRoute
   '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_site/blog/': typeof SiteBlogIndexRoute
   '/_site/claim/': typeof SiteClaimIndexRoute
   '/_site/review/': typeof SiteReviewIndexRoute
+  '/_site/tools/': typeof SiteToolsIndexRoute
   '/_site/best/$state/$city': typeof SiteBestStateCityRoute
   '/_site/claim/status/$id': typeof SiteClaimStatusIdRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
@@ -436,11 +473,15 @@ export interface FileRouteTypes {
     | '/review/$slug'
     | '/service/$slug'
     | '/style/$slug'
+    | '/tools/budget-estimator'
+    | '/tools/color-palette'
+    | '/tools/room-planner'
     | '/api/public/tool-usage'
     | '/api/public/track'
     | '/blog/'
     | '/claim/'
     | '/review/'
+    | '/tools/'
     | '/best/$state/$city'
     | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
@@ -480,11 +521,15 @@ export interface FileRouteTypes {
     | '/review/$slug'
     | '/service/$slug'
     | '/style/$slug'
+    | '/tools/budget-estimator'
+    | '/tools/color-palette'
+    | '/tools/room-planner'
     | '/api/public/tool-usage'
     | '/api/public/track'
     | '/blog'
     | '/claim'
     | '/review'
+    | '/tools'
     | '/best/$state/$city'
     | '/claim/status/$id'
     | '/dashboard/listing/$placeId'
@@ -525,11 +570,15 @@ export interface FileRouteTypes {
     | '/_site/review/$slug'
     | '/_site/service/$slug'
     | '/_site/style/$slug'
+    | '/_site/tools/budget-estimator'
+    | '/_site/tools/color-palette'
+    | '/_site/tools/room-planner'
     | '/api/public/tool-usage'
     | '/api/public/track'
     | '/_site/blog/'
     | '/_site/claim/'
     | '/_site/review/'
+    | '/_site/tools/'
     | '/_site/best/$state/$city'
     | '/_site/claim/status/$id'
     | '/_site/dashboard/listing/$placeId'
@@ -788,6 +837,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteStyleSlugRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/tools/': {
+      id: '/_site/tools/'
+      path: '/tools'
+      fullPath: '/tools/'
+      preLoaderRoute: typeof SiteToolsIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/tools/budget-estimator': {
+      id: '/_site/tools/budget-estimator'
+      path: '/tools/budget-estimator'
+      fullPath: '/tools/budget-estimator'
+      preLoaderRoute: typeof SiteToolsBudgetEstimatorRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/tools/color-palette': {
+      id: '/_site/tools/color-palette'
+      path: '/tools/color-palette'
+      fullPath: '/tools/color-palette'
+      preLoaderRoute: typeof SiteToolsColorPaletteRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/tools/room-planner': {
+      id: '/_site/tools/room-planner'
+      path: '/tools/room-planner'
+      fullPath: '/tools/room-planner'
+      preLoaderRoute: typeof SiteToolsRoomPlannerRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/api/public/tool-usage': {
       id: '/api/public/tool-usage'
       path: '/api/public/tool-usage'
@@ -897,9 +974,13 @@ interface SiteRouteChildren {
   SiteReviewSlugRoute: typeof SiteReviewSlugRoute
   SiteServiceSlugRoute: typeof SiteServiceSlugRoute
   SiteStyleSlugRoute: typeof SiteStyleSlugRoute
+  SiteToolsBudgetEstimatorRoute: typeof SiteToolsBudgetEstimatorRoute
+  SiteToolsColorPaletteRoute: typeof SiteToolsColorPaletteRoute
+  SiteToolsRoomPlannerRoute: typeof SiteToolsRoomPlannerRoute
   SiteBlogIndexRoute: typeof SiteBlogIndexRoute
   SiteClaimIndexRoute: typeof SiteClaimIndexRoute
   SiteReviewIndexRoute: typeof SiteReviewIndexRoute
+  SiteToolsIndexRoute: typeof SiteToolsIndexRoute
   SiteBestStateCityRoute: typeof SiteBestStateCityRoute
   SiteClaimStatusIdRoute: typeof SiteClaimStatusIdRoute
   SiteDesignersStateCityRoute: typeof SiteDesignersStateCityRoute
@@ -930,9 +1011,13 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteReviewSlugRoute: SiteReviewSlugRoute,
   SiteServiceSlugRoute: SiteServiceSlugRoute,
   SiteStyleSlugRoute: SiteStyleSlugRoute,
+  SiteToolsBudgetEstimatorRoute: SiteToolsBudgetEstimatorRoute,
+  SiteToolsColorPaletteRoute: SiteToolsColorPaletteRoute,
+  SiteToolsRoomPlannerRoute: SiteToolsRoomPlannerRoute,
   SiteBlogIndexRoute: SiteBlogIndexRoute,
   SiteClaimIndexRoute: SiteClaimIndexRoute,
   SiteReviewIndexRoute: SiteReviewIndexRoute,
+  SiteToolsIndexRoute: SiteToolsIndexRoute,
   SiteBestStateCityRoute: SiteBestStateCityRoute,
   SiteClaimStatusIdRoute: SiteClaimStatusIdRoute,
   SiteDesignersStateCityRoute: SiteDesignersStateCityRoute,
