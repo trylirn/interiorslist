@@ -405,32 +405,36 @@ export const searchProvidersPaged = createServerFn({ method: "GET" })
 /** Cities that actually have published studios, optionally scoped to a state. */
 export const listCities = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ state: z.string().max(2).optional() }).parse(d ?? {}))
-  .handler(async ({ data }) => {
-    const rows = await fetchAllPublished<{ city: string | null; city_slug: string | null; state: string | null }>(
-      "city, city_slug, state",
-      data?.state ? (q: any) => q.eq("state", data.state!.toUpperCase()) : undefined,
-    );
-    const map = new Map<string, { slug: string; name: string; state: string; count: number }>();
-    for (const r of rows) {
-      if (!r.city_slug) continue;
-      const cur = map.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, state: (r.state ?? "").toUpperCase(), count: 0 };
-      cur.count += 1;
-      map.set(r.city_slug, cur);
-    }
-    return { cities: Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name)) };
-  });
+  .handler(async ({ data }) =>
+    cachedAggregate(`cities:${data?.state?.toUpperCase() ?? "all"}`, async () => {
+      const rows = await fetchAllPublished<{ city: string | null; city_slug: string | null; state: string | null }>(
+        "city, city_slug, state",
+        data?.state ? (q: any) => q.eq("state", data.state!.toUpperCase()) : undefined,
+      );
+      const map = new Map<string, { slug: string; name: string; state: string; count: number }>();
+      for (const r of rows) {
+        if (!r.city_slug) continue;
+        const cur = map.get(r.city_slug) ?? { slug: r.city_slug, name: r.city ?? r.city_slug, state: (r.state ?? "").toUpperCase(), count: 0 };
+        cur.count += 1;
+        map.set(r.city_slug, cur);
+      }
+      return { cities: Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name)) };
+    }),
+  );
 
 /** Live directory totals for the homepage hero card. */
-export const getDirectoryStats = createServerFn({ method: "GET" }).handler(async () => {
-  const rows = await fetchAllPublished<{ city_slug: string | null; state: string | null }>("city_slug, state");
-  const cities = new Set<string>();
-  const states = new Set<string>();
-  for (const r of rows) {
-    if (r.city_slug) cities.add(r.city_slug);
-    const s = (r.state ?? "").toUpperCase().trim();
-    if (s) states.add(s);
-  }
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { count } = await supabaseAdmin.from("reviews").select("id", { count: "exact", head: true });
-  return { studios: rows.length, cities: cities.size, states: states.size, reviews: count ?? 0 };
-});
+export const getDirectoryStats = createServerFn({ method: "GET" }).handler(async () =>
+  cachedAggregate("directory-stats", async () => {
+    const rows = await fetchAllPublished<{ city_slug: string | null; state: string | null }>("city_slug, state");
+    const cities = new Set<string>();
+    const states = new Set<string>();
+    for (const r of rows) {
+      if (r.city_slug) cities.add(r.city_slug);
+      const s = (r.state ?? "").toUpperCase().trim();
+      if (s) states.add(s);
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { count } = await supabaseAdmin.from("reviews").select("id", { count: "exact", head: true });
+    return { studios: rows.length, cities: cities.size, states: states.size, reviews: count ?? 0 };
+  }),
+);
