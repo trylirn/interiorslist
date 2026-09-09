@@ -924,23 +924,42 @@ function WebsiteImport({ placeId }: { placeId: string }) {
       {candidates.length > 0 && (
         <div className="mt-4 space-y-2">
           {candidates.map((c, i) => (
-            <label key={i} className="flex cursor-pointer gap-3 rounded-xl border border-border p-3 text-sm">
-              <input
-                type="checkbox"
-                className="mt-1"
-                checked={picked.has(i)}
-                onChange={(e) => {
-                  const next = new Set(picked);
-                  if (e.target.checked) next.add(i); else next.delete(i);
-                  setPicked(next);
-                }}
-              />
-              <span>
-                <span className="block">{c.text}</span>
-                {c.author && <span className="mt-1 block text-xs text-muted-foreground">— {c.author}</span>}
-              </span>
-            </label>
+            <div key={i} className="rounded-xl border border-border p-3 text-sm">
+              <label className="flex cursor-pointer gap-3">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  checked={picked.has(i)}
+                  onChange={(e) => {
+                    const next = new Set(picked);
+                    if (e.target.checked) next.add(i); else next.delete(i);
+                    setPicked(next);
+                  }}
+                />
+                <span>
+                  <span className="block">{c.text}</span>
+                  {c.author && <span className="mt-1 block text-xs text-muted-foreground">— {c.author}</span>}
+                </span>
+              </label>
+              <div className="mt-2 flex items-center gap-2 pl-6 text-xs text-muted-foreground">
+                <span>Rating</span>
+                <select
+                  className="h-8 rounded-md border border-border bg-background px-2 text-xs"
+                  value={ratings[i] ?? ""}
+                  onChange={(e) =>
+                    setRatings((r) => ({ ...r, [i]: e.target.value ? Number(e.target.value) : null }))
+                  }
+                >
+                  <option value="">No rating</option>
+                  {[5, 4, 3, 2, 1].map((n) => (
+                    <option key={n} value={n}>{n} out of 5</option>
+                  ))}
+                </select>
+                {c.rating != null && <span>detected on your page</span>}
+              </div>
+            </div>
           ))}
+
           <Button size="sm" onClick={save} disabled={busy || picked.size === 0}>
             Save {picked.size || ""} selected
           </Button>
