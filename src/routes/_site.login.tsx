@@ -83,7 +83,7 @@ function SignInPanel() {
       <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-6 text-center">
         <h2 className="font-display text-2xl">Check your email</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          We sent a one-click sign-in link to <span className="font-medium text-foreground">{email}</span>. It expires shortly — you can open it on any device.
+          We sent a one-click sign-in link to <span className="font-medium text-foreground">{email}</span>. It's valid for 1 hour and works on any device — but it can only be used once, so open it yourself rather than forwarding it.
         </p>
         <Button variant="outline" className="mt-4 h-11 w-full" onClick={() => setSent(false)}>Use a different email</Button>
       </div>
