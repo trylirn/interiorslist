@@ -37,14 +37,22 @@ import { Route as SiteBlogIndexRouteImport } from './routes/_site.blog.index'
 import { Route as SiteBlogSlugRouteImport } from './routes/_site.blog.$slug'
 import { Route as SiteClaimIndexRouteImport } from './routes/_site.claim.index'
 import { Route as SiteClaimSlugRouteImport } from './routes/_site.claim.$slug'
+import { Route as SiteCostEstimatorIndexRouteImport } from './routes/_site.cost-estimator.index'
+import { Route as SiteCostEstimatorSlugRouteImport } from './routes/_site.cost-estimator.$slug'
 import { Route as SiteProviderSlugRouteImport } from './routes/_site.provider.$slug'
 import { Route as SiteReviewIndexRouteImport } from './routes/_site.review.index'
 import { Route as SiteReviewSlugRouteImport } from './routes/_site.review.$slug'
 import { Route as SiteServiceSlugRouteImport } from './routes/_site.service.$slug'
 import { Route as SiteStyleSlugRouteImport } from './routes/_site.style.$slug'
+import { Route as SiteToolsIndexRouteImport } from './routes/_site.tools.index'
+import { Route as SiteToolsBudgetEstimatorRouteImport } from './routes/_site.tools.budget-estimator'
+import { Route as SiteToolsColorPaletteRouteImport } from './routes/_site.tools.color-palette'
+import { Route as SiteToolsRoomPlannerRouteImport } from './routes/_site.tools.room-planner'
+import { Route as ApiPublicToolUsageRouteImport } from './routes/api.public.tool-usage'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as SiteBestStateCityRouteImport } from './routes/_site.best.$state.$city'
 import { Route as SiteClaimStatusIdRouteImport } from './routes/_site.claim.status.$id'
+import { Route as SiteCostEstimatorStateStateRouteImport } from './routes/_site.cost-estimator.state.$state'
 import { Route as SiteDashboardListingPlaceIdRouteImport } from './routes/_site.dashboard.listing.$placeId'
 import { Route as SiteDesignersStateIndexRouteImport } from './routes/_site.designers.$state.index'
 import { Route as SiteDesignersStateCityRouteImport } from './routes/_site.designers.$state.$city'
@@ -191,6 +199,16 @@ const SiteClaimSlugRoute = SiteClaimSlugRouteImport.update({
   path: '/claim/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteCostEstimatorIndexRoute = SiteCostEstimatorIndexRouteImport.update({
+  id: '/cost-estimator/',
+  path: '/cost-estimator/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteCostEstimatorSlugRoute = SiteCostEstimatorSlugRouteImport.update({
+  id: '/cost-estimator/$slug',
+  path: '/cost-estimator/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteProviderSlugRoute = SiteProviderSlugRouteImport.update({
   id: '/provider/$slug',
   path: '/provider/$slug',
@@ -216,6 +234,32 @@ const SiteStyleSlugRoute = SiteStyleSlugRouteImport.update({
   path: '/style/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteToolsIndexRoute = SiteToolsIndexRouteImport.update({
+  id: '/tools/',
+  path: '/tools/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteToolsBudgetEstimatorRoute =
+  SiteToolsBudgetEstimatorRouteImport.update({
+    id: '/tools/budget-estimator',
+    path: '/tools/budget-estimator',
+    getParentRoute: () => SiteRoute,
+  } as any)
+const SiteToolsColorPaletteRoute = SiteToolsColorPaletteRouteImport.update({
+  id: '/tools/color-palette',
+  path: '/tools/color-palette',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteToolsRoomPlannerRoute = SiteToolsRoomPlannerRouteImport.update({
+  id: '/tools/room-planner',
+  path: '/tools/room-planner',
+  getParentRoute: () => SiteRoute,
+} as any)
+const ApiPublicToolUsageRoute = ApiPublicToolUsageRouteImport.update({
+  id: '/api/public/tool-usage',
+  path: '/api/public/tool-usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   id: '/api/public/track',
   path: '/api/public/track',
@@ -231,6 +275,12 @@ const SiteClaimStatusIdRoute = SiteClaimStatusIdRouteImport.update({
   path: '/claim/status/$id',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteCostEstimatorStateStateRoute =
+  SiteCostEstimatorStateStateRouteImport.update({
+    id: '/cost-estimator/state/$state',
+    path: '/cost-estimator/state/$state',
+    getParentRoute: () => SiteRoute,
+  } as any)
 const SiteDashboardListingPlaceIdRoute =
   SiteDashboardListingPlaceIdRouteImport.update({
     id: '/listing/$placeId',
@@ -290,16 +340,24 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof SiteAuthCallbackRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
+  '/cost-estimator/$slug': typeof SiteCostEstimatorSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/review/$slug': typeof SiteReviewSlugRoute
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
+  '/tools/budget-estimator': typeof SiteToolsBudgetEstimatorRoute
+  '/tools/color-palette': typeof SiteToolsColorPaletteRoute
+  '/tools/room-planner': typeof SiteToolsRoomPlannerRoute
+  '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/': typeof SiteBlogIndexRoute
   '/claim/': typeof SiteClaimIndexRoute
+  '/cost-estimator/': typeof SiteCostEstimatorIndexRoute
   '/review/': typeof SiteReviewIndexRoute
+  '/tools/': typeof SiteToolsIndexRoute
   '/best/$state/$city': typeof SiteBestStateCityRoute
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
+  '/cost-estimator/state/$state': typeof SiteCostEstimatorStateStateRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -333,16 +391,24 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof SiteAuthCallbackRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
+  '/cost-estimator/$slug': typeof SiteCostEstimatorSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
   '/review/$slug': typeof SiteReviewSlugRoute
   '/service/$slug': typeof SiteServiceSlugRoute
   '/style/$slug': typeof SiteStyleSlugRoute
+  '/tools/budget-estimator': typeof SiteToolsBudgetEstimatorRoute
+  '/tools/color-palette': typeof SiteToolsColorPaletteRoute
+  '/tools/room-planner': typeof SiteToolsRoomPlannerRoute
+  '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog': typeof SiteBlogIndexRoute
   '/claim': typeof SiteClaimIndexRoute
+  '/cost-estimator': typeof SiteCostEstimatorIndexRoute
   '/review': typeof SiteReviewIndexRoute
+  '/tools': typeof SiteToolsIndexRoute
   '/best/$state/$city': typeof SiteBestStateCityRoute
   '/claim/status/$id': typeof SiteClaimStatusIdRoute
+  '/cost-estimator/state/$state': typeof SiteCostEstimatorStateStateRoute
   '/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/designers/$state/$city': typeof SiteDesignersStateCityRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -378,16 +444,24 @@ export interface FileRoutesById {
   '/_site/auth/callback': typeof SiteAuthCallbackRoute
   '/_site/blog/$slug': typeof SiteBlogSlugRoute
   '/_site/claim/$slug': typeof SiteClaimSlugRoute
+  '/_site/cost-estimator/$slug': typeof SiteCostEstimatorSlugRoute
   '/_site/provider/$slug': typeof SiteProviderSlugRoute
   '/_site/review/$slug': typeof SiteReviewSlugRoute
   '/_site/service/$slug': typeof SiteServiceSlugRoute
   '/_site/style/$slug': typeof SiteStyleSlugRoute
+  '/_site/tools/budget-estimator': typeof SiteToolsBudgetEstimatorRoute
+  '/_site/tools/color-palette': typeof SiteToolsColorPaletteRoute
+  '/_site/tools/room-planner': typeof SiteToolsRoomPlannerRoute
+  '/api/public/tool-usage': typeof ApiPublicToolUsageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_site/blog/': typeof SiteBlogIndexRoute
   '/_site/claim/': typeof SiteClaimIndexRoute
+  '/_site/cost-estimator/': typeof SiteCostEstimatorIndexRoute
   '/_site/review/': typeof SiteReviewIndexRoute
+  '/_site/tools/': typeof SiteToolsIndexRoute
   '/_site/best/$state/$city': typeof SiteBestStateCityRoute
   '/_site/claim/status/$id': typeof SiteClaimStatusIdRoute
+  '/_site/cost-estimator/state/$state': typeof SiteCostEstimatorStateStateRoute
   '/_site/dashboard/listing/$placeId': typeof SiteDashboardListingPlaceIdRoute
   '/_site/designers/$state/$city': typeof SiteDesignersStateCityRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -423,16 +497,24 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/claim/$slug'
+    | '/cost-estimator/$slug'
     | '/provider/$slug'
     | '/review/$slug'
     | '/service/$slug'
     | '/style/$slug'
+    | '/tools/budget-estimator'
+    | '/tools/color-palette'
+    | '/tools/room-planner'
+    | '/api/public/tool-usage'
     | '/api/public/track'
     | '/blog/'
     | '/claim/'
+    | '/cost-estimator/'
     | '/review/'
+    | '/tools/'
     | '/best/$state/$city'
     | '/claim/status/$id'
+    | '/cost-estimator/state/$state'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
     | '/lovable/email/auth/preview'
@@ -466,16 +548,24 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/claim/$slug'
+    | '/cost-estimator/$slug'
     | '/provider/$slug'
     | '/review/$slug'
     | '/service/$slug'
     | '/style/$slug'
+    | '/tools/budget-estimator'
+    | '/tools/color-palette'
+    | '/tools/room-planner'
+    | '/api/public/tool-usage'
     | '/api/public/track'
     | '/blog'
     | '/claim'
+    | '/cost-estimator'
     | '/review'
+    | '/tools'
     | '/best/$state/$city'
     | '/claim/status/$id'
+    | '/cost-estimator/state/$state'
     | '/dashboard/listing/$placeId'
     | '/designers/$state/$city'
     | '/lovable/email/auth/preview'
@@ -510,16 +600,24 @@ export interface FileRouteTypes {
     | '/_site/auth/callback'
     | '/_site/blog/$slug'
     | '/_site/claim/$slug'
+    | '/_site/cost-estimator/$slug'
     | '/_site/provider/$slug'
     | '/_site/review/$slug'
     | '/_site/service/$slug'
     | '/_site/style/$slug'
+    | '/_site/tools/budget-estimator'
+    | '/_site/tools/color-palette'
+    | '/_site/tools/room-planner'
+    | '/api/public/tool-usage'
     | '/api/public/track'
     | '/_site/blog/'
     | '/_site/claim/'
+    | '/_site/cost-estimator/'
     | '/_site/review/'
+    | '/_site/tools/'
     | '/_site/best/$state/$city'
     | '/_site/claim/status/$id'
+    | '/_site/cost-estimator/state/$state'
     | '/_site/dashboard/listing/$placeId'
     | '/_site/designers/$state/$city'
     | '/lovable/email/auth/preview'
@@ -536,6 +634,7 @@ export interface RootRouteChildren {
   SitemapStudiosDotxmlRoute: typeof SitemapStudiosDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   PhotoSplatRoute: typeof PhotoSplatRoute
+  ApiPublicToolUsageRoute: typeof ApiPublicToolUsageRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -740,6 +839,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteClaimSlugRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/cost-estimator/': {
+      id: '/_site/cost-estimator/'
+      path: '/cost-estimator'
+      fullPath: '/cost-estimator/'
+      preLoaderRoute: typeof SiteCostEstimatorIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/cost-estimator/$slug': {
+      id: '/_site/cost-estimator/$slug'
+      path: '/cost-estimator/$slug'
+      fullPath: '/cost-estimator/$slug'
+      preLoaderRoute: typeof SiteCostEstimatorSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/provider/$slug': {
       id: '/_site/provider/$slug'
       path: '/provider/$slug'
@@ -775,6 +888,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteStyleSlugRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/tools/': {
+      id: '/_site/tools/'
+      path: '/tools'
+      fullPath: '/tools/'
+      preLoaderRoute: typeof SiteToolsIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/tools/budget-estimator': {
+      id: '/_site/tools/budget-estimator'
+      path: '/tools/budget-estimator'
+      fullPath: '/tools/budget-estimator'
+      preLoaderRoute: typeof SiteToolsBudgetEstimatorRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/tools/color-palette': {
+      id: '/_site/tools/color-palette'
+      path: '/tools/color-palette'
+      fullPath: '/tools/color-palette'
+      preLoaderRoute: typeof SiteToolsColorPaletteRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/tools/room-planner': {
+      id: '/_site/tools/room-planner'
+      path: '/tools/room-planner'
+      fullPath: '/tools/room-planner'
+      preLoaderRoute: typeof SiteToolsRoomPlannerRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/api/public/tool-usage': {
+      id: '/api/public/tool-usage'
+      path: '/api/public/tool-usage'
+      fullPath: '/api/public/tool-usage'
+      preLoaderRoute: typeof ApiPublicToolUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/track': {
       id: '/api/public/track'
       path: '/api/public/track'
@@ -794,6 +942,13 @@ declare module '@tanstack/react-router' {
       path: '/claim/status/$id'
       fullPath: '/claim/status/$id'
       preLoaderRoute: typeof SiteClaimStatusIdRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/cost-estimator/state/$state': {
+      id: '/_site/cost-estimator/state/$state'
+      path: '/cost-estimator/state/$state'
+      fullPath: '/cost-estimator/state/$state'
+      preLoaderRoute: typeof SiteCostEstimatorStateStateRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/dashboard/listing/$placeId': {
@@ -873,15 +1028,22 @@ interface SiteRouteChildren {
   SiteAuthCallbackRoute: typeof SiteAuthCallbackRoute
   SiteBlogSlugRoute: typeof SiteBlogSlugRoute
   SiteClaimSlugRoute: typeof SiteClaimSlugRoute
+  SiteCostEstimatorSlugRoute: typeof SiteCostEstimatorSlugRoute
   SiteProviderSlugRoute: typeof SiteProviderSlugRoute
   SiteReviewSlugRoute: typeof SiteReviewSlugRoute
   SiteServiceSlugRoute: typeof SiteServiceSlugRoute
   SiteStyleSlugRoute: typeof SiteStyleSlugRoute
+  SiteToolsBudgetEstimatorRoute: typeof SiteToolsBudgetEstimatorRoute
+  SiteToolsColorPaletteRoute: typeof SiteToolsColorPaletteRoute
+  SiteToolsRoomPlannerRoute: typeof SiteToolsRoomPlannerRoute
   SiteBlogIndexRoute: typeof SiteBlogIndexRoute
   SiteClaimIndexRoute: typeof SiteClaimIndexRoute
+  SiteCostEstimatorIndexRoute: typeof SiteCostEstimatorIndexRoute
   SiteReviewIndexRoute: typeof SiteReviewIndexRoute
+  SiteToolsIndexRoute: typeof SiteToolsIndexRoute
   SiteBestStateCityRoute: typeof SiteBestStateCityRoute
   SiteClaimStatusIdRoute: typeof SiteClaimStatusIdRoute
+  SiteCostEstimatorStateStateRoute: typeof SiteCostEstimatorStateStateRoute
   SiteDesignersStateCityRoute: typeof SiteDesignersStateCityRoute
   SiteDesignersStateIndexRoute: typeof SiteDesignersStateIndexRoute
 }
@@ -906,15 +1068,22 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteAuthCallbackRoute: SiteAuthCallbackRoute,
   SiteBlogSlugRoute: SiteBlogSlugRoute,
   SiteClaimSlugRoute: SiteClaimSlugRoute,
+  SiteCostEstimatorSlugRoute: SiteCostEstimatorSlugRoute,
   SiteProviderSlugRoute: SiteProviderSlugRoute,
   SiteReviewSlugRoute: SiteReviewSlugRoute,
   SiteServiceSlugRoute: SiteServiceSlugRoute,
   SiteStyleSlugRoute: SiteStyleSlugRoute,
+  SiteToolsBudgetEstimatorRoute: SiteToolsBudgetEstimatorRoute,
+  SiteToolsColorPaletteRoute: SiteToolsColorPaletteRoute,
+  SiteToolsRoomPlannerRoute: SiteToolsRoomPlannerRoute,
   SiteBlogIndexRoute: SiteBlogIndexRoute,
   SiteClaimIndexRoute: SiteClaimIndexRoute,
+  SiteCostEstimatorIndexRoute: SiteCostEstimatorIndexRoute,
   SiteReviewIndexRoute: SiteReviewIndexRoute,
+  SiteToolsIndexRoute: SiteToolsIndexRoute,
   SiteBestStateCityRoute: SiteBestStateCityRoute,
   SiteClaimStatusIdRoute: SiteClaimStatusIdRoute,
+  SiteCostEstimatorStateStateRoute: SiteCostEstimatorStateStateRoute,
   SiteDesignersStateCityRoute: SiteDesignersStateCityRoute,
   SiteDesignersStateIndexRoute: SiteDesignersStateIndexRoute,
 }
@@ -929,6 +1098,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapStudiosDotxmlRoute: SitemapStudiosDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   PhotoSplatRoute: PhotoSplatRoute,
+  ApiPublicToolUsageRoute: ApiPublicToolUsageRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

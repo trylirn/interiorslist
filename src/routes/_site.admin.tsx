@@ -26,8 +26,9 @@ import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 import { BlogAdmin } from "@/components/blog-admin";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { z } from "zod";
-import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, Settings } from "lucide-react";
+import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, Settings, Wrench } from "lucide-react";
 import { AccountSettings } from "@/components/account-settings";
+import { ToolDemand } from "@/components/tool-demand";
 
 
 export const Route = createFileRoute("/_site/admin")({
@@ -94,6 +95,7 @@ const ADMIN_NAV: DashboardNavItem[] = [
   { key: "listings", label: "Listings", icon: Building2 },
   { key: "team", label: "Team", icon: Users },
   { key: "blog", label: "Blog", icon: Newspaper },
+  { key: "tools", label: "Tool demand", icon: Wrench },
   { key: "account", label: "Account", icon: Settings },
 ];
 
@@ -128,6 +130,7 @@ function AdminShell() {
       {active === "listings" && <ListingsTab />}
       {active === "team" && <TeamTab />}
       {active === "blog" && <BlogAdmin />}
+      {active === "tools" && <ToolDemand />}
       {active === "account" && <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />}
       
     </DashboardShell>

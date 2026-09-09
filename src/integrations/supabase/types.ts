@@ -1067,6 +1067,39 @@ export type Database = {
         }
         Relationships: []
       }
+      tool_usage: {
+        Row: {
+          budget_band: string | null
+          created_at: string
+          id: string
+          room_type: string | null
+          scope: string | null
+          state_code: string | null
+          style_slug: string | null
+          tool: string
+        }
+        Insert: {
+          budget_band?: string | null
+          created_at?: string
+          id?: string
+          room_type?: string | null
+          scope?: string | null
+          state_code?: string | null
+          style_slug?: string | null
+          tool: string
+        }
+        Update: {
+          budget_band?: string | null
+          created_at?: string
+          id?: string
+          room_type?: string | null
+          scope?: string | null
+          state_code?: string | null
+          style_slug?: string | null
+          tool?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
