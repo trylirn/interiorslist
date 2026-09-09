@@ -14,11 +14,13 @@ import {
 interface MagicLinkEmailProps {
   siteName: string
   confirmationUrl: string
+  token?: string
 }
 
 export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
+  token,
 }: MagicLinkEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head>
@@ -35,6 +37,14 @@ export const MagicLinkEmail = ({
         <Button className="dm-btn" style={button} href={confirmationUrl}>
           Log In
         </Button>
+        {token ? (
+          <>
+            <Text style={{ ...text, margin: '30px 0 8px' }}>
+              Or enter this 6-digit code on the sign-in page:
+            </Text>
+            <Text style={code}>{token}</Text>
+          </>
+        ) : null}
         <Text style={footer}>
           If you didn't request this link, you can safely ignore this email.
         </Text>
@@ -42,6 +52,7 @@ export const MagicLinkEmail = ({
     </Body>
   </Html>
 )
+
 
 export default MagicLinkEmail
 
