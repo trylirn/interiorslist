@@ -22,3 +22,19 @@ export async function fetchAllPublished<T = Record<string, unknown>>(
   }
   return out;
 }
+
+/**
+ * In-process TTL cache for the directory-wide aggregate scans (city/state
+ * counts, totals). These run on nearly every page render and were the top
+ * database load; the underlying data changes rarely.
+ */
+const aggregateCache = new Map<string, { at: number; value: unknown }>();
+const AGGREGATE_TTL_MS = 10 * 60_000;
+
+export async function cachedAggregate<T>(key: string, load: () => Promise<T>): Promise<T> {
+  const hit = aggregateCache.get(key);
+  if (hit && Date.now() - hit.at < AGGREGATE_TTL_MS) return hit.value as T;
+  const value = await load();
+  aggregateCache.set(key, { at: Date.now(), value });
+  return value;
+}
