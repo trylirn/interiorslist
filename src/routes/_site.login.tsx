@@ -331,8 +331,11 @@ function BusinessSignupWizard() {
           <div className="space-y-1.5"><Label>Your name *</Label><Input required value={form.contactName} onChange={(e) => update("contactName", e.target.value)} /></div>
           <div className="space-y-1.5"><Label>Your role at the business</Label><Input value={form.contactRole} onChange={(e) => update("contactRole", e.target.value)} placeholder="Owner, Principal Designer, Manager…" /></div>
           <div className="space-y-1.5"><Label>Account email *</Label><Input type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Password *</Label><Input type="password" required minLength={8} value={form.password} onChange={(e) => update("password", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Password *</Label><Input type="password" required minLength={8} value={form.password} onChange={(e) => update("password", e.target.value)} /><p className="text-[11px] text-muted-foreground">At least 8 characters. Avoid common passwords — they're rejected for security.</p></div>
           <div className="space-y-1.5"><Label>Anything else?</Label><Textarea rows={3} value={form.notes} onChange={(e) => update("notes", e.target.value)} /></div>
+          {error && (
+            <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
+          )}
           <div className="flex gap-2 mt-2">
             <Button variant="outline" onClick={() => setStep(2)} className="flex-1 h-11">← Back</Button>
             <Button onClick={submit} disabled={busy} className="flex-1 h-11">{busy ? "Creating…" : "Create business account"}</Button>
