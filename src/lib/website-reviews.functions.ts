@@ -316,6 +316,7 @@ export const saveWebsiteReviews = createServerFn({ method: "POST" })
           external_id: externalId,
           author_name: r.author ?? "Studio client",
           text: r.text,
+          rating: r.rating ? Math.max(1, Math.min(5, Math.round(r.rating))) : null,
           relative_time: null,
           published_at: new Date().toISOString(),
         },
@@ -324,5 +325,20 @@ export const saveWebsiteReviews = createServerFn({ method: "POST" })
       if (error) fail(error);
       saved += 1;
     }
+
+    // Refresh the studio's headline score from everything we hold for it.
+    const { data: all } = await supabaseAdmin
+      .from("reviews")
+      .select("rating")
+      .eq("provider_place_id", data.placeId);
+    const rated = (all ?? []).map((x) => x.rating).filter((n): n is number => typeof n === "number" && n > 0);
+    if (rated.length) {
+      const avg = Math.round((rated.reduce((s, n) => s + n, 0) / rated.length) * 10) / 10;
+      await supabaseAdmin
+        .from("providers")
+        .update({ rating: avg, review_count: (all ?? []).length })
+        .eq("place_id", data.placeId);
+    }
     return { saved };
+
   });
