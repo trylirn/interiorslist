@@ -605,6 +605,7 @@ export type Database = {
           founded_year: number | null
           gallery_urls: string[]
           google_maps_url: string | null
+          google_place_id: string | null
           hero_photo_url: string | null
           hours: Json | null
           hours_json: Json | null
@@ -674,6 +675,7 @@ export type Database = {
           founded_year?: number | null
           gallery_urls?: string[]
           google_maps_url?: string | null
+          google_place_id?: string | null
           hero_photo_url?: string | null
           hours?: Json | null
           hours_json?: Json | null
@@ -743,6 +745,7 @@ export type Database = {
           founded_year?: number | null
           gallery_urls?: string[]
           google_maps_url?: string | null
+          google_place_id?: string | null
           hero_photo_url?: string | null
           hours?: Json | null
           hours_json?: Json | null
