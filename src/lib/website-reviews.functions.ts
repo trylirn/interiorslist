@@ -278,9 +278,16 @@ export const saveWebsiteReviews = createServerFn({ method: "POST" })
         placeId: z.string().min(1).max(200),
         sourceUrl: z.string().url().max(500),
         reviews: z
-          .array(z.object({ text: z.string().min(20).max(2000), author: z.string().max(120).nullable() }))
+          .array(
+            z.object({
+              text: z.string().min(20).max(2000),
+              author: z.string().max(120).nullable(),
+              rating: z.number().min(1).max(5).nullable().optional(),
+            }),
+          )
           .min(1)
           .max(20),
+
       })
       .parse(d),
   )
