@@ -40,13 +40,38 @@ function ClaimStatus() {
   const [body, setBody] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getUser().then(({ data: u }) => {
+      if (active) setSignedIn(!!u.user);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setSignedIn(!!session?.user));
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["claim-thread", id, token],
     queryFn: () => load({ data: { claimId: id, token: token! } }),
-    enabled: !!token,
+    enabled: !!token && signedIn === true,
     retry: false,
   });
+
+  if (signedIn === false) {
+    return (
+      <Shell>
+        <h1 className="font-display text-3xl">Sign in to view this claim</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Claim conversations are private. Sign in with the email address you used to claim the studio.
+        </p>
+        <Button asChild className="mt-6 rounded-full"><Link to="/login">Sign in</Link></Button>
+      </Shell>
+    );
+  }
 
   if (!token) {
     return (
