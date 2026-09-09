@@ -22,3 +22,26 @@ export async function fetchAllPublished<T = Record<string, unknown>>(
   }
   return out;
 }
+
+/**
+ * Tiny in-memory TTL cache for aggregate reads (city/state counts, directory
+ * totals). These are identical for every visitor and only change when the
+ * directory is edited, so re-running full scans on every page view is pure
+ * database cost. Worker memory is per-instance and short lived — that is fine,
+ * a miss simply falls through to the query.
+ */
+const memo = new Map<string, { at: number; value: unknown }>();
+const DEFAULT_TTL_MS = 10 * 60 * 1000;
+
+export async function cachedAggregate<T>(
+  key: string,
+  loader: () => Promise<T>,
+  ttlMs: number = DEFAULT_TTL_MS,
+): Promise<T> {
+  const hit = memo.get(key);
+  const now = Date.now();
+  if (hit && now - hit.at < ttlMs) return hit.value as T;
+  const value = await loader();
+  memo.set(key, { at: now, value });
+  return value;
+}
