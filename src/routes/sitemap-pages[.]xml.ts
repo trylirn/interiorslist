@@ -28,7 +28,6 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
         for (const k of STYLES) entries.push({ path: `/style/${k.slug}`, changefreq: "weekly", priority: "0.6" });
         entries.push(
           { path: "/tools", changefreq: "monthly", priority: "0.7" },
-          { path: "/tools/room-planner", changefreq: "monthly", priority: "0.7" },
           { path: "/tools/budget-estimator", changefreq: "monthly", priority: "0.8" },
           { path: "/tools/color-palette", changefreq: "monthly", priority: "0.6" },
           { path: "/cost-estimator", changefreq: "weekly", priority: "0.8" },

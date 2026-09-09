@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 const BodySchema = z.object({
-  tool: z.enum(["budget-estimator", "room-planner", "color-palette"]),
+  tool: z.enum(["budget-estimator", "color-palette"]),
   room_type: z.string().max(60).optional(),
   scope: z.string().max(60).optional(),
   state_code: z.string().max(2).optional(),
