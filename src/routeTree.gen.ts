@@ -31,6 +31,7 @@ import { Route as SiteSearchRouteImport } from './routes/_site.search'
 import { Route as SiteSubmitRouteImport } from './routes/_site.submit'
 import { Route as SiteTermsRouteImport } from './routes/_site.terms'
 import { Route as SiteWelcomeRouteImport } from './routes/_site.welcome'
+import { Route as PhotoSplatRouteImport } from './routes/photo.$'
 import { Route as SiteBlogIndexRouteImport } from './routes/_site.blog.index'
 import { Route as SiteBlogSlugRouteImport } from './routes/_site.blog.$slug'
 import { Route as SiteClaimIndexRouteImport } from './routes/_site.claim.index'
@@ -159,6 +160,11 @@ const SiteWelcomeRoute = SiteWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => SiteRoute,
 } as any)
+const PhotoSplatRoute = PhotoSplatRouteImport.update({
+  id: '/photo/$',
+  path: '/photo/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SiteBlogIndexRoute = SiteBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -274,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/submit': typeof SiteSubmitRoute
   '/terms': typeof SiteTermsRoute
   '/welcome': typeof SiteWelcomeRoute
+  '/photo/$': typeof PhotoSplatRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
   '/provider/$slug': typeof SiteProviderSlugRoute
@@ -314,6 +321,7 @@ export interface FileRoutesByTo {
   '/submit': typeof SiteSubmitRoute
   '/terms': typeof SiteTermsRoute
   '/welcome': typeof SiteWelcomeRoute
+  '/photo/$': typeof PhotoSplatRoute
   '/': typeof SiteIndexRoute
   '/blog/$slug': typeof SiteBlogSlugRoute
   '/claim/$slug': typeof SiteClaimSlugRoute
@@ -357,6 +365,7 @@ export interface FileRoutesById {
   '/_site/submit': typeof SiteSubmitRoute
   '/_site/terms': typeof SiteTermsRoute
   '/_site/welcome': typeof SiteWelcomeRoute
+  '/photo/$': typeof PhotoSplatRoute
   '/_site/': typeof SiteIndexRoute
   '/_site/blog/$slug': typeof SiteBlogSlugRoute
   '/_site/claim/$slug': typeof SiteClaimSlugRoute
@@ -401,6 +410,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/terms'
     | '/welcome'
+    | '/photo/$'
     | '/blog/$slug'
     | '/claim/$slug'
     | '/provider/$slug'
@@ -441,6 +451,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/terms'
     | '/welcome'
+    | '/photo/$'
     | '/'
     | '/blog/$slug'
     | '/claim/$slug'
@@ -483,6 +494,7 @@ export interface FileRouteTypes {
     | '/_site/submit'
     | '/_site/terms'
     | '/_site/welcome'
+    | '/photo/$'
     | '/_site/'
     | '/_site/blog/$slug'
     | '/_site/claim/$slug'
@@ -511,6 +523,7 @@ export interface RootRouteChildren {
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapStudiosDotxmlRoute: typeof SitemapStudiosDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  PhotoSplatRoute: typeof PhotoSplatRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -672,6 +685,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/welcome'
       preLoaderRoute: typeof SiteWelcomeRouteImport
       parentRoute: typeof SiteRoute
+    }
+    '/photo/$': {
+      id: '/photo/$'
+      path: '/photo/$'
+      fullPath: '/photo/$'
+      preLoaderRoute: typeof PhotoSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_site/blog/': {
       id: '/_site/blog/'
@@ -887,6 +907,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapStudiosDotxmlRoute: SitemapStudiosDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  PhotoSplatRoute: PhotoSplatRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
