@@ -188,7 +188,7 @@ function extractCandidates(html: string): Candidate[] {
         " ",
       );
     }
-    push(strip(textPart), author);
+    push(strip(textPart), author, detectRating(inner));
   };
 
   // Blocks whose class/id hints at a testimonial, walked with nesting awareness.
