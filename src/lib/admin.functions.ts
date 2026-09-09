@@ -260,7 +260,7 @@ export const listAllProviders = createServerFn({ method: "GET" })
     z
       .object({
         q: z.string().max(120).optional(),
-        status: z.enum(["all", "published", "unpublished"]).optional(),
+        status: z.enum(["all", "published", "unpublished", "no_email"]).optional(),
         page: z.number().int().min(1).max(1000).optional(),
         pageSize: z.number().int().min(10).max(500).optional(),
       })
@@ -273,12 +273,14 @@ export const listAllProviders = createServerFn({ method: "GET" })
     const build = () => {
       let q = supabaseAdmin
         .from("providers")
-        .select("place_id, slug, name, city, claimed_by, is_verified, published, featured, plan, plan_expires_at, rating, review_count", {
-          count: "exact",
-        })
+        .select(
+          "place_id, slug, name, city, claimed_by, is_verified, published, featured, plan, plan_expires_at, rating, review_count, email, email_forward_to",
+          { count: "exact" },
+        )
         .order("name");
       if (status === "published") q = q.eq("published", true);
       if (status === "unpublished") q = q.eq("published", false);
+      if (status === "no_email") q = q.is("email", null).is("email_forward_to", null);
       if (data.q) {
         const term = data.q.replace(/[,()*%\\]/g, " ").trim();
         if (term) q = q.ilike("name", `%${term}%`);
@@ -310,6 +312,26 @@ export const toggleProviderFlag = createServerFn({ method: "POST" })
     const { error } = await (supabaseAdmin
       .from("providers") as unknown as { update: (p: Record<string, boolean>) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } })
       .update(patch)
+      .eq("place_id", data.placeId);
+    if (error) fail(error);
+    return { ok: true };
+  });
+
+/** Fill in a studio's contact address so new leads reach them by email. */
+export const setProviderContactEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      placeId: z.string().min(1).max(200),
+      email: z.string().trim().email().max(255).or(z.literal("")),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await assertAdmin(context.userId);
+    const { error } = await (supabaseAdmin
+      .from("providers") as unknown as { update: (p: Record<string, unknown>) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } })
+      .update({ email: data.email || null })
       .eq("place_id", data.placeId);
     if (error) fail(error);
     return { ok: true };

@@ -49,35 +49,56 @@ export const sendContactMessage = createServerFn({ method: "POST" })
 
     // Forward the lead to the studio by email. The lead is already saved — an
     // email failure must never lose or block it, so this is best-effort.
+    const leadId = inserted?.id ?? crypto.randomUUID();
+    let providerName: string | undefined;
+
     try {
       const { data: provider } = await supabaseAdmin
         .from("providers")
         .select("name, slug, email, email_forward_to")
         .eq("place_id", data.placeId)
         .maybeSingle();
-      const recipient = provider?.email_forward_to || provider?.email;
-      if (recipient) {
-        const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-        await sendTemplateEmail("new-lead", recipient, {
-          templateData: {
-            studioName: provider?.name ?? undefined,
-            clientName: `${data.firstName} ${data.lastName}`.trim(),
-            clientEmail: data.email,
-            clientPhone: data.phone || undefined,
-            location: data.location || undefined,
-            projectType: data.projectType || undefined,
-            rooms: data.rooms || undefined,
-            budget: data.budget || undefined,
-            style: data.style || undefined,
-            timeline: data.timeline || undefined,
-            message: data.message,
-            dashboardUrl: "https://intearior.com/dashboard",
-          },
-          idempotencyKey: `new-lead-${inserted?.id ?? crypto.randomUUID()}`,
-        });
-      }
+      providerName = provider?.name ?? undefined;
+      const { OPS_EMAIL } = await import("@/lib/email-templates/ops");
+      // No studio address on file → route to operations so the lead is never lost.
+      const recipient = provider?.email_forward_to || provider?.email || OPS_EMAIL;
+      const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+      await sendTemplateEmail("new-lead", recipient, {
+        templateData: {
+          studioName: providerName,
+          clientName: `${data.firstName} ${data.lastName}`.trim(),
+          clientEmail: data.email,
+          clientPhone: data.phone || undefined,
+          location: data.location || undefined,
+          projectType: data.projectType || undefined,
+          rooms: data.rooms || undefined,
+          budget: data.budget || undefined,
+          style: data.style || undefined,
+          timeline: data.timeline || undefined,
+          message: data.message,
+          dashboardUrl: "https://intearior.com/dashboard",
+        },
+        idempotencyKey: `new-lead-${leadId}`,
+      });
     } catch (emailError) {
       console.error("Lead email forwarding failed:", emailError);
+    }
+
+    // Confirmation to the homeowner, attempted independently so a forwarding
+    // failure never leaves the enquiry unacknowledged.
+    try {
+      const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+      await sendTemplateEmail("enquiry-confirmation", data.email, {
+        templateData: {
+          clientName: data.firstName,
+          studioNames: providerName ? [providerName] : [],
+          message: data.message,
+          searchUrl: "https://intearior.com/search",
+        },
+        idempotencyKey: `enquiry-confirm-${leadId}`,
+      });
+    } catch (emailError) {
+      console.error("Enquiry confirmation email failed:", emailError);
     }
     return { ok: true };
   });
