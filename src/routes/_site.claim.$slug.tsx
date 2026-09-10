@@ -84,8 +84,7 @@ function ClaimPage() {
   const valid =
     form.firstName.trim().length > 0 &&
     form.lastName.trim().length > 0 &&
-    /.+@.+\..+/.test(form.contactEmail) &&
-    form.contactPhone.trim().length >= 7;
+    /.+@.+\..+/.test(form.contactEmail);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -137,8 +136,8 @@ function ClaimPage() {
         <Field label="Business email" required>
           <Input type="email" required value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })} placeholder="you@yourstudio.com" maxLength={255} />
         </Field>
-        <Field label="Phone number" required>
-          <Input type="tel" required value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} placeholder="(214) 555-1234" maxLength={40} />
+        <Field label="Phone number">
+          <Input type="tel" value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} placeholder="(214) 555-1234" maxLength={40} />
         </Field>
         <Field label="Your position at the business">
           <Input value={form.businessRole} onChange={(e) => setForm({ ...form, businessRole: e.target.value })} placeholder="Owner / Manager / Principal Designer" maxLength={120} />
