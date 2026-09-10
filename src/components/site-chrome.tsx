@@ -141,7 +141,7 @@ export function SiteFooter() {
             <li><Link to="/tools" className="hover:text-brand">Free tools</Link></li>
             <li><Link to="/cost-estimator" className="hover:text-brand">Cost guides</Link></li>
             <li><Link to="/how-it-works" className="hover:text-brand">How it works</Link></li>
-            <li><Link to="/submit" className="hover:text-brand">Submit a studio</Link></li>
+            <li><Link to="/login" className="hover:text-brand">Submit a studio</Link></li>
             <li><Link to="/for-business" className="hover:text-brand">For studios</Link></li>
             <li><Link to="/contact" className="hover:text-brand">Contact</Link></li>
           </FooterCol>

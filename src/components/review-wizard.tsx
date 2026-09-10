@@ -231,7 +231,7 @@ export function ReviewWizard({ initialProvider }: { initialProvider?: Picked }) 
                 ))}
                 {q.trim().length >= 2 && !isFetching && !results?.providers.length && (
                   <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-                    No match yet. <Link to="/submit" className="text-brand underline">Add this studio</Link> and review it once it's live.
+                    No match yet. <Link to="/login" className="text-brand underline">Add this studio</Link> and review it once it's live.
                   </p>
                 )}
               </div>
