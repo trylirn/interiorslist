@@ -10,11 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_site/login")({
+  validateSearch: (s: Record<string, unknown>) => ({ tab: (s.tab as string) || undefined, next: (s.next as string) || undefined }),
   head: () => ({ meta: [{ title: "Sign in | Intearior" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: LoginPage,
 });
 
 function LoginPage() {
+  const { tab } = Route.useSearch();
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <div className="text-center">
