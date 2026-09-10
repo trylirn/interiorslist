@@ -37,7 +37,7 @@ export const adminMetrics = createServerFn({ method: "GET" })
       totals: {
         providers: providers.count ?? 0,
         claimed: claimed.count ?? 0,
-        pendingClaims: pendingClaims.count ?? 0,
+        pendingClaims: awaitingClaims.size,
         pendingSubmissions: pendingSubs.count ?? 0,
       },
       activity: {
