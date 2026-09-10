@@ -24,7 +24,7 @@ function LoginPage() {
           Browsing is free — no account needed. Accounts are for design studios: register your business, claim your listing, and manage your profile.
         </p>
       </div>
-      <Tabs defaultValue={tab === "business" ? "business" : "signin"} className="mt-8">
+      <Tabs key={tab ?? "signin"} defaultValue={tab === "business" ? "business" : "signin"} className="mt-8">
         <TabsList className="grid grid-cols-2 w-full">
           <TabsTrigger value="signin">Sign in</TabsTrigger>
           <TabsTrigger value="business">Create account</TabsTrigger>
