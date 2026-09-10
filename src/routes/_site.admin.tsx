@@ -249,7 +249,14 @@ function ClaimCard({ claim: c }: { claim: AdminClaim }) {
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-display text-lg">{c.provider?.name ?? c.provider_place_id}</p>
+          <p className="flex flex-wrap items-center gap-2 font-display text-lg">
+            {c.provider?.name ?? c.provider_place_id}
+            {(c as { needsReply?: boolean }).needsReply && (
+              <span className="rounded-full bg-destructive px-2 py-0.5 text-[11px] font-medium text-destructive-foreground">
+                Needs reply
+              </span>
+            )}
+          </p>
           <p className="text-xs text-muted-foreground">
             {c.provider?.city ?? ""} · {CLAIM_LABEL[c.status] ?? c.status} · {new Date(c.submitted_at).toLocaleDateString()}
           </p>
