@@ -14,10 +14,10 @@ export const adminMetrics = createServerFn({ method: "GET" })
     await assertAdmin(context.userId);
     const since7 = new Date(Date.now() - 7 * 86400_000).toISOString();
     const since30 = new Date(Date.now() - 30 * 86400_000).toISOString();
-    const [providers, claimed, pendingClaims, pendingSubs, msgs7, msgs30, reviews7, reviews30, signups7, signups30] = await Promise.all([
+    const [providers, claimed, awaitingClaims, pendingSubs, msgs7, msgs30, reviews7, reviews30, signups7, signups30] = await Promise.all([
       supabaseAdmin.from("providers").select("*", { count: "exact", head: true }),
       supabaseAdmin.from("providers").select("*", { count: "exact", head: true }).not("claimed_by", "is", null),
-      supabaseAdmin.from("claims").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      claimIdsAwaitingAdmin(supabaseAdmin as never),
       supabaseAdmin.from("submissions").select("*", { count: "exact", head: true }).eq("status", "pending"),
       supabaseAdmin.from("contact_messages").select("*", { count: "exact", head: true }).gte("created_at", since7),
       supabaseAdmin.from("contact_messages").select("*", { count: "exact", head: true }).gte("created_at", since30),
@@ -37,7 +37,7 @@ export const adminMetrics = createServerFn({ method: "GET" })
       totals: {
         providers: providers.count ?? 0,
         claimed: claimed.count ?? 0,
-        pendingClaims: pendingClaims.count ?? 0,
+        pendingClaims: awaitingClaims.size,
         pendingSubmissions: pendingSubs.count ?? 0,
       },
       activity: {
@@ -51,6 +51,42 @@ export const adminMetrics = createServerFn({ method: "GET" })
       topCities,
     };
   });
+
+/**
+ * Claims waiting on the admin: anything still open with no reply yet, plus any
+ * claim (open, needs-info or rejected) whose most recent message came from the
+ * claimant — so back-and-forth conversations keep the badge lit.
+ */
+async function claimIdsAwaitingAdmin(
+  supabaseAdmin: { from: (t: string) => any },
+): Promise<Set<string>> {
+  const { data: claims } = await supabaseAdmin
+    .from("claims")
+    .select("id, status")
+    .neq("status", "approved")
+    .limit(500);
+  const open = (claims ?? []) as Array<{ id: string; status: string }>;
+  if (!open.length) return new Set();
+
+  const { data: msgs } = await supabaseAdmin
+    .from("claim_messages")
+    .select("claim_id, author_role, created_at")
+    .in("claim_id", open.map((c) => c.id))
+    .order("created_at", { ascending: true })
+    .limit(2000);
+  const lastRole = new Map<string, string>();
+  for (const m of (msgs ?? []) as Array<{ claim_id: string; author_role: string }>) {
+    lastRole.set(m.claim_id, m.author_role);
+  }
+
+  const awaiting = new Set<string>();
+  for (const c of open) {
+    const last = lastRole.get(c.id);
+    if (last === "claimant") awaiting.add(c.id);
+    else if (!last && c.status === "pending") awaiting.add(c.id);
+  }
+  return awaiting;
+}
 
 export const listPendingClaims = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -67,8 +103,13 @@ export const listPendingClaims = createServerFn({ method: "GET" })
       ? await supabaseAdmin.from("providers").select("place_id, name, slug, city").in("place_id", ids)
       : { data: [] };
     const pmap = new Map((providers ?? []).map((p) => [p.place_id, p]));
+    const awaiting = await claimIdsAwaitingAdmin(supabaseAdmin as never);
     return {
-      claims: (claims ?? []).map((c) => ({ ...c, provider: pmap.get(c.provider_place_id) ?? null })),
+      claims: (claims ?? []).map((c) => ({
+        ...c,
+        provider: pmap.get(c.provider_place_id) ?? null,
+        needsReply: awaiting.has(c.id as string),
+      })),
     };
   });
 
