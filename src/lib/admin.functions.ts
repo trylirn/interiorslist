@@ -14,10 +14,10 @@ export const adminMetrics = createServerFn({ method: "GET" })
     await assertAdmin(context.userId);
     const since7 = new Date(Date.now() - 7 * 86400_000).toISOString();
     const since30 = new Date(Date.now() - 30 * 86400_000).toISOString();
-    const [providers, claimed, pendingClaims, pendingSubs, msgs7, msgs30, reviews7, reviews30, signups7, signups30] = await Promise.all([
+    const [providers, claimed, awaitingClaims, pendingSubs, msgs7, msgs30, reviews7, reviews30, signups7, signups30] = await Promise.all([
       supabaseAdmin.from("providers").select("*", { count: "exact", head: true }),
       supabaseAdmin.from("providers").select("*", { count: "exact", head: true }).not("claimed_by", "is", null),
-      supabaseAdmin.from("claims").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      claimIdsAwaitingAdmin(supabaseAdmin as never),
       supabaseAdmin.from("submissions").select("*", { count: "exact", head: true }).eq("status", "pending"),
       supabaseAdmin.from("contact_messages").select("*", { count: "exact", head: true }).gte("created_at", since7),
       supabaseAdmin.from("contact_messages").select("*", { count: "exact", head: true }).gte("created_at", since30),
