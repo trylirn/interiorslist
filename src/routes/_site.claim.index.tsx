@@ -89,7 +89,7 @@ function ClaimEntry() {
           ))}
           {q.trim().length >= 2 && !isFetching && !data?.providers.length && (
             <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-              Can't find your business? <Link to="/login" className="text-brand underline">Add it to the directory</Link>.
+              Can't find your business? <Link to="/login" search={{ tab: "business" }} className="text-brand underline">Add it to the directory</Link>.
             </p>
           )}
         </div>

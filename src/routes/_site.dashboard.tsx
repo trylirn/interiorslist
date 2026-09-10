@@ -111,7 +111,7 @@ function Dashboard() {
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               <Button asChild><Link to="/search">Find your listing</Link></Button>
-              <Button asChild variant="outline"><Link to="/login">Submit a business</Link></Button>
+              <Button asChild variant="outline"><Link to="/login" search={{ tab: "business" }}>Submit a business</Link></Button>
             </div>
           </div>
           <div className="mt-8">

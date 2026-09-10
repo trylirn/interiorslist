@@ -4,6 +4,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 // standalone submission form is retired and this page redirects to sign up.
 export const Route = createFileRoute("/_site/submit")({
   beforeLoad: () => {
-    throw redirect({ to: "/login" });
+    throw redirect({ to: "/login", search: { tab: "business" } });
   },
 });
