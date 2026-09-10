@@ -285,7 +285,7 @@ function HomePage() {
           <p className="mx-auto mt-4 max-w-xl text-base opacity-90">Claim or submit your listing — free. Manage services, styles, portfolio images and respond to enquiries directly.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" variant="secondary" className="rounded-full"><Link to="/for-business">See how it works for studios</Link></Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/login">Submit your studio</Link></Button>
+            <Button asChild size="lg" variant="outline" className="rounded-full bg-transparent text-brand-foreground border-brand-foreground/40 hover:bg-brand-foreground/10"><Link to="/login" search={{ tab: "business" }}>Submit your studio</Link></Button>
           </div>
         </div>
       </section>

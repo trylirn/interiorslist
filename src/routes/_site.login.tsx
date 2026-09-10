@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/_site/login")({
 });
 
 function LoginPage() {
+  const { tab } = useSearch({ strict: false }) as { tab?: string };
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <div className="text-center">
@@ -23,7 +24,7 @@ function LoginPage() {
           Browsing is free — no account needed. Accounts are for design studios: register your business, claim your listing, and manage your profile.
         </p>
       </div>
-      <Tabs defaultValue="signin" className="mt-8">
+      <Tabs key={tab ?? "signin"} defaultValue={tab === "business" ? "business" : "signin"} className="mt-8">
         <TabsList className="grid grid-cols-2 w-full">
           <TabsTrigger value="signin">Sign in</TabsTrigger>
           <TabsTrigger value="business">Create account</TabsTrigger>
