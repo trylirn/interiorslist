@@ -59,27 +59,41 @@ export const sendContactMessage = createServerFn({ method: "POST" })
         .eq("place_id", data.placeId)
         .maybeSingle();
       providerName = provider?.name ?? undefined;
-      const { OPS_EMAIL } = await import("@/lib/email-templates/ops");
-      // No studio address on file → route to operations so the lead is never lost.
-      const recipient = provider?.email_forward_to || provider?.email || OPS_EMAIL;
-      const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-      await sendTemplateEmail("new-lead", recipient, {
-        templateData: {
-          studioName: providerName,
-          clientName: `${data.firstName} ${data.lastName}`.trim(),
-          clientEmail: data.email,
-          clientPhone: data.phone || undefined,
-          location: data.location || undefined,
-          projectType: data.projectType || undefined,
-          rooms: data.rooms || undefined,
-          budget: data.budget || undefined,
-          style: data.style || undefined,
-          timeline: data.timeline || undefined,
-          message: data.message,
-          dashboardUrl: "https://intearior.com/dashboard",
-        },
-        idempotencyKey: `new-lead-${leadId}`,
-      });
+      const recipient = provider?.email_forward_to || provider?.email || null;
+      const templateData = {
+        studioName: providerName,
+        clientName: `${data.firstName} ${data.lastName}`.trim(),
+        clientEmail: data.email,
+        clientPhone: data.phone || undefined,
+        location: data.location || undefined,
+        projectType: data.projectType || undefined,
+        rooms: data.rooms || undefined,
+        budget: data.budget || undefined,
+        style: data.style || undefined,
+        timeline: data.timeline || undefined,
+        message: data.message,
+        dashboardUrl: "https://intearior.com/dashboard",
+      };
+
+      if (recipient) {
+        const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+        await sendTemplateEmail("new-lead", recipient, {
+          templateData,
+          idempotencyKey: `new-lead-${leadId}`,
+        });
+      } else {
+        // Unclaimed studio or no contact address on file → alert every admin and
+        // super admin with the full lead so it can be followed up manually.
+        const { sendOpsAlert } = await import("@/lib/email-templates/ops.server");
+        await sendOpsAlert("new-lead", {
+          idempotencyKey: `new-lead-${leadId}-ops`,
+          templateData: {
+            ...templateData,
+            studioName: providerName ? `${providerName} (no contact email on file)` : "Unclaimed studio",
+            dashboardUrl: "https://intearior.com/admin?tab=orphanleads",
+          },
+        });
+      }
     } catch (emailError) {
       console.error("Lead email forwarding failed:", emailError);
     }
