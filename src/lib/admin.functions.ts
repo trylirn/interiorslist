@@ -473,3 +473,57 @@ export const getClaimThreadAdmin = createServerFn({ method: "GET" })
     return { messages: withUrls };
   });
 
+
+/**
+ * Leads that landed on studios with no contact email on file (unclaimed or
+ * missing an address), grouped by studio, for admin follow-up.
+ */
+export const listOrphanLeads = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await assertAdmin(context.userId);
+
+    const { data: providers, error: pErr } = await supabaseAdmin
+      .from("providers")
+      .select("place_id, name, slug, city, state, claimed_by, email, email_forward_to")
+      .is("email", null)
+      .is("email_forward_to", null);
+    if (pErr) fail(pErr);
+    const orphan = new Map((providers ?? []).map((p) => [p.place_id, p]));
+    if (!orphan.size) return { studios: [], totalLeads: 0 };
+
+    const { data: leads, error } = await supabaseAdmin
+      .from("contact_messages")
+      .select("id, provider_place_id, first_name, last_name, email, phone, message, status, created_at, location, project_type, budget, style, timeline, rooms")
+      .in("provider_place_id", Array.from(orphan.keys()))
+      .order("created_at", { ascending: false })
+      .limit(2000);
+    if (error) fail(error);
+
+    const grouped = new Map<string, typeof leads>();
+    for (const l of leads ?? []) {
+      const list = grouped.get(l.provider_place_id) ?? [];
+      list.push(l);
+      grouped.set(l.provider_place_id, list as never);
+    }
+
+    const studios = Array.from(grouped.entries())
+      .map(([placeId, list]) => {
+        const p = orphan.get(placeId)!;
+        return {
+          placeId,
+          name: p.name,
+          slug: p.slug,
+          city: p.city,
+          state: p.state,
+          claimed: !!p.claimed_by,
+          leadCount: (list ?? []).length,
+          lastLeadAt: (list ?? [])[0]?.created_at ?? null,
+          leads: list ?? [],
+        };
+      })
+      .sort((a, b) => b.leadCount - a.leadCount);
+
+    return { studios, totalLeads: (leads ?? []).length };
+  });
