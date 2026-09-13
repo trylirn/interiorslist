@@ -11,7 +11,7 @@ import {
   listPendingSubmissions,
   reviewSubmission,
   listAllProviders,
-  toggleProviderFlag,
+  exportProvidersCsv,
   setProviderPlan,
   setProviderContactEmail,
   getLicenseDocSignedUrl,
@@ -401,15 +401,30 @@ function ListingsTab() {
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
-  const toggle = useServerFn(toggleProviderFlag);
   const setPlan = useServerFn(setProviderPlan);
+  const exportCsv = useServerFn(exportProvidersCsv);
+  const [exporting, setExporting] = useState(false);
   async function changePlan(placeId: string, plan: "free" | "premium") {
     try { await setPlan({ data: { placeId, plan } }); qc.invalidateQueries({ queryKey: ["admin-listings"] }); }
     catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
   }
-  async function flip(placeId: string, field: "published" | "is_verified", value: boolean) {
-    try { await toggle({ data: { placeId, field, value } }); qc.invalidateQueries({ queryKey: ["admin-listings"] }); }
-    catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  async function downloadCsv() {
+    setExporting(true);
+    try {
+      const res = await exportCsv();
+      const blob = new Blob([`\uFEFF${res.csv}`], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `intearior-studios-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`Exported ${res.count.toLocaleString()} studios`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
   }
   return (
     <div>
