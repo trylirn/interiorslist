@@ -442,9 +442,13 @@ function ListingsTab() {
           ))}
         </div>
         {data && <span className="text-xs text-muted-foreground">Showing {from}–{to} of {total.toLocaleString()}</span>}
+        <Button size="sm" variant="outline" onClick={downloadCsv} disabled={exporting} className="ml-auto">
+          {exporting ? "Preparing…" : "Download CSV"}
+        </Button>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        <strong className="font-medium text-foreground">Plan</strong> drives featured placement automatically: premium studios are pinned to the front of the homepage row and ranked first in Get Matched. Moving a studio back to free removes it.
+        Claimed, verified and live status is automatic: a studio becomes verified and goes live the moment its claim is approved.{" "}
+        <strong className="font-medium text-foreground">Plan</strong> drives featured placement automatically: premium studios are pinned to the front of the homepage row and ranked first in Get Matched.
       </p>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
@@ -471,8 +475,8 @@ function ListingsTab() {
                   />
                 </td>
                 <td>{p.claimed_by ? "✓" : "—"}</td>
-                <td><Switch checked={p.is_verified} onCheckedChange={(v) => flip(p.place_id, "is_verified", v)} /></td>
-                <td><Switch checked={p.published} onCheckedChange={(v) => flip(p.place_id, "published", v)} /></td>
+                <td className="text-xs">{p.is_verified ? "Verified" : "—"}</td>
+                <td className="text-xs">{p.published ? "Live" : "Hidden"}</td>
                 <td>
                   <select
                     aria-label="Plan"
