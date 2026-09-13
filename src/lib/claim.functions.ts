@@ -84,9 +84,9 @@ export const submitPublicClaim = createServerFn({ method: "POST" })
           },
         });
 
-        // Internal alert so a pending claim never waits unseen.
-        const { OPS_EMAIL } = await import("@/lib/email-templates/ops");
-        await sendTemplateEmail("claim-submitted-admin", OPS_EMAIL, {
+        // Internal alert to every admin so a pending claim never waits unseen.
+        const { sendOpsAlert } = await import("@/lib/email-templates/ops.server");
+        await sendOpsAlert("claim-submitted-admin", {
           idempotencyKey: `claim-${created.id}-ops`,
           templateData: {
             title: "New studio claim awaiting review",
