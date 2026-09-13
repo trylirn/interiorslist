@@ -337,25 +337,43 @@ export const listAllProviders = createServerFn({ method: "GET" })
     return { providers: rows ?? [], total: count ?? 0, page, pageSize };
   });
 
-export const toggleProviderFlag = createServerFn({ method: "POST" })
+/** Full studio export for spreadsheets (CSV, opens directly in Excel). */
+export const exportProvidersCsv = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
-    z.object({
-      placeId: z.string().min(1).max(200),
-      field: z.enum(["published", "is_verified"]),
-      value: z.boolean(),
-    }).parse(d),
-  )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
-    const patch: Record<string, boolean> = { [data.field]: data.value };
-    const { error } = await (supabaseAdmin
-      .from("providers") as unknown as { update: (p: Record<string, boolean>) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } })
-      .update(patch)
-      .eq("place_id", data.placeId);
-    if (error) fail(error);
-    return { ok: true };
+
+    const columns = [
+      "name", "slug", "city", "state", "address", "postal_code", "phone", "email",
+      "email_forward_to", "website", "rating", "review_count", "services", "styles",
+      "project_types", "typical_project_budget", "service_area", "team_size",
+      "founded_year", "plan", "plan_expires_at", "featured", "is_verified",
+      "published", "claimed_by", "created_at", "place_id",
+    ] as const;
+
+    const rows: Record<string, unknown>[] = [];
+    const pageSize = 1000;
+    for (let page = 0; page < 20; page++) {
+      const { data, error } = await supabaseAdmin
+        .from("providers")
+        .select(columns.join(", "))
+        .order("name")
+        .range(page * pageSize, page * pageSize + pageSize - 1);
+      if (error) fail(error);
+      const batch = (data ?? []) as unknown as Record<string, unknown>[];
+      rows.push(...batch);
+      if (batch.length < pageSize) break;
+    }
+
+    const cell = (v: unknown) => {
+      if (v === null || v === undefined) return "";
+      const s = Array.isArray(v) ? v.join("; ") : typeof v === "object" ? JSON.stringify(v) : String(v);
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+    const header = columns.map((c) => cell(c.replace(/_/g, " "))).join(",");
+    const body = rows.map((r) => columns.map((c) => cell(r[c])).join(",")).join("\n");
+    return { csv: `${header}\n${body}`, count: rows.length };
   });
 
 /** Fill in a studio's contact address so new leads reach them by email. */

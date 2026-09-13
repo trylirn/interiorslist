@@ -64,9 +64,8 @@ export const submitPublicBusiness = createServerFn({ method: "POST" })
 
     // Internal alert — best-effort, never blocks the submission.
     try {
-      const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-      const { OPS_EMAIL } = await import("@/lib/email-templates/ops");
-      await sendTemplateEmail("submission-received-admin", OPS_EMAIL, {
+      const { sendOpsAlert } = await import("@/lib/email-templates/ops.server");
+      await sendOpsAlert("submission-received-admin", {
         idempotencyKey: `submission-${email}-${data.businessName}-${Date.now()}`,
         templateData: {
           title: "New studio submission awaiting review",
