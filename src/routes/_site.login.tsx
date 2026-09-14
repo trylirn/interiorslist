@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
@@ -188,8 +188,6 @@ function SignInPanel() {
 
 
 
-const LICENSE_TYPES = ["Certified Interior Designer", "Licensed Interior Designer", "Design Principal", "Other"];
-
 function BusinessSignupWizard() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -197,70 +195,18 @@ function BusinessSignupWizard() {
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     businessName: "", city: "", address: "", website: "", phone: "",
-    licenseType: "", licenseNumber: "", npi: "",
     contactName: "", contactRole: "", email: "", password: "",
     notes: "",
   });
-  const [licenseFile, setLicenseFile] = useState<File | null>(null);
 
   function update<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  async function submit() {
-    setError(null);
-    if (!form.contactName.trim()) { setError("Please enter your name."); toast.error("Please enter your name."); return; }
-    if (!form.email.trim()) { setError("Please enter your account email."); toast.error("Please enter your account email."); return; }
-    if (form.password.length < 8) { setError("Password must be at least 8 characters."); toast.error("Password must be at least 8 characters"); return; }
-    setBusy(true);
+  /** Save the studio details once a session exists. Never blocks account creation. */
+  async function saveBusinessDetails(userId: string) {
     try {
-      const { data: signUp, error: suErr } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-          data: { display_name: form.contactName || form.businessName, account_type: "business" },
-        },
-      });
-      if (suErr) {
-        const m = suErr.message || "";
-        const status = (suErr as { status?: number }).status;
-        if (status === 429 || /security purposes|rate limit/i.test(m)) {
-          toast.success("Account created. Check your email to confirm, then sign in.");
-          navigate({ to: "/" });
-          return;
-        }
-        if (/already registered|already exists/i.test(m)) {
-          throw new Error("That email already has an account — sign in with your email link instead.");
-        }
-        throw suErr;
-      }
-      const userId = signUp.user?.id;
-      if (!userId) throw new Error("We couldn't create the account. Please try again.");
-
-
-      // Optional license doc upload (folder must equal userId per storage RLS)
-      let licensePath: string | null = null;
-      if (licenseFile) {
-        const ext = licenseFile.name.split(".").pop() ?? "pdf";
-        licensePath = `${userId}/license-${Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("business-docs").upload(licensePath, licenseFile);
-        if (upErr) {
-          // Non-fatal: keep the account, surface the issue
-          toast.error("License upload failed — you can add it later from your dashboard.");
-          licensePath = null;
-        }
-      }
-
-      // Wait for session to ensure RLS-authenticated insert works
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.success("Account created. Please check your email to confirm, then sign in to complete your submission.");
-        navigate({ to: "/" });
-        return;
-      }
-
-      const { error: subErr } = await supabase.from("submissions").insert({
+      await supabase.from("submissions").insert({
         business_name: form.businessName,
         city: form.city,
         address: form.address || null,
@@ -268,27 +214,90 @@ function BusinessSignupWizard() {
         contact_email: form.email,
         contact_phone: form.phone || null,
         notes: form.notes || null,
-        license_type: form.licenseType || null,
-        license_number: form.licenseNumber || null,
-        license_doc_path: licensePath,
-        npi: form.npi || null,
         submitted_by: userId,
       });
-      if (subErr) throw subErr;
-
       await supabase.from("profiles").update({
         account_type: "business",
         contact_name: form.contactName || null,
         business_role: form.contactRole || null,
         phone: form.phone || null,
       }).eq("id", userId);
-
-      toast.success("Business account created. We'll review your submission shortly.");
-      navigate({ to: "/dashboard" });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Signup failed";
+      console.error("business details save failed", e);
+    }
+  }
+
+  /** Last resort: email the person a sign-in link so they always get an account. */
+  async function fallbackToEmailLink(reason?: string) {
+    const { error: otpErr } = await supabase.auth.signInWithOtp({
+      email: form.email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: { display_name: form.contactName || form.businessName, account_type: "business" },
+      },
+    });
+    if (otpErr && !/security purposes|rate limit/i.test(otpErr.message || "")) {
+      const msg = reason || otpErr.message || "We couldn't finish sign-up.";
       setError(msg);
       toast.error(msg);
+      return false;
+    }
+    toast.success(`We emailed a sign-in link to ${form.email}. Open it to finish setting up your studio.`);
+    navigate({ to: "/" });
+    return true;
+  }
+
+  async function submit() {
+    setError(null);
+    if (!form.contactName.trim()) { setError("Please enter your name."); toast.error("Please enter your name."); return; }
+    if (!form.email.trim()) { setError("Please enter your account email."); toast.error("Please enter your account email."); return; }
+    setBusy(true);
+    try {
+      const hasPassword = form.password.length >= 8;
+      if (!hasPassword) {
+        await fallbackToEmailLink();
+        return;
+      }
+
+      const { data: signUp, error: suErr } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: { display_name: form.contactName || form.businessName, account_type: "business" },
+        },
+      });
+
+      if (suErr) {
+        const m = suErr.message || "";
+        if (/already registered|already exists|user already/i.test(m)) {
+          toast.info("That email already has an account — we've emailed you a sign-in link.");
+          await fallbackToEmailLink();
+          return;
+        }
+        // Anything else (weak/breached password, rate limits, provider hiccups):
+        // fall back to a passwordless account so nobody is ever turned away.
+        await fallbackToEmailLink(m);
+        return;
+      }
+
+      const userId = signUp.user?.id;
+      if (!userId) { await fallbackToEmailLink(); return; }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.success("Account created. Check your email to confirm, then sign in to finish your studio profile.");
+        navigate({ to: "/" });
+        return;
+      }
+
+      await saveBusinessDetails(userId);
+      toast.success("Business account created. We'll review your studio shortly.");
+      navigate({ to: "/dashboard" });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Sign-up hit a snag.";
+      const recovered = await fallbackToEmailLink(msg);
+      if (!recovered) setError(msg);
     } finally { setBusy(false); }
   }
 
@@ -297,9 +306,7 @@ function BusinessSignupWizard() {
       <div className="mb-6 flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
         <span className={step >= 1 ? "text-brand font-semibold" : ""}>1 · Business</span>
         <span>·</span>
-        <span className={step >= 2 ? "text-brand font-semibold" : ""}>2 · Credentials</span>
-        <span>·</span>
-        <span className={step >= 3 ? "text-brand font-semibold" : ""}>3 · Account</span>
+        <span className={step >= 2 ? "text-brand font-semibold" : ""}>2 · Account</span>
       </div>
 
       {step === 1 && (
@@ -315,46 +322,19 @@ function BusinessSignupWizard() {
 
       {step === 2 && (
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">
-            Intearior features professional design studios. You can add credentials now or later from your dashboard — none of this is required to create your account.
-          </p>
-          <div className="space-y-1.5">
-            <Label>Credential type</Label>
-            <Select value={form.licenseType} onValueChange={(v) => update("licenseType", v)}>
-              <SelectTrigger><SelectValue placeholder="Select (optional)…" /></SelectTrigger>
-              <SelectContent>{LICENSE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5"><Label>Credential number</Label><Input value={form.licenseNumber} onChange={(e) => update("licenseNumber", e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Business license #</Label><Input value={form.npi} onChange={(e) => update("npi", e.target.value)} /></div>
-          <div className="space-y-1.5">
-            <Label>Credential document (PDF or image)</Label>
-            <Input type="file" accept=".pdf,image/*" onChange={(e) => setLicenseFile(e.target.files?.[0] ?? null)} />
-            {licenseFile && <p className="text-xs text-muted-foreground">{licenseFile.name}</p>}
-            <p className="text-[11px] text-muted-foreground">Optional — speeds up listing approval.</p>
-          </div>
-          <div className="flex gap-2 mt-2">
-            <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-11">← Back</Button>
-            <Button onClick={() => setStep(3)} className="flex-1 h-11">Next →</Button>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="space-y-3">
           <div className="space-y-1.5"><Label>Your name *</Label><Input required value={form.contactName} onChange={(e) => update("contactName", e.target.value)} /></div>
           <div className="space-y-1.5"><Label>Your role at the business</Label><Input value={form.contactRole} onChange={(e) => update("contactRole", e.target.value)} placeholder="Owner, Principal Designer, Manager…" /></div>
           <div className="space-y-1.5"><Label>Account email *</Label><Input type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Password *</Label><Input type="password" required minLength={8} value={form.password} onChange={(e) => update("password", e.target.value)} /><p className="text-[11px] text-muted-foreground">At least 8 characters. Avoid common passwords — they're rejected for security.</p></div>
+          <div className="space-y-1.5"><Label>Password</Label><Input type="password" minLength={8} value={form.password} onChange={(e) => update("password", e.target.value)} /><p className="text-[11px] text-muted-foreground">Optional — leave blank and we'll email you a one-click sign-in link instead.</p></div>
           <div className="space-y-1.5"><Label>Anything else?</Label><Textarea rows={3} value={form.notes} onChange={(e) => update("notes", e.target.value)} /></div>
           {error && (
             <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
           )}
           <div className="flex gap-2 mt-2">
-            <Button variant="outline" onClick={() => setStep(2)} className="flex-1 h-11">← Back</Button>
+            <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-11">← Back</Button>
             <Button onClick={submit} disabled={busy} className="flex-1 h-11">{busy ? "Creating…" : "Create business account"}</Button>
           </div>
-          <p className="text-xs text-muted-foreground text-center">We'll verify your credentials before publishing your listing.</p>
+          <p className="text-xs text-muted-foreground text-center">We'll review your studio before publishing your listing.</p>
         </div>
       )}
     </div>
