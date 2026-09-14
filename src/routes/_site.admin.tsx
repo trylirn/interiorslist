@@ -27,7 +27,8 @@ import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 import { BlogAdmin } from "@/components/blog-admin";
 import { DashboardShell, type DashboardNavItem } from "@/components/dashboard-shell";
 import { z } from "zod";
-import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, Settings, Wrench } from "lucide-react";
+import { BarChart3, LayoutDashboard, FileCheck2, Inbox, Building2, Users, Newspaper, Settings, Wrench, MailWarning } from "lucide-react";
+import { OrphanLeads } from "@/components/orphan-leads";
 import { AccountSettings } from "@/components/account-settings";
 import { ToolDemand } from "@/components/tool-demand";
 
@@ -94,6 +95,7 @@ const ADMIN_NAV: DashboardNavItem[] = [
   { key: "claims", label: "Claims", icon: FileCheck2 },
   { key: "submissions", label: "Submissions", icon: Inbox },
   { key: "listings", label: "Listings", icon: Building2 },
+  { key: "orphanleads", label: "Unrouted leads", icon: MailWarning },
   { key: "team", label: "Team", icon: Users },
   { key: "blog", label: "Blog", icon: Newspaper },
   { key: "tools", label: "Tool demand", icon: Wrench },
@@ -129,6 +131,7 @@ function AdminShell() {
       {active === "claims" && <ClaimsTab />}
       {active === "submissions" && <SubmissionsTab />}
       {active === "listings" && <ListingsTab />}
+      {active === "orphanleads" && <OrphanLeads />}
       {active === "team" && <TeamTab />}
       {active === "blog" && <BlogAdmin />}
       {active === "tools" && <ToolDemand />}
