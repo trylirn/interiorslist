@@ -56,16 +56,21 @@ function Dashboard() {
   }
 
   const openClaim = (claimsData?.claims ?? []).find((c) => c.status === "pending" || c.status === "needs_info") ?? null;
+  const anyClaim = (claimsData?.claims ?? []).length > 0;
+  const pendingSubmission = (onboarding?.pendingSubmissions ?? [])[0] ?? null;
+
 
   return (
     <DashboardShell
       title="Dashboard"
       subtitle={<span className="truncate">Signed in as {email}</span>}
-      items={[{ key: "claims", label: "Claims", icon: FileCheck2 }, { key: "settings", label: "Settings", icon: Settings }]}
+      items={[
+        ...(anyClaim ? [{ key: "claims", label: "Claims", icon: FileCheck2 }] : []),
+        { key: "settings", label: "Settings", icon: Settings },
+      ]}
       active={active}
       onSelect={setActive}
     >
-      {!openClaim && onboarding && <OnboardingBanner status={onboarding} />}
       {active === "settings" ? (
         <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />
       ) : openClaim ? (
@@ -101,6 +106,20 @@ function Dashboard() {
             <div className="mt-4"><ClaimsTab /></div>
           </div>
         </>
+      ) : pendingSubmission ? (
+        <div className="mt-8 rounded-3xl border border-brand/30 bg-brand/5 p-8">
+          <Clock className="h-8 w-8 text-brand" />
+          <h2 className="mt-3 font-display text-2xl">Your business is being verified</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            We received <span className="font-medium text-foreground">{pendingSubmission.business_name}</span> on{" "}
+            {new Date(pendingSubmission.created_at).toLocaleDateString()}. Our team reviews and verifies every new
+            studio — usually within 1–2 business days.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            As soon as it's approved, this page becomes your studio dashboard where you can add your description,
+            services, photos, business hours and start receiving client enquiries. We'll email you the moment it's live.
+          </p>
+        </div>
       ) : (
         <>
           <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
@@ -114,10 +133,12 @@ function Dashboard() {
               <Button asChild variant="outline"><Link to="/login" search={{ tab: "business" }}>Submit a business</Link></Button>
             </div>
           </div>
-          <div className="mt-8">
-            <h2 className="font-display text-2xl">Your claims</h2>
-            <div className="mt-4"><ClaimsTab /></div>
-          </div>
+          {anyClaim && (
+            <div className="mt-8">
+              <h2 className="font-display text-2xl">Your claims</h2>
+              <div className="mt-4"><ClaimsTab /></div>
+            </div>
+          )}
         </>
       )}
 
@@ -167,27 +188,3 @@ function ClaimsTab() {
   );
 }
 
-type Onboarding = Awaited<ReturnType<typeof getMyOnboardingStatus>>;
-
-function OnboardingBanner({ status }: { status: Onboarding }) {
-  const pendingClaim = status.pendingClaims.length > 0;
-  const pendingSub = status.pendingSubmissions.length > 0;
-
-  if (pendingClaim || pendingSub) {
-    return (
-      <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-5">
-        <Clock className="h-5 w-5 shrink-0 text-brand" />
-        <div className="min-w-[16rem] flex-1">
-          <p className="font-medium">
-            {pendingClaim ? "Your claim is under review" : "Your listing is under review"}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Our team verifies every {pendingClaim ? "claim" : "submission"} — usually within 1–2 business days. You'll get access to manage the listing as soon as it's approved.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-}

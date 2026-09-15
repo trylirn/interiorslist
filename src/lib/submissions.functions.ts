@@ -50,7 +50,7 @@ export const submitPublicBusiness = createServerFn({ method: "POST" })
       .maybeSingle();
     if (dupe) return { ok: true, duplicate: true };
 
-    const { error } = await supabaseAdmin.from("submissions").insert({
+    const { error, data: created } = await supabaseAdmin.from("submissions").insert({
       business_name: data.businessName,
       city: data.city,
       address: data.address || null,
@@ -59,8 +59,32 @@ export const submitPublicBusiness = createServerFn({ method: "POST" })
       contact_phone: data.contactPhone || null,
       notes: data.notes || null,
       submitted_by: data.userId ?? null,
-    });
+    }).select("id").maybeSingle();
     if (error) fail(error);
+
+    // Confirmation to the person who submitted — sent to their account email
+    // when they have one, otherwise the address on the form.
+    try {
+      let recipient = email;
+      if (data.userId) {
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("email")
+          .eq("id", data.userId)
+          .maybeSingle();
+        if (profile?.email) recipient = profile.email;
+      }
+      const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+      await sendTemplateEmail("submission-received", recipient, {
+        idempotencyKey: `submission-${created?.id ?? email}-received`,
+        templateData: {
+          studioName: data.businessName,
+          actionUrl: "https://intearior.com/dashboard",
+        },
+      });
+    } catch (e) {
+      console.error("submission confirmation email failed", e);
+    }
 
     // Internal alert — best-effort, never blocks the submission.
     try {

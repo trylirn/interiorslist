@@ -211,8 +211,19 @@ export const reviewClaim = createServerFn({ method: "POST" })
           .select("contact_name, access_token")
           .eq("id", data.id)
           .maybeSingle();
+        // Prefer the address on the claimant's account when they have one.
+        let recipient = claim.contact_email as string;
+        const claimUserId = (claim.user_id as string | null) ?? ownerId;
+        if (claimUserId) {
+          const { data: claimantProfile } = await supabaseAdmin
+            .from("profiles")
+            .select("email")
+            .eq("id", claimUserId)
+            .maybeSingle();
+          if (claimantProfile?.email) recipient = claimantProfile.email;
+        }
         const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-        await sendTemplateEmail(templateName, claim.contact_email as string, {
+        await sendTemplateEmail(templateName, recipient, {
           idempotencyKey: `claim-${data.id}-${status}-${now}`,
           templateData: {
             contactName: (full?.contact_name as string | null)?.split(" ")[0] ?? null,
@@ -292,6 +303,33 @@ export const reviewSubmission = createServerFn({ method: "POST" })
         resulting_place_id: placeId,
       })
       .eq("id", data.id);
+
+    // Tell the studio their listing is live and nudge them to finish the details.
+    if (data.action === "approve") {
+      try {
+        let recipient = sub.contact_email as string;
+        if (sub.submitted_by) {
+          const { data: profile } = await supabaseAdmin
+            .from("profiles")
+            .select("email")
+            .eq("id", sub.submitted_by as string)
+            .maybeSingle();
+          if (profile?.email) recipient = profile.email;
+        }
+        if (recipient) {
+          const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+          await sendTemplateEmail("submission-approved", recipient, {
+            idempotencyKey: `submission-${data.id}-approved`,
+            templateData: {
+              studioName: sub.business_name,
+              actionUrl: "https://intearior.com/dashboard",
+            },
+          });
+        }
+      } catch (e) {
+        console.error("submission approval email failed", e);
+      }
+    }
     return { ok: true, placeId };
   });
 

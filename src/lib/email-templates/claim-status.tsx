@@ -116,14 +116,18 @@ const ClaimApproved = ({ contactName, studioName, note, actionUrl }: Props) => (
     title="Your studio is yours to manage"
     note={note}
     actionUrl={actionUrl}
-    actionLabel="Open your dashboard"
+    actionLabel="Complete your studio details"
     body={
       <>
         <Text style={text}>{greeting(contactName)}</Text>
         <Text style={text}>
           Good news — your claim for <strong>{studioName ?? 'your studio'}</strong> has been
-          approved. Sign in to add photos, services, business hours and to receive project
-          enquiries.
+          approved.
+        </Text>
+        <Text style={text}>
+          Please take a few minutes to complete your studio details: a short description, your
+          services and design styles, project photos, business hours and the email address where
+          you'd like new client enquiries sent. Complete profiles get far more enquiries.
         </Text>
       </>
     }
