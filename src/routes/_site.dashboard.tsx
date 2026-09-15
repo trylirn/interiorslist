@@ -103,6 +103,20 @@ function Dashboard() {
             <div className="mt-4"><ClaimsTab /></div>
           </div>
         </>
+      ) : pendingSubmission ? (
+        <div className="mt-8 rounded-3xl border border-brand/30 bg-brand/5 p-8">
+          <Clock className="h-8 w-8 text-brand" />
+          <h2 className="mt-3 font-display text-2xl">Your business is being verified</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            We received <span className="font-medium text-foreground">{pendingSubmission.business_name}</span> on{" "}
+            {new Date(pendingSubmission.created_at).toLocaleDateString()}. Our team reviews and verifies every new
+            studio — usually within 1–2 business days.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            As soon as it's approved, this page becomes your studio dashboard where you can add your description,
+            services, photos, business hours and start receiving client enquiries. We'll email you the moment it's live.
+          </p>
+        </div>
       ) : (
         <>
           <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
@@ -116,10 +130,12 @@ function Dashboard() {
               <Button asChild variant="outline"><Link to="/login" search={{ tab: "business" }}>Submit a business</Link></Button>
             </div>
           </div>
-          <div className="mt-8">
-            <h2 className="font-display text-2xl">Your claims</h2>
-            <div className="mt-4"><ClaimsTab /></div>
-          </div>
+          {anyClaim && (
+            <div className="mt-8">
+              <h2 className="font-display text-2xl">Your claims</h2>
+              <div className="mt-4"><ClaimsTab /></div>
+            </div>
+          )}
         </>
       )}
 
