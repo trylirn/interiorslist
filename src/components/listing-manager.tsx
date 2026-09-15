@@ -88,6 +88,59 @@ function ListingManagerShell({
 
 type Listing = Record<string, unknown>;
 
+// Nudges brand-new studios (claim just approved, or listing just created) to
+// finish their profile. Disappears once the key fields are filled in.
+function CompleteDetailsNotice({
+  placeId,
+  listing,
+  onGoToInfo,
+}: {
+  placeId: string;
+  listing: Listing;
+  onGoToInfo: () => void;
+}) {
+  const storageKey = `intearior:details-notice:${placeId}`;
+  const [dismissed, setDismissed] = useState(true);
+  useEffect(() => {
+    setDismissed(typeof window !== "undefined" && window.localStorage.getItem(storageKey) === "1");
+  }, [storageKey]);
+
+  const arr = (v: unknown) => (Array.isArray(v) ? v : []);
+  const missing: string[] = [];
+  if (!listing["about_description"]) missing.push("a short description");
+  if (!arr(listing["services"]).length) missing.push("your services");
+  if (!arr(listing["styles"]).length) missing.push("your design styles");
+  if (!arr(listing["gallery_urls"]).length) missing.push("project photos");
+  if (!listing["email_forward_to"] && !listing["email"]) missing.push("an email for new enquiries");
+
+  if (dismissed || !missing.length) return null;
+
+  return (
+    <div className="mb-6 flex flex-wrap items-start gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-4">
+      <div className="min-w-[16rem] flex-1">
+        <p className="font-medium">Finish setting up your studio</p>
+        <p className="text-sm text-muted-foreground">
+          Add {missing.slice(0, 3).join(", ")}
+          {missing.length > 3 ? " and more" : ""} so clients can find and contact you.
+        </p>
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" onClick={onGoToInfo}>Update details</Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => {
+            window.localStorage.setItem(storageKey, "1");
+            setDismissed(true);
+          }}
+        >
+          Dismiss
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 type DayHours = { closed: boolean; open: string; close: string };
 const DAYS: { key: string; label: string }[] = [
   { key: "mon", label: "Monday" },
