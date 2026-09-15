@@ -50,7 +50,7 @@ export const submitPublicBusiness = createServerFn({ method: "POST" })
       .maybeSingle();
     if (dupe) return { ok: true, duplicate: true };
 
-    const { error } = await supabaseAdmin.from("submissions").insert({
+    const { error, data: created } = await supabaseAdmin.from("submissions").insert({
       business_name: data.businessName,
       city: data.city,
       address: data.address || null,
