@@ -56,6 +56,9 @@ function Dashboard() {
   }
 
   const openClaim = (claimsData?.claims ?? []).find((c) => c.status === "pending" || c.status === "needs_info") ?? null;
+  const anyClaim = (claimsData?.claims ?? []).length > 0;
+  const pendingSubmission = (onboarding?.pendingSubmissions ?? [])[0] ?? null;
+
 
   return (
     <DashboardShell
