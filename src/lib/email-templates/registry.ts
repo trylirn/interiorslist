@@ -3,6 +3,7 @@ import { template as newLeadTemplate } from './new-lead'
 import { template as enquiryConfirmation } from './enquiry-confirmation'
 import { claimSubmittedAdmin, submissionReceivedAdmin } from './ops-alerts'
 import { claimReceived, claimNeedsInfo, claimApproved, claimRejected } from './claim-status'
+import { submissionReceived, submissionApproved } from './submission-status'
 
 
 export interface TemplateEntry {
