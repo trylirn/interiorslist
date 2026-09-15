@@ -73,6 +73,7 @@ function ListingManagerShell({
       active={tab}
       onSelect={setTab}
     >
+      <CompleteDetailsNotice placeId={placeId} listing={listing} onGoToInfo={() => setTab("info")} />
       {tab === "info" && <InfoEditor placeId={placeId} listing={listing} backTo={backTo} />}
       {tab === "media" && <MediaEditor placeId={placeId} listing={listing} />}
       {tab === "docs" && <DocsEditor placeId={placeId} listing={listing} />}
