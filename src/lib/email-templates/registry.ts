@@ -32,5 +32,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'enquiry-confirmation': enquiryConfirmation,
   'claim-submitted-admin': claimSubmittedAdmin,
   'submission-received-admin': submissionReceivedAdmin,
+  'submission-received': submissionReceived,
+  'submission-approved': submissionApproved,
 }
 
