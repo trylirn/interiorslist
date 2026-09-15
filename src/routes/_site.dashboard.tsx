@@ -68,7 +68,6 @@ function Dashboard() {
       active={active}
       onSelect={setActive}
     >
-      {!openClaim && onboarding && <OnboardingBanner status={onboarding} />}
       {active === "settings" ? (
         <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />
       ) : openClaim ? (
