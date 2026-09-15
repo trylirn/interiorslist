@@ -64,7 +64,10 @@ function Dashboard() {
     <DashboardShell
       title="Dashboard"
       subtitle={<span className="truncate">Signed in as {email}</span>}
-      items={[{ key: "claims", label: "Claims", icon: FileCheck2 }, { key: "settings", label: "Settings", icon: Settings }]}
+      items={[
+        ...(anyClaim ? [{ key: "claims", label: "Claims", icon: FileCheck2 }] : []),
+        { key: "settings", label: "Settings", icon: Settings },
+      ]}
       active={active}
       onSelect={setActive}
     >
