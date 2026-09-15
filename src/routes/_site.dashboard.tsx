@@ -185,27 +185,3 @@ function ClaimsTab() {
   );
 }
 
-type Onboarding = Awaited<ReturnType<typeof getMyOnboardingStatus>>;
-
-function OnboardingBanner({ status }: { status: Onboarding }) {
-  const pendingClaim = status.pendingClaims.length > 0;
-  const pendingSub = status.pendingSubmissions.length > 0;
-
-  if (pendingClaim || pendingSub) {
-    return (
-      <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-5">
-        <Clock className="h-5 w-5 shrink-0 text-brand" />
-        <div className="min-w-[16rem] flex-1">
-          <p className="font-medium">
-            {pendingClaim ? "Your claim is under review" : "Your listing is under review"}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Our team verifies every {pendingClaim ? "claim" : "submission"} — usually within 1–2 business days. You'll get access to manage the listing as soon as it's approved.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-}
