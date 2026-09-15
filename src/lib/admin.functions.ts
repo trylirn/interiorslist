@@ -211,8 +211,19 @@ export const reviewClaim = createServerFn({ method: "POST" })
           .select("contact_name, access_token")
           .eq("id", data.id)
           .maybeSingle();
+        // Prefer the address on the claimant's account when they have one.
+        let recipient = claim.contact_email as string;
+        const claimUserId = (claim.user_id as string | null) ?? ownerId;
+        if (claimUserId) {
+          const { data: claimantProfile } = await supabaseAdmin
+            .from("profiles")
+            .select("email")
+            .eq("id", claimUserId)
+            .maybeSingle();
+          if (claimantProfile?.email) recipient = claimantProfile.email;
+        }
         const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-        await sendTemplateEmail(templateName, claim.contact_email as string, {
+        await sendTemplateEmail(templateName, recipient, {
           idempotencyKey: `claim-${data.id}-${status}-${now}`,
           templateData: {
             contactName: (full?.contact_name as string | null)?.split(" ")[0] ?? null,
