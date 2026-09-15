@@ -292,6 +292,33 @@ export const reviewSubmission = createServerFn({ method: "POST" })
         resulting_place_id: placeId,
       })
       .eq("id", data.id);
+
+    // Tell the studio their listing is live and nudge them to finish the details.
+    if (data.action === "approve") {
+      try {
+        let recipient = sub.contact_email as string;
+        if (sub.submitted_by) {
+          const { data: profile } = await supabaseAdmin
+            .from("profiles")
+            .select("email")
+            .eq("id", sub.submitted_by as string)
+            .maybeSingle();
+          if (profile?.email) recipient = profile.email;
+        }
+        if (recipient) {
+          const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+          await sendTemplateEmail("submission-approved", recipient, {
+            idempotencyKey: `submission-${data.id}-approved`,
+            templateData: {
+              studioName: sub.business_name,
+              actionUrl: "https://intearior.com/dashboard",
+            },
+          });
+        }
+      } catch (e) {
+        console.error("submission approval email failed", e);
+      }
+    }
     return { ok: true, placeId };
   });
 
