@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,9 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { AccountSettings } from "@/components/account-settings";
 import { ListingManager } from "@/components/listing-manager";
 import { Building2, Clock, FileCheck2, Settings } from "lucide-react";
+import { submitPublicBusiness } from "@/lib/submissions.functions";
+
+const PENDING_BUSINESS_KEY = "intearior-pending-business";
 
 export const Route = createFileRoute("/_site/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard | Intearior" }, { name: "robots", content: "noindex, nofollow" }] }),
@@ -20,6 +23,8 @@ export const Route = createFileRoute("/_site/dashboard")({
 function Dashboard() {
   const { tab } = Route.useSearch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const resumedBusiness = useRef(false);
   const [email, setEmail] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -32,16 +37,39 @@ function Dashboard() {
   const { data: listingsData, isLoading: listingsLoading } = useQuery({
     queryKey: ["my-listings"], queryFn: () => listMyListings(), enabled: !!email,
   });
-  const { data: onboarding } = useQuery({ queryKey: ["my-onboarding"], queryFn: () => getMyOnboardingStatus(), enabled: !!email });
+  const { data: onboarding, isLoading: onboardingLoading } = useQuery({ queryKey: ["my-onboarding"], queryFn: () => getMyOnboardingStatus(), enabled: !!email });
   const { data: claimsData, isLoading: claimsLoading } = useQuery({
     queryKey: ["my-claims"], queryFn: () => listMyClaims(), enabled: !!email,
   });
+
+  useEffect(() => {
+    if (!email || resumedBusiness.current) return;
+    const raw = window.localStorage.getItem(PENDING_BUSINESS_KEY);
+    if (!raw) return;
+    resumedBusiness.current = true;
+    void (async () => {
+      try {
+        const pending = JSON.parse(raw) as {
+          businessName: string; city: string; address?: string; website?: string;
+          contactEmail: string; contactPhone?: string; notes?: string;
+        };
+        const { data: auth } = await supabase.auth.getUser();
+        if (!auth.user) return;
+        await submitPublicBusiness({ data: { ...pending, userId: auth.user.id } });
+        window.localStorage.removeItem(PENDING_BUSINESS_KEY);
+        await queryClient.invalidateQueries({ queryKey: ["my-onboarding"] });
+      } catch (error) {
+        console.error("pending business submission failed", error);
+        resumedBusiness.current = false;
+      }
+    })();
+  }, [email, queryClient]);
 
   const active = tab === "settings" ? "settings" : "claims";
   const setActive = (key: string) => navigate({ to: "/dashboard", search: { tab: key } });
 
   // Wait for roles before showing anything owner-specific, so admins never see the studio setup screen.
-  if (!ready || (email && (rolesLoading || listingsLoading || claimsLoading)))
+  if (!ready || (email && (rolesLoading || listingsLoading || claimsLoading || onboardingLoading)))
     return <div className="mx-auto max-w-2xl px-4 py-16"><p className="text-muted-foreground">Loading…</p></div>;
   if (!email) return (
     <div className="mx-auto max-w-md py-24 text-center px-4">
@@ -74,38 +102,10 @@ function Dashboard() {
       {active === "settings" ? (
         <AccountSettings email={email} canClose={!roles?.isSuperAdmin} />
       ) : openClaim ? (
-        <>
-          <div className="mt-8 rounded-3xl border border-brand/30 bg-brand/5 p-8">
-            <Clock className="h-8 w-8 text-brand" />
-            <h2 className="mt-3 font-display text-2xl">
-              {openClaim.status === "needs_info" ? "We need a bit more information" : "Your claim is under review"}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              You claimed <span className="font-medium text-foreground">{openClaim.provider?.name ?? openClaim.provider_place_id}</span>
-              {openClaim.provider ? ` in ${openClaim.provider.city}, ${openClaim.provider.state}` : ""} on{" "}
-              {new Date(openClaim.submitted_at).toLocaleDateString()}.
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {openClaim.status === "needs_info"
-                ? "Send the proof we asked for and we'll finish the review."
-                : "Our team checks every claim — usually within 1–2 business days. As soon as it's approved, this page becomes your studio dashboard."}
-            </p>
-            {openClaim.decision_reason && (
-              <p className="mt-3 whitespace-pre-line rounded-2xl bg-background/70 p-4 text-sm">{openClaim.decision_reason}</p>
-            )}
-            <div className="mt-6 flex flex-wrap gap-2">
-              <Button asChild>
-                <Link to="/claim/status/$id" params={{ id: openClaim.id }} search={{ token: openClaim.access_token as string }}>
-                  {openClaim.status === "needs_info" ? "Send proof" : "View claim"}
-                </Link>
-              </Button>
-            </div>
-          </div>
-          <div className="mt-8">
-            <h2 className="font-display text-2xl">Your claims</h2>
-            <div className="mt-4"><ClaimsTab /></div>
-          </div>
-        </>
+        <div>
+          <h2 className="font-display text-2xl">Your claims</h2>
+          <div className="mt-4"><ClaimsTab /></div>
+        </div>
       ) : pendingSubmission ? (
         <div className="mt-8 rounded-3xl border border-brand/30 bg-brand/5 p-8">
           <Clock className="h-8 w-8 text-brand" />

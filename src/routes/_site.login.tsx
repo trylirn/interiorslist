@@ -8,6 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { submitPublicBusiness } from "@/lib/submissions.functions";
+
+const PENDING_BUSINESS_KEY = "intearior-pending-business";
 
 export const Route = createFileRoute("/_site/login")({
   head: () => ({ meta: [{ title: "Sign in | Intearior" }, { name: "robots", content: "noindex, nofollow" }] }),
@@ -190,6 +193,7 @@ function SignInPanel() {
 
 function BusinessSignupWizard() {
   const navigate = useNavigate();
+  const submitBusiness = submitPublicBusiness;
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -203,32 +207,44 @@ function BusinessSignupWizard() {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  /** Save the studio details once a session exists. Never blocks account creation. */
+  function rememberBusinessDetails() {
+    window.localStorage.setItem(PENDING_BUSINESS_KEY, JSON.stringify({
+      businessName: form.businessName,
+      city: form.city,
+      address: form.address,
+      website: form.website,
+      contactEmail: form.email.toLowerCase(),
+      contactPhone: form.phone,
+      notes: form.notes,
+    }));
+  }
+
+  /** Save the pending submission before the user leaves to activate their email. */
   async function saveBusinessDetails(userId: string) {
-    try {
-      await supabase.from("submissions").insert({
-        business_name: form.businessName,
+    await submitBusiness({
+      data: {
+        businessName: form.businessName,
         city: form.city,
-        address: form.address || null,
-        website: form.website || null,
-        contact_email: form.email,
-        contact_phone: form.phone || null,
-        notes: form.notes || null,
-        submitted_by: userId,
-      });
-      await supabase.from("profiles").update({
-        account_type: "business",
-        contact_name: form.contactName || null,
-        business_role: form.contactRole || null,
-        phone: form.phone || null,
-      }).eq("id", userId);
-    } catch (e) {
-      console.error("business details save failed", e);
-    }
+        address: form.address,
+        website: form.website,
+        contactEmail: form.email,
+        contactPhone: form.phone,
+        notes: form.notes,
+        userId,
+      },
+    });
+    window.localStorage.removeItem(PENDING_BUSINESS_KEY);
+    await supabase.from("profiles").update({
+      account_type: "business",
+      contact_name: form.contactName || null,
+      business_role: form.contactRole || null,
+      phone: form.phone || null,
+    }).eq("id", userId);
   }
 
   /** Last resort: email the person a sign-in link so they always get an account. */
   async function fallbackToEmailLink(reason?: string) {
+    rememberBusinessDetails();
     const { error: otpErr } = await supabase.auth.signInWithOtp({
       email: form.email,
       options: {
@@ -284,6 +300,9 @@ function BusinessSignupWizard() {
       const userId = signUp.user?.id;
       if (!userId) { await fallbackToEmailLink(); return; }
 
+      rememberBusinessDetails();
+      await saveBusinessDetails(userId);
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.success("Account created. Check your email to confirm, then sign in to finish your studio profile.");
@@ -291,7 +310,6 @@ function BusinessSignupWizard() {
         return;
       }
 
-      await saveBusinessDetails(userId);
       toast.success("Business account created. We'll review your studio shortly.");
       navigate({ to: "/dashboard" });
     } catch (e) {
