@@ -58,11 +58,9 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
     const days = range === "all" ? null : Number(range);
     const now = Date.now();
     return leads.filter((l) => {
-      if (status !== "all" && l.status !== status) return false;
       if (listing !== "all" && l.provider_place_id !== listing) return false;
       if (source !== "all" && sourceOf(l) !== source) return false;
       if (days && now - new Date(l.created_at).getTime() > days * 864e5) return false;
-      if (contact === "missing" && !l.noStudioContact) return false;
       if (needle) {
         const hay = [l.first_name, l.last_name, l.email, l.phone, l.message, l.location, l.project_type, l.providerName]
           .join(" ")
