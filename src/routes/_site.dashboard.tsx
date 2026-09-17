@@ -133,12 +133,6 @@ function Dashboard() {
               <Button asChild variant="outline"><Link to="/login" search={{ tab: "business" }}>Submit a business</Link></Button>
             </div>
           </div>
-          {anyClaim && (
-            <div className="mt-8">
-              <h2 className="font-display text-2xl">Your claims</h2>
-              <div className="mt-4"><ClaimsTab /></div>
-            </div>
-          )}
         </>
       )}
 
