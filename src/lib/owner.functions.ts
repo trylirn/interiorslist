@@ -170,7 +170,7 @@ export const listMyLeads = createServerFn({ method: "GET" })
 
     let q = supabase
       .from("contact_messages")
-      .select("id, provider_place_id, first_name, last_name, email, phone, message, status, created_at, location, project_type, budget, style, timeline, rooms");
+      .select("id, provider_place_id, first_name, last_name, email, phone, message, status, created_at, location, project_type, budget, style, timeline, rooms, source");
     if (input?.placeId) q = q.eq("provider_place_id", input.placeId);
     else if (!admin) q = q.in("provider_place_id", owned);
     const { data, error } = await q.order("created_at", { ascending: false }).limit(500);

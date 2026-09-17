@@ -57,6 +57,18 @@ export const submissionReceivedAdmin = {
   },
 } satisfies TemplateEntry
 
+export const businessSignupAdmin = {
+  component: Alert,
+  subject: 'New business account registered',
+  displayName: 'Admin alert — new business account',
+  previewData: {
+    title: 'New business account registered',
+    lines: ['Studio: Copper & Oak Interiors', 'City: Austin', 'Account: hello@example.com'],
+    actionUrl: 'https://intearior.com/admin?tab=submissions',
+    actionLabel: 'Open admin',
+  },
+} satisfies TemplateEntry
+
 const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, Helvetica, sans-serif' }
 const container = { padding: '24px', maxWidth: '560px' }
 const heading = { fontSize: '20px', margin: '0 0 12px', color: '#1c1917' }

@@ -19,6 +19,8 @@ export const sendContactMessage = createServerFn({ method: "POST" })
         style: z.string().max(200).optional().or(z.literal("")),
         timeline: z.string().max(120).optional().or(z.literal("")),
         rooms: z.string().max(300).optional().or(z.literal("")),
+        // Where the enquiry came from: the studio's own page, or Get Matched.
+        source: z.enum(["studio", "match"]).optional(),
       })
       .parse(d),
   )
@@ -42,6 +44,7 @@ export const sendContactMessage = createServerFn({ method: "POST" })
         style: data.style || null,
         timeline: data.timeline || null,
         rooms: data.rooms || null,
+        source: data.source ?? "studio",
       })
       .select("id")
       .single();

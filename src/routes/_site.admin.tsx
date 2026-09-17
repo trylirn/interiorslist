@@ -13,6 +13,7 @@ import {
   listAllProviders,
   exportProvidersCsv,
   setProviderPlan,
+  setProviderPublished,
   setProviderContactEmail,
   getLicenseDocSignedUrl,
   getClaimThreadAdmin,
@@ -405,6 +406,14 @@ function ListingsTab() {
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
   const setPlan = useServerFn(setProviderPlan);
+  const setPublished = useServerFn(setProviderPublished);
+  async function changePublished(placeId: string, published: boolean) {
+    try {
+      await setPublished({ data: { placeId, published } });
+      qc.invalidateQueries({ queryKey: ["admin-listings"] });
+      toast.success(published ? "Studio published" : "Studio unpublished");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  }
   const exportCsv = useServerFn(exportProvidersCsv);
   const [exporting, setExporting] = useState(false);
   async function changePlan(placeId: string, plan: "free" | "premium") {
@@ -450,7 +459,7 @@ function ListingsTab() {
         </Button>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        Claimed, verified and live status is automatic: a studio becomes verified and goes live the moment its claim is approved.{" "}
+        Claimed and verified status is automatic: a studio becomes verified and goes live the moment its claim is approved. You can still disable or re-publish any studio manually below.{" "}
         <strong className="font-medium text-foreground">Plan</strong> drives featured placement automatically: premium studios are pinned to the front of the homepage row and ranked first in Get Matched.
       </p>
       <div className="mt-4 overflow-x-auto">
@@ -479,7 +488,17 @@ function ListingsTab() {
                 </td>
                 <td>{p.claimed_by ? "✓" : "—"}</td>
                 <td className="text-xs">{p.is_verified ? "Verified" : "—"}</td>
-                <td className="text-xs">{p.published ? "Live" : "Hidden"}</td>
+                <td>
+                  <select
+                    aria-label="Published"
+                    className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                    value={p.published ? "live" : "hidden"}
+                    onChange={(e) => changePublished(p.place_id, e.target.value === "live")}
+                  >
+                    <option value="live">Live</option>
+                    <option value="hidden">Disabled</option>
+                  </select>
+                </td>
                 <td>
                   <select
                     aria-label="Plan"

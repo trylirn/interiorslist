@@ -13,8 +13,13 @@ type Lead = Awaited<ReturnType<typeof listMyLeads>>["leads"][number];
 const STATUSES = ["new", "contacted", "closed"] as const;
 type Status = (typeof STATUSES)[number];
 
-/** A lead that carries the quiz brief fields came through Get Matched. */
+/**
+ * Where the enquiry came from. New leads record it directly; older leads
+ * (before the source was stored) fall back to the quiz-brief heuristic.
+ */
 function sourceOf(l: Lead) {
+  if (l.source === "match") return "Get Matched";
+  if (l.source === "studio") return "Studio page";
   return l.project_type || l.budget || l.style || l.timeline ? "Get Matched" : "Studio page";
 }
 
@@ -28,11 +33,9 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
   const { data, isLoading } = useQuery({ queryKey, queryFn: () => listMyLeads({ data: placeId ? { placeId } : undefined }) });
   const updateStatus = useServerFn(updateLeadStatus);
 
-  const [status, setStatus] = useState<string>("all");
   const [listing, setListing] = useState<string>("all");
   const [source, setSource] = useState<string>("all");
   const [range, setRange] = useState<string>("all");
-  const [contact, setContact] = useState<string>("all");
   const [q, setQ] = useState("");
   const [limit, setLimit] = useState(50);
 
@@ -55,11 +58,9 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
     const days = range === "all" ? null : Number(range);
     const now = Date.now();
     return leads.filter((l) => {
-      if (status !== "all" && l.status !== status) return false;
       if (listing !== "all" && l.provider_place_id !== listing) return false;
       if (source !== "all" && sourceOf(l) !== source) return false;
       if (days && now - new Date(l.created_at).getTime() > days * 864e5) return false;
-      if (contact === "missing" && !l.noStudioContact) return false;
       if (needle) {
         const hay = [l.first_name, l.last_name, l.email, l.phone, l.message, l.location, l.project_type, l.providerName]
           .join(" ")
@@ -68,7 +69,7 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
       }
       return true;
     });
-  }, [leads, status, listing, source, range, q, contact]);
+  }, [leads, listing, source, range, q]);
 
   async function setLeadStatus(id: string, next: Status) {
     try {
@@ -132,15 +133,6 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search leads" className="pl-9" />
         </div>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="new">New</SelectItem>
-            <SelectItem value="contacted">Contacted</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
-          </SelectContent>
-        </Select>
         {!placeId && listings.length > 1 && (
           <Select value={listing} onValueChange={setListing}>
             <SelectTrigger><SelectValue placeholder="Listing" /></SelectTrigger>
@@ -158,13 +150,6 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
             <SelectItem value="all">All sources</SelectItem>
             <SelectItem value="Get Matched">Get Matched</SelectItem>
             <SelectItem value="Studio page">Studio page</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={contact} onValueChange={setContact}>
-          <SelectTrigger><SelectValue placeholder="Studio contact" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All studios</SelectItem>
-            <SelectItem value="missing">No studio contact</SelectItem>
           </SelectContent>
         </Select>
         <Select value={range} onValueChange={setRange}>
