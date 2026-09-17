@@ -244,30 +244,35 @@ export const fetchWebsiteReviews = createServerFn({ method: "POST" })
     const target = new URL(data.url);
     if (target.protocol !== "https:" && target.protocol !== "http:") throw new Error("Please use a normal web address.");
 
+    const { safePublicFetch } = await import("@/lib/safe-fetch.server");
+
     let html = "";
+    let finalUrl = target.toString();
     try {
-      const res = await fetch(target.toString(), {
-        redirect: "follow",
+      const { response: res, finalUrl: resolved } = await safePublicFetch(target.toString(), {
         headers: {
           "User-Agent":
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 IntearriorBot/1.0 (+https://intearior.com)",
           Accept: "text/html,application/xhtml+xml",
           "Accept-Language": "en-US,en;q=0.9",
         },
-
       });
+      finalUrl = resolved;
       if (!res.ok) throw new Error(`status ${res.status}`);
       html = (await res.text()).slice(0, 1_500_000);
     } catch (e) {
       console.error("website review fetch failed", e);
-      throw new Error("We couldn't open that page. Check the address and that the page is public.");
+      const message = e instanceof Error && /public website|redirects too many/i.test(e.message)
+        ? e.message
+        : "We couldn't open that page. Check the address and that the page is public.";
+      throw new Error(message);
     }
 
     const candidates = extractCandidates(html);
     if (!candidates.length) {
       throw new Error("We couldn't find any testimonials on that page. Try the exact page where your reviews are shown.");
     }
-    return { candidates, source: target.toString() };
+    return { candidates, source: finalUrl };
   });
 
 export const saveWebsiteReviews = createServerFn({ method: "POST" })
