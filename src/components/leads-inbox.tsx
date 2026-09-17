@@ -13,8 +13,13 @@ type Lead = Awaited<ReturnType<typeof listMyLeads>>["leads"][number];
 const STATUSES = ["new", "contacted", "closed"] as const;
 type Status = (typeof STATUSES)[number];
 
-/** A lead that carries the quiz brief fields came through Get Matched. */
+/**
+ * Where the enquiry came from. New leads record it directly; older leads
+ * (before the source was stored) fall back to the quiz-brief heuristic.
+ */
 function sourceOf(l: Lead) {
+  if (l.source === "match") return "Get Matched";
+  if (l.source === "studio") return "Studio page";
   return l.project_type || l.budget || l.style || l.timeline ? "Get Matched" : "Studio page";
 }
 
