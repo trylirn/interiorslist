@@ -69,7 +69,7 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
       }
       return true;
     });
-  }, [leads, status, listing, source, range, q, contact]);
+  }, [leads, listing, source, range, q]);
 
   async function setLeadStatus(id: string, next: Status) {
     try {
@@ -133,15 +133,6 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search leads" className="pl-9" />
         </div>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="new">New</SelectItem>
-            <SelectItem value="contacted">Contacted</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
-          </SelectContent>
-        </Select>
         {!placeId && listings.length > 1 && (
           <Select value={listing} onValueChange={setListing}>
             <SelectTrigger><SelectValue placeholder="Listing" /></SelectTrigger>
