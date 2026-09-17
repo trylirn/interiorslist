@@ -405,6 +405,14 @@ function ListingsTab() {
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
   const setPlan = useServerFn(setProviderPlan);
+  const setPublished = useServerFn(setProviderPublished);
+  async function changePublished(placeId: string, published: boolean) {
+    try {
+      await setPublished({ data: { placeId, published } });
+      qc.invalidateQueries({ queryKey: ["admin-listings"] });
+      toast.success(published ? "Studio published" : "Studio unpublished");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  }
   const exportCsv = useServerFn(exportProvidersCsv);
   const [exporting, setExporting] = useState(false);
   async function changePlan(placeId: string, plan: "free" | "premium") {
