@@ -245,6 +245,21 @@ function BusinessSignupWizard() {
   /** Last resort: email the person a sign-in link so they always get an account. */
   async function fallbackToEmailLink(reason?: string) {
     rememberBusinessDetails();
+    try {
+      await submitBusiness({
+        data: {
+          businessName: form.businessName,
+          city: form.city,
+          address: form.address,
+          website: form.website,
+          contactEmail: form.email,
+          contactPhone: form.phone,
+          notes: form.notes,
+        },
+      });
+    } catch (e) {
+      console.error("business submission failed", e);
+    }
     const { error: otpErr } = await supabase.auth.signInWithOtp({
       email: form.email,
       options: {
