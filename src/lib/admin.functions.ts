@@ -273,7 +273,16 @@ export const reviewSubmission = createServerFn({ method: "POST" })
     if (error || !sub) throw new Error("Submission not found");
 
     let placeId: string | null = null;
+    let ownerId: string | null = (sub.submitted_by as string | null) ?? null;
     if (data.action === "approve") {
+      if (!ownerId && sub.contact_email) {
+        const { data: ownerProfile } = await supabaseAdmin
+          .from("profiles")
+          .select("id")
+          .ilike("email", sub.contact_email as string)
+          .maybeSingle();
+        ownerId = ownerProfile?.id ?? null;
+      }
       const slug = (sub.business_name as string)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
@@ -288,7 +297,7 @@ export const reviewSubmission = createServerFn({ method: "POST" })
         address: sub.address ?? null,
         website: sub.website ?? null,
         phone: sub.contact_phone ?? null,
-        claimed_by: sub.submitted_by ?? null,
+        claimed_by: ownerId,
         is_verified: true,
         business_status: "OPERATIONAL",
       });
@@ -301,6 +310,7 @@ export const reviewSubmission = createServerFn({ method: "POST" })
         reviewed_at: new Date().toISOString(),
         reviewed_by: context.userId,
         resulting_place_id: placeId,
+        ...(data.action === "approve" && ownerId && !sub.submitted_by ? { submitted_by: ownerId } : {}),
       })
       .eq("id", data.id);
 
