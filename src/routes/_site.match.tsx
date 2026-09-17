@@ -272,6 +272,7 @@ function MatchPage() {
             style: criteria?.styles?.length ? criteria.styles.map(styleLabel).join(", ") : "",
             timeline: criteria?.timing ? criteria.timing.replace(/-/g, " ") : "",
             rooms: criteria?.priority ? (PRIORITY_SERVICE[criteria.priority] ? serviceName(PRIORITY_SERVICE[criteria.priority]!) : criteria.priority.replace(/-/g, " ")) : "",
+            source: "match" as const,
           },
         });
       }

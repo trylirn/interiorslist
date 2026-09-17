@@ -68,6 +68,7 @@ export function ConsultationForm({ placeId, studioName, defaults, compact }: Con
           style: style ? (STYLES.find((s) => s.slug === style)?.label ?? style) : "",
           timeline,
           rooms,
+          source: "studio" as const,
         },
       });
       setDone(true);
