@@ -13,6 +13,7 @@ import {
   listAllProviders,
   exportProvidersCsv,
   setProviderPlan,
+  setProviderPublished,
   setProviderContactEmail,
   getLicenseDocSignedUrl,
   getClaimThreadAdmin,
