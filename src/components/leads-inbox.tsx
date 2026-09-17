@@ -33,11 +33,9 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
   const { data, isLoading } = useQuery({ queryKey, queryFn: () => listMyLeads({ data: placeId ? { placeId } : undefined }) });
   const updateStatus = useServerFn(updateLeadStatus);
 
-  const [status, setStatus] = useState<string>("all");
   const [listing, setListing] = useState<string>("all");
   const [source, setSource] = useState<string>("all");
   const [range, setRange] = useState<string>("all");
-  const [contact, setContact] = useState<string>("all");
   const [q, setQ] = useState("");
   const [limit, setLimit] = useState(50);
 
