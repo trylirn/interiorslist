@@ -310,11 +310,15 @@ export const getMyOnboardingStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    const myEmail = (context.claims["email"] as string | undefined)?.toLowerCase() ?? null;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [{ data: listings }, { data: claims }, { data: subs }, { data: profile }] = await Promise.all([
       supabase.from("providers").select("place_id").eq("claimed_by", userId),
       supabase.from("claims").select("id, status, provider_place_id, submitted_at").eq("user_id", userId).order("submitted_at", { ascending: false }),
-      supabase.from("submissions").select("id, status, business_name, created_at").eq("submitted_by", userId).order("created_at", { ascending: false }),
+      myEmail
+        ? supabaseAdmin.from("submissions").select("id, status, business_name, created_at").or(`submitted_by.eq.${userId},contact_email.eq.${myEmail}`).order("created_at", { ascending: false })
+        : supabase.from("submissions").select("id, status, business_name, created_at").eq("submitted_by", userId).order("created_at", { ascending: false }),
       supabase.from("profiles").select("account_type, contact_name, phone, business_role").eq("id", userId).maybeSingle(),
     ]);
 
