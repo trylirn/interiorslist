@@ -362,6 +362,7 @@ export type Database = {
           project_type: string | null
           provider_place_id: string
           rooms: string | null
+          source: string | null
           status: string
           style: string | null
           timeline: string | null
@@ -381,6 +382,7 @@ export type Database = {
           project_type?: string | null
           provider_place_id: string
           rooms?: string | null
+          source?: string | null
           status?: string
           style?: string | null
           timeline?: string | null
@@ -400,6 +402,7 @@ export type Database = {
           project_type?: string | null
           provider_place_id?: string
           rooms?: string | null
+          source?: string | null
           status?: string
           style?: string | null
           timeline?: string | null
