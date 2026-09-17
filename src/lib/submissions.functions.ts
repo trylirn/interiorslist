@@ -43,12 +43,17 @@ export const submitPublicBusiness = createServerFn({ method: "POST" })
 
     const { data: dupe } = await supabaseAdmin
       .from("submissions")
-      .select("id")
+      .select("id, submitted_by")
       .eq("contact_email", email)
       .eq("business_name", data.businessName)
       .eq("status", "pending")
       .maybeSingle();
-    if (dupe) return { ok: true, duplicate: true };
+    if (dupe) {
+      if (data.userId && !dupe.submitted_by) {
+        await supabaseAdmin.from("submissions").update({ submitted_by: data.userId }).eq("id", dupe.id);
+      }
+      return { ok: true, duplicate: true };
+    }
 
     const { error, data: created } = await supabaseAdmin.from("submissions").insert({
       business_name: data.businessName,
