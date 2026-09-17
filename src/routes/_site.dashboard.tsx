@@ -83,7 +83,7 @@ function Dashboard() {
     return <ListingManager placeId={listingsData.listings[0].place_id} />;
   }
 
-  const openClaim = (claimsData?.claims ?? []).find((c) => c.status === "pending" || c.status === "needs_info") ?? null;
+  const openClaim = (claimsData?.claims ?? [])[0] ?? null;
   const anyClaim = (claimsData?.claims ?? []).length > 0;
   const pendingSubmission = (onboarding?.pendingSubmissions ?? [])[0] ?? null;
 
