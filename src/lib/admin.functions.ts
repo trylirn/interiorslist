@@ -466,6 +466,26 @@ export const setProviderPlan = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Manual admin override: publish or unpublish (disable) a studio listing. */
+export const setProviderPublished = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      placeId: z.string().min(1).max(200),
+      published: z.boolean(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await assertAdmin(context.userId);
+    const { error } = await (supabaseAdmin
+      .from("providers") as unknown as { update: (p: Record<string, unknown>) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } })
+      .update({ published: data.published })
+      .eq("place_id", data.placeId);
+    if (error) fail(error);
+    return { ok: true };
+  });
+
 export const getLicenseDocSignedUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ path: z.string().min(1).max(500) }).parse(d))
