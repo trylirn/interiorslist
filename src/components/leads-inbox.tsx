@@ -152,13 +152,6 @@ export function LeadsInbox({ placeId }: { placeId?: string }) {
             <SelectItem value="Studio page">Studio page</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={contact} onValueChange={setContact}>
-          <SelectTrigger><SelectValue placeholder="Studio contact" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All studios</SelectItem>
-            <SelectItem value="missing">No studio contact</SelectItem>
-          </SelectContent>
-        </Select>
         <Select value={range} onValueChange={setRange}>
           <SelectTrigger><SelectValue placeholder="Date" /></SelectTrigger>
           <SelectContent>
